@@ -1002,7 +1002,7 @@ function parse()
     g_is_island_team_colors = parse_bool("is_island_team_colors", g_is_island_team_colors)
     
     -- End of original parse calls
-    
+
     g_is_carrier_waypoint = parse_bool("is_show_carrier_waypoints", g_is_carrier_waypoint)
     g_is_pip_enable = parse_bool("is_show_cctv", g_is_pip_enable)
     g_is_render_grid = parse_bool("is_show_grid", g_is_render_grid)
@@ -1021,6 +1021,7 @@ function update(screen_w, screen_h, ticks)
     g_screen_h = screen_h
     g_is_mouse_mode = g_is_pointer_hovered and update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
+    refresh_fisheye_needlefish_cache()
 
     local screen_vehicle = update_get_screen_vehicle()
     g_screen_vehicle_pos = screen_vehicle:get_position_xz()
@@ -1437,6 +1438,15 @@ function update(screen_w, screen_h, ticks)
             if weapon_radius_vehicle:get() then
                 local def = weapon_radius_vehicle:get_definition_index()
 
+                if def == e_game_object_type.chassis_sea_ship_light then
+                    -- render needlefish radar circles
+                    local fish_range = get_needlefish_detection_range(weapon_radius_vehicle)
+                    if fish_range > 0 then
+                        local vehicle_pos_xz = weapon_radius_vehicle:get_position_xz()
+                        render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), fish_range, color8(32, 32, 8, 64))
+                    end
+                end
+
                 if def ~= e_game_object_type.chassis_carrier then
                     if weapon_radius_vehicle:get_team() == update_get_screen_team_id() or weapon_radius_vehicle:get_is_observation_weapon_revealed() then
                         local weapon_range, weapon_range_col = get_vehicle_weapon_range(weapon_radius_vehicle)
@@ -1527,6 +1537,13 @@ function update(screen_w, screen_h, ticks)
                     if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
                         local is_visible = vehicle:get_is_visible()
                         local is_revealed = vehicle:get_is_observation_revealed()
+
+                        if not is_visible or not is_revealed then
+                            if get_is_visible_by_needlefish(vehicle) then
+                                is_revealed = true
+                                is_visible = true
+                            end
+                        end
 
                         if is_visible and is_revealed then
                             local vehicle_pos_xz = vehicle:get_position_xz()
@@ -1864,6 +1881,9 @@ function update(screen_w, screen_h, ticks)
                                     cx = screen_pos_x - 4
                                     
                                     local is_visible_by_enemy = vehicle:get_is_visible_by_enemy()
+                                    --if not is_visible_by_enemy then
+                                        -- is_visible_by_enemy = get_is_visible_by_needlefish(vehicle)
+                                    --end
 
                                     if is_visible_by_enemy and g_animation_time % 20 > 10 then
                                         local icon_color =  color_enemy
@@ -2111,7 +2131,7 @@ function update(screen_w, screen_h, ticks)
             end
         elseif g_highlighted.vehicle_id > 0 and g_highlighted.waypoint_id == 0 then
             -- render highlighted tooltip
-            
+
             local highlighted_vehicle = update_get_map_vehicle_by_id(g_highlighted.vehicle_id)
 
             if highlighted_vehicle:get() then
@@ -2132,7 +2152,7 @@ function update(screen_w, screen_h, ticks)
                     local peers = iff( highlighted_vehicle:get_team() == update_get_screen_team_id(), get_vehicle_controlling_peers(highlighted_vehicle), {} )
                     local tool_height = 21 + (#peers * 10)
 
-                    render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, 128, tool_height, 10, function(w, h) render_vehicle_tooltip(w, h, highlighted_vehicle, peers) end)
+                    render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, 128, tool_height, 10, function(w, h) render_vehicle_tooltip(w, h, highlighted_vehicle, peers) end, color8(0, 0, 0, 190))
                 end
             end
         elseif g_highlighted.vehicle_id > 0 and g_highlighted.waypoint_id ~= 0 then

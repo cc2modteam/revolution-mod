@@ -626,3 +626,125 @@ function join_strings(strings, delim)
 
     return str
 end
+
+-- fisheye mod
+
+-- every unit in detection range of a needlefish (of any team)
+g_seen_by_needlefish = {}
+
+
+function _get_ship_detection_range(definition_index)
+    if definition_index == e_game_object_type.attachment_turret_carrier_ciws then
+        return 3000
+    elseif definition_index == e_game_object_type.attachment_turret_carrier_torpedo then
+        return 3500
+    elseif definition_index == e_game_object_type.attachment_turret_carrier_missile_silo then
+        return 4000
+    elseif definition_index == e_game_object_type.attachment_turret_carrier_main_gun then
+        return 2000
+    else
+        return 0
+    end
+end
+
+function _get_needlefish_weapon(vehicle)
+    local attachment_count = vehicle:get_attachment_count()
+    for i = 0, attachment_count - 1 do
+        local attachment = vehicle:get_attachment(i)
+        if attachment:get() then
+            local definition_index = attachment:get_definition_index()
+            if (definition_index == e_game_object_type.attachment_turret_carrier_ciws)
+                or (definition_index == e_game_object_type.attachment_turret_carrier_torpedo)
+                or (definition_index == e_game_object_type.attachment_turret_carrier_missile_silo)
+                or (definition_index == e_game_object_type.attachment_turret_carrier_main_gun) then
+                return definition_index
+            end
+        end
+    end
+    return nil
+end
+
+function get_needlefish_detection_range(needlefish)
+    if needlefish:get() then
+        local fish_weapon = _get_needlefish_weapon(needlefish)
+        return _get_ship_detection_range(fish_weapon)
+    end
+    return 0
+end
+
+function _get_unit_visible_by_needlefish(needlefish, unit)
+    if needlefish:get() and unit:get() then
+        if needlefish:get_id() ~= unit:get_id() then
+            local dist = vec2_dist(needlefish:get_position_xz(), unit:get_position_xz())
+            if dist < get_needlefish_detection_range(needlefish) then
+                print(string.format("a %d b %d dist = %d", needlefish:get_id(), unit:get_id(), math.floor(dist)))
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function refresh_fisheye_needlefish_cache()
+    -- only do this every 3rd tick (once 0.3 second)
+    local now = update_get_logic_tick()
+    if now % 30 == 0 then
+        print("--")
+        local value = _refresh_fisheye_needlefish_cache()
+        g_seen_by_needlefish = value
+    end
+    --print(string.format("fish data %d %d", now, #g_seen_by_needlefish))
+end
+
+function _refresh_fisheye_needlefish_cache()
+    local record = {}
+    local vehicle_count = update_get_map_vehicle_count()
+
+    for ii = 0, vehicle_count - 1 do
+        local vehicle = update_get_map_vehicle_by_index(ii)
+        if vehicle:get() then
+            if vehicle:get_definition_index() == e_game_object_type.chassis_sea_ship_light then
+                -- we are a fish, see what it can see
+                local fish = vehicle
+                -- iterate all other things on the map
+                for jj = 0, vehicle_count - 1 do
+                    local target = update_get_map_vehicle_by_index(jj)
+                    local target_def = target:get_definition_index()
+                    if get_is_vehicle_sea(target_def) or get_is_vehicle_air(target_def) then
+                        -- ships or aircraft
+                        if _get_unit_visible_by_needlefish(fish, target) then
+                            local tid = target:get_id()
+                            record[tid] = true
+                            -- if the other thing is a needlefish, remember that it saw us too
+                            if target_def == e_game_object_type.chassis_sea_ship_light then
+                                record[vehicle:get_id()] = true
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return record
+end
+
+function get_is_visible_by_needlefish(vehicle)
+    local st, val = pcall(_get_is_visible_by_needlefish, vehicle)
+    if not st then
+        print(val)
+        return false
+    end
+    return val
+end
+
+function _get_is_visible_by_needlefish(vehicle)
+    if vehicle:get() then
+        local vid = vehicle:get_id()
+        local exists = g_seen_by_needlefish[vid]
+
+        if exists ~= nil then
+            return true
+        end
+    end
+    return false
+end
