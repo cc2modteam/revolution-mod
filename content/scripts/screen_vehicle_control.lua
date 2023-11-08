@@ -1182,8 +1182,12 @@ function update(screen_w, screen_h, ticks)
                         if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
                             local vehicle_team = vehicle:get_team()
                             local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
+                            local revealed = vehicle:get_is_observation_revealed()
+                            if not revealed then
+                                revealed = get_is_visible_by_needlefish(vehicle)
+                            end
 
-                            if vehicle_attached_parent_id == 0 and vehicle:get_is_visible() and vehicle:get_is_observation_revealed() then
+                            if vehicle_attached_parent_id == 0 and vehicle:get_is_visible() and revealed then
                                 local vehicle_pos_xz = vehicle:get_position_xz()
                                 local screen_pos_x, screen_pos_y = get_screen_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                                 local vehicle_distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
