@@ -674,6 +674,9 @@ end
 
 function _get_unit_visible_by_needlefish(needlefish, unit)
     if needlefish:get() and unit:get() then
+        if needlefish:get_team() == unit:get_team() then
+            return false
+        end
         if needlefish:get_id() ~= unit:get_id() then
             local dist = vec2_dist(needlefish:get_position_xz(), unit:get_position_xz())
             if dist < get_needlefish_detection_range(needlefish) then
@@ -705,10 +708,9 @@ function _get_unit_visible_by_needlefish(needlefish, unit)
 end
 
 function refresh_fisheye_needlefish_cache()
-    -- only do this every 3rd tick (once 0.3 second)
+    -- only do this every 30th tick (once every second)
     local now = update_get_logic_tick()
     if now % 30 == 0 then
-        print("--")
         local value = _refresh_fisheye_needlefish_cache()
         g_seen_by_needlefish = value
     end
