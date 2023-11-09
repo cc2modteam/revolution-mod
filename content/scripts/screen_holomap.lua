@@ -138,7 +138,7 @@ function update(screen_w, screen_h, ticks)
     g_screen_h = screen_h
     g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
-
+    refresh_fisheye_needlefish_cache()
     local screen_vehicle = update_get_screen_vehicle()
 
     local screen_team = update_get_screen_team_id()
@@ -428,8 +428,12 @@ function update(screen_w, screen_h, ticks)
                     if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
                         local vehicle_team = vehicle:get_team()
                         local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
+                        local revealed = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
+                        if not revealed then
+                            revealed = get_is_visible_by_needlefish(vehicle)
+                        end
 
-                        if vehicle_attached_parent_id == 0 and vehicle:get_is_visible() and vehicle:get_is_observation_revealed() then
+                        if vehicle_attached_parent_id == 0 and revealed then
                             local vehicle_pos_xz = vehicle:get_position_xz()
                             local screen_pos_x, screen_pos_y = get_holomap_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), screen_w, screen_h)
 
@@ -484,6 +488,27 @@ function update(screen_w, screen_h, ticks)
                         
             local waypoint_pos_x_prev = screen_pos_x
             local waypoint_pos_y_prev = screen_pos_y
+
+            if vehicle_team ~= screen_team then
+                if is_render_vehicle_icon then
+                    -- hostile unit
+                    local revealed = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
+                    if not revealed then
+                        revealed = get_is_visible_by_needlefish(vehicle)
+                        if revealed then
+                            -- not rendered by the holomap, render a static icon ourselves
+                            local st, err = pcall(function()
+                                local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
+                                local element_color = update_get_team_color(vehicle_team)
+                                update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
+                            end)
+                            if not st then
+                                print(err)
+                            end
+                        end
+                    end
+                end
+            end
                         
             if vehicle_team == screen_team and vehicle_definition_index ~= e_game_object_type.chassis_sea_barge and vehicle_definition_index ~= e_game_object_type.drydock then
                 local waypoint_remove = -1
@@ -807,6 +832,15 @@ function update(screen_w, screen_h, ticks)
 
                                 if weapon_range > 0 then
                                     render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), weapon_range, screen_w, screen_h)
+                                end
+
+                                if vehicle_definition_index == e_game_object_type.chassis_sea_ship_light then
+                                    local fish_range = get_needlefish_detection_range(highlighted_vehicle)
+                                    if fish_range > 0 then
+                                        render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), fish_range, screen_w, screen_h,
+                                                color8(32, 32, 0, 32)
+                                        )
+                                    end
                                 end
                             end
                         end
@@ -1517,13 +1551,16 @@ function render_dashed_line(x0, y0, x1, y1, col)
     end
 end
 
-function render_weapon_radius(world_pos_x, world_pos_y, radius, screen_w, screen_h)
+function render_weapon_radius(world_pos_x, world_pos_y, radius, screen_w, screen_h, c_color)
     local steps = 16
     local step = math.pi * 2 / steps
     local angle_prev = 0
     local screen_pos_x, screen_pos_y = get_holomap_from_world(world_pos_x, world_pos_y, screen_w, screen_h)
 
     update_ui_begin_triangles()
+    if c_color == nil then
+        c_color = color8(32, 8, 8, math.floor(32 * (math.sin(g_animation_time * 0.15) * 0.5 + 0.5)))
+    end
 
     for i = 1, steps do
         local angle = step * i
@@ -1533,8 +1570,7 @@ function render_weapon_radius(world_pos_x, world_pos_y, radius, screen_w, screen
 
         update_ui_line(x0, y0, x1, y1, color)
 
-        color = color8(32, 8, 8, math.floor(32 * (math.sin(g_animation_time * 0.15) * 0.5 + 0.5)))
-        update_ui_add_triangle(vec2(x0, y0), vec2(x1, y1), vec2(screen_pos_x, screen_pos_y), color)
+        update_ui_add_triangle(vec2(x0, y0), vec2(x1, y1), vec2(screen_pos_x, screen_pos_y), c_color)
 
         angle_prev = angle
     end

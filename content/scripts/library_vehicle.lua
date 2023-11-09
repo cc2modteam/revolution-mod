@@ -677,7 +677,7 @@ function _get_unit_visible_by_needlefish(needlefish, unit)
         if needlefish:get_id() ~= unit:get_id() then
             local dist = vec2_dist(needlefish:get_position_xz(), unit:get_position_xz())
             if dist < get_needlefish_detection_range(needlefish) then
-                print(string.format("a %d b %d dist = %d", needlefish:get_id(), unit:get_id(), math.floor(dist)))
+                -- print(string.format("a %d b %d dist = %d", needlefish:get_id(), unit:get_id(), math.floor(dist)))
                 return true
             end
         end
