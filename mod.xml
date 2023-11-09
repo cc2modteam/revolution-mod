@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Fisheye & Albatross AWACS with UI enhancer" author="Thumblegudget, Bredroll, QuantX" description="
+<data name="Fisheye &amp; Albatross AWACS with UI enhancer" author="Thumblegudget, Bredroll, QuantX" description="
 
-Grants Needlefish limited air/sea radars and swaps the AWACS-carrying capability from the Manta to the Albatross. 
+This mod is aimed at making the player owned Needlefish a little more fun and useful, they now have limited RADAR
+systems built in (Nobody will build a warship without a Radar!)
 
-Also includes UI enhancer.
+Your Needlefish can now provide intel on incoming threats and if you are careful they can even press attacks against
+ships by themselves.
 
+* CIWS Needlefish can detect hostile aircraft at 5km
+* Torpedo Needlefish can detect ships at 3.5km
+* Cruise Missile Needlefish can detect ships at 6km
+* Gun Needlefish can detect ships at 2km
+
+All Needlefish can see ships and aircraft that are closer than 0.5km.
+
+This is merged with 2 other mods:
+
+Albatross AWACS swaps the AWACS-carrying capability from the Manta to the Albatross - By Thumblegudget
+Also includes UI enhancer - By QuantX
 ">
 </data>
