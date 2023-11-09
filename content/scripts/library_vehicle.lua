@@ -635,11 +635,11 @@ g_seen_by_needlefish = {}
 
 function _get_ship_detection_range(definition_index)
     if definition_index == e_game_object_type.attachment_turret_carrier_ciws then
-        return 3000
+        return 5000
     elseif definition_index == e_game_object_type.attachment_turret_carrier_torpedo then
         return 3500
     elseif definition_index == e_game_object_type.attachment_turret_carrier_missile_silo then
-        return 4000
+        return 6000
     elseif definition_index == e_game_object_type.attachment_turret_carrier_main_gun then
         return 2000
     else
@@ -677,8 +677,27 @@ function _get_unit_visible_by_needlefish(needlefish, unit)
         if needlefish:get_id() ~= unit:get_id() then
             local dist = vec2_dist(needlefish:get_position_xz(), unit:get_position_xz())
             if dist < get_needlefish_detection_range(needlefish) then
+                if dist < 500 then
+                    -- they can all see anything less than 500m away
+                    return true
+                end
+                local unit_def = unit:get_definition_index()
                 -- print(string.format("a %d b %d dist = %d", needlefish:get_id(), unit:get_id(), math.floor(dist)))
-                return true
+                local weapon = _get_needlefish_weapon(needlefish)
+
+                if weapon == e_game_object_type.attachment_turret_carrier_ciws then
+                    -- ciws fish can see only aircraft,
+                    return get_is_vehicle_air(unit_def)
+                elseif weapon == e_game_object_type.attachment_turret_carrier_torpedo then
+                    -- torp fish can see only ships
+                    return get_is_vehicle_sea(unit_def)
+                elseif weapon == e_game_object_type.attachment_turret_carrier_missile_silo then
+                    -- cruise fish can see only ships
+                    return get_is_vehicle_sea(unit_def)
+                elseif weapon == e_game_object_type.attachment_turret_carrier_main_gun then
+                    -- gun fish can see only ships
+                    return get_is_vehicle_sea(unit_def)
+                end
             end
         end
     end
