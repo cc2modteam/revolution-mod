@@ -1,18 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Fisheye &amp; Albatross AWACS with UI enhancer" author="Thumblegudget, Bredroll, QuantX" description="
+<data name="Revolution" author="Thumblegudget, Bredroll, QuantX" description="
 
-This mod is aimed at making the player owned Needlefish a little more fun and useful, they now have limited RADAR
-systems built in (Nobody will build a warship without a Radar!)
+The Revolution mod brings Radar to Needlefish, ECM to aircraft and introduces a more immersive fog-of-war for island captures.
 
-Your Needlefish can now provide intel on incoming threats and if you are careful they can even press attacks against
-ships by themselves.
+The mod is based on UI Enhancer and Albatross AWACS, so you get those amazing benefits included.
 
-* CIWS Needlefish can detect hostile aircraft at 5km
-* Torpedo Needlefish can detect ships at 3.5km
-* Cruise Missile Needlefish can detect ships at 6km
-* Gun Needlefish can detect ships at 2km
+[h2]ECM[/h2]
+
+Aircraft can now equip an ECM Mission Pod on wing hardpoints. In addition to 1000l of fuel, these pods provide Radar jamming and spoofing
+capability.  When fitted they will reduce the distance where a hostile Radar will pick up the aircraft.  If fitted to an AWACS, the pod will
+the emeny Radar to see multiple ghost contacts.
+
+[h2]Needlefish Radar[/h2]
+
+[list]
+[*] CIWS Needlefish can detect hostile aircraft at 5km
+[*] Torpedo Needlefish can detect ships at 3.5km
+[*] Cruise Missile Needlefish can detect ships at 6km
+[*] Gun Needlefish can detect ships at 2km
+[/list]
 
 All Needlefish can see ships and aircraft that are closer than 0.5km.
+
+[h2]Fog of War[/h2]
+
+The color (team) of a hostile island will be hidden until you bring a unit within range of that island. No more will capturing an AI controlled 
+island give away your position 100km away.
+
+
+[h3]General Info[/h3]
 
 This is merged with 2 other mods:
 
