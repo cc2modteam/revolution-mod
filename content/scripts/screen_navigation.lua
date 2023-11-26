@@ -69,6 +69,8 @@ end
 function update(screen_w, screen_h, ticks) 
     g_animation_time = g_animation_time + ticks
 
+    refresh_fow_islands()
+
     if update_get_active_input_type() == e_active_input.gamepad then
         -- Set pointer to middle of screen
         g_pointer_pos_x = 64
@@ -142,7 +144,12 @@ function update(screen_w, screen_h, ticks)
                 local island = update_get_tile_by_index(i)
 
                 if island:get() then
+                    local visible = fow_island_visible(island:get_id())
                     local island_color = get_island_team_color(island:get_team_control())
+                    if not visible then
+                        island_color = g_island_color_unknown
+                    end
+
                     local island_position = island:get_position_xz()
                                 
                     if is_render_islands == false then

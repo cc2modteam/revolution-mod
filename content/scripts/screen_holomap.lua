@@ -139,6 +139,7 @@ function update(screen_w, screen_h, ticks)
     g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
     refresh_fisheye_needlefish_cache()
+    refresh_fow_islands()
     local screen_vehicle = update_get_screen_vehicle()
 
     local screen_team = update_get_screen_team_id()
@@ -148,7 +149,7 @@ function update(screen_w, screen_h, ticks)
     local world_y = 0
 
     local drydock, waypoint = get_team_drydock()
-    
+
     if is_local then
         if not g_is_mouse_mode then
             g_pointer_pos_x = screen_w / 2
@@ -351,26 +352,52 @@ function update(screen_w, screen_h, ticks)
     else
         local vehicle_count = update_get_map_vehicle_count()
         local cur_map_zoom = g_map_size + g_map_size_offset
-
+        g_is_render_holomap_tiles = false
+        update_set_screen_background_is_render_islands(true)
         -- draw island names
         if cur_map_zoom < 95000 then
+
+            -- if the only islands we can see are known, then turn island rendering back on
+            local on_screen_count = 0
+            local visible_on_screen_count = 0
+
             local island_count = update_get_tile_count()
             for i = 0, island_count - 1, 1 do
                 local island = update_get_tile_by_index(i)
+                local on_screen = false
 
                 if island ~= nil and island:get() then
+                    local visible = fow_island_visible(island:get_id())
                     local island_color = update_get_team_color(island:get_team_control())
+                    if not visible then
+                        island_color = g_island_color_unknown
+                    end
                     local island_pos = island:get_position_xz()
                     local island_size = island:get_size()
 
                     local screen_pos_x = 0
                     local screen_pos_y = 0
-                    
+
                     if cur_map_zoom < 16000 then
                         screen_pos_x, screen_pos_y = get_holomap_from_world(island_pos:x(), island_pos:y() + (island_size:y() / 2), screen_w, screen_h)
                     else
                         screen_pos_x, screen_pos_y = get_holomap_from_world(island_pos:x(), island_pos:y(), screen_w, screen_h)
                         screen_pos_y = screen_pos_y - 27
+                    end
+
+                    local screen_margin_x = -10
+                    local screen_margin_y = -10
+
+                    if screen_pos_x + screen_margin_x > 0 and screen_pos_x + screen_margin_x < screen_w then
+                        if screen_pos_y + screen_margin_y > 0 and screen_pos_y + screen_margin_y < screen_h then
+                            on_screen_count = on_screen_count + 1
+                            on_screen = true
+                            if visible then
+                                visible_on_screen_count = visible_on_screen_count + 1
+                                print(cur_map_zoom)
+                                print(screen_pos_y)
+                            end
+                        end
                     end
 
                     local command_center_count = island:get_command_center_count()
@@ -383,16 +410,16 @@ function update(screen_w, screen_h, ticks)
                         local island_capture_progress = island:get_team_capture_progress()
                         local team_color = update_get_team_color(island_capture)
 
-                        if island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
+                        if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
                             update_ui_rectangle_outline(screen_pos_x - 13, screen_pos_y - 6, 26, 5, team_color)
                             update_ui_rectangle(screen_pos_x - 12, screen_pos_y - 5, 24 * island_capture_progress, 3, team_color)
                         end
                     end
 
                     update_ui_text(screen_pos_x - 64, screen_pos_y, island:get_name(), 128, 1, island_color, 0)
-                    
+
                     local category_data = g_item_categories[island:get_facility_category()]
-                    
+
                     if island:get_team_control() ~= screen_team then
                         local difficulty_level = island:get_difficulty_level() + 2
                         local icon_w = 6
@@ -410,6 +437,34 @@ function update(screen_w, screen_h, ticks)
                         update_ui_image(screen_pos_x - 4, screen_pos_y + 10, category_data.icon, island_color, 0)
                     end
                 end
+            end
+
+            if on_screen_count == visible_on_screen_count then
+                if visible_on_screen_count > 0 then
+                    g_is_render_holomap_tiles = true
+                    update_set_screen_background_is_render_islands(false)
+                end
+            end
+
+        else
+            -- zoomed out, draw squares for islands
+            local island_count = update_get_tile_count()
+            for i = 0, island_count - 1, 1 do
+                local island = update_get_tile_by_index(i)
+
+                if island ~= nil and island:get() then
+                    local visible = fow_island_visible(island:get_id())
+                    local island_color = update_get_team_color(island:get_team_control())
+                    if not visible then
+                        island_color = g_island_color_unknown
+                    end
+                    local island_pos = island:get_position_xz()
+                    screen_pos_x, screen_pos_y = get_holomap_from_world(island_pos:x(), island_pos:y(), screen_w, screen_h)
+                    screen_pos_y = screen_pos_y - 27
+
+                    update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 4, 8, 8, island_color)
+                end
+
             end
         end
         

@@ -1022,6 +1022,7 @@ function update(screen_w, screen_h, ticks)
     g_is_mouse_mode = g_is_pointer_hovered and update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
     refresh_fisheye_needlefish_cache()
+    refresh_fow_islands()
 
     local screen_vehicle = update_get_screen_vehicle()
     g_screen_vehicle_pos = screen_vehicle:get_position_xz()
@@ -1240,6 +1241,10 @@ function update(screen_w, screen_h, ticks)
                 if island:get() then
                     local island_position = island:get_position_xz()
                     local island_color = get_island_team_color(island:get_team_control())
+                    local visible = fow_island_visible(island:get_id())
+                    if not visible then
+                        island_color = g_island_color_unknown
+                    end
     
                     local screen_pos_x, screen_pos_y = get_screen_from_world(island_position:x(), island_position:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
     
@@ -1248,7 +1253,7 @@ function update(screen_w, screen_h, ticks)
                     local island_capture_progress = island:get_team_capture_progress()
                     local team_color = get_island_team_color(island_capture)
 
-                    if island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then  
+                    if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
                         local color = iff(g_blink_timer > 15, team_color, island_color)
                         update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, color, 0)
                     else
@@ -1268,6 +1273,10 @@ function update(screen_w, screen_h, ticks)
                     if is_placing_turret == false or g_selection.command_center_id == island_id then
                         local command_center_count = island:get_command_center_count()
                         local island_color = get_island_team_color(island:get_team_control())
+                        local visible = fow_island_visible(island_id)
+                        if not visible then
+                            island_color = g_island_color_unknown
+                        end
 
                         if command_center_count == 0 then
                             -- island is loading
@@ -1280,7 +1289,7 @@ function update(screen_w, screen_h, ticks)
                             local island_capture_progress = island:get_team_capture_progress()
                             local team_color = get_island_team_color(island_capture)
 
-                            if island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 and is_placing_turret == false then  
+                            if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 and is_placing_turret == false then
                                 local color = iff(g_blink_timer > 15, team_color, island_color)
 
                                 if g_highlighted.command_center_id == island_id then
@@ -2190,9 +2199,13 @@ function update(screen_w, screen_h, ticks)
             if highlighted_island:get() then
                 local text = update_get_loc(e_loc.upp_command_center)
                 local text_w = update_ui_get_text_size(text, 200, 0)
+                local highlighted_island_team_color = update_get_team_color(highlighted_island:get_team_control())
+                if not fow_island_visible(highlighted_island:get_id()) then
+                    highlighted_island_team_color = g_island_color_unknown
+                end
 
                 render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_cursor_pos_x, g_cursor_pos_y, text_w + 18, 17, 10, function(w, h)
-                    update_ui_image(4, 4, atlas_icons.column_team_control, update_get_team_color(highlighted_island:get_team_control()), 0)
+                    update_ui_image(4, 4, atlas_icons.column_team_control, highlighted_island_team_color, 0)
 
                     if highlighted_island:get_team_control() == update_get_screen_team_id() then
                         update_ui_text(14, 4, text, w, 0, color_white, 0)

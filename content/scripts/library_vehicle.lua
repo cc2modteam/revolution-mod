@@ -769,3 +769,54 @@ function _get_is_visible_by_needlefish(vehicle)
     end
     return false
 end
+
+-- fog of war mod --
+
+g_fow_visible = {}
+g_fow_range = 16000
+
+g_island_color_unknown = color8(0x12, 0x12, 0x12, 0xff)
+
+function refresh_fow_islands()
+    -- only do this every 5x30th tick (once 5 seconds)
+    local now = update_get_logic_tick()
+    if now % (30 * 5) == 0 then
+        g_fow_visible = {}
+        local visible = 0
+        -- reveal any island within 16km of one of our units
+        local our_team = update_get_screen_team_id()
+        local island_count = update_get_tile_count()
+        local vehicle_count = update_get_map_vehicle_count()
+
+        for i = 0, island_count - 1 do
+            local island = update_get_tile_by_index(i)
+            local island_id = island:get_id()
+            if island:get_team_control() == our_team then
+                g_fow_visible[island_id] = true
+                visible = visible + 1
+            else
+                local pos = island:get_position_xz()
+                -- foreign island, find any of our units in range
+                for j = 0, vehicle_count - 1, 1 do
+                    local vehicle = update_get_map_vehicle_by_index(j)
+                    if vehicle:get() then
+                        if vehicle:get_team() == our_team then
+                            local unit_pos = vehicle:get_position_xz()
+                            local dist = vec2_dist(unit_pos, pos)
+                            if dist < g_fow_range then
+                                g_fow_visible[island_id] = true
+                                visible = visible + 1
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        print(string.format("visible islands %d", visible))
+    end
+end
+
+function fow_island_visible(island_id)
+    return g_fow_visible[island_id] == true
+end
