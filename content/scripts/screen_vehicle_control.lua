@@ -1023,6 +1023,7 @@ function update(screen_w, screen_h, ticks)
     g_animation_time = g_animation_time + ticks
     refresh_fisheye_needlefish_cache()
     refresh_fow_islands()
+    refresh_jammer_units()
 
     local screen_vehicle = update_get_screen_vehicle()
     g_screen_vehicle_pos = screen_vehicle:get_position_xz()
@@ -1546,10 +1547,15 @@ function update(screen_w, screen_h, ticks)
                 local vehicle = update_get_map_vehicle_by_index(i)
 
                 if vehicle:get() then
+                    local vehicle_id = vehicle:get_id()
                     local vehicle_team = vehicle:get_team()
                     local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                     local vehicle_definition_index = vehicle:get_definition_index()
                     local is_render_vehicle_icon = vehicle_attached_parent_id == 0
+                    local also_render_duplicate = false
+                    local duplicate_x = 0
+                    local duplicate_y = 0
+
 
                     if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
                         local is_visible = vehicle:get_is_visible()
@@ -1564,7 +1570,30 @@ function update(screen_w, screen_h, ticks)
 
                         if is_visible and is_revealed then
                             local vehicle_pos_xz = vehicle:get_position_xz()
-                            local screen_pos_x, screen_pos_y = get_screen_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                            local v_x = vehicle_pos_xz:x()
+                            local v_y = vehicle_pos_xz:y()
+
+                            if hostile_has_jammer(vehicle_id) then
+                                --print(string.format("jam %d", vehicle_id))
+                                local ghost = get_spoofed_radar_contact(vehicle_id)
+
+                                if ghost ~= nil then
+                                    if hostile_has_awacs(vehicle_id) then
+                                        --print(string.format("ghost %d", vehicle_id))
+                                        -- dupe the plot
+                                        also_render_duplicate = true
+                                        duplicate_x = v_x
+                                        duplicate_y = v_y
+                                    end
+                                    v_x = ghost["x"]
+                                    v_y = ghost["y"]
+                                else
+                                    -- ghost is nil, dont render
+                                    is_render_vehicle_icon = false
+                                end
+                            end
+
+                            local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
                             -- render waypoints
                             
@@ -1842,6 +1871,10 @@ function update(screen_w, screen_h, ticks)
                                 end
 
                                 update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
+                                if also_render_duplicate then
+                                    local dupe_x, dupe_y = get_screen_from_world(duplicate_x, duplicate_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                    update_ui_image(dupe_x - icon_offset, dupe_y - icon_offset, region_vehicle_icon, element_color, 0)
+                                end
                                 
                                 -- carrier direction indicator
                                 if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then

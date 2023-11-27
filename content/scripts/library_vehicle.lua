@@ -813,10 +813,150 @@ function refresh_fow_islands()
                 end
             end
         end
-        print(string.format("visible islands %d", visible))
     end
 end
 
 function fow_island_visible(island_id)
     return g_fow_visible[island_id] == true
+end
+
+-- radar jammer mod
+
+g_hostile_jammers = {}
+g_hostile_awacs = {}
+
+g_hostile_jamming = {}
+
+function refresh_jammer_units()
+    local st, err = pcall(_refresh_jammer_units)
+    if not st then
+        print(err)
+    end
+end
+
+function _refresh_jammer_units()
+    local now = update_get_logic_tick()
+    -- every 1 sec
+    if now % 30 == 0 then
+        g_hostile_jammers = {}
+        g_hostile_awacs = {}
+        g_hostile_jamming = {}
+
+        local friendly_radars = {}
+
+        local our_team = update_get_screen_team_id()
+        local vehicle_count = update_get_map_vehicle_count()
+
+        -- find all the hostile jammer units and radars
+        for ii = 0, vehicle_count - 1 do
+            local vehicle = update_get_map_vehicle_by_index(ii)
+            if vehicle:get() then
+                -- exists
+                local parent_id = vehicle:get_attached_parent_id()
+                if parent_id == 0 then
+                    -- not docked
+                    local vdef = vehicle:get_definition_index()
+                    local v_id = vehicle:get_id()
+                    if our_team ~= vehicle:get_team() then
+                        -- hostile
+                        if get_is_vehicle_air(vdef) then
+                            for ai = 0, vehicle:get_attachment_count() - 1 do
+                                local attachment = vehicle:get_attachment(ai)
+                                if attachment:get() then
+                                    local a_def = attachment:get_definition_index()
+                                    if a_def == e_game_object_type.attachment_fuel_tank_plane then
+                                        -- has jammer fitted
+                                        g_hostile_jammers[v_id] = vehicle
+                                    elseif a_def == e_game_object_type.attachment_radar_awacs then
+                                        -- has awacs fitted
+                                        g_hostile_awacs[v_id] = vehicle
+                                    end
+                                end
+                            end
+                        end
+                    else
+                        -- friendly
+                        local jammable = false
+                        if vdef == e_game_object_type.chassis_carrier or
+                            e_game_object_type.chassis_sea_ship_light then
+                            -- ship with a radar
+                            jammable = true
+                        end
+
+                        if not jammable then
+                            -- is it a ground radar or awacs
+                            for ai = 0, vehicle:get_attachment_count() - 1 do
+                                local attachment = vehicle:get_attachment(ai)
+                                if attachment:get() then
+                                    local a_def = attachment:get_definition_index()
+                                    if a_def == e_game_object_type.attachment_radar_awacs then
+                                        -- has awacs fitted
+                                        jammable = true
+                                    end
+                                end
+                            end
+                        end
+
+                        if jammable then
+                            friendly_radars[v_id] = vehicle
+                        end
+                    end
+                end
+            end
+        end
+
+        -- for each jammer, find the nearest radar
+        for jammer_id, jammer in pairs(g_hostile_jammers) do
+            local radar_range = 15000
+            local nearest = nil
+            local jammer_pos = jammer:get_position_xz()
+            for radar_id, radar in pairs(friendly_radars) do
+                local radar_pos = radar:get_position_xz()
+                local dist = vec2_dist(radar_pos, jammer_pos)
+                if dist < radar_range then
+                    nearest = radar
+                    radar_range = dist
+                end
+            end
+            if nearest ~= nil then
+                -- show nothing between 9000-10000
+                if radar_range < 9000 then
+                    -- print(string.format("radar %d is nearest to jammer %d range %f", nearest:get_id(), jammer_id, radar_range))
+                    g_hostile_jamming[jammer_id] = nearest
+                end
+            end
+        end
+    end
+end
+
+function hostile_has_jammer(vehicle_id)
+    return g_hostile_jammers[vehicle_id] ~= nil
+end
+
+function hostile_has_awacs(vehicle_id)
+    return g_hostile_awacs[vehicle_id] ~= nil
+end
+
+function get_jammed_radar(vehicle_id)
+    -- get the radar unit that vehicle_id is jamming
+    return g_hostile_jamming[vehicle_id]
+end
+
+function get_spoofed_radar_contact(vehicle_id)
+    -- if vehicle_id is jamming a radar, return a position of a ghost contact, else nil
+    if hostile_has_jammer(vehicle_id) then
+        local radar = get_jammed_radar(vehicle_id)
+        if radar ~= nil then
+            local unit = g_hostile_jammers[vehicle_id]
+            local ghost = {}
+            local vehicle_dir = unit:get_direction()
+            local pos = unit:get_position_xz()
+            -- position 10 sec ago
+            ghost["x"] = pos:x() + vehicle_dir:x() * -900
+            ghost["y"] = pos:y() + vehicle_dir:y() * -900
+
+            return ghost
+        end
+    end
+    return nil
 end
