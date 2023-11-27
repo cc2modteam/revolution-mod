@@ -544,14 +544,20 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
         local icon_region, icon_offset = get_icon_data_by_definition_index(vehicle:get_definition_index())
         local team_color = update_get_team_color(vehicle:get_team_id())
         local position_xz = vehicle:get_position()
-        local screen_x, screen_y = world_to_screen(position_xz:x(), position_xz:z())
+        local v_x = position_xz:x()
+        local v_y = position_xz:y()
+
+        local screen_x, screen_y = world_to_screen(v_x, v_y)
         local vehicle_color = iff(vehicle:get_id() == g_tab_map.highlighted_carrier_id, color_white, team_color)
 
         if vehicle:get_is_visible() then
-            update_ui_image(screen_x - icon_offset, screen_y - icon_offset, icon_region, vehicle_color, 0)
+            if team_carrier:get_team_id() == vehicle:get_team_id() then
+                -- only render friendly stuff on pause menu
+                update_ui_image(screen_x - icon_offset, screen_y - icon_offset, icon_region, vehicle_color, 0)
 
-            if vehicle:get_id() == respawn_carrier_id and g_animation_time % 500.0 > 250.0 then
-                update_ui_rectangle_outline(screen_x - 8, screen_y - 8, 16, 16, vehicle_color)
+                if vehicle:get_id() == respawn_carrier_id and g_animation_time % 500.0 > 250.0 then
+                    update_ui_rectangle_outline(screen_x - 8, screen_y - 8, 16, 16, vehicle_color)
+                end
             end
         else
             local last_known_position_xz, is_last_known_position_set = vehicle:get_vision_last_known_position_xz()
