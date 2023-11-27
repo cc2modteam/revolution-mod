@@ -385,8 +385,8 @@ function update(screen_w, screen_h, ticks)
                         screen_pos_y = screen_pos_y - 27
                     end
 
-                    local screen_margin_x = -10
-                    local screen_margin_y = -10
+                    local screen_margin_x = 10
+                    local screen_margin_y = 10
 
                     if screen_pos_x + screen_margin_x > 0 and screen_pos_x + screen_margin_x < screen_w then
                         if screen_pos_y + screen_margin_y > 0 and screen_pos_y + screen_margin_y < screen_h then
@@ -394,55 +394,74 @@ function update(screen_w, screen_h, ticks)
                             on_screen = true
                             if visible then
                                 visible_on_screen_count = visible_on_screen_count + 1
-                                print(cur_map_zoom)
-                                print(screen_pos_y)
+                            end
+                        end
+                    end
+                    if not on_screen then
+                        if visible and cur_map_zoom < 4500 then
+                            -- use world distances for on_screen check
+                            local wx, wy = get_world_from_holomap(screen_w / 2, screen_h / 2, screen_w, screen_h)
+                            local ix = island_pos:x()
+                            local iy = island_pos:y()
+                            local dy = math.abs(iy - wy)
+                            local dx = math.abs(ix - wx)
+                            if dx < 3500 then
+                                if dy < 1900 then
+                                    on_screen_count = on_screen_count + 1
+                                    on_screen = true
+                                    if visible then
+                                        visible_on_screen_count = visible_on_screen_count + 1
+                                    end
+                                end
                             end
                         end
                     end
 
                     local command_center_count = island:get_command_center_count()
                     if command_center_count > 0 then
-                        --local command_center_position = island:get_command_center_position(0)
-                        --local cmd_pos_x, cmd_pos_y = get_holomap_from_world(command_center_position:x(), command_center_position:y(), screen_w, screen_h)
+                    --local command_center_position = island:get_command_center_position(0)
+                    --local cmd_pos_x, cmd_pos_y = get_holomap_from_world(command_center_position:x(), command_center_position:y(), screen_w, screen_h)
 
-                        local island_capture = island:get_team_capture()
-                        local island_team = island:get_team_control()
-                        local island_capture_progress = island:get_team_capture_progress()
-                        local team_color = update_get_team_color(island_capture)
+                    local island_capture = island:get_team_capture()
+                    local island_team = island:get_team_control()
+                    local island_capture_progress = island:get_team_capture_progress()
+                    local team_color = update_get_team_color(island_capture)
 
-                        if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
-                            update_ui_rectangle_outline(screen_pos_x - 13, screen_pos_y - 6, 26, 5, team_color)
-                            update_ui_rectangle(screen_pos_x - 12, screen_pos_y - 5, 24 * island_capture_progress, 3, team_color)
-                        end
+                    if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
+                    update_ui_rectangle_outline(screen_pos_x - 13, screen_pos_y - 6, 26, 5, team_color)
+                    update_ui_rectangle(screen_pos_x - 12, screen_pos_y - 5, 24 * island_capture_progress, 3, team_color)
+                    end
                     end
 
                     update_ui_text(screen_pos_x - 64, screen_pos_y, island:get_name(), 128, 1, island_color, 0)
 
-                    local category_data = g_item_categories[island:get_facility_category()]
+                local category_data = g_item_categories[island:get_facility_category()]
 
-                    if island:get_team_control() ~= screen_team then
-                        local difficulty_level = island:get_difficulty_level() + 2
-                        local icon_w = 6
-                        local icon_spacing = 2
-                        local total_w = icon_w * difficulty_level + icon_spacing * (difficulty_level - 1)
+                if island:get_team_control() ~= screen_team then
+                local difficulty_level = island:get_difficulty_level() + 2
+                local icon_w = 6
+                local icon_spacing = 2
+                local total_w = icon_w * difficulty_level + icon_spacing * (difficulty_level - 1)
 
-                        for i = 0, difficulty_level - 1 do
-                            if i == 0 then
-                                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + 10, category_data.icon, island_color, 0)
-                            elseif i >= 2 then
-                                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + 10, atlas_icons.column_difficulty, island_color, 0)
-                            end
-                        end
-                    else
-                        update_ui_image(screen_pos_x - 4, screen_pos_y + 10, category_data.icon, island_color, 0)
-                    end
+                for i = 0, difficulty_level - 1 do
+                if i == 0 then
+                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + 10, category_data.icon, island_color, 0)
+                elseif i >= 2 then
+                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + 10, atlas_icons.column_difficulty, island_color, 0)
                 end
+                end
+                else
+                update_ui_image(screen_pos_x - 4, screen_pos_y + 10, category_data.icon, island_color, 0)
+                    end
+                    end
             end
 
             if on_screen_count == visible_on_screen_count then
                 if visible_on_screen_count > 0 then
-                    g_is_render_holomap_tiles = true
-                    update_set_screen_background_is_render_islands(false)
+                    if cur_map_zoom < 15000 then
+                        g_is_render_holomap_tiles = true
+                        update_set_screen_background_is_render_islands(false)
+                    end
                 end
             end
 
