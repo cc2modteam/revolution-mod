@@ -1764,20 +1764,29 @@ function update(screen_w, screen_h, ticks)
 
                                             if is_valid then
                                                 local attack_target_pos = waypoint:get_attack_target_position_xz(k)
-                                                local attack_target_attack_type = waypoint:get_attack_target_attack_type(k)
-                                                local attack_target_icon = get_attack_type_icon(attack_target_attack_type)
+                                                local target_id = waypoint:get_attack_target_target_id(k)
+                                                if target_id then
+                                                    local target_unit = update_get_map_vehicle_by_id(target_id)
+                                                    if target_unit:get() then
+                                                        if target_unit:get_is_visible() then
 
-                                                local attack_target_screen_pos_x, attack_target_screen_pos_y = get_screen_from_world(attack_target_pos:x(), attack_target_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                                            local attack_target_attack_type = waypoint:get_attack_target_attack_type(k)
+                                                            local attack_target_icon = get_attack_type_icon(attack_target_attack_type)
 
-                                                local color = g_color_attack_order
+                                                            local attack_target_screen_pos_x, attack_target_screen_pos_y = get_screen_from_world(attack_target_pos:x(), attack_target_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                                                if attack_target_attack_type == e_attack_type.airlift then
-                                                    color = g_color_airlift_order
+                                                            local color = g_color_attack_order
+
+                                                            if attack_target_attack_type == e_attack_type.airlift then
+                                                                color = g_color_airlift_order
+                                                            end
+
+                                                            update_ui_line(waypoint_screen_pos_x, waypoint_screen_pos_y, attack_target_screen_pos_x, attack_target_screen_pos_y, color)
+                                                            update_ui_image(attack_target_screen_pos_x - 8, attack_target_screen_pos_y - 8, atlas_icons.map_icon_attack, color, 0)
+                                                            update_ui_image(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4 - 8, attack_target_icon, color, 0)
+                                                        end
+                                                    end
                                                 end
-                                                
-                                                update_ui_line(waypoint_screen_pos_x, waypoint_screen_pos_y, attack_target_screen_pos_x, attack_target_screen_pos_y, color)
-                                                update_ui_image(attack_target_screen_pos_x - 8, attack_target_screen_pos_y - 8, atlas_icons.map_icon_attack, color, 0)
-                                                update_ui_image(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4 - 8, attack_target_icon, color, 0)
                                             end
                                         end
                                     end
