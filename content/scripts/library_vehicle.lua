@@ -551,7 +551,6 @@ function begin_load_inventory_data()
     
     for i = 0, update_get_resource_inventory_item_count() - 1 do
         local item_type, item_category, item_mass, item_production_cost, item_production_time, item_name, item_desc, icon_name, transfer_duration = update_get_resource_inventory_item_data(i)
-        print(string.format("%d = %s", item_type, item_name))
         -- TODO figure out localization
         if item_type == e_inventory_item.attachment_fuel_tank_plane then
             item_name = "ECM"
