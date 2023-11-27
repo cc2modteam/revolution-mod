@@ -1784,6 +1784,8 @@ function update(screen_w, screen_h, ticks)
                                                             update_ui_line(waypoint_screen_pos_x, waypoint_screen_pos_y, attack_target_screen_pos_x, attack_target_screen_pos_y, color)
                                                             update_ui_image(attack_target_screen_pos_x - 8, attack_target_screen_pos_y - 8, atlas_icons.map_icon_attack, color, 0)
                                                             update_ui_image(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4 - 8, attack_target_icon, color, 0)
+                                                        else
+                                                            vehicle:remove_waypoint_attack_target(waypoint:get_id(), k)
                                                         end
                                                     end
                                                 end
