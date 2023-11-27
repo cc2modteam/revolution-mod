@@ -256,9 +256,9 @@ function get_attachment_data_by_definition_index(index)
             name_short = "AWACS",
         },
         [e_game_object_type.attachment_fuel_tank_plane] = {
-            name = update_get_loc(e_loc.upp_external_fuel_tank),
+            name = "ECM",
             icon16 = atlas_icons.icon_attachment_16_air_fuel,
-            name_short = "FUEL TANK",
+            name_short = "ECM",
         },
         [e_game_object_type.attachment_flare_launcher] = {
             name = update_get_loc(e_loc.upp_ir_countermeasures),
@@ -551,6 +551,12 @@ function begin_load_inventory_data()
     
     for i = 0, update_get_resource_inventory_item_count() - 1 do
         local item_type, item_category, item_mass, item_production_cost, item_production_time, item_name, item_desc, icon_name, transfer_duration = update_get_resource_inventory_item_data(i)
+        print(string.format("%d = %s", item_type, item_name))
+        -- TODO figure out localization
+        if item_type == e_inventory_item.attachment_fuel_tank_plane then
+            item_name = "ECM"
+            item_desc = "Radar Jammer and Extra fuel"
+        end
 
         local item_object = 
         {
