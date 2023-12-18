@@ -1182,7 +1182,7 @@ function render_attachment_hud_camera(screen_w, screen_h, map_data, vehicle, att
     return true
 end
 
-function render_attachment_hud_bomb(screen_w, screen_h, map_data, vehicle, attachment) 
+function render_attachment_hud_bomb(screen_w, screen_h, map_data, vehicle, attachment)
     if attachment:get_control_mode() == "manual" then
         local linked_attachments = {}
         
@@ -1196,14 +1196,75 @@ function render_attachment_hud_bomb(screen_w, screen_h, map_data, vehicle, attac
             end
         end
 
+        local self_pos = vehicle:get_position()
+
         for i = 1, #linked_attachments do
             local predicted_hit_pos = linked_attachments[i]:get_bomb_hit_position()
             local hit_pos_screen = update_world_to_screen(predicted_hit_pos)
+            local c_green = color8(0, 255, 0, 255)
+            local c_red = color8(255, 0, 0, 255)
+            local ccip_col = c_green
+            local gnd_mode = "CCIP"
+            local tgt_dist = -1
+            if g_selected_target_id ~= 0 then
+                local selected_target = update_get_map_vehicle_by_id(g_selected_target_id)
+                if selected_target:get() then
+                    gnd_mode = "CCRP"
+                    -- compare hit pos with target loc
+                    local tgt_pos = selected_target:get_position()
+                    local ccrp_dist = vec2_dist(tgt_pos, predicted_hit_pos)
+                    tgt_dist = ccrp_dist
+                    local approaching = true
+                    local self_tgt_dist = vec2_dist(tgt_pos, self_pos)
+
+                    if self_tgt_dist < tgt_dist then
+                        approaching = false
+                    end
+
+                    if ccrp_dist > 1500 then
+                        ccrp_dist = 1500
+                    end
+
+                    local pip_y = 90
+                    local release_y_start = 40
+                    local release_range = pip_y - release_y_start
+
+                    local release_y_frac = 1 - (ccrp_dist / 1500)
+
+                    local pip_middle = ((screen_w / 2) + hit_pos_screen:x()) / 2
+                    local bar_middle = (pip_middle + hit_pos_screen:x()) / 2
+
+                    if ccrp_dist < 30 then
+                        if bar_middle > (screen_w / 2) - 15 and bar_middle < (screen_w / 2) + 15 then
+                            ccip_col = c_red
+                        end
+                    end
+                    -- draw ccrp bars
+                    -- release point
+                    if approaching then
+                        update_ui_rectangle(
+                                bar_middle - 10,
+                                release_y_start + (release_y_frac * release_range),
+                                20, 2, ccip_col)
+                    end
+                    -- pipper
+                    update_ui_rectangle(pip_middle - 20, pip_y, 10, 1, ccip_col)
+                    update_ui_rectangle(pip_middle + 10, pip_y, 10, 1, ccip_col)
+                end
+            end
+
+            update_ui_text(325, 200,
+                    gnd_mode, 200, 0, c_green, 0)
+            if tgt_dist > 0 then
+                update_ui_text(350, 200,
+                        string.format("%dm", math.ceil(tgt_dist)), 64, 0, c_red, 0)
+            end
+
         
             -- draw a line from our velocity vector to the CCIP point
             update_ui_line(
-                    Variometer.predicted_vector.x,
-                    Variometer.predicted_vector.y,
+                    screen_w / 2,
+                    32,
                     hit_pos_screen:x(),
                     hit_pos_screen:y(),
                     color8(0, 255, 0, 255))
@@ -2019,7 +2080,7 @@ function render_compass(pos, col)
 end
 
 function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
-    update_ui_push_clip(pos:x() - size:x() / 2, pos:y() - size:y() / 2, size:x(), size:y())
+    --update_ui_push_clip(pos:x() - size:x() / 2, pos:y() - size:y() / 2, size:x(), size:y())
 
     local scale = 1.5
 
@@ -2065,7 +2126,7 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
         update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_low, col, roll)
     end
 
-    update_ui_pop_clip()
+    --update_ui_pop_clip()
 end
 
 function artificial_horizon_to_screen(screen_w, screen_h, render_pos, scale, screen_pos)
