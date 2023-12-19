@@ -658,6 +658,11 @@ function render_attachment_info(info_pos, map_data, vehicle, attachment, alpha, 
     
     local attachment_def = attachment:get_definition_index()
 
+    -- render nearest island name
+    local nearest_island = get_nearest_island_name(vehicle)
+    update_ui_text(pos:x(), pos:y(), string.upper(nearest_island), 200, 0, colors.green, 0)
+    pos:y(pos:y() + 10)
+
     -- render vehicle id
     if vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
         update_ui_text(pos:x(), pos:y(), update_get_loc(e_loc.upp_id) .. " " .. tostring(vehicle:get_id()), 200, 0, colors.green, 0)
@@ -2041,6 +2046,7 @@ function render_control_mode(pos, vehicle, col)
     update_ui_rectangle_outline(pos:x() + 8, pos:y(), 9, 11, iff(control_mode == "manual", col, col_off))
     update_ui_rectangle_outline(pos:x() + 16, pos:y(), 9, 11, iff(control_mode == "override", col, col_off))
     update_ui_rectangle_outline(pos:x() + 24, pos:y(), 9, 11, iff(control_mode == "off", col, col_off))
+
 end
 
 function render_compass(pos, col)
@@ -3636,3 +3642,29 @@ Variometer = {
 
     end,
 }
+
+function get_nearest_island_name(vehicle)
+    local name = "x"
+    local pos = vehicle:get_position()
+    pos:y(pos:z())
+    local tile_count = update_get_tile_count()
+    local index = 0
+    local nearest = nil
+    local dist = 99999
+
+    while index < tile_count do
+        local tile = update_get_tile_by_index(index)
+        if tile:get() then
+            index = index + 1
+            local tile_pos = tile:get_position_xz()
+            local tile_dist = vec2_dist(pos, tile_pos)
+
+            if tile_dist < dist then
+                dist = tile_dist
+                nearest = tile
+            end
+        end
+    end
+    name = nearest:get_name()
+    return name
+end
