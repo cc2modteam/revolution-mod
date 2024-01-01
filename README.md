@@ -1,8 +1,8 @@
-# CC2 Révolution 
+# CC2 Révolution
 
 ## What is it?
 
-Révolution is a mod for the Carrier Command 2 game by Geometa. The mod
+[Révolution](https://steamcommunity.com/sharedfiles/filedetails/?id=3098073689) is a mod for the [Carrier Command 2](https://store.steampowered.com/app/1489630/Carrier_Command_2/) game by Geometa. The mod
 aims to deliver richer gameplay for PvP and PvE games by adding some
 more strategic challenges and tactical tools to the game.
 
@@ -15,6 +15,8 @@ As well as the fantastic solid basis from UI Enhancer, Révolution adds the foll
 
 ### Fog of War
 
+![CC2 Holomap with Fog of War](holomap-fow.jpg "Holomap Fog of War")
+
 You will only be able to see which team controls an island when you are close to it. If an island belongs to another 
 team (eg, AI or human) and is more than 16km away from any of your own units or islands, then it will show was grey on
 all the control, navigation and holomap screens on your team.
@@ -23,6 +25,8 @@ all the control, navigation and holomap screens on your team.
 
 Needlefish are now given basic Radars, each can detect different classes of threats based on their types and at
 different ranges.
+
+![CC2 Operator Screen with Needlefish Radar](needlefish-radar.jpg "Needlefish Radar Screen")
 
 | Needlefish Class | Detection Type | Range |
 |------------------|----------------|-------|
@@ -41,6 +45,8 @@ Aircraft can now carry a ECM pod. I Manta carrying one of these will be harder t
 show up a few seconds later than without one.  In practice, an aircraft heading to your carrier will appear on
 operator screens around 8-10 seconds later than nomrmal if it has am ECM pod.
 
+![CC2 Inventory Screen ECM Item](stock-ecm.jpg "Order an ECM")
+
 If you fit an ECM to an AWACS aircraft, the pod and AWACS work together to generate an extra ghost contact. Making
 your single AWACS appear to be two aircraft.
 
@@ -54,6 +60,8 @@ I've made a handful of extra changes, some of these may be backported to [UI Enh
 * HUD CCIP bomb fall line now actually always goes "down".
 * Basic CCRP bombing HUD symbology for level bombing of locked targets (sill a work in progress really)
 * Fix for the ["Attack Waypoint Tracking exploit"](https://github.com/Quantx/CC2-UI-Enhancer/commit/33ba2dace04e2cb90b787fd4c8d9d94ac5920469) 
+
+![CC2 CCRP Bombing](ccrp-bombing.jpg "CC2 Bombing Hud")
 
 # Development Plan
 
