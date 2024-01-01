@@ -41,9 +41,9 @@ groups as a deadly independant naval strike force against ships and to a lesser 
 
 ### Electronic Warfare
 
-Aircraft can now carry a ECM pod. I Manta carrying one of these will be harder to detect on Radar and 
+Aircraft can now carry an ECM pod. A Manta carrying one of these will be harder to detect on Radar and 
 show up a few seconds later than without one.  In practice, an aircraft heading to your carrier will appear on
-operator screens around 8-10 seconds later than nomrmal if it has am ECM pod.
+operator screens around 8-10 seconds later than normal if it has an ECM pod.
 
 ![CC2 Inventory Screen ECM Item](stock-ecm.jpg "Order an ECM")
 

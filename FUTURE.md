@@ -1,14 +1,14 @@
 # Future Plans
 
-A révolution does keeps going around and around. I have some
+A révolution keeps going around and around. I have some
 ideas that I want to add to the game and Révolution is the 
-best way I can do these without trying to maintian a ever growing
+best way I can do these without trying to maintain an ever-growing
 matrix of merged/unmerged mods.
 
 ## Shared Mod Data
 
 QuantX worked out that you could use the drydock "vehicle" waypoints
-to draw share the position of the holomap cursor with the operator control
+to share the position of the holomap cursor with the operator control
 screens.  When the captain moves their mouse, the operators see the location.
 
 With a slight modification to how the drydock waypoints are used, we can do much
