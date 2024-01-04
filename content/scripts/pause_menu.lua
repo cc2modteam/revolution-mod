@@ -544,10 +544,7 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
         local icon_region, icon_offset = get_icon_data_by_definition_index(vehicle:get_definition_index())
         local team_color = update_get_team_color(vehicle:get_team_id())
         local position_xz = vehicle:get_position()
-        local v_x = position_xz:x()
-        local v_y = position_xz:y()
-
-        local screen_x, screen_y = world_to_screen(v_x, v_y)
+        local screen_x, screen_y = world_to_screen(position_xz:x(), position_xz:z())
         local vehicle_color = iff(vehicle:get_id() == g_tab_map.highlighted_carrier_id, color_white, team_color)
 
         if vehicle:get_is_visible() then
