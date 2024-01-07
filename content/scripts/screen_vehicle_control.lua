@@ -2300,31 +2300,18 @@ function update(screen_w, screen_h, ticks)
             end
 
             -- render captain's holomap cursor
-            local vehicle_count = update_get_map_vehicle_count()
-            for i = 0, vehicle_count - 1, 1 do
-                local vehicle = update_get_map_vehicle_by_index(i)
-                local waypoint_count = vehicle:get_waypoint_count()
+            local holomap_x, holomap_y = get_team_holomap_cursor(screen_vehicle:get_team())
 
-                if vehicle:get() and vehicle:get_definition_index() == e_game_object_type.drydock and vehicle:get_team() == update_get_screen_team_id() and waypoint_count > 0 then
-                    local waypoint = vehicle:get_waypoint(0)
-                    local waypoint_pos = waypoint:get_position_xz()
+            if holomap_x ~= g_holomap_last_x or holomap_y ~= g_holomap_last_y then
+                g_holomap_last_x = holomap_x
+                g_holomap_last_y = holomap_y
+                g_holomap_last_anim = g_animation_time
+            end
 
-                    local waypoint_x = waypoint_pos:x()
-                    local waypoint_y = waypoint_pos:y()
-
-                    local cursor_x, cursor_y = get_screen_from_world( waypoint_x, waypoint_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-
-                    if waypoint_x ~= g_holomap_last_x or waypoint_y ~= g_holomap_last_y then
-                        g_holomap_last_x = waypoint_x
-                        g_holomap_last_y = waypoint_y
-                        g_holomap_last_anim = g_animation_time
-                    end
-
-                    local fade = math.max( 255 - math.floor(g_animation_time - g_holomap_last_anim), 0 )
-                    update_ui_image_rot(cursor_x, cursor_y, atlas_icons.map_icon_crosshair, color8(255, 255, 255, fade), math.pi / 4)
-
-                    break
-                end
+            local fade = math.max( 255 - math.floor(g_animation_time - g_holomap_last_anim), 0 )
+            if fade > 0 then
+                local cursor_x, cursor_y = get_screen_from_world( holomap_x, holomap_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                update_ui_image_rot(cursor_x, cursor_y, atlas_icons.map_icon_crosshair, color8(255, 255, 255, fade), math.pi / 4)
             end
             
             render_cursor_info(screen_w, screen_h, drag_start_pos)

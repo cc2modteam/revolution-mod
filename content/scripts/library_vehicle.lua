@@ -762,7 +762,6 @@ end
 function get_is_visible_by_needlefish(vehicle)
     local st, val = pcall(_get_is_visible_by_needlefish, vehicle)
     if not st then
-        print(val)
         return false
     end
     return val
@@ -849,7 +848,7 @@ g_hostile_jamming = {}
 function refresh_jammer_units()
     local st, err = pcall(_refresh_jammer_units)
     if not st then
-        print(err)
+        print(string.format("err = %s", err))
     end
 end
 
@@ -978,4 +977,247 @@ function get_spoofed_radar_contact(vehicle_id)
         end
     end
     return nil
+end
+
+-- drydock waypoint share system
+--
+-- it's easy to create waypoints, but we can't efficiently use the x,y as if we need
+-- to move the waypoint we have to clear all and replace them which is slow and expensive.
+--
+-- for the holomap waypoint, we transmit the location to the nearest 16m (1m accuracy is useless)
+-- we do this by packing x/y into the 32bit unsigned altitude value
+
+-- we use the x,y value of the waypoint as a flag value for us to identify the waypoint
+
+F_DRYDOCK_WPTX_CURSOR   = 0x01
+F_DRYDOCK_WPTX_MARKER   = 0x02
+
+MARKER_WPT_OFFSET = 80000
+
+MASK_DRYDOCK_WPTX_FLAGS = 0x00000000FF
+
+function find_team_drydock(team_id)
+    local vehicle_count = update_get_map_vehicle_count()
+    for i = 0, vehicle_count - 1, 1 do
+        local vehicle = update_get_map_vehicle_by_index(i)
+        if vehicle:get() then
+            if vehicle:get_definition_index() == e_game_object_type.drydock then
+                if vehicle:get_team() == team_id then
+                    return vehicle
+                end
+            end
+        end
+    end
+    return nil -- shouldn't really happen
+end
+
+
+function waypoint_flag_isset(waypoint, flag)
+    local position = waypoint:get_position_xz()
+    if math.floor(position:x()) & flag ~= 0 then
+        return true
+    end
+    return false
+end
+
+function is_waypoint_value_enabled(value)
+    if value == nil then
+        return false
+    end
+    return value ~= 0
+end
+
+function unpack_alt_xy(altitude)
+    if altitude > 0 then
+        local shifted_x = math.floor((altitude / 0x10000)) & 0xffff
+        local shifted_y = math.floor(altitude) & 0xffff
+        local cursor_x = (16 * shifted_x) - MARKER_WPT_OFFSET
+        local cursor_y = (16 * shifted_y) - MARKER_WPT_OFFSET
+        return cursor_x, cursor_y
+    end
+    return 0, 0
+end
+
+function pack_alt_xy(x, y)
+    local shifted_x = math.floor((x + MARKER_WPT_OFFSET) / 16)
+    local shifted_y = math.floor((y + MARKER_WPT_OFFSET) / 16)
+
+    if shifted_x <= 0xFFFF and shifted_y <= 0xFFFF then
+        -- store it in altitude
+        local packed = (shifted_x * 0x10000) | shifted_y
+        return packed
+    end
+    return 0
+end
+
+
+function get_team_holomap_cursor_waypoint(team_id)
+    local drydock = find_team_drydock(team_id)
+    if drydock then
+        local waypoint_count = drydock:get_waypoint_count()
+        for i = 0, waypoint_count - 1, 1 do
+            local waypoint = drydock:get_waypoint(i)
+            if waypoint_flag_isset(waypoint, F_DRYDOCK_WPTX_CURSOR) then
+                return waypoint
+            end
+        end
+    end
+    return nil
+end
+
+function get_marker_name(marker_id)
+    if marker_id == 1 then
+        return "W"
+    end
+    if marker_id == 2 then
+        return "X"
+    end
+    if marker_id == 3 then
+        return "Y"
+    end
+    if marker_id == 4 then
+        return "Z"
+    end
+    return ""
+end
+
+function get_marker_waypoint(team_id, marker_id)
+    local drydock = find_team_drydock(team_id)
+    if drydock then
+        local waypoint_count = drydock:get_waypoint_count()
+        for i = 0, waypoint_count - 1, 1 do
+            local waypoint = drydock:get_waypoint(i)
+            if waypoint ~= nil then
+                if waypoint_flag_isset(waypoint, F_DRYDOCK_WPTX_MARKER) then
+                    local pos = waypoint:get_position_xz()
+                    if math.floor(pos:y()) == marker_id then
+                        return waypoint
+                    end
+                end
+            end
+        end
+    end
+    return nil
+end
+
+function add_marker_waypoint(team_id, marker_id)
+    local current = get_marker_waypoint(team_id, marker_id)
+    local drydock = find_team_drydock(team_id)
+
+    if drydock == nil then
+        return nil
+    end
+
+    if current == nil then
+        -- add one
+        local w_id = drydock:add_waypoint(F_DRYDOCK_WPTX_MARKER, marker_id)
+        drydock:set_waypoint_altitude(w_id, 0)
+        current = drydock:get_waypoint_by_id(w_id)
+    end
+
+    return current
+end
+
+g_pending_marker_values = {}
+
+function ensure_marker_value(team_id, marker_id)
+    -- called early in the holomap update function only
+    if is_marker_value_pending(marker_id) then
+        -- is it set?
+        local expected = g_pending_marker_values[marker_id]
+        local wpt = get_marker_waypoint(team_id, marker_id)
+        if wpt ~= nil then
+            local current = wpt:get_altitude()
+            if current ~= expected then
+                -- try to set it (again)
+                local drydock = find_team_drydock(team_id)
+                drydock:set_waypoint_altitude(wpt:get_id(), expected)
+            else
+                -- is is correct
+                g_pending_marker_values[marker_id] = nil
+            end
+        end
+    end
+end
+
+function set_marker_pending(marker_id, value)
+    g_pending_marker_values[marker_id] = value
+end
+
+function is_marker_value_pending(marker_id)
+    local pending = g_pending_marker_values[marker_id]
+    return pending ~= nil
+end
+
+function get_marker_value(team_id, marker_id)
+    if is_marker_value_pending(marker_id) then
+        return g_pending_marker_values[marker_id]
+    end
+    local marker = get_marker_waypoint(team_id, marker_id)
+    if marker ~= nil then
+        return marker:get_altitude()
+    end
+    return 0
+end
+
+function set_marker_waypoint(team_id, marker_id, x, y)
+    local marker = get_marker_waypoint(team_id, marker_id)
+    if marker ~= nil then
+        local drydock = find_team_drydock(team_id)
+        local packed = pack_alt_xy(x, y)
+        set_marker_pending(marker_id, packed)
+        drydock:set_waypoint_altitude(marker:get_id(), packed)
+    end
+end
+
+function unset_marker_waypoint(team_id, marker_id)
+    set_marker_pending(marker_id, 0)
+    local marker = get_marker_waypoint(team_id, marker_id)
+    if marker ~= nil then
+        local drydock = find_team_drydock(team_id)
+        drydock:set_waypoint_altitude(marker:get_id(), 0)
+    end
+end
+
+function update_team_holomap_cursor(team_id, x, y)
+    local st, err = pcall(_update_team_holomap_cursor, team_id, x, y)
+    if not st then
+        print(err)
+    end
+end
+
+function _update_team_holomap_cursor(team_id, x, y)
+    local current = get_team_holomap_cursor_waypoint(team_id)
+    local drydock = find_team_drydock(team_id)
+
+    if drydock == nil then
+        return
+    end
+
+    if current == nil then
+        -- add one
+        if drydock ~= nil then
+            local w_id = drydock:add_waypoint(F_DRYDOCK_WPTX_CURSOR, 0)
+            current = drydock:get_waypoint_by_id(w_id)
+        end
+    end
+
+    if current ~= nil then
+        -- update the altitude to the packed waypoint
+        local packed = pack_alt_xy(x, y)
+        if packed > 0 then
+            drydock:set_waypoint_altitude(current:get_id(), packed)
+        end
+    end
+end
+
+function get_team_holomap_cursor(team_id)
+    local current = get_team_holomap_cursor_waypoint(team_id)
+    if current ~= nil then
+        -- unpack it,
+        local altitude = current:get_altitude()
+        return unpack_alt_xy(altitude)
+    end
+
+    return 0, 0
 end
