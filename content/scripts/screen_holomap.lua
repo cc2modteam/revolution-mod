@@ -98,6 +98,14 @@ g_notification_time = 0
 
 g_focus_mode = 0
 
+g_markers_open = false
+g_setting_marker = 0
+
+g_markers_w = nil
+g_markers_x = nil
+g_markers_y = nil
+g_markers_z = nil
+
 function parse()
     g_prev_pos_x = g_next_pos_x
     g_prev_pos_y = g_next_pos_y
@@ -133,7 +141,29 @@ function begin()
     g_next_size = parse_f32(g_next_size)
 end
 
-function update(screen_w, screen_h, ticks) 
+function render_marker(team_id, marker_id, screen_w, screen_h)
+    local marker = get_marker_waypoint(team_id, marker_id)
+    if marker ~= nil then
+        local value = get_marker_value(team_id, marker_id)
+        if is_waypoint_value_enabled(value) then
+            local wx, wy = unpack_alt_xy(value)
+            local sx, sy = get_holomap_from_world(wx, wy, screen_w, screen_h)
+            local col = color8(0xff, 0xff, 0x00, 0x03)
+            update_ui_circle(sx, sy, 10, 12, col)
+            col = color8(0xff, 0xff, 0x00, 0x32)
+            update_ui_text(sx + 5, sy + 5, get_marker_name(marker_id), 16, 0, col, 0)
+        end
+    end
+end
+
+function update(screen_w, screen_h, ticks)
+    local st, err = pcall(_update, screen_w, screen_h, ticks)
+    if not st then
+        print(err)
+    end
+end
+
+function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
     g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
@@ -143,12 +173,18 @@ function update(screen_w, screen_h, ticks)
     local screen_vehicle = update_get_screen_vehicle()
 
     local screen_team = update_get_screen_team_id()
+
+    ensure_marker_value(screen_team, 1)
+    ensure_marker_value(screen_team, 2)
+    ensure_marker_value(screen_team, 3)
+    ensure_marker_value(screen_team, 4)
+
     local is_local = update_get_is_focus_local()
     
     local world_x = 0
     local world_y = 0
 
-    local drydock, waypoint = get_team_drydock()
+    local drydock = find_team_drydock(screen_team)
 
     if is_local then
         if not g_is_mouse_mode then
@@ -158,17 +194,10 @@ function update(screen_w, screen_h, ticks)
 
         world_x, world_y = get_world_from_holomap( g_pointer_pos_x, g_pointer_pos_y, screen_w, screen_h )
         if drydock ~= nil then
-            drydock:clear_waypoints()
-            drydock:add_waypoint(world_x, world_y)
-
-            waypoint = nil
+            update_team_holomap_cursor(screen_team, world_x, world_y)
         end
-    elseif waypoint ~= nil then
-        local waypoint_pos = waypoint:get_position_xz()
-                    
-        world_x = waypoint_pos:x()
-        world_y = waypoint_pos:y()
-        
+    else
+        world_x, world_y = get_team_holomap_cursor(screen_team)
         g_pointer_pos_x, g_pointer_pos_y = get_holomap_from_world( world_x, world_y, screen_w, screen_h )
     end
 
@@ -354,6 +383,19 @@ function update(screen_w, screen_h, ticks)
         local cur_map_zoom = g_map_size + g_map_size_offset
         g_is_render_holomap_tiles = false
         update_set_screen_background_is_render_islands(true)
+
+        -- draw markers
+        local st, err = pcall(function()
+            render_marker(screen_team, 1, screen_w, screen_h)
+            render_marker(screen_team, 2, screen_w, screen_h)
+            render_marker(screen_team, 3, screen_w, screen_h)
+            render_marker(screen_team, 4, screen_w, screen_h)
+        end)
+        if not st then
+            print(string.format("err3 = %s", err))
+        end
+
+
         -- draw island names
         if cur_map_zoom < 95000 then
 
@@ -577,7 +619,7 @@ function update(screen_w, screen_h, ticks)
                                 update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
                             end)
                             if not st then
-                                print(err)
+                                print(string.format("err2 = %s", err))
                             end
                         end
                     end
@@ -947,6 +989,73 @@ function update(screen_w, screen_h, ticks)
         if g_button_mode == 0 then
             update_ui_text(1, 1, "MISSION TIME: " .. format_time( now / 30 ), label_w, 0, color_white, 0)
 
+            -- draw marker buttons
+
+            local ui = g_ui
+            local markers_collapsed_size = 18
+            local markers_toolbox_h = 27
+            local markers_toolbox_w = markers_collapsed_size
+            local markers_toolbox_x = 465
+            local markers_toolbox_title = ""
+            if g_markers_open then
+                markers_toolbox_title = " Markers"
+                markers_toolbox_h = 160
+                markers_toolbox_w = 60
+                markers_toolbox_x = markers_toolbox_x - (markers_toolbox_w - markers_collapsed_size)
+
+                if g_setting_marker > 0 then
+
+                    update_ui_text(1, 90,
+                            string.format("Set Marker %s position..", get_marker_name(g_setting_marker)), screen_w/2, 0, color_white, 0)
+                end
+            end
+
+            ui:begin_window(markers_toolbox_title, markers_toolbox_x, 20, markers_toolbox_w, markers_toolbox_h, atlas_icons.column_team_control, true, 2)
+
+            if not g_markers_open then
+                g_setting_marker = 0
+                if ui:button("^", true, 1) then
+                    g_markers_open = true
+                end
+            else
+                if ui:button("v", true, 1) then
+                    g_markers_open = false
+                end
+                ui:spacer(5)
+
+                local st, err = pcall(function()
+                    for i = 1, 4, 1 do
+                    local mname = get_marker_name(i)
+                    local m = get_marker_waypoint(screen_team, i)
+                    if m == nil then
+                        m = add_marker_waypoint(screen_team, i)
+                    end
+                    local value = get_marker_value(screen_team, i)
+                    local btn_enabled = g_setting_marker == 0
+                    if is_marker_value_pending(i) then
+                        btn_enabled = false
+                    end
+                    if is_waypoint_value_enabled(value) then
+                        if ui:button(string.format("Del %s", mname), btn_enabled, 1) then
+                            unset_marker_waypoint(screen_team, i)
+                            g_setting_marker = 0
+                        end
+                    else
+                        if ui:button(string.format("Set %s %d", mname, i), btn_enabled, 1) then
+                            g_setting_marker = i
+                        end
+                    end
+                end
+                end)
+
+                if not st then
+                    print(string.format("err = %s", err))
+                end
+
+            end
+
+            ui:end_window()
+
             -- draw timeline
             local timeline_w = 100
 
@@ -1066,28 +1175,31 @@ function input_event(event, action)
         end
     elseif event == e_input.pointer_1 then
         g_is_pointer_pressed = action == e_input_action.press
-        
+
         if g_is_pointer_pressed and g_highlighted_vehicle_id > 0 and g_highlighted_waypoint_id == 0 then
             local vehicle = update_get_map_vehicle_by_id(g_highlighted_vehicle_id)
-        
+
             if vehicle:get() and vehicle:get_team() == screen_vehicle:get_team() then
                 g_selection_vehicle_id = g_highlighted_vehicle_id
             end
+        elseif g_is_pointer_pressed and g_setting_marker > 0 then
+            g_is_pointer_pressed = false
+            -- place a marker
+
+            local screen_team = update_get_screen_team_id()
+            local marker = get_marker_waypoint(screen_team, g_setting_marker)
+            if marker ~= nil then
+                set_marker_waypoint(screen_team, g_setting_marker, world_x, world_y)
+            end
+            g_setting_marker = 0
         end
     elseif event == e_input.back and action == e_input_action.press then        
         if g_selection_vehicle_id > 0 then
             g_selection_vehicle_id = 0
         else
             g_is_ruler = false
-        
-            local drydock, waypoint = get_team_drydock()
-
-            if waypoint ~= nil then
-                local waypoint_pos = waypoint:get_position_xz()
-                drydock:clear_waypoints()
-                drydock:add_waypoint(waypoint_pos:x(), waypoint_pos:y())
-            end
-        
+            g_markers_open = false
+            g_setting_marker = 0
             update_set_screen_state_exit()
         end
     end
@@ -1588,26 +1700,6 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 
         cy = cy + 10
     end
-end
-
-function get_team_drydock()
-    local vehicle_count = update_get_map_vehicle_count()
-    for i = 0, vehicle_count - 1, 1 do
-        local vehicle = update_get_map_vehicle_by_index(i)
-        
-        if vehicle:get() and vehicle:get_definition_index() == e_game_object_type.drydock and vehicle:get_team() == update_get_screen_team_id() then
-            local waypoint = nil
-            
-            local waypoint = vehicle:get_waypoint_count()
-            if waypoint > 0 then
-                waypoint = vehicle:get_waypoint(0)
-            end
-            
-            return vehicle, waypoint
-        end
-    end
-    
-    return nil, nil
 end
 
 function render_dashed_line(x0, y0, x1, y1, col)
