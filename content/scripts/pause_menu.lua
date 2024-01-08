@@ -585,7 +585,7 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
 
     update_ui_push_offset(x, y)
     update_ui_text(
-            3, 2, "Revolution Mod 2024-01-07", 220, 0, color_grey_dark, 0)
+            3, 2, "Revolution Mod 2024-01-08", 220, 0, color_grey_dark, 0)
 
     if is_active then
         local zoom_factor = invlerp(g_tab_map.camera_size, g_tab_map.camera_size_min, g_tab_map.camera_size_max)
