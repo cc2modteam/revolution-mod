@@ -635,7 +635,8 @@ end
 -- fisheye mod
 
 -- every unit in detection range of a needlefish (of any team)
-g_seen_by_needlefish = {}
+g_seen_by_bad_needlefish = {}
+g_seen_by_our_needlefish = {}
 
 
 function _get_ship_detection_range(definition_index)
@@ -716,15 +717,18 @@ function refresh_fisheye_needlefish_cache()
     -- only do this every 30th tick (once every second)
     local now = update_get_logic_tick()
     if now % 30 == 0 then
-        local value = _refresh_fisheye_needlefish_cache()
-        g_seen_by_needlefish = value
+        local v1, v2 = _refresh_fisheye_needlefish_cache()
+        g_seen_by_bad_needlefish = v1
+        g_seen_by_our_needlefish = v2
     end
-    --print(string.format("fish data %d %d", now, #g_seen_by_needlefish))
+    --print(string.format("fish data %d %d", now, #g_seen_by_bad_needlefish))
 end
 
 function _refresh_fisheye_needlefish_cache()
-    local record = {}
+    local seen_by_bad_fish = {}
+    local seen_by_our_fish = {}
     local vehicle_count = update_get_map_vehicle_count()
+    local screen_team = update_get_screen_team_id()
 
     for ii = 0, vehicle_count - 1 do
         local vehicle = update_get_map_vehicle_by_index(ii)
@@ -732,6 +736,7 @@ function _refresh_fisheye_needlefish_cache()
             if vehicle:get_definition_index() == e_game_object_type.chassis_sea_ship_light then
                 -- we are a fish, see what it can see
                 local fish = vehicle
+                local fish_team = fish:get_team()
                 -- iterate all other things on the map
                 for jj = 0, vehicle_count - 1 do
                     local target = update_get_map_vehicle_by_index(jj)
@@ -740,10 +745,10 @@ function _refresh_fisheye_needlefish_cache()
                         -- ships or aircraft
                         if _get_unit_visible_by_needlefish(fish, target) then
                             local tid = target:get_id()
-                            record[tid] = true
-                            -- if the other thing is a needlefish, remember that it saw us too
-                            if target_def == e_game_object_type.chassis_sea_ship_light then
-                                record[vehicle:get_id()] = true
+                            if fish_team == screen_team then
+                                seen_by_our_fish[tid] = true
+                            else
+                                seen_by_bad_fish[tid] = true
                             end
                         end
                     end
@@ -751,7 +756,7 @@ function _refresh_fisheye_needlefish_cache()
             end
         end
     end
-    return record
+    return seen_by_bad_fish, seen_by_our_fish
 end
 
 function get_is_visible_by_needlefish(vehicle)
@@ -763,10 +768,19 @@ function get_is_visible_by_needlefish(vehicle)
     return val
 end
 
+function get_is_visible_by_hostile_needlefish(vehicle)
+    local seen = false
+    if vehicle:get() then
+        local vid = vehicle:get_id()
+        seen = g_seen_by_bad_needlefish[vid] ~= nil
+    end
+    return seen
+end
+
 function _get_is_visible_by_needlefish(vehicle)
     if vehicle:get() then
         local vid = vehicle:get_id()
-        local exists = g_seen_by_needlefish[vid]
+        local exists = g_seen_by_our_needlefish[vid]
 
         if exists ~= nil then
             return true

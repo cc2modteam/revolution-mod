@@ -1946,7 +1946,7 @@ function update(screen_w, screen_h, ticks)
                                     
                                     local is_visible_by_enemy = vehicle:get_is_visible_by_enemy()
                                     if not is_visible_by_enemy then
-                                        is_visible_by_enemy = get_is_visible_by_needlefish(vehicle)
+                                        is_visible_by_enemy = get_is_visible_by_hostile_needlefish(vehicle)
                                     end
 
                                     if is_visible_by_enemy and g_animation_time % 20 > 10 then
