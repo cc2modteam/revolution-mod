@@ -1403,6 +1403,27 @@ function update(screen_w, screen_h, ticks)
             end
         end
 
+        -- render markers
+        local screen_team = update_get_screen_team_id()
+        local function render_marker(marker_id)
+            local value = get_marker_value(screen_team, marker_id)
+            if is_waypoint_value_enabled(value) then
+                local wx, wy = unpack_alt_xy(value)
+                local sx, sy = get_screen_from_world(wx, wy, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+
+                local col = color8(0xff, 0xff, 0x00, 0x03)
+                update_ui_circle(sx, sy, 10, 12, col)
+                col = color8(0xff, 0xff, 0x00, 0x32)
+                update_ui_text(sx + 5, sy + 5, get_marker_name(marker_id), 16, 0, col, 0)
+
+            end
+        end
+
+        render_marker(1)
+        render_marker(2)
+        render_marker(3)
+        render_marker(4)
+
         -- render weapon radius
 
         local function render_weapon_radius(world_pos_x, world_pos_y, radius, col)
