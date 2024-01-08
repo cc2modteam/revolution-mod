@@ -27,6 +27,9 @@ All Needlefish can see ships and aircraft that are closer than 0.5km.
 The color (team) of a hostile island will be hidden until you bring a unit within range of that island. No more will capturing an AI controlled 
 island give away your position 100km away.
 
+[h2]Markers[/h2]
+
+You can now add markers to the game map to help your team plan and keep track of information and objectives
 
 [h3]General Info[/h3]
 
