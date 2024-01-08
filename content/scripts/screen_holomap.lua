@@ -106,6 +106,8 @@ g_markers_x = nil
 g_markers_y = nil
 g_markers_z = nil
 
+g_quickbar_open = false
+
 function parse()
     g_prev_pos_x = g_next_pos_x
     g_prev_pos_y = g_next_pos_y
@@ -988,10 +990,77 @@ function _update(screen_w, screen_h, ticks)
 
         if g_button_mode == 0 then
             update_ui_text(1, 1, "MISSION TIME: " .. format_time( now / 30 ), label_w, 0, color_white, 0)
+            local ui = g_ui
+            -- draw quick select toobox
+            local quickbar_collapsed_size = 18
+            local quickbar_h = 27
+            local quickbar_w = quickbar_collapsed_size
+            local quickbar_title = ""
+            if g_quickbar_open then
+                quickbar_title = "aircraft"
+                quickbar_w = 130
+                quickbar_h = 190
+            end
+
+            ui:begin_window(quickbar_title, 0, 20, quickbar_w, quickbar_h, atlas_icons.column_controlling_peer, true, 2)
+
+            if not g_quickbar_open then
+                if ui:button("^", true, 1) then
+                    g_quickbar_open = true
+                end
+            else
+                if ui:button("v", true, 1) then
+                    g_quickbar_open = false
+                end
+            end
+
+            -- add buttons for some aircraft
+            local quick_units = 0
+            local crr_pos = screen_vehicle:get_position_xz()
+            for i = 0, vehicle_count - 1, 1 do
+                if quick_units < 16 then
+                    local quick_unit = update_get_map_vehicle_by_index(i)
+                    if quick_unit:get() then
+                        local def = quick_unit:get_definition_index()
+                        if quick_unit:get_team() == screen_team then
+                            if get_is_vehicle_air(def) then
+                                if quick_unit:get_attached_parent_id() == 0 then
+                                    local v_pos = quick_unit:get_position_xz()
+                                    local v_dist = vec2_dist(crr_pos, v_pos) / 1000
+                                    local v_name, v_icon, v_handle = get_chassis_data_by_definition_index(def)
+                                    local btn_txt = string.format("%s %4d", v_handle, quick_unit:get_id())
+                                    if ui:button(btn_txt, true, 1) then
+                                        -- zoom to this unit
+                                        g_quickbar_open = false
+                                        transition_to_map_pos(v_pos:x(), v_pos:y(), 6000)
+                                    end
+
+                                    local fuel = string.format("F%2.1f", 100 * quick_unit:get_fuel_factor()) .. "%"
+                                    local quick_label = string.format("%s %3dkm", fuel, math.floor(v_dist))
+
+                                    local quick_payload_id = quick_unit:get_attached_vehicle_id(0)
+                                    if quick_payload_id ~= 0 then
+                                        -- if carrying anything, show what it is
+                                        local quick_payload = update_get_map_vehicle_by_id(quick_payload_id)
+                                        if quick_payload:get() then
+                                            local payload_def = quick_payload:get_definition_index()
+                                            local p_name, p_icon, p_handle = get_chassis_data_by_definition_index(payload_def)
+                                            quick_label = quick_label .. string.format(" (%s)", p_handle)
+                                        end
+                                    end
+
+                                    ui:text(quick_label)
+                                    ui:divider()
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            ui:end_window()
 
             -- draw marker buttons
-
-            local ui = g_ui
             local markers_collapsed_size = 18
             local markers_toolbox_h = 27
             local markers_toolbox_w = markers_collapsed_size
@@ -1004,7 +1073,6 @@ function _update(screen_w, screen_h, ticks)
                 markers_toolbox_x = markers_toolbox_x - (markers_toolbox_w - markers_collapsed_size)
 
                 if g_setting_marker > 0 then
-
                     update_ui_text(1, 90,
                             string.format("Set Marker %s position..", get_marker_name(g_setting_marker)), screen_w/2, 0, color_white, 0)
                 end
@@ -1014,9 +1082,11 @@ function _update(screen_w, screen_h, ticks)
 
             if not g_markers_open then
                 g_setting_marker = 0
+
                 if ui:button("^", true, 1) then
                     g_markers_open = true
                 end
+
             else
                 if ui:button("v", true, 1) then
                     g_markers_open = false

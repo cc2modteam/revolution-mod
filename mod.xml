@@ -11,6 +11,8 @@ Aircraft can now equip an ECM Mission Pod on wing hardpoints. In addition to 100
 capability.  When fitted they will reduce the distance where a hostile Radar will pick up the aircraft.  If fitted to an AWACS, the pod will
 the emeny Radar to see multiple ghost contacts.
 
+ECM reduces the contact range to about 8km from the carrier, AWACS or ground based radars.
+
 [h2]Needlefish Radar[/h2]
 
 [list]
@@ -29,7 +31,13 @@ island give away your position 100km away.
 
 [h2]Markers[/h2]
 
-You can now add markers to the game map to help your team plan and keep track of information and objectives
+You can now add markers to the game map to help your team plan and keep track of information and objectives.  Place up
+to 4 point markers on the map that will be viewable by all your crew on operator screen terminals or holomaps.
+
+[h2]Holomap Quick Select[/h2]
+
+The holomap now has an expandable menu that can be used to select and zoom to friendly aircraft. Useful if your
+captain is acting as GCI to select the aircraft of a player needing guidance.
 
 [h3]General Info[/h3]
 
