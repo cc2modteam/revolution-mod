@@ -476,13 +476,12 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
     update_set_screen_background_is_render_islands(is_render_islands)
 
     -- render tiles
-    local team_carrier_id = update_get_respawn_carrier_id()
-    local team_carrier = update_get_map_vehicle_by_id(team_carrier_id)
+    local team_id = update_get_screen_team_id()
 
     if is_render_islands then
         for _, tile in iter_tiles() do
             local tile_color = tile:get_team_color()
-            if tile:get_team_control() ~= team_carrier:get_team_id() then
+            if tile:get_team_control() ~= team_id then
                 tile_color = g_island_color_unknown
             end
 
@@ -494,7 +493,7 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
     else
         for _, tile in iter_tiles() do
             local tile_color = tile:get_team_color()
-            if tile:get_team_control() ~= team_carrier:get_team_id() then
+            if tile:get_team_control() ~= team_id then
                 tile_color = g_island_color_unknown
             end
             local position_xz = tile:get_position_xz()
@@ -548,7 +547,7 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
         local vehicle_color = iff(vehicle:get_id() == g_tab_map.highlighted_carrier_id, color_white, team_color)
 
         if vehicle:get_is_visible() then
-            if team_carrier:get_team_id() == vehicle:get_team_id() then
+            if team_id == vehicle:get_team_id() then
                 -- only render friendly stuff on pause menu
                 update_ui_image(screen_x - icon_offset, screen_y - icon_offset, icon_region, vehicle_color, 0)
 
@@ -596,7 +595,6 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
             string.format("z:%.2f", zoom_factor),
             w - 10, 0, color_grey_dark, 0
         )
-
     end
 
     update_ui_pop_offset()
