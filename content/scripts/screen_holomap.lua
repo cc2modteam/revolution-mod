@@ -2182,6 +2182,30 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     g_view_unit_cctv = false
                 end
 
+
+                if vehicle_can_airlift(vehicle) then
+                    if vehicle_has_cargo(vehicle) then
+                        if ui:button("UNLOAD", true, 1) then
+                            if g_is_pointer_pressed then
+                                set_airdrop_now(vehicle)
+                                g_selection_vehicle_id = 0
+                            end
+                        end
+                    else
+                        local nearest_airliftable, nearest_range = get_nearest_friendly_airliftable_id(vehicle, 750)
+                        local airlift = false
+                        if nearest_airliftable ~= -1 then
+                            airlift = true
+                        end
+                        if ui:button("AIRLIFT", airlift, 1) then
+                            if g_is_pointer_pressed then
+                                set_airlift_now(vehicle, nearest_airliftable)
+                                g_selection_vehicle_id = 0
+                            end
+                        end
+                    end
+                end
+
                 ui:end_window()
             end
             if screen_vehicle:get_team() == vehicle:get_team() then

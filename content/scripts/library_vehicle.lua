@@ -1011,6 +1011,68 @@ function find_team_drydock(team_id)
     return nil -- shouldn't really happen
 end
 
+function set_airlift_now(petrel, cargo)
+    local pos = petrel:get_position_xz()
+    petrel:clear_waypoints()
+    petrel:clear_attack_target()
+    local wid = petrel:add_waypoint(pos:x(), pos:y() - 10)
+    petrel:set_waypoint_attack_target_target_id(wid, cargo)
+    petrel:set_waypoint_attack_target_attack_type(wid, 0, e_attack_type.airlift)
+end
+
+function set_airdrop_now(petrel)
+    local pos = petrel:get_position_xz()
+    petrel:clear_waypoints()
+    petrel:clear_attack_target()
+    local wid = petrel:add_waypoint(pos:x(), pos:y() - 10)
+    petrel:set_waypoint_type_deploy(wid, true)
+end
+
+function vehicle_can_airlift(vehicle)
+    if vehicle:get() then
+        local def = vehicle:get_definition_index()
+        return def == e_game_object_type.chassis_air_rotor_heavy
+    end
+    return false
+end
+
+function vehicle_has_cargo(vehicle)
+    return vehicle:get_attached_vehicle_id(0) ~= 0
+end
+
+
+function get_nearest_friendly_airliftable_id(vehicle, max_range)
+    if vehicle ~= nil and vehicle_can_airlift(vehicle) then
+        -- petrel
+        if not vehicle_has_cargo(vehicle) then
+            -- empty
+            local team = vehicle:get_team()
+            local origin = vehicle:get_position_xz()
+            local nearest_dist = 99999
+            local nearest_id = -1
+            local vehicle_count = update_get_map_vehicle_count()
+            for i = 0, vehicle_count - 1, 1 do
+                local unit = update_get_map_vehicle_by_index(i)
+                if unit:get() then
+                    if unit:get_team() == team then
+                        if get_is_vehicle_airliftable(unit:get_definition_index()) then
+                            local pos = unit:get_position_xz()
+                            local range = vec2_dist(pos, origin)
+                            if range < max_range and range < nearest_dist then
+                                nearest_id = unit:get_id()
+                                nearest_dist = range
+                            end
+                        end
+                    end
+                end
+            end
+            if nearest_id ~= -1 then
+                return nearest_id, nearest_dist
+            end
+        end
+    end
+    return -1, 0
+end
 
 function waypoint_flag_isset(waypoint, flag)
     local position = waypoint:get_position_xz()
