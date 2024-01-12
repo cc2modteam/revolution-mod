@@ -298,7 +298,9 @@ function _update(screen_w, screen_h, ticks)
         end
     end
 
-    update_set_screen_background_type(g_button_mode + 1)
+    if not g_override_background then
+        update_set_screen_background_type(g_button_mode + 1)
+    end
     update_set_screen_background_is_render_islands(false)
     update_set_screen_map_position_scale(g_map_x + g_map_x_offset, g_map_z + g_map_z_offset, g_map_size + g_map_size_offset)
     g_is_render_holomap = true
@@ -321,9 +323,15 @@ function _update(screen_w, screen_h, ticks)
 
     g_ui:begin_ui()
 
+    if g_override_background then
+        g_is_render_holomap_vehicles = false
+        g_is_render_holomap_missiles = false
+        g_is_render_team_capture = false
+        g_is_render_holomap_grids = false
+    end
+
     if update_get_is_notification_holomap_set() then
         g_notification_time = g_notification_time + ticks
-
         update_set_screen_background_type(0)
         update_set_screen_background_is_render_islands(false)
         
@@ -384,6 +392,9 @@ function _update(screen_w, screen_h, ticks)
         local vehicle_count = update_get_map_vehicle_count()
         local cur_map_zoom = g_map_size + g_map_size_offset
         g_is_render_holomap_tiles = false
+        if g_override_background then
+            return
+        end
         update_set_screen_background_is_render_islands(true)
 
         -- draw markers
@@ -997,14 +1008,15 @@ function _update(screen_w, screen_h, ticks)
             local quickbar_w = quickbar_collapsed_size
             local quickbar_title = ""
             if g_quickbar_open then
-                quickbar_title = "aircraft"
+                quickbar_title = "Aircraft"
                 quickbar_w = 130
                 quickbar_h = 190
             end
 
-            ui:begin_window(quickbar_title, 0, 20, quickbar_w, quickbar_h, atlas_icons.column_controlling_peer, true, 2)
+            local air_window = ui:begin_window(quickbar_title, 0, 20, quickbar_w, quickbar_h, atlas_icons.column_controlling_peer, true, 2)
 
             if not g_quickbar_open then
+                air_window.scroll_y = 0
                 if ui:button("^", true, 1) then
                     g_quickbar_open = true
                 end
@@ -1251,6 +1263,7 @@ function input_event(event, action)
 
             if vehicle:get() and vehicle:get_team() == screen_vehicle:get_team() then
                 g_selection_vehicle_id = g_highlighted_vehicle_id
+                g_view_unit_cctv = false
             end
         elseif g_is_pointer_pressed and g_setting_marker > 0 then
             g_is_pointer_pressed = false
@@ -1816,6 +1829,7 @@ end
 
 function holomap_override( screen_w, screen_h, ticks )
     g_override = false
+    g_override_background = false
 
     if update_self_destruct_override(screen_w, screen_h) then
         g_is_render_holomap = false
@@ -1829,7 +1843,7 @@ function holomap_override( screen_w, screen_h, ticks )
         g_override = true
     end
     
-    if g_override then
+    if g_override and not g_override_background then
         update_set_screen_background_type(0)
         update_set_screen_map_position_scale(g_override_x, g_override_z, g_override_zoom)
         g_is_render_holomap_grids = false
@@ -2140,18 +2154,61 @@ function render_selection_carrier(screen_w, screen_h, carrier_vehicle)
     ui:end_window()
 end
 
+g_override_background = false
+g_view_unit_cctv = false
+
 function render_selection_vehicle(screen_w, screen_h, vehicle)
     local screen_vehicle = update_get_screen_vehicle()
 
     update_add_ui_interaction_special(update_get_loc(e_loc.interaction_navigate), e_ui_interaction_special.gamepad_dpad_ud)
+    g_override_background = false
+
+    local status_left_x = 10 + (screen_w / 4)
+    local status_right_x = 300
 
     if screen_vehicle:get() then
         local ui = g_ui
+        if vehicle:get() then
+            if not g_view_unit_cctv then
+                ui:begin_window(
+                        "OPTIONS",
+                        status_right_x + 80,
+                        (screen_h / 2) - 80, 72, 84, atlas_icons.column_stock, true, 2)
+                if ui:button("CAMERA", true, 1) then
+                    if g_is_pointer_pressed then
+                        g_view_unit_cctv = true
+                    end
+                else
+                    g_view_unit_cctv = false
+                end
+
+                ui:end_window()
+            end
+            if screen_vehicle:get_team() == vehicle:get_team() then
+                if g_view_unit_cctv then
+                    status_left_x = 20
+                    status_right_x = 430
+                    g_override_background = true
+                    update_set_screen_background_type(9)
+                    update_set_screen_camera_attach_vehicle(vehicle:get_id(), 0)
+
+                    update_set_screen_camera_is_render_ocean(true)
+                    update_set_screen_camera_cull_distance(6000)
+                    update_set_screen_camera_lod_level(0)
+
+                    update_set_screen_camera_render_attached_vehicle(true)
+                    update_set_screen_camera_is_render_map_vehicles(true)
+
+                end
+            end
+        end
         
         local loadout_w = 74
         local left_w = (screen_w / 2) - loadout_w - 25
 
-        local window = ui:begin_window(update_get_loc(e_loc.upp_loadout), 10 + (screen_w / 4) + left_w + 5, (screen_h / 2) - 80, loadout_w, 84, atlas_icons.column_stock, false, 2)
+        local window = ui:begin_window(update_get_loc(e_loc.upp_loadout),
+                status_right_x,
+                (screen_h / 2) - 80, loadout_w, 84, atlas_icons.column_stock, false, 2)
             local region_w, region_h = ui:get_region()
             window.cy = region_h / 2 - 32
             imgui_vehicle_chassis_loadout(ui, vehicle, nil)
@@ -2171,7 +2228,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
 
         local title = vehicle_definition_name .. string.format( " ID %.0f", vehicle:get_id() )
 
-        ui:begin_window(title, 10 + (screen_w / 4), (screen_h / 2) - 80, left_w, 100, atlas_icons.column_pending, true, 2)
+        ui:begin_window(title, status_left_x, (screen_h / 2) - 80, left_w, 100, atlas_icons.column_pending, true, 2)
             ui:stat(update_get_loc(e_loc.hp), hitpoints .. "/" .. hitpoints_total, iff(damage_factor < 0.2, color_low, color_high))
 
             if vehicle_definition_index == e_game_object_type.chassis_land_turret then
@@ -2205,7 +2262,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
         end
 
         if #attachments > 0 and vehicle:get_definition_index() ~= e_game_object_type.chassis_land_turret then
-            local window = ui:begin_window(update_get_loc(e_loc.upp_ammo), 10 + (screen_w / 4), (screen_h / 2) + 25, left_w, { max=130 }, atlas_icons.column_stock, false, 2)
+            local window = ui:begin_window(update_get_loc(e_loc.upp_ammo), status_right_x, (screen_h / 2) + 25, left_w, { max=130 }, atlas_icons.column_stock, false, 2)
             local region_w, region_h = ui:get_region()
             local cy = 0
 
