@@ -2061,18 +2061,27 @@ function update(screen_w, screen_h, ticks)
                 local screen_pos_x, screen_pos_y = get_screen_from_world(position_xz:x(), position_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
                 if missile:get_is_visible() then
-                    if def == e_game_object_type.missile_robot_dog_payload then
-                    elseif def == e_game_object_type.torpedo or def == e_game_object_type.torpedo_decoy or def == e_game_object_type.torpedo_noisemaker then
+                    if get_missile_should_draw_trail(def) then
                         local missile_trail_count = missile:get_trail_count()
+                        if missile_trail_count > 6 then
+                            missile_trail_count = 6
+                        end
                         local trail_prev_x = screen_pos_x
                         local trail_prev_y = screen_pos_y
+                        local trail_alpha = 20
                         for missile_trail_index = 0, missile_trail_count - 1 do
                             local trail_xz = missile:get_trail_position(missile_trail_index)
-                            local trail_next_x, trail_next_y = get_screen_from_world(trail_xz:x(), trail_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)        
-                            update_ui_line(trail_prev_x, trail_prev_y, trail_next_x, trail_next_y, color8(255, 255, 255, 16 - math.floor(missile_trail_index / 4)))
+                            local trail_next_x, trail_next_y = get_screen_from_world(trail_xz:x(), trail_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                            update_ui_line(trail_prev_x, trail_prev_y, trail_next_x, trail_next_y, color8(255, 255, 255, trail_alpha - (missile_trail_index * 3)))
                             trail_prev_x = trail_next_x
                             trail_prev_y = trail_next_y
                         end
+                    end
+
+                    if def == e_game_object_type.missile_robot_dog_payload then
+                    elseif def == e_game_object_type.torpedo or
+                            def == e_game_object_type.torpedo_decoy or
+                            def == e_game_object_type.torpedo_noisemaker then
 
                         local is_timer_running = missile:get_timer() > 0
                         local is_own_team = missile:get_team() == update_get_local_team_id()

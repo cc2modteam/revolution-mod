@@ -446,6 +446,18 @@ function get_attack_type_icon(attack_type)
     return atlas_icons.icon_attack_type_any
 end
 
+function get_missile_should_draw_trail(def)
+    return def == e_game_object_type.torpedo or
+            def == e_game_object_type.torpedo_decoy or
+            def == e_game_object_type.torpedo_noisemaker or
+    def == e_game_object_type.missile_cruise or
+    def == e_game_object_type.missile_1 or
+    def == e_game_object_type.missile_2 or
+    def == e_game_object_type.missile_3 or
+    def == e_game_object_type.missile_4 or
+    def == e_game_object_type.missile_5
+end
+
 function render_ui_chassis_definition_description(x, y, vehicle, index)
     update_ui_push_offset(x, y)
     local cy = 0
