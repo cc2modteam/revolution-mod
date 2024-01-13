@@ -380,11 +380,26 @@ function get_is_vehicle_air(definition_index)
         or definition_index == e_game_object_type.chassis_air_rotor_heavy
 end
 
+function get_has_modded_radar(vehicle)
+    if vehicle:get() then
+        local def = vehicle:get_definition_index()
+        if get_is_ship_fish(def) then
+            return true
+        end
+        return get_modded_radar_range(vehicle) > 0
+    end
+    return false
+end
+
+function get_is_ship_fish(definition_index)
+    return definition_index == e_game_object_type.chassis_sea_ship_light
+        or definition_index == e_game_object_type.chassis_sea_ship_heavy
+end
+
 function get_is_vehicle_sea(definition_index)
     return definition_index == e_game_object_type.chassis_carrier
         or definition_index == e_game_object_type.chassis_sea_barge
-        or definition_index == e_game_object_type.chassis_sea_ship_light
-        or definition_index == e_game_object_type.chassis_sea_ship_heavy
+        or get_is_ship_fish(definition_index)
 end
 
 function get_is_vehicle_land(definition_index)
@@ -635,34 +650,52 @@ end
 -- fisheye mod
 
 -- every unit in detection range of a needlefish (of any team)
-g_seen_by_bad_needlefish = {}
-g_seen_by_our_needlefish = {}
+g_seen_by_hostile_radars = {}
+g_seen_by_friendly_radars = {}
 
 
-function _get_ship_detection_range(definition_index)
+g_radar_ranges = {
+    ciws = 5000,
+    torpedo = 3500,
+    cruise_missile = 6000,
+    naval_gun = 2000,
+    awacs = 12000,
+    carrier = 10000,
+    golfball = 10000,
+}
+
+function _get_radar_detection_range(definition_index)
     if definition_index == e_game_object_type.attachment_turret_carrier_ciws then
-        return 5000
+        return g_radar_ranges.ciws
     elseif definition_index == e_game_object_type.attachment_turret_carrier_torpedo then
-        return 3500
+        return g_radar_ranges.torpedo
     elseif definition_index == e_game_object_type.attachment_turret_carrier_missile_silo then
-        return 6000
+        return g_radar_ranges.cruise_missile
     elseif definition_index == e_game_object_type.attachment_turret_carrier_main_gun then
-        return 2000
+        return g_radar_ranges.naval_gun
+    elseif definition_index == e_game_object_type.attachment_radar_awacs then
+        return g_radar_ranges.awacs
+    elseif definition_index == e_game_object_type.attachment_radar_golfball then
+        return g_radar_ranges.golfball
     else
         return 0
     end
 end
 
-function _get_needlefish_weapon(vehicle)
+function _get_radar_attachment(vehicle)
     local attachment_count = vehicle:get_attachment_count()
     for i = 0, attachment_count - 1 do
         local attachment = vehicle:get_attachment(i)
         if attachment:get() then
             local definition_index = attachment:get_definition_index()
-            if (definition_index == e_game_object_type.attachment_turret_carrier_ciws)
+            if ( false
+                or (definition_index == e_game_object_type.attachment_radar_golfball)
+                or (definition_index == e_game_object_type.attachment_radar_awacs)
+                or (definition_index == e_game_object_type.attachment_turret_carrier_ciws)
                 or (definition_index == e_game_object_type.attachment_turret_carrier_torpedo)
                 or (definition_index == e_game_object_type.attachment_turret_carrier_missile_silo)
-                or (definition_index == e_game_object_type.attachment_turret_carrier_main_gun) then
+                or (definition_index == e_game_object_type.attachment_turret_carrier_main_gun)
+            ) then
                 return definition_index
             end
         end
@@ -670,40 +703,49 @@ function _get_needlefish_weapon(vehicle)
     return nil
 end
 
-function get_needlefish_detection_range(needlefish)
-    if needlefish:get() then
-        local fish_weapon = _get_needlefish_weapon(needlefish)
-        return _get_ship_detection_range(fish_weapon)
+function get_modded_radar_range(vehicle)
+    if vehicle:get() then
+        -- don't override the carrier radar range
+        -- as we cont properly cope with it being turned off or broken
+        if vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
+            return _get_radar_detection_range(_get_radar_attachment(vehicle))
+        end
     end
     return 0
 end
 
-function _get_unit_visible_by_needlefish(needlefish, unit)
-    if needlefish:get() and unit:get() then
-        if needlefish:get_team() == unit:get_team() then
+function _get_unit_visible_by_modded_radar(vehicle, other_unit)
+    if vehicle:get() and other_unit:get() then
+        if vehicle:get_team() == other_unit:get_team() then
             return false
         end
-        if needlefish:get_id() ~= unit:get_id() then
-            local dist = vec2_dist(needlefish:get_position_xz(), unit:get_position_xz())
-            if dist < get_needlefish_detection_range(needlefish) then
-                if dist < 500 then
-                    -- they can all see anything less than 500m away
-                    return true
+        if vehicle:get_id() ~= other_unit:get_id() then
+            local dist = vec2_dist(vehicle:get_position_xz(), other_unit:get_position_xz())
+            if dist < get_modded_radar_range(vehicle) then
+                if get_is_ship_fish(vehicle:get_definition_index()) then
+                    -- needlefish can all see anything less than 500m away
+                    if dist < 500 then
+                        return true
+                    end
                 end
-                local unit_def = unit:get_definition_index()
+                local unit_def = other_unit:get_definition_index()
                 -- print(string.format("a %d b %d dist = %d", needlefish:get_id(), unit:get_id(), math.floor(dist)))
-                local weapon = _get_needlefish_weapon(needlefish)
-
-                if weapon == e_game_object_type.attachment_turret_carrier_ciws then
+                local radar_type = _get_radar_attachment(vehicle)
+                if radar_type == e_game_object_type.attachment_radar_awacs
+                    or radar_type == e_game_object_type.attachment_radar_golfball
+                then
+                    -- awacs and gnd radar can see ships and aircraft at range
+                    return get_is_vehicle_air(unit_def) or get_is_vehicle_sea(unit_def)
+                elseif radar_type == e_game_object_type.attachment_turret_carrier_ciws then
                     -- ciws fish can see only aircraft,
                     return get_is_vehicle_air(unit_def)
-                elseif weapon == e_game_object_type.attachment_turret_carrier_torpedo then
+                elseif radar_type == e_game_object_type.attachment_turret_carrier_torpedo then
                     -- torp fish can see only ships
                     return get_is_vehicle_sea(unit_def)
-                elseif weapon == e_game_object_type.attachment_turret_carrier_missile_silo then
+                elseif radar_type == e_game_object_type.attachment_turret_carrier_missile_silo then
                     -- cruise fish can see only ships
                     return get_is_vehicle_sea(unit_def)
-                elseif weapon == e_game_object_type.attachment_turret_carrier_main_gun then
+                elseif radar_type == e_game_object_type.attachment_turret_carrier_main_gun then
                     -- gun fish can see only ships
                     return get_is_vehicle_sea(unit_def)
                 end
@@ -713,42 +755,42 @@ function _get_unit_visible_by_needlefish(needlefish, unit)
     return false
 end
 
-function refresh_fisheye_needlefish_cache()
+function refresh_modded_radar_cache()
     -- only do this every 30th tick (once every second)
     local now = update_get_logic_tick()
     if now % 30 == 0 then
-        local v1, v2 = _refresh_fisheye_needlefish_cache()
-        g_seen_by_bad_needlefish = v1
-        g_seen_by_our_needlefish = v2
+        local v1, v2 = _refresh_modded_radar_cache()
+        g_seen_by_hostile_radars = v1
+        g_seen_by_friendly_radars = v2
     end
     --print(string.format("fish data %d %d", now, #g_seen_by_bad_needlefish))
 end
 
-function _refresh_fisheye_needlefish_cache()
-    local seen_by_bad_fish = {}
-    local seen_by_our_fish = {}
+function _refresh_modded_radar_cache()
+    local seen_by_hostiles = {}
+    local seen_by_ours = {}
     local vehicle_count = update_get_map_vehicle_count()
     local screen_team = update_get_screen_team_id()
 
     for ii = 0, vehicle_count - 1 do
         local vehicle = update_get_map_vehicle_by_index(ii)
         if vehicle:get() then
-            if vehicle:get_definition_index() == e_game_object_type.chassis_sea_ship_light then
-                -- we are a fish, see what it can see
-                local fish = vehicle
-                local fish_team = fish:get_team()
+            if get_has_modded_radar(vehicle) then
+                -- we are a unit with a modded radar, see what it can see
+                local _team = vehicle:get_team()
+
                 -- iterate all other things on the map
                 for jj = 0, vehicle_count - 1 do
                     local target = update_get_map_vehicle_by_index(jj)
                     local target_def = target:get_definition_index()
                     if get_is_vehicle_sea(target_def) or get_is_vehicle_air(target_def) then
                         -- ships or aircraft
-                        if _get_unit_visible_by_needlefish(fish, target) then
+                        if _get_unit_visible_by_modded_radar(vehicle, target) then
                             local tid = target:get_id()
-                            if fish_team == screen_team then
-                                seen_by_our_fish[tid] = true
+                            if _team == screen_team then
+                                seen_by_ours[tid] = true
                             else
-                                seen_by_bad_fish[tid] = true
+                                seen_by_hostiles[tid] = true
                             end
                         end
                     end
@@ -756,30 +798,30 @@ function _refresh_fisheye_needlefish_cache()
             end
         end
     end
-    return seen_by_bad_fish, seen_by_our_fish
+    return seen_by_hostiles, seen_by_ours
 end
 
-function get_is_visible_by_needlefish(vehicle)
-    local st, val = pcall(_get_is_visible_by_needlefish, vehicle)
+function get_is_visible_by_modded_radar(vehicle)
+    local st, val = pcall(_get_is_seen_by_friendly_modded_radar, vehicle)
     if not st then
         return false
     end
     return val
 end
 
-function get_is_visible_by_hostile_needlefish(vehicle)
+function get_is_visible_by_hostile_modded_radar(vehicle)
     local seen = false
     if vehicle:get() then
         local vid = vehicle:get_id()
-        seen = g_seen_by_bad_needlefish[vid] ~= nil
+        seen = g_seen_by_hostile_radars[vid] ~= nil
     end
     return seen
 end
 
-function _get_is_visible_by_needlefish(vehicle)
+function _get_is_seen_by_friendly_modded_radar(vehicle)
     if vehicle:get() then
         local vid = vehicle:get_id()
-        local exists = g_seen_by_our_needlefish[vid]
+        local exists = g_seen_by_friendly_radars[vid]
 
         if exists ~= nil then
             return true

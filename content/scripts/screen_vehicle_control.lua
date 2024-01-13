@@ -1021,7 +1021,7 @@ function update(screen_w, screen_h, ticks)
     g_screen_h = screen_h
     g_is_mouse_mode = g_is_pointer_hovered and update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
-    refresh_fisheye_needlefish_cache()
+    refresh_modded_radar_cache()
     refresh_fow_islands()
     refresh_jammer_units()
 
@@ -1187,7 +1187,7 @@ function update(screen_w, screen_h, ticks)
                             local revealed = vehicle:get_is_observation_revealed()
                             local visible = vehicle:get_is_visible()
                             if not revealed then
-                                revealed = get_is_visible_by_needlefish(vehicle)
+                                revealed = get_is_visible_by_modded_radar(vehicle)
                                 if revealed then
                                     visible = revealed
                                 end
@@ -1477,12 +1477,12 @@ function update(screen_w, screen_h, ticks)
             if weapon_radius_vehicle:get() then
                 local def = weapon_radius_vehicle:get_definition_index()
 
-                if def == e_game_object_type.chassis_sea_ship_light then
+                if get_has_modded_radar(weapon_radius_vehicle) then
                     -- render needlefish radar circles
-                    local fish_range = get_needlefish_detection_range(weapon_radius_vehicle)
-                    if fish_range > 0 then
+                    local radar_radius = get_modded_radar_range(weapon_radius_vehicle)
+                    if radar_radius > 0 then
                         local vehicle_pos_xz = weapon_radius_vehicle:get_position_xz()
-                        render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), fish_range, color8(32, 32, 8, 64))
+                        render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), radar_radius, color8(8, 8, 48, 64))
                     end
                 end
 
@@ -1583,7 +1583,7 @@ function update(screen_w, screen_h, ticks)
                         local is_revealed = vehicle:get_is_observation_revealed()
 
                         if not is_visible or not is_revealed then
-                            if get_is_visible_by_needlefish(vehicle) then
+                            if get_is_visible_by_modded_radar(vehicle) then
                                 is_revealed = true
                                 is_visible = true
                             end
@@ -1967,7 +1967,7 @@ function update(screen_w, screen_h, ticks)
                                     
                                     local is_visible_by_enemy = vehicle:get_is_visible_by_enemy()
                                     if not is_visible_by_enemy then
-                                        is_visible_by_enemy = get_is_visible_by_hostile_needlefish(vehicle)
+                                        is_visible_by_enemy = get_is_visible_by_hostile_modded_radar(vehicle)
                                     end
 
                                     if is_visible_by_enemy and g_animation_time % 20 > 10 then

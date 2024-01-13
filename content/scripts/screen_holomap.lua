@@ -187,7 +187,7 @@ function _update(screen_w, screen_h, ticks)
 
     g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
-    refresh_fisheye_needlefish_cache()
+    refresh_modded_radar_cache()
     refresh_fow_islands()
     local screen_vehicle = update_get_screen_vehicle()
 
@@ -577,7 +577,7 @@ function _update(screen_w, screen_h, ticks)
                         local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                         local revealed = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
                         if not revealed then
-                            revealed = get_is_visible_by_needlefish(vehicle)
+                            revealed = get_is_visible_by_modded_radar(vehicle)
                         end
 
                         if vehicle_attached_parent_id == 0 and revealed then
@@ -641,7 +641,7 @@ function _update(screen_w, screen_h, ticks)
                     -- hostile unit
                     local revealed = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
                     if not revealed then
-                        revealed = get_is_visible_by_needlefish(vehicle)
+                        revealed = get_is_visible_by_modded_radar(vehicle)
                         if revealed then
                             -- not rendered by the holomap, render a static icon ourselves
                             local st, err = pcall(function()
@@ -980,9 +980,8 @@ function _update(screen_w, screen_h, ticks)
                                 if weapon_range > 0 then
                                     render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), weapon_range, screen_w, screen_h)
                                 end
-
-                                if vehicle_definition_index == e_game_object_type.chassis_sea_ship_light then
-                                    local fish_range = get_needlefish_detection_range(highlighted_vehicle)
+                                if get_is_ship_fish(vehicle_definition_index) then
+                                    local fish_range = get_modded_radar_range(highlighted_vehicle)
                                     if fish_range > 0 then
                                         render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), fish_range, screen_w, screen_h,
                                                 color8(32, 32, 0, 32)
