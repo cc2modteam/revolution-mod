@@ -168,6 +168,23 @@ end
 function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
+
+    if g_is_pointer_down then
+        g_pointer_hold_count = 1 + g_pointer_hold_count
+        if g_pointer_hold_count > 5 then
+            if not g_is_pointer_hold then
+                g_is_pointer_hold = true
+                print(" hold down")
+            end
+        end
+    else
+        g_pointer_hold_count = 0
+        if g_is_pointer_hold then
+            print(" hold release")
+        end
+        g_is_pointer_hold = false
+    end
+
     g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
     refresh_fisheye_needlefish_cache()
@@ -175,13 +192,14 @@ function _update(screen_w, screen_h, ticks)
     local screen_vehicle = update_get_screen_vehicle()
 
     local screen_team = update_get_screen_team_id()
-
-    ensure_marker_value(screen_team, 1)
-    ensure_marker_value(screen_team, 2)
-    ensure_marker_value(screen_team, 3)
-    ensure_marker_value(screen_team, 4)
-
     local is_local = update_get_is_focus_local()
+
+    if is_local then
+        ensure_marker_value(screen_team, 1)
+        ensure_marker_value(screen_team, 2)
+        ensure_marker_value(screen_team, 3)
+        ensure_marker_value(screen_team, 4)
+    end
     
     local world_x = 0
     local world_y = 0
@@ -1002,141 +1020,147 @@ function _update(screen_w, screen_h, ticks)
         if g_button_mode == 0 then
             update_ui_text(1, 1, "MISSION TIME: " .. format_time( now / 30 ), label_w, 0, color_white, 0)
             local ui = g_ui
-            -- draw quick select toobox
-            local quickbar_collapsed_size = 18
-            local quickbar_h = 27
-            local quickbar_w = quickbar_collapsed_size
-            local quickbar_title = ""
-            if g_quickbar_open then
-                quickbar_title = "Aircraft"
-                quickbar_w = 130
-                quickbar_h = 190
-            end
 
-            local air_window = ui:begin_window(quickbar_title, 0, 20, quickbar_w, quickbar_h, atlas_icons.column_controlling_peer, true, 2)
+            if is_local then
 
-            if not g_quickbar_open then
-                air_window.scroll_y = 0
-                if ui:button("^", true, 1) then
-                    g_quickbar_open = true
+                -- draw quick select toobox
+                local quickbar_collapsed_size = 18
+                local quickbar_h = 27
+                local quickbar_w = quickbar_collapsed_size
+                local quickbar_title = ""
+                if g_quickbar_open then
+                    quickbar_title = "Aircraft"
+                    quickbar_w = 130
+                    quickbar_h = 190
                 end
-            else
-                if ui:button("v", true, 1) then
-                    g_quickbar_open = false
+
+                local air_window = ui:begin_window(quickbar_title, 0, 20, quickbar_w, quickbar_h, atlas_icons.column_controlling_peer, true, 2)
+
+                if not g_quickbar_open then
+                    air_window.scroll_y = 0
+                    if ui:button("^", true, 1) then
+                        if g_is_pointer_pressed then
+                            g_quickbar_open = true
+                        end
+                    end
+                else
+                    if ui:button("v", true, 1) then
+                        g_quickbar_open = false
+                    end
                 end
-            end
 
-            -- add buttons for some aircraft
-            local quick_units = 0
-            local crr_pos = screen_vehicle:get_position_xz()
-            for i = 0, vehicle_count - 1, 1 do
-                if quick_units < 16 then
-                    local quick_unit = update_get_map_vehicle_by_index(i)
-                    if quick_unit:get() then
-                        local def = quick_unit:get_definition_index()
-                        if quick_unit:get_team() == screen_team then
-                            if get_is_vehicle_air(def) then
-                                if quick_unit:get_attached_parent_id() == 0 then
-                                    local v_pos = quick_unit:get_position_xz()
-                                    local v_dist = vec2_dist(crr_pos, v_pos) / 1000
-                                    local v_name, v_icon, v_handle = get_chassis_data_by_definition_index(def)
-                                    local btn_txt = string.format("%s %4d", v_handle, quick_unit:get_id())
-                                    if ui:button(btn_txt, true, 1) then
-                                        -- zoom to this unit
-                                        g_quickbar_open = false
-                                        transition_to_map_pos(v_pos:x(), v_pos:y(), 6000)
-                                    end
-
-                                    local fuel = string.format("F%2.1f", 100 * quick_unit:get_fuel_factor()) .. "%"
-                                    local quick_label = string.format("%s %3dkm", fuel, math.floor(v_dist))
-
-                                    local quick_payload_id = quick_unit:get_attached_vehicle_id(0)
-                                    if quick_payload_id ~= 0 then
-                                        -- if carrying anything, show what it is
-                                        local quick_payload = update_get_map_vehicle_by_id(quick_payload_id)
-                                        if quick_payload:get() then
-                                            local payload_def = quick_payload:get_definition_index()
-                                            local p_name, p_icon, p_handle = get_chassis_data_by_definition_index(payload_def)
-                                            quick_label = quick_label .. string.format(" (%s)", p_handle)
+                -- add buttons for some aircraft
+                local quick_units = 0
+                local crr_pos = screen_vehicle:get_position_xz()
+                for i = 0, vehicle_count - 1, 1 do
+                    if quick_units < 16 then
+                        local quick_unit = update_get_map_vehicle_by_index(i)
+                        if quick_unit:get() then
+                            local def = quick_unit:get_definition_index()
+                            if quick_unit:get_team() == screen_team then
+                                if get_is_vehicle_air(def) then
+                                    if quick_unit:get_attached_parent_id() == 0 then
+                                        local v_pos = quick_unit:get_position_xz()
+                                        local v_dist = vec2_dist(crr_pos, v_pos) / 1000
+                                        local v_name, v_icon, v_handle = get_chassis_data_by_definition_index(def)
+                                        local btn_txt = string.format("%s %4d", v_handle, quick_unit:get_id())
+                                        if ui:button(btn_txt, true, 1) then
+                                            -- zoom to this unit
+                                            g_quickbar_open = false
+                                            transition_to_map_pos(v_pos:x(), v_pos:y(), 6000)
                                         end
-                                    end
 
-                                    ui:text(quick_label)
-                                    ui:divider()
+                                        local fuel = string.format("F%2.1f", 100 * quick_unit:get_fuel_factor()) .. "%"
+                                        local quick_label = string.format("%s %3dkm", fuel, math.floor(v_dist))
+
+                                        local quick_payload_id = quick_unit:get_attached_vehicle_id(0)
+                                        if quick_payload_id ~= 0 then
+                                            -- if carrying anything, show what it is
+                                            local quick_payload = update_get_map_vehicle_by_id(quick_payload_id)
+                                            if quick_payload:get() then
+                                                local payload_def = quick_payload:get_definition_index()
+                                                local p_name, p_icon, p_handle = get_chassis_data_by_definition_index(payload_def)
+                                                quick_label = quick_label .. string.format(" (%s)", p_handle)
+                                            end
+                                        end
+
+                                        ui:text(quick_label)
+                                        ui:divider()
+                                    end
                                 end
                             end
                         end
                     end
                 end
-            end
 
-            ui:end_window()
+                ui:end_window()
 
-            -- draw marker buttons
-            local markers_collapsed_size = 18
-            local markers_toolbox_h = 27
-            local markers_toolbox_w = markers_collapsed_size
-            local markers_toolbox_x = 465
-            local markers_toolbox_title = ""
-            if g_markers_open then
-                markers_toolbox_title = " Markers"
-                markers_toolbox_h = 160
-                markers_toolbox_w = 60
-                markers_toolbox_x = markers_toolbox_x - (markers_toolbox_w - markers_collapsed_size)
+                -- draw marker buttons
+                local markers_collapsed_size = 18
+                local markers_toolbox_h = 27
+                local markers_toolbox_w = markers_collapsed_size
+                local markers_toolbox_x = 465
+                local markers_toolbox_title = ""
+                if g_markers_open then
+                    markers_toolbox_title = " Markers"
+                    markers_toolbox_h = 160
+                    markers_toolbox_w = 60
+                    markers_toolbox_x = markers_toolbox_x - (markers_toolbox_w - markers_collapsed_size)
 
-                if g_setting_marker > 0 then
-                    update_ui_text(1, 90,
-                            string.format("Set Marker %s position..", get_marker_name(g_setting_marker)), screen_w/2, 0, color_white, 0)
-                end
-            end
-
-            ui:begin_window(markers_toolbox_title, markers_toolbox_x, 20, markers_toolbox_w, markers_toolbox_h, atlas_icons.column_team_control, true, 2)
-
-            if not g_markers_open then
-                g_setting_marker = 0
-
-                if ui:button("^", true, 1) then
-                    g_markers_open = true
-                end
-
-            else
-                if ui:button("v", true, 1) then
-                    g_markers_open = false
-                end
-                ui:spacer(5)
-
-                local st, err = pcall(function()
-                    for i = 1, 4, 1 do
-                    local mname = get_marker_name(i)
-                    local m = get_marker_waypoint(screen_team, i)
-                    if m == nil then
-                        m = add_marker_waypoint(screen_team, i)
+                    if g_setting_marker > 0 then
+                        update_ui_text(1, 90,
+                                string.format("Set Marker %s position..", get_marker_name(g_setting_marker)), screen_w/2, 0, color_white, 0)
                     end
-                    local value = get_marker_value(screen_team, i)
-                    local btn_enabled = g_setting_marker == 0
-                    if is_marker_value_pending(i) then
-                        btn_enabled = false
+                end
+
+                ui:begin_window(markers_toolbox_title, markers_toolbox_x, 20, markers_toolbox_w, markers_toolbox_h, atlas_icons.column_team_control, true, 2)
+
+                if not g_markers_open then
+                    g_setting_marker = 0
+
+                    if ui:button("^", true, 1) then
+                        g_markers_open = true
                     end
-                    if is_waypoint_value_enabled(value) then
-                        if ui:button(string.format("Del %s", mname), btn_enabled, 1) then
-                            unset_marker_waypoint(screen_team, i)
-                            g_setting_marker = 0
+
+                else
+                    if ui:button("v", true, 1) then
+                        g_markers_open = false
+                    end
+                    ui:spacer(5)
+
+                    local st, err = pcall(function()
+                        for i = 1, 4, 1 do
+                            local mname = get_marker_name(i)
+                            local m = get_marker_waypoint(screen_team, i)
+                            if m == nil then
+                                m = add_marker_waypoint(screen_team, i)
+                            end
+                            local value = get_marker_value(screen_team, i)
+                            local btn_enabled = g_setting_marker == 0
+                            if is_marker_value_pending(i) then
+                                btn_enabled = false
+                            end
+                            if is_waypoint_value_enabled(value) then
+                                if ui:button(string.format("Del %s", mname), btn_enabled, 1) then
+                                    unset_marker_waypoint(screen_team, i)
+                                    g_setting_marker = 0
+                                end
+                            else
+                                if ui:button(string.format("Set %s %d", mname, i), btn_enabled, 1) then
+                                    g_setting_marker = i
+                                end
+                            end
                         end
-                    else
-                        if ui:button(string.format("Set %s %d", mname, i), btn_enabled, 1) then
-                            g_setting_marker = i
-                        end
+                    end)
+
+                    if not st then
+                        print(string.format("err = %s", err))
                     end
-                end
-                end)
 
-                if not st then
-                    print(string.format("err = %s", err))
                 end
 
+                ui:end_window()
             end
-
-            ui:end_window()
 
             -- draw timeline
             local timeline_w = 100
@@ -1204,9 +1228,30 @@ function render_cursor(world_x, world_y, screen_w, screen_h)
     end
 end
 
+g_is_pointer_down = false
+g_is_pointer_release = false
+g_is_pointer_hold = false
+g_pointer_hold_count = 0
+
+
 function input_event(event, action)
+    print("input_event")
+    g_is_pointer_down = false
+    g_is_pointer_release = false
+
+    if event == e_input.pointer_1 then
+        g_is_pointer_release = e_input_action.release == action
+        g_is_pointer_down = e_input_action.press == action
+        if g_is_pointer_release then
+            print("pointer release")
+        end
+        if g_is_pointer_down then
+            print("pointer down")
+        end
+    end
+
     g_ui:input_event(event, action)
-    
+
     local screen_vehicle = update_get_screen_vehicle()
 
     if not g_is_mouse_mode then

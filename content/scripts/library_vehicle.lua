@@ -1195,7 +1195,7 @@ function ensure_marker_value(team_id, marker_id)
                 local drydock = find_team_drydock(team_id)
                 drydock:set_waypoint_altitude(wpt:get_id(), expected)
             else
-                -- is is correct
+                -- it is correct
                 g_pending_marker_values[marker_id] = nil
             end
         end

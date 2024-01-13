@@ -39,7 +39,19 @@ to 4 point markers on the map that will be viewable by all your crew on operator
 The holomap now has an expandable menu that can be used to select and zoom to friendly aircraft. Useful if your
 captain is acting as GCI to select the aircraft of a player needing guidance.
 
-[h3]General Info[/h3]
+[h2]Aircraft Cam and Petrel Orders[/h2]
+
+For aircraft, if you click one on the holomap, you can now see an
+extra menu, clicking Camera will show a low-res version of the aircraft
+flight camera
+
+If you click a Petrel, you will be able to click the Airlift button to
+order it to pickup the nearest friendly ground unit within 700m
+
+If the petrel is carrying cargo already, you will be able to click to deploy
+the unit at the petrel's current location.
+
+[h2]General Info[/h2]
 
 This is merged with 2 other mods:
 
