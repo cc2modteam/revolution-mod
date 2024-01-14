@@ -1614,6 +1614,11 @@ function update(screen_w, screen_h, ticks)
                                 end
                             end
 
+                            -- hide low level aircraft
+                            if get_is_vehicle_masked_by_groundclutter(vehicle) then
+                                is_render_vehicle_icon = false
+                            end
+
                             local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
                             -- render waypoints

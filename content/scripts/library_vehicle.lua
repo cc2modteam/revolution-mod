@@ -446,6 +446,19 @@ function get_attack_type_icon(attack_type)
     return atlas_icons.icon_attack_type_any
 end
 
+function get_unit_altitude(unit)
+    if unit ~= nil then
+        if unit:get() then
+            local reference = find_team_drydock(nil)
+            if reference ~= nil then
+                local rel = update_get_map_vehicle_position_relate_to_parent_vehicle(reference:get_id(), unit:get_id())
+                return rel:y()
+            end
+        end
+    end
+    return 0
+end
+
 function get_missile_should_draw_trail(def)
     return def == e_game_object_type.torpedo or
             def == e_game_object_type.torpedo_decoy or
@@ -671,7 +684,7 @@ g_radar_ranges = {
     torpedo = 3500,
     cruise_missile = 6000,
     naval_gun = 2000,
-    awacs = 12000,
+    awacs = 11000,
     carrier = 10000,
     golfball = 10000,
 }
@@ -715,12 +728,40 @@ function _get_radar_attachment(vehicle)
     return nil
 end
 
+function get_is_vehicle_masked_by_groundclutter(vehicle)
+    if get_is_vehicle_air(vehicle:get_definition_index()) then
+        local pos = vehicle:get_position_xz()
+        local waves = update_get_ocean_depth_factor(pos:x(), pos:y())
+        local clutter_base = 30
+        if waves > 0.6 then
+            clutter_base = 45
+        end
+        local alt = get_unit_altitude(vehicle)
+        return alt < clutter_base
+    end
+    return false
+end
+
 function get_modded_radar_range(vehicle)
     if vehicle:get() then
         -- don't override the carrier radar range
         -- as we cont properly cope with it being turned off or broken
-        if vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
-            return _get_radar_detection_range(_get_radar_attachment(vehicle))
+        local def =  vehicle:get_definition_index()
+        if def ~= e_game_object_type.chassis_carrier then
+            local range = _get_radar_detection_range(_get_radar_attachment(vehicle))
+
+            -- adjust based on altitude for awacs
+            if get_is_vehicle_air(def) then
+                -- if altitude is > 1600, boost it slightly
+                local alt = get_unit_altitude(vehicle)
+                local bonus_start = 1600
+                if alt > bonus_start then
+                    local bonus_factor = alt / bonus_start
+                    range = range * bonus_factor
+                end
+            end
+
+            return range
         end
     end
     return 0
@@ -1050,13 +1091,29 @@ MARKER_WPT_OFFSET = 80000
 
 MASK_DRYDOCK_WPTX_FLAGS = 0x00000000FF
 
+g_team_drydock = nil
+
 function find_team_drydock(team_id)
+    local want_curren_team = false
+    if team_id == nil then
+        team_id = update_get_screen_team_id()
+    end
+    if team_id == update_get_screen_team_id() then
+        want_curren_team = true
+        if g_team_drydock ~= nil then
+            return g_team_drydock
+        end
+    end
+
     local vehicle_count = update_get_map_vehicle_count()
     for i = 0, vehicle_count - 1, 1 do
         local vehicle = update_get_map_vehicle_by_index(i)
         if vehicle:get() then
             if vehicle:get_definition_index() == e_game_object_type.drydock then
                 if vehicle:get_team() == team_id then
+                    if want_curren_team then
+                        g_team_drydock = vehicle
+                    end
                     return vehicle
                 end
             end

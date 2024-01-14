@@ -13,18 +13,21 @@ the emeny Radar to see multiple ghost contacts.
 
 ECM reduces the contact range to about 8km from the carrier, AWACS or ground based radars.
 
-[h2]Expanded / Needlefish Radar[/h2]
+[h2]Enhanced Radar Simulations[/h2]
 
 [list]
+[*] AWACS Radar now has increased range if you fly above 1600m, up to a max of 12km.
+[*] Radar ground clutter is now considered when tracking aircraft.
+[*] Flying at below 20m you can potentially sneak in under Radar.
+[*] It is also harder to detect aircraft flying low over very rough sea.
 [*] CIWS Needlefish can detect hostile aircraft at 5km
 [*] Torpedo Needlefish can detect ships at 3.5km
 [*] Cruise Missile Needlefish can detect ships at 6km
 [*] Gun Needlefish can detect ships at 2km
+[*] All Needlefish can see ships and aircraft that are closer than 0.5km.
 [/list]
 
-AWACS Radar now has a 12km range.
 
-All Needlefish can see ships and aircraft that are closer than 0.5km.
 
 [h2]Fog of War[/h2]
 
