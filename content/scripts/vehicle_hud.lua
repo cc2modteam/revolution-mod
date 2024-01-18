@@ -258,7 +258,7 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
                 end
 
                 if def == e_game_object_type.chassis_carrier then
-                    render_carrier_hud(screen_w, screen_h, vehicle)
+                    render_turret_hud(screen_w, screen_h, vehicle)
                 end
                 
                 if def == e_game_object_type.chassis_land_turret then
@@ -367,6 +367,7 @@ end
 --------------------------------------------------------------------------------
 
 function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, attachment)
+    local screen_vehicle_def = screen_vehicle:get_definition_index()
     local camera_x = screen_vehicle:get_position():x()
     local camera_y = screen_vehicle:get_position():z()
     local is_viewing_sub_camera = false
@@ -381,6 +382,24 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     end
 
     local camera_size = 5000
+    if screen_vehicle_def == e_game_object_type.chassis_carrier then
+        camera_size = 10000
+    else
+        local alt = screen_vehicle:get_altitude()
+        if alt < 200 then
+            camera_size = 1000
+        elseif  alt < 400 then
+            camera_size = 2000
+        elseif alt > 1000 then
+            camera_size = 10000
+        end
+    end
+
+    update_ui_text(20, h + 10,
+        string.format("scale: %5dm", camera_size),
+        w - 10, 0, color8(0, 255, 0, 255), 0
+    )
+
     update_set_screen_map_position_scale(camera_x, camera_y, camera_size)
 
     local function world_to_screen(x, y)
@@ -509,7 +528,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     update_ui_push_offset(x, y)
 
     update_ui_text(10, h - 20, 
-        string.format("x:%-6.0f ", camera_x) .. 
+        string.format("x:%-6.0f ", camera_x) ..
         string.format("y:%-6.0f ", camera_y),
         w - 10, 0, color8(0, 255, 0, 255), 0
     )
@@ -526,7 +545,6 @@ end
 
 function render_attachment_hotbar(screen_w, screen_h, vehicle)
     local attachment_count = get_vehicle_attachment_count(vehicle)
-
     for i = 0, attachment_count - 1, 1 do
         local attachment = vehicle:get_attachment(i)
         
