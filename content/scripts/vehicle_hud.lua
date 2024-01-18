@@ -385,13 +385,15 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     if screen_vehicle_def == e_game_object_type.chassis_carrier then
         camera_size = 10000
     else
-        local alt = screen_vehicle:get_altitude()
-        if alt < 200 then
-            camera_size = 1000
-        elseif  alt < 400 then
-            camera_size = 2000
-        elseif alt > 1000 then
-            camera_size = 10000
+        if get_is_vehicle_air(screen_vehicle_def) then
+            local alt = screen_vehicle:get_altitude()
+            if alt < 200 then
+                camera_size = 1000
+            elseif  alt < 400 then
+                camera_size = 2000
+            elseif alt > 1000 then
+                camera_size = 10000
+            end
         end
     end
 
