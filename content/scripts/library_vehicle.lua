@@ -1166,7 +1166,7 @@ function get_nearest_friendly_airliftable_id(vehicle, max_range)
                 local unit = update_get_map_vehicle_by_index(i)
                 if unit:get() then
                     if unit:get_team() == team then
-                        if get_is_vehicle_airliftable(unit:get_definition_index()) then
+                        if unit:get_attached_parent_id() == 0 and get_is_vehicle_airliftable(unit:get_definition_index()) then
                             local pos = unit:get_position_xz()
                             local range = vec2_dist(pos, origin)
                             if range < max_range and range < nearest_dist then
