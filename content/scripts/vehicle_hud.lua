@@ -3761,16 +3761,59 @@ function find_nearest_vehicle(vehicle, other_def, hostile)
     return nearest
 end
 
+function render_fault(vehicle, screen_w, screen_h)
+
+    if g_animation_time % 2000 < 1000 then
+        update_ui_text(370, 200, "FAULT", 200, 0, color_enemy, 0)
+        update_ui_rectangle_outline(368, 199, 33, 11, color_enemy)
+    end
+end
+
 g_comms_snow_range = 350
 g_comms_error_range = 200
 
+g_snow_remaining = 0
+g_last_health = 100
+g_last_vid = -1
+
 function do_comms_error(vehicle, screen_w, screen_h)
     if vehicle:get() then
+        if (g_animation_time % 30) < 1 then
+            local our_vid = vehicle:get_id()
+            local total_hp = vehicle:get_total_hitpoints()
+            local now_hp = vehicle:get_hitpoints()
+            local hp_pct = now_hp / total_hp
+
+            if our_vid == g_last_vid then
+                -- compare health, if we lost more than 20%, then toggle show_snowstorm
+                if (g_last_health - hp_pct) > 0.2 then
+                    g_snow_remaining = 30
+                end
+            end
+            g_last_health = hp_pct
+            g_last_vid = our_vid
+        end
+
         math.randomseed(g_animation_time)
         local vdef = vehicle:get_definition_index()
         local show_comms_error = false
         local show_snowstorm = false
         local stop_hud = false
+        local show_fault = false
+
+        if get_is_vehicle_air(vdef) then
+            if g_last_health < 0.3 then
+                show_fault = true
+            end
+        end
+
+        if g_snow_remaining > 0 then
+            if get_is_vehicle_air(vdef) then
+                show_fault = true
+            end
+            show_snowstorm = true
+            g_snow_remaining = g_snow_remaining - 1
+        end
 
         if vdef == e_game_object_type.chassis_sea_barge then
             local nearest_carrier = find_nearest_vehicle(vehicle, e_game_object_type.chassis_carrier, true)
@@ -3779,12 +3822,15 @@ function do_comms_error(vehicle, screen_w, screen_h)
                 show_comms_error = nearest_carrier_dist < g_comms_error_range
                 show_snowstorm = nearest_carrier_dist < g_comms_snow_range
                 stop_hud = true
-
             end
         end
 
         if show_snowstorm then
             render_snowstorm(vehicle, screen_w, screen_h, 1)
+        end
+
+        if show_fault then
+            render_fault(vehicle, screen_w, screen_h)
         end
 
         if show_comms_error then
