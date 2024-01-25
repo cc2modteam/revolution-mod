@@ -117,6 +117,9 @@ g_is_mouse_mode = false
 g_screen_w = 256
 g_screen_h = 128
 
+g_barge_count = 0
+g_barge_max = 1
+
 --------------------------------------------------------------------------------
 --
 -- BEGIN
@@ -184,9 +187,54 @@ end
 --
 --------------------------------------------------------------------------------
 
+function update_barge_cap(ticks)
+    if (update_get_logic_tick() % 10 == 0) then
+        local team = update_get_screen_team_id()
+        local barge_count = 0
+        local carrier_count = 0
+        for _, vehicle in iter_vehicles(function(v)
+            return v:get_team() == team
+        end) do
+            local vdef = vehicle:get_definition_index()
+            if vdef == e_game_object_type.chassis_sea_barge then
+                barge_count = barge_count + 1
+            elseif vdef == e_game_object_type.chassis_carrier then
+                carrier_count = carrier_count + 1
+            end
+        end
+        g_barge_count = barge_count
+        g_barge_max = carrier_count + 1
+        local barge_building = 0
+        for _, tile in iter_tiles(function(t)
+            return t:get_team_control() == team
+        end) do
+            if tile:get_facility_category() == e_inventory_item.vehicle_barge then
+                g_barge_max = g_barge_max + 2
+
+                local queue_count = tile:get_facility_production_queue_count()
+
+                for i = 0, queue_count - 1 do
+                    local _, item_count = tile:get_facility_production_queue_item(i)
+                    if item_count > 0 then
+                        barge_building = barge_building + item_count
+                    end
+                end
+            end
+        end
+
+        g_barge_count = g_barge_count + barge_building
+
+    end
+end
+
 function update(screen_w, screen_h, ticks) 
     g_screen_w = screen_w
     g_screen_h = screen_h
+
+    local st, err = pcall(update_barge_cap, ticks)
+    if not st then
+        print(err)
+    end
 
     g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
@@ -1411,11 +1459,22 @@ function render_map_facility_ui(screen_w, screen_h, x, y, w, h, category_data, f
                 })
 
                 ui:spacer(1)
+                local order_barges = false
+                local buy_number_buttons = { "+1", "+10", "+100", "+1000" }
+                if item.index == e_inventory_item.vehicle_barge then
+                    -- barges
+                    order_barges = true
+                    buy_number_buttons = { string.format("+1 (%d/%d max)", g_barge_count, g_barge_max) }
+                end
 
-                local result = ui:button_group({ "+1", "+10", "+100", "+1000" }, true)
+                local result = ui:button_group(buy_number_buttons, true)
 
                 if result == 0 then
-                    facility_tile:set_facility_add_production_queue_item(item.index, 1)
+                    if order_barges and g_barge_count >= g_barge_max then
+                        g_tab_map.selected_facility_item = -1
+                    else
+                        facility_tile:set_facility_add_production_queue_item(item.index, 1)
+                    end
                 elseif result == 1 then
                     facility_tile:set_facility_add_production_queue_item(item.index, 10)
                 elseif result == 2 then
