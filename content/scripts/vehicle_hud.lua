@@ -3737,7 +3737,7 @@ function render_bad_signal(vehicle, screen_w, screen_h)
             0, 0, screen_w, screen_h, color_grey_dark
     )
 
-    render_snowstorm(vehicle, screen_w, screen_h, 2)
+    -- render_snowstorm(vehicle, screen_w, screen_h, 6)
 
     update_ui_rectangle_outline(
             x, y, 180, 19, color
@@ -3761,7 +3761,7 @@ function find_nearest_hostile_vehicle(vehicle, other_def)
         if unit:get() then
             if unit:get_team_id() ~= self_team then
                 if unit:get_definition_index() == other_def then
-                    local dist = vec2_dist(self_pos, unit:get_position())
+                    local dist = vec3_dist(self_pos, unit:get_position())
                     if dist < distance then
                         distance = dist
                         nearest = unit
@@ -3782,8 +3782,8 @@ function render_fault(vehicle, screen_w, screen_h)
     end
 end
 
-g_comms_snow_range = 280
-g_comms_error_range = 110
+g_comms_snow_range = 380
+g_comms_error_range = 170
 
 g_snow_remaining = 0
 g_last_health = 100
@@ -3832,11 +3832,13 @@ function do_comms_error(vehicle, screen_w, screen_h)
         if vdef == e_game_object_type.chassis_sea_barge then
             local nearest_carrier = find_nearest_hostile_vehicle(vehicle, e_game_object_type.chassis_carrier)
             if nearest_carrier ~= nil then
-                local nearest_carrier_dist = vec2_dist(nearest_carrier:get_position(), vehicle:get_position())
+                local nearest_carrier_dist = vec3_dist(nearest_carrier:get_position(), vehicle:get_position())
                 show_comms_error = nearest_carrier_dist < g_comms_error_range
                 show_snowstorm = nearest_carrier_dist < g_comms_snow_range
                 stop_hud = true
-                multi = 10 - (math.max(math.floor(nearest_carrier_dist / 50), 1))
+                if show_snowstorm then
+                    multi = 8 - (math.max(math.floor(nearest_carrier_dist / 50), 1))
+                end
             end
         end
 
