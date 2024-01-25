@@ -3697,28 +3697,36 @@ end
 
 function render_snowstorm(vehicle, screen_w, screen_h, multi)
     local here = vehicle:get_position()
-    local x_offset = math.floor(here:x() % 48) + (update_get_camera_heading() / math.pi / 2)
+    local heading = update_get_camera_heading() / math.pi / 2
+    local compass_heading = math.floor(iff(heading < 0, 360 + heading * 360, heading * 360))
+    local x_offset = math.floor(here:x() % 48) - compass_heading
     local color = color8(255, 255, 255, 190)
     if (g_animation_time % 200) < math.random(180) then
-        for x = 0, screen_w, 21 do
-            for y = 0, screen_h, 39 do
+        for x = 0, screen_w, 28 - multi do
+            for y = 0, screen_h, 80 do
                 local jitter = math.random(screen_w)
-                update_ui_rectangle(x + jitter - 25 , y - jitter, 25 * multi, 5 * multi, color)
+                update_ui_rectangle(x + jitter - 25 , y - jitter, 19 * multi, 5, color)
             end
         end
     end
 
     -- render some phantom targets
-    for i = 0, math.random(6) do
-        local pos = vec2(x_offset + screen_w / i , math.random(48) + (screen_h / 2) - 48 )
-        render_vision_target_vehicle_outline(pos, vehicle, false, false, false, false, color_enemy)
+    if multi < 2 then
+        for i = 0, math.random(4) do
+            local pos = vec2(x_offset + screen_w / i , math.random(48) + (screen_h / 2) - 48 )
+            render_vision_target_vehicle_outline(pos, vehicle, false, false, false, false, color_enemy)
+        end
+    end
+
+    if multi > 0 then
+        render_snowstorm(vehicle, screen_w, screen_h, multi - 1)
     end
 end
 
-function render_bad_signal(screen_w, screen_h)
+function render_bad_signal(vehicle, screen_w, screen_h)
     local color_red = color8(255, 0, 0, 200)
     local color_yellow = color8(255, 255, 0, 200)
-    local x = 130
+    local x = 138
     local y = 120
     color = color_red
     if (g_animation_time % 1000) < 500 then
@@ -3726,28 +3734,33 @@ function render_bad_signal(screen_w, screen_h)
     end
 
     update_ui_rectangle(
-            x, y, 200, 19, color_grey_dark
+            0, 0, screen_w, screen_h, color_grey_dark
     )
+
+    render_snowstorm(vehicle, screen_w, screen_h, 2)
+
     update_ui_rectangle_outline(
-            x, y, 200, 19, color
+            x, y, 180, 19, color
     )
-    local text = "BAD SIGNAL"
-    update_ui_text(x + 71, y + 5, text, 200, 0, color, 0)
+    local text = "SIGNAL JAMMED"
+    update_ui_text(x + 58, y + 5, text, 200, 0, color, 0)
+    text = string.format("Bandwidth %2.1f kbps", 50 + (math.floor(g_animation_time) % 255)/10)
+    update_ui_text(x, y + 35, text, 200, 0, color, 0)
 end
 
-function find_nearest_vehicle(vehicle, other_def, hostile)
+function find_nearest_hostile_vehicle(vehicle, other_def)
     -- find the nearest unit of a particualr type
     local vehicle_count = update_get_map_vehicle_count()
     local self_team = vehicle:get_team_id()
-    local self_def = vehicle:get_definition_index()
     local self_pos = vehicle:get_position()
+
     local nearest = nil
     local distance = 999999999
     for i = 0, vehicle_count - 1 do
         local unit = update_get_map_vehicle_by_index(i)
         if unit:get() then
-            if hostile and unit:get_team_id() ~= self_team then
-                if unit:get_definition_index() == other_def  then
+            if unit:get_team_id() ~= self_team then
+                if unit:get_definition_index() == other_def then
                     local dist = vec2_dist(self_pos, unit:get_position())
                     if dist < distance then
                         distance = dist
@@ -3769,8 +3782,8 @@ function render_fault(vehicle, screen_w, screen_h)
     end
 end
 
-g_comms_snow_range = 350
-g_comms_error_range = 200
+g_comms_snow_range = 280
+g_comms_error_range = 110
 
 g_snow_remaining = 0
 g_last_health = 100
@@ -3800,6 +3813,7 @@ function do_comms_error(vehicle, screen_w, screen_h)
         local show_snowstorm = false
         local stop_hud = false
         local show_fault = false
+        local multi = 1
 
         if get_is_vehicle_air(vdef) then
             if g_last_health < 0.3 then
@@ -3816,17 +3830,18 @@ function do_comms_error(vehicle, screen_w, screen_h)
         end
 
         if vdef == e_game_object_type.chassis_sea_barge then
-            local nearest_carrier = find_nearest_vehicle(vehicle, e_game_object_type.chassis_carrier, true)
+            local nearest_carrier = find_nearest_hostile_vehicle(vehicle, e_game_object_type.chassis_carrier)
             if nearest_carrier ~= nil then
                 local nearest_carrier_dist = vec2_dist(nearest_carrier:get_position(), vehicle:get_position())
                 show_comms_error = nearest_carrier_dist < g_comms_error_range
                 show_snowstorm = nearest_carrier_dist < g_comms_snow_range
                 stop_hud = true
+                multi = 10 - (math.max(math.floor(nearest_carrier_dist / 50), 1))
             end
         end
 
         if show_snowstorm then
-            render_snowstorm(vehicle, screen_w, screen_h, 1)
+            render_snowstorm(vehicle, screen_w, screen_h, multi)
         end
 
         if show_fault then
@@ -3835,7 +3850,9 @@ function do_comms_error(vehicle, screen_w, screen_h)
 
         if show_comms_error then
             math.randomseed(g_animation_time + vehicle:get_id())
-            render_snowstorm(vehicle, screen_w, screen_h, 3)
+
+            render_bad_signal(vehicle, screen_w, screen_h)
+
             local col = color8(0, 255, 0, 255)
             local hud_size = vec2(230, 140)
             local hud_min = vec2((screen_w - hud_size:x()) / 2, (screen_h - hud_size:y()) / 2)
@@ -3848,7 +3865,6 @@ function do_comms_error(vehicle, screen_w, screen_h)
                 render_warning_text(hud_pos:x(), hud_min:y() - 10, update_get_loc(e_loc.upp_dmg_critical), col_red)
             end
 
-            render_bad_signal(screen_w, screen_h)
             return show_snowstorm and show_comms_error and stop_hud
         end
     end
