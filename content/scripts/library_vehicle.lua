@@ -730,14 +730,16 @@ end
 
 function get_is_vehicle_masked_by_groundclutter(vehicle)
     if get_is_vehicle_air(vehicle:get_definition_index()) then
-        local pos = vehicle:get_position_xz()
-        local waves = update_get_ocean_depth_factor(pos:x(), pos:y())
-        local clutter_base = 40
-        if waves > 0.23 then
-            clutter_base = 65
+        if vehicle:get_team() ~= update_get_screen_team_id() then
+            local pos = vehicle:get_position_xz()
+            local waves = update_get_ocean_depth_factor(pos:x(), pos:y())
+            local clutter_base = 40
+            if waves > 0.23 then
+                clutter_base = 65
+            end
+            local alt = get_unit_altitude(vehicle)
+            return alt < clutter_base
         end
-        local alt = get_unit_altitude(vehicle)
-        return alt < clutter_base
     end
     return false
 end
