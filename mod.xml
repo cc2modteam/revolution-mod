@@ -5,29 +5,6 @@ The Revolution mod brings Radar to Needlefish, ECM to aircraft and introduces a 
 
 The mod is based on UI Enhancer and Albatross AWACS, so you get those amazing benefits included.
 
-[h2]General Atmosphere/Gameplay[/h2]
-
-[list]
-[*] If a unit you are controlling takes a significant amount of damage (about 20%) in one hit, you will see visual interference in your HUD camera feed for a second
-[/list]
-
-[h2]Barge Cap[/h2]
-
-[list]
-[*] Barge islands now serve as control nodes for your barges, each island lets you control two extra barges (plus a base two to start with)
-[*] Barge camera (HUD) video streams can be jammed by enemy carriers. If your barge gets very close (<200m) to a hostile carrier, you will get increasingly more signal degredation until your video drops out.
-[/list]
-
-(In my opinion) the barge is either too cheap or too tough (1 Cruise Missile Needlefish vs 11 Barges) - 11 Barges require 55
-heavy bombs to kill - it isn't well balanced for long games with many players (more barges/fish = more lag in big games) so Revolution
-caps the number of barges
-
-For exmaple:
-If your team has 2 carriers, and you control 2 barge islands, you will be able to build a maximum of 1 + 2 + 4 = 7 barges.
-If your team has 1 carrier, and one barge island, you'll be able to build no more than 1 + 1 + 2 = 4 total barges.
-
-If you lose an island or carrier, your barges won't go away, you just won't be able to build more than the cap for what you have.
-
 [h2]ECM[/h2]
 
 Aircraft can now equip an ECM Mission Pod on wing hardpoints. In addition to 1000l of fuel, these pods provide Radar jamming and spoofing
@@ -78,6 +55,29 @@ order it to pickup the nearest friendly ground unit within 700m
 
 If the petrel is carrying cargo already, you will be able to click to deploy
 the unit at the petrel's current location.
+
+[h2]General Atmosphere/Gameplay[/h2]
+
+[list]
+[*] If a unit you are controlling takes a significant amount of damage (about 20%) in one hit, you will see visual interference in your HUD camera feed for a second
+[/list]
+
+[h2]Barge Cap[/h2]
+
+[list]
+[*] Barge islands now serve as control nodes for your barges, each island lets you control two extra barges (plus a base two to start with)
+[*] Barge camera (HUD) video streams can be jammed by enemy carriers. If your barge gets very close (<200m) to a hostile carrier, you will get increasingly more signal degredation until your video drops out.
+[/list]
+
+(In my opinion) the barge is either too cheap or too tough (1 Cruise Missile Needlefish vs 11 Barges) - 11 Barges require 55
+heavy bombs to kill - it isn't well balanced for long games with many players (more barges/fish = more lag in big games) so Revolution
+caps the number of barges
+
+For exmaple:
+If your team has 2 carriers, and you control 2 barge islands, you will be able to build a maximum of 1 + 2 + 4 = 7 barges.
+If your team has 1 carrier, and one barge island, you'll be able to build no more than 1 + 1 + 2 = 4 total barges.
+
+If you lose an island or carrier, your barges won't go away, you just won't be able to build more than the cap for what you have.
 
 [h2]General Info[/h2]
 
