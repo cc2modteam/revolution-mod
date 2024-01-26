@@ -5,6 +5,29 @@ The Revolution mod brings Radar to Needlefish, ECM to aircraft and introduces a 
 
 The mod is based on UI Enhancer and Albatross AWACS, so you get those amazing benefits included.
 
+[h2]General Atmosphere/Gameplay[/h2]
+
+[list]
+[*] If a unit you are controlling takes a significant amount of damage (about 20%) in one hit, you will see visual interference in your HUD camera feed for a second
+[/list]
+
+[h2]Barge Cap[/h2]
+
+[list]
+[*] Barge islands now serve as control nodes for your barges, each island lets you control two extra barges (plus a base two to start with)
+[*] Barge camera (HUD) video streams can be jammed by enemy carriers. If your barge gets very close (<200m) to a hostile carrier, you will get increasingly more signal degredation until your video drops out.
+[/list]
+
+(In my opinion) the barge is either too cheap or too tough (1 Cruise Missile Needlefish vs 11 Barges) - 11 Barges require 55
+heavy bombs to kill - it isn't well balanced for long games with many players (more barges/fish = more lag in big games) so Revolution
+caps the number of barges
+
+For exmaple:
+If your team has 2 carriers, and you control 2 barge islands, you will be able to build a maximum of 1 + 2 + 4 = 7 barges.
+If your team has 1 carrier, and one barge island, you'll be able to build no more than 1 + 1 + 2 = 4 total barges.
+
+If you lose an island or carrier, your barges won't go away, you just won't be able to build more than the cap for what you have.
+
 [h2]ECM[/h2]
 
 Aircraft can now equip an ECM Mission Pod on wing hardpoints. In addition to 1000l of fuel, these pods provide Radar jamming and spoofing
@@ -17,8 +40,8 @@ ECM reduces the contact range to about 8km from the carrier, AWACS or ground bas
 
 [list]
 [*] AWACS Radar now has increased range if you fly above 1600m, up to a max of 12km.
-[*] Radar ground clutter is now considered when tracking aircraft.
-[*] Flying at below 20m you can potentially sneak in under Radar.
+[*] Radar ground clutter/wave height is now considered when tracking low level aircraft in operator screens.
+[*] Flying at below ~40-50m you can try sneak in under your opponent's Radar.
 [*] It is also harder to detect aircraft flying low over very rough sea.
 [*] CIWS Needlefish can detect hostile aircraft at 5km
 [*] Torpedo Needlefish can detect ships at 3.5km
@@ -26,8 +49,6 @@ ECM reduces the contact range to about 8km from the carrier, AWACS or ground bas
 [*] Gun Needlefish can detect ships at 2km
 [*] All Needlefish can see ships and aircraft that are closer than 0.5km.
 [/list]
-
-
 
 [h2]Fog of War[/h2]
 
@@ -38,6 +59,8 @@ island give away your position 100km away.
 
 You can now add markers to the game map to help your team plan and keep track of information and objectives.  Place up
 to 4 point markers on the map that will be viewable by all your crew on operator screen terminals or holomaps.
+
+Please note, the markers are still experimental, they may not work correctly in large games and may flash annoyingly at first.
 
 [h2]Holomap Quick Select[/h2]
 
@@ -62,5 +85,12 @@ This is merged with 2 other mods:
 
 Albatross AWACS swaps the AWACS-carrying capability from the Manta to the Albatross - By Thumblegudget
 Also includes UI enhancer - By QuantX
+
+[h2]Credits[/h2]
+
+Thank-you to QuantX for UI Enhancer. And to Mr Scoot for showing how deep you can dive with modding CC2.
+
+Thanks also to Kazzik, CylindricalBobcat, Thumblegudget, Pointclearius and Delta Fleet for help testing the mod.
+
 ">
 </data>
