@@ -1396,3 +1396,149 @@ function get_team_holomap_cursor(team_id)
 
     return 0, 0
 end
+
+g_ship_name_pseudo = 0
+g_ship_name_pseud2 = 0
+
+g_ship_names_choices = {
+    {
+        -- Classes of Westerly Yachts
+        "CENTAUR",
+        "FULMAR",
+        "KONSORT",
+        "LONGBOW",
+        "MERLIN",
+        "DISCUS",
+        "NOMAD",
+        "NIMROD",
+        "RENOWN",
+        "TEMPEST",
+    },
+    { -- types of Flying Boat
+        "CATALINA",
+        "MARINER",
+        "SUNDERLAND",
+        "KAWANISHI",
+        "SHINMAYWA",
+        "MARS",
+        "ALPHA",
+    },
+    { -- Royal Navy / Commonwealth
+        "INVINCIBLE",
+        "HERMES",
+        "ARK ROYAL",
+        "EAGLE",
+        "ILLUSTRIOUS",
+        "OCEAN",
+        "QUEEN ELIZABETH",
+        "VINDICTIVE",
+        "GLORY",
+        "WARRIOR",
+        "MAJESTIC",
+        "COURAGEOUS",
+        "CANBERRA",  -- RAN
+        "MELBOURNE",  -- RAN
+        "BONAVENTURE", -- RCN
+    },
+    { -- Indian Navy
+        "VIKRANT",
+        "VIRAAT",
+        "VIKRAMADITYA",
+        "VISHAL",
+        "VIJAY",
+        "CHEETA",
+        "TAAKAT",
+    },
+    { -- US Navy
+        "TARAWA",
+        "YORKTOWN",
+        "ENTERPRIZE",
+        "SARATOGA",
+        "ROOSEVELT",
+        "HORNET",
+        "MIDWAY",
+        "RANGER",
+        "LEXINGTON",
+    },
+    { -- France
+        "FOCH",
+        "DE GAULLE",
+        "CLEMENCEAU",
+        "LA FAYETTE",
+        "ARROMANCHES",
+        "FORTE",
+        "CARNOT",
+        "REPUBLIQUE'",
+        "LIBERTE'",
+    },
+    { -- Latin
+        "JUAN CARLOS",  -- Spain
+        "VENTICINCO DE MAYO", -- Argentina
+        "SAO PAULO",  -- Brazil
+        "MINAS GERAIS",  -- Brazil
+        "INDEPENDENCIA",  -- Argentina
+    },
+    { -- Kriegsmarine
+        "SEYDLITZ",
+        "BISMARK",
+        "TIRPITZ",
+        "HIPPER",
+        "SCHEER",
+        "GNEISENAU",
+        "WESTFALEN",
+        "PRINZ EUGEN",
+    },
+    { -- Japan
+        "AMAGI",
+        "HIYRU",
+        "IZUMO",
+        "KAGA",
+        "FUJI",
+        "YAMATO",
+        "MUSASHI",
+    }
+}
+
+function set_ship_names()
+    if g_ship_name_pseudo == 0 then
+        g_ship_name_pseudo = math.floor(update_get_tile_by_index(1):get_position_xz():x()) % 500
+        g_ship_name_pseudo2 = math.floor(update_get_tile_by_index(1):get_position_xz():y()) % 1000
+    end
+end
+
+function get_ship_name(vehicle)
+    local st, v = pcall(_get_ship_name, vehicle)
+    if not st then
+        print(v)
+        return ""
+    end
+    return v
+end
+
+function _get_ship_name(vehicle)
+    set_ship_names()
+    if vehicle ~= nil and vehicle:get() then
+        if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+            local team = 0
+            if vehicle.get_team == nil then
+                team = vehicle:get_team_id()
+            else
+                team = vehicle:get_team()
+            end
+            local team_names = (team + g_ship_name_pseudo2) % #g_ship_names_choices
+
+            local choices = g_ship_names_choices[1 + team_names]
+
+            local cid = 1
+            if vehicle:get_special_id() ~= 0 then
+                cid = (vehicle:get_special_id() + g_ship_name_pseudo) % #choices
+            else
+                cid = (g_ship_name_pseudo2 % #choices)
+            end
+            local ship_name = choices[1 + cid]
+            -- local name = string.format("%s %s", string.upper(vessel_names[1 + team]), choices[1 + cid])
+            return ship_name
+        end
+    end
+    return ""
+end

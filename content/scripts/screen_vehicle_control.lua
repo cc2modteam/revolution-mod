@@ -2958,8 +2958,12 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 
     local special_id = vehicle:get_special_id()
 
-    if special_id ~= 0 then
-        vehicle_name = vehicle_name .. " (" .. special_id .. ")"
+    if vehicle_definition_index == e_game_object_type.chassis_carrier then
+        vehicle_name = get_ship_name(vehicle)
+    else
+        if special_id ~= 0 then
+            vehicle_name = vehicle_name .. " (" .. special_id .. ")"
+        end
     end
 
     local bar_h = 17
@@ -2993,8 +2997,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 
     local display_id = ""
     if vehicle_definition_index == e_game_object_type.chassis_carrier then
-        local team_id = vehicle:get_team() + 1
-        display_id = string.upper( vessel_names[team_id] )
+        display_id = get_ship_name(vehicle)
     else
         display_id = update_get_loc(e_loc.upp_id) .. string.format( " %.0f", vehicle:get_id() )
     end

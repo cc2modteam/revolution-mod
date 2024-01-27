@@ -607,7 +607,7 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
         local special_id = highlighted_carrier:get_special_id()
 
         if special_id ~= 0 then
-            carrier_name = carrier_name .. " (" .. special_id .. ")"
+            carrier_name = get_ship_name(highlighted_carrier) .. " (" .. special_id .. ")"
         end
 
         local tooltip_w = 18

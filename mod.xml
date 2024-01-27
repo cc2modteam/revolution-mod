@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <data name="Revolution" author="Thumblegudget, Bredroll, QuantX" description="
 
-The Revolution mod brings Radar to Needlefish, ECM to aircraft and introduces a more immersive fog-of-war for island captures.
+The Revolution mod brings Radar to Needlefish, ECM to aircraft and introduces a more immersive fog-of-war for island
+captures.
 
 The mod is based on UI Enhancer and Albatross AWACS, so you get those amazing benefits included.
 
 [h2]ECM[/h2]
 
-Aircraft can now equip an ECM Mission Pod on wing hardpoints. In addition to 1000l of fuel, these pods provide Radar jamming and spoofing
-capability.  When fitted they will reduce the distance where a hostile Radar will pick up the aircraft.  If fitted to an AWACS, the pod will
-the enemy Radar to see multiple ghost contacts.
+Aircraft can now equip an ECM Mission Pod on wing hardpoints. In addition to 100l of fuel, these pods provide Radar
+jamming and spoofing capability.  When fitted they will reduce the distance where a hostile Radar will pick up the
+aircraft.  If fitted to an AWACS, the pod will cause the enemy Radar to see multiple ghost contacts.
 
 ECM reduces the contact range to about 8km from the carrier, AWACS or ground based radars.
 
@@ -29,7 +30,8 @@ ECM reduces the contact range to about 8km from the carrier, AWACS or ground bas
 
 [h2]Fog of War[/h2]
 
-The color (team) of a hostile island will be hidden until you bring a unit within range of that island. No more will capturing an AI controlled 
+The color (team) of a hostile island will be hidden until you bring a unit within range of that island. No more will
+capturing an AI controlled
 island give away your position 100km away.
 
 [h2]Markers[/h2]
@@ -37,29 +39,29 @@ island give away your position 100km away.
 You can now add markers to the game map to help your team plan and keep track of information and objectives.  Place up
 to 4 point markers on the map that will be viewable by all your crew on operator screen terminals or holomaps.
 
-Please note, the markers are still experimental, they may not work correctly in large games and may flash annoyingly at first.
+Please note, the markers are still experimental, they may not work correctly in large games and may flash annoyingly at
+first.
 
 [h2]Holomap Quick Select[/h2]
 
-The holomap now has an expandable menu that can be used to select and zoom to friendly aircraft. Useful if your
-captain is acting as GCI to select the aircraft of a player needing guidance.
+The holomap now has an expandable menu that can be used to select and zoom to friendly aircraft. Useful if your captain
+is acting as GCI to select the aircraft of a player needing guidance.
 
 [h2]Aircraft Cam and Petrel Orders[/h2]
 
-For aircraft, if you click one on the holomap, you can now see an
-extra menu, clicking Camera will show a low-res version of the aircraft
-flight camera
+For aircraft, if you click one on the holomap, you can now see an extra menu, clicking Camera will show a low-res
+version of the aircraft flight camera.
 
-If you click a Petrel, you will be able to click the Airlift button to
-order it to pickup the nearest friendly ground unit within 700m
+If you click a Petrel, you will be able to click the Airlift button to order it to pickup the nearest friendly ground
+unit within 700m.
 
-If the petrel is carrying cargo already, you will be able to click to deploy
-the unit at the petrel's current location.
+If the petrel is carrying cargo already, you will be able to click to deploy the unit at the petrel's current location.
 
 [h2]General Atmosphere/Gameplay[/h2]
 
 [list]
 [*] If a unit you are controlling takes a significant amount of damage (about 20%) in one hit, you will see visual interference in your HUD camera feed for a second
+[*] Each Carrier has a name! Your carrier will get a generated name visible in HUD/maps.  Names are chosen from lists of famous warships from various nations as well as some classes of sailing craft.
 [/list]
 
 [h2]Barge Cap[/h2]
@@ -69,15 +71,16 @@ the unit at the petrel's current location.
 [*] Barge camera (HUD) video streams can be jammed by enemy carriers. If your barge gets very close (<200m) to a hostile carrier, you will get increasingly more signal degredation until your video drops out.
 [/list]
 
-(In my opinion) the barge is either too cheap or too tough (1 Cruise Missile Needlefish vs 11 Barges) - 11 Barges require 55
-heavy bombs to kill - it isn't well balanced for long games with many players (more barges/fish = more lag in big games) so Revolution
-caps the number of barges
+(In my opinion) the barge is either too cheap or too tough (1 Cruise Missile Needlefish vs 11 Barges) - 11 Barges
+require 55 heavy bombs to kill - it isn't well balanced for long games with many players (more barges/fish = more lag in
+big games) so Revolution caps the number of barges.
 
 For exmaple:
 If your team has 2 carriers, and you control 2 barge islands, you will be able to build a maximum of 1 + 2 + 4 = 7 barges.
 If your team has 1 carrier, and one barge island, you'll be able to build no more than 1 + 1 + 2 = 4 total barges.
 
-If you lose an island or carrier, your barges won't go away, you just won't be able to build more than the cap for what you have.
+If you lose an island or carrier, your barges won't go away, you just won't be able to build more than the cap for what
+you have.
 
 [h2]General Info[/h2]
 
