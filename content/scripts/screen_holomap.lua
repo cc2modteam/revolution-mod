@@ -1018,6 +1018,11 @@ function _update(screen_w, screen_h, ticks)
 
         if g_button_mode == 0 then
             update_ui_text(1, 1, "MISSION TIME: " .. format_time( now / 30 ), label_w, 0, color_white, 0)
+
+            update_ui_text(screen_w / 8, screen_h - 31,
+                    string.format("ACC %s",
+                            get_ship_name(update_get_screen_vehicle())), 400, 0, color_grey_mid, 0)
+
             local ui = g_ui
 
             if is_local then

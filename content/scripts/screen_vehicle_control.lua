@@ -2959,7 +2959,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
     local special_id = vehicle:get_special_id()
 
     if vehicle_definition_index == e_game_object_type.chassis_carrier then
-        vehicle_name = get_ship_name(vehicle)
+        -- vehicle_name = get_ship_name(vehicle)
     else
         if special_id ~= 0 then
             vehicle_name = vehicle_name .. " (" .. special_id .. ")"
