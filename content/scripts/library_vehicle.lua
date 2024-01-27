@@ -1421,7 +1421,6 @@ g_ship_names_choices = {
         "KAWANISHI",
         "SHINMAYWA",
         "MARS",
-        "ALPHA",
     },
     { -- Royal Navy / Commonwealth
         "INVINCIBLE",
