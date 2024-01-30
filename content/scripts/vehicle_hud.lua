@@ -278,9 +278,9 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
             update_set_screen_background_type(0)
 
             if g_is_map_overlay then
-                local map_x = 125
+                local map_x = 32
                 local map_y = 40
-                local map_w = screen_h - 50
+                local map_w = screen_w - 50
                 local map_h = screen_h - 50
 
                 update_set_screen_background_clip(map_x, screen_h - map_y - map_h, map_w, map_h)
@@ -370,7 +370,7 @@ end
 --
 --------------------------------------------------------------------------------
 
-function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, attachment)
+function    render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, attachment)
     local screen_vehicle_def = screen_vehicle:get_definition_index()
     local camera_x = screen_vehicle:get_position():x()
     local camera_y = screen_vehicle:get_position():z()
@@ -397,8 +397,9 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
                 camera_size = 1000
             elseif  alt < 1000 then
                 camera_size = 5000
-            elseif alt > 1000 then
-                camera_size = 10000
+            end
+            if screen_vehicle:get_linear_speed() > 90 then
+                camera_size = camera_size * 2
             end
         end
     end
