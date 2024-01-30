@@ -278,9 +278,9 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
             update_set_screen_background_type(0)
 
             if g_is_map_overlay then
-                local map_x = 10
+                local map_x = 125
                 local map_y = 40
-                local map_w = screen_w - 20
+                local map_w = screen_h - 50
                 local map_h = screen_h - 50
 
                 update_set_screen_background_clip(map_x, screen_h - map_y - map_h, map_w, map_h)
@@ -375,7 +375,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local camera_x = screen_vehicle:get_position():x()
     local camera_y = screen_vehicle:get_position():z()
     local is_viewing_sub_camera = false
-    
+    local col = color8(0, 255, 0, 255)
     if attachment:get() then
         attachment:get_is_viewing_sub_camera()
     end
@@ -391,20 +391,25 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     else
         if get_is_vehicle_air(screen_vehicle_def) then
             local alt = screen_vehicle:get_altitude()
-            if alt < 200 then
+            if alt < 100 then
+                camera_size = 500
+            elseif alt < 200 then
                 camera_size = 1000
-            elseif  alt < 400 then
-                camera_size = 2000
+            elseif  alt < 1000 then
+                camera_size = 5000
             elseif alt > 1000 then
                 camera_size = 10000
             end
         end
     end
 
-    update_ui_text(20, h + 10,
-        string.format("scale: %5dm", camera_size),
-        w - 10, 0, color8(0, 255, 0, 255), 0
+    update_ui_text(2 + x, h,
+        string.format("scale: %5dm", camera_size / 2),
+        w - 10, 0, col, 3
     )
+    update_ui_line(14 + x, h + 10, 14 + x, h - 100, col)
+    update_ui_text(9 + x, h + 10, "<", 1, 0, col, 3)
+    update_ui_text(9 + x, h - 96, ">", 1, 0, col, 3)
 
     update_set_screen_map_position_scale(camera_x, camera_y, camera_size)
 
