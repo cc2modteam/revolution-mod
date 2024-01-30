@@ -1153,6 +1153,13 @@ function vehicle_has_cargo(vehicle)
     return vehicle:get_attached_vehicle_id(0) ~= 0
 end
 
+function get_vehicle_cargo_id(vehicle)
+    if vehicle_has_cargo(vehicle) then
+        return vehicle:get_attached_vehicle_id(0)
+    end
+    return nil
+end
+
 
 function get_nearest_friendly_airliftable_id(vehicle, max_range)
     if vehicle ~= nil and vehicle_can_airlift(vehicle) then

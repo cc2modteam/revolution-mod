@@ -383,6 +383,17 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
             local vehicle_definition_index = vehicle:get_definition_index()
             local vehicle_definition_name, vehicle_definition_region = get_chassis_data_by_definition_index(vehicle_definition_index)
 
+
+            if vehicle_can_airlift(vehicle) and vehicle_has_cargo(vehicle) then
+                local window2 = ui:begin_window("CARGO", 10 + left_w + 5, 10 + 94, loadout_w, 84, atlas_icons.column_stock, false, 2)
+                local region_w, region_h = ui:get_region()
+                window2.cy = region_h / 2 - 32
+                local cargo_id = get_vehicle_cargo_id(vehicle)
+                local cargo = update_get_map_vehicle_by_id(cargo_id)
+                imgui_vehicle_chassis_loadout(ui, cargo, 0)
+                ui:end_window()
+            end
+
             local hitpoints = vehicle:get_hitpoints()
             local hitpoints_total = vehicle:get_total_hitpoints()
             local damage_factor = clamp(hitpoints / hitpoints_total, 0, 1)
@@ -419,6 +430,34 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                         g_viewing_vehicle_id = vehicle:get_id()
                         g_screen_index = 1
                     end
+
+                    if vehicle_can_airlift(vehicle) then
+                        if vehicle_has_cargo(vehicle) then
+                            if ui:list_item(update_get_loc(e_loc.upp_deploy_vehicle), true) then
+                                set_airdrop_now(vehicle)
+                                g_selection:clear()
+                                g_is_ignore_tap = 1
+                            end
+                            if ui:list_item("CARGO " .. update_get_loc(e_loc.upp_camera), true) then
+                                local cargo_id = get_vehicle_cargo_id(vehicle)
+                                g_selection:set_vehicle(cargo_id)
+                                update_set_screen_vehicle_control_id(cargo_id)
+                                g_viewing_vehicle_id = cargo_id
+                                g_screen_index = 1
+                            end
+
+                        else
+                            local nearest_id, nearest_range = get_nearest_friendly_airliftable_id(vehicle, 750)
+                            if nearest_id > 0 then
+                                if ui:list_item("AIRLIFT NEAREST", true) then
+                                    set_airlift_now(vehicle, nearest_id)
+                                    g_selection:clear()
+                                    g_is_ignore_tap = 1
+                                end
+                            end
+                        end
+                    end
+
                 end
                 
                 local dock_state = vehicle:get_dock_state()
