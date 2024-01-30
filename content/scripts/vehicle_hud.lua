@@ -370,7 +370,7 @@ end
 --
 --------------------------------------------------------------------------------
 
-function    render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, attachment)
+function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, attachment)
     local screen_vehicle_def = screen_vehicle:get_definition_index()
     local camera_x = screen_vehicle:get_position():x()
     local camera_y = screen_vehicle:get_position():z()
@@ -1433,10 +1433,9 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
     local col = color8(0, 255, 0, 255)
     render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
     
-    local gun_funnel_side_dist = 5
-    local gun_funnel_forward_dist = 30
+    local gun_funnel_side_dist = 2
+    local gun_funnel_forward_dist = 18
     -- update_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist)
-    -- render_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist, color8(0, 255, 0, 255))
 
     if g_selected_target_type == 1 and g_selected_target_id ~= 0 then
         local selected_target = update_get_map_vehicle_by_id(g_selected_target_id)
@@ -1456,7 +1455,7 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
             end
         end
     end
-
+    -- render_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist, color8(0, 255, 0, 200))
     update_ui_image_rot(hud_pos:x() + 1, hud_pos:y() + 1, atlas_icons.hud_gun_crosshair, col, 0)
 
     return false
@@ -2363,9 +2362,9 @@ end
 
 function update_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist)
     local sample_interval_ticks = 1
-    local sample_history_ticks = 30
+    local sample_history_ticks = 20
 
-    local projectile_speed = 10
+    local projectile_speed = 20
 
     local tick = update_get_logic_tick()
 
@@ -2404,7 +2403,7 @@ function update_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist)
 end
 
 function render_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist, col)
-    local projectile_gravity = 0.2 / 30
+    local projectile_gravity = 0 --0.2 / 30
 
     local get_bullet_pos = function(time, start_pos, start_vel, gravity)
         local t_sq = time * time
@@ -2437,12 +2436,15 @@ function render_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist, col)
     local render_line = function(a, b, col)
         update_ui_line(
             math.floor(a:x()), 
-            math.floor(a:y()), 
+            math.floor(a:y() + 5),
             math.floor(b:x()), 
-            math.floor(b:y()), 
+            math.floor(b:y() + 5),
             col
         )
     end
+
+    local last_left = nil
+    local last_right = nil
     
     for _, next in iter_sorted(g_gun_funnel_history, sort_func) do
         if prev then
@@ -2466,6 +2468,8 @@ function render_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist, col)
             if is_behind_right_next == false then
                 render_line(screen_prev_right, screen_next_right, col)
             end
+            last_left = pos_prev_left
+            last_right = pos_prev_right
         end
 
         prev = next
