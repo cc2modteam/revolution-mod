@@ -1437,11 +1437,8 @@ g_ship_names_choices = {
         "ILLUSTRIOUS",
         "OCEAN",
         "QUEEN ELIZABETH",
-        "VINDICTIVE",
-        "GLORY",
         "WARRIOR",
         "MAJESTIC",
-        "COURAGEOUS",
         "CANBERRA",  -- RAN
         "MELBOURNE",  -- RAN
         "BONAVENTURE", -- RCN
@@ -1458,11 +1455,13 @@ g_ship_names_choices = {
     { -- US Navy
         "TARAWA",
         "YORKTOWN",
-        "ENTERPRIZE",
+        "ENTERPRISE",
         "SARATOGA",
         "ROOSEVELT",
         "HORNET",
         "MIDWAY",
+        "DAUNTLESS",
+        "IKE",
         "RANGER",
         "LEXINGTON",
     },
@@ -1502,6 +1501,32 @@ g_ship_names_choices = {
         "FUJI",
         "YAMATO",
         "MUSASHI",
+    },
+    { -- Courage
+        "HERCULES",
+        "TORTUROUS",
+        "STALWART",
+        "THUNDERCHILD",
+        "HARBINGER",
+        "VINDICTIVE",
+        "GLORY",
+        "COURAGEOUS",
+    },
+    { -- Beasts
+        "DRACONIS",
+        "REX",
+        "LUPIS",
+        "CHARYBDIS",
+        "BARRACUDA",
+    },
+    { -- Oddballs
+        "SPECTRUM",
+        "VANGUARD",
+        "TITAN",
+        "TWILIGHT",
+        "AURORA",
+        "SHIP HAPPENS",
+        "BOATY MCBOATFACE",
     }
 }
 
