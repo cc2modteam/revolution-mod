@@ -1442,6 +1442,8 @@ g_ship_names_choices = {
         "CANBERRA",  -- RAN
         "MELBOURNE",  -- RAN
         "BONAVENTURE", -- RCN
+        "DREADNAUGHT",
+        "BELLEROPHON",
     },
     { -- Indian Navy
         "VIKRANT",
@@ -1518,6 +1520,7 @@ g_ship_names_choices = {
         "LUPIS",
         "CHARYBDIS",
         "BARRACUDA",
+        "MINOTAUR",
     },
     { -- Oddballs
         "SPECTRUM",
@@ -1527,6 +1530,7 @@ g_ship_names_choices = {
         "AURORA",
         "SHIP HAPPENS",
         "BOATY MCBOATFACE",
+        "SNOW LEOPARD",
     }
 }
 
