@@ -1093,6 +1093,7 @@ end
 
 F_DRYDOCK_WPTX_CURSOR   = 0x01
 F_DRYDOCK_WPTX_MARKER   = 0x02
+F_DRYDOCK_WPTX_SETTING  = 0x04
 
 MARKER_WPT_OFFSET = 80000
 
@@ -1268,16 +1269,16 @@ function get_marker_name(marker_id)
     return ""
 end
 
-function get_marker_waypoint(team_id, marker_id)
+function get_special_waypoint(team_id, flag, special_id)
     local drydock = find_team_drydock(team_id)
     if drydock then
         local waypoint_count = drydock:get_waypoint_count()
         for i = 0, waypoint_count - 1, 1 do
             local waypoint = drydock:get_waypoint(i)
             if waypoint ~= nil then
-                if waypoint_flag_isset(waypoint, F_DRYDOCK_WPTX_MARKER) then
+                if waypoint_flag_isset(waypoint, flag) then
                     local pos = waypoint:get_position_xz()
-                    if math.floor(pos:y()) == marker_id then
+                    if math.floor(pos:y()) == special_id then
                         return waypoint
                     end
                 end
@@ -1287,8 +1288,12 @@ function get_marker_waypoint(team_id, marker_id)
     return nil
 end
 
-function add_marker_waypoint(team_id, marker_id)
-    local current = get_marker_waypoint(team_id, marker_id)
+function get_marker_waypoint(team_id, marker_id)
+    return get_special_waypoint(team_id, F_DRYDOCK_WPTX_MARKER, marker_id)
+end
+
+function add_special_waypoint(team_id, flag, special_id)
+    local current = get_special_waypoint(team_id, flag, special_id)
     local drydock = find_team_drydock(team_id)
 
     if drydock == nil then
@@ -1297,12 +1302,16 @@ function add_marker_waypoint(team_id, marker_id)
 
     if current == nil then
         -- add one
-        local w_id = drydock:add_waypoint(F_DRYDOCK_WPTX_MARKER, marker_id)
+        local w_id = drydock:add_waypoint(flag, special_id)
         drydock:set_waypoint_altitude(w_id, 0)
         current = drydock:get_waypoint_by_id(w_id)
     end
 
     return current
+end
+
+function add_marker_waypoint(team_id, marker_id)
+    return add_special_waypoint(team_id, F_DRYDOCK_WPTX_MARKER, marker_id)
 end
 
 g_pending_marker_values = {}
@@ -1348,6 +1357,10 @@ function get_marker_value(team_id, marker_id)
 end
 
 function set_marker_waypoint(team_id, marker_id, x, y)
+    if is_marker_value_pending(marker_id) then
+        return
+    end
+
     local marker = get_marker_waypoint(team_id, marker_id)
     if marker ~= nil then
         local drydock = find_team_drydock(team_id)
