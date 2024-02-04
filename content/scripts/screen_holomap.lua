@@ -174,14 +174,10 @@ function _update(screen_w, screen_h, ticks)
         if g_pointer_hold_count > 5 then
             if not g_is_pointer_hold then
                 g_is_pointer_hold = true
-                print(" hold down")
             end
         end
     else
         g_pointer_hold_count = 0
-        if g_is_pointer_hold then
-            print(" hold release")
-        end
         g_is_pointer_hold = false
     end
 
@@ -1239,19 +1235,12 @@ g_pointer_hold_count = 0
 
 
 function input_event(event, action)
-    print("input_event")
     g_is_pointer_down = false
     g_is_pointer_release = false
 
     if event == e_input.pointer_1 then
         g_is_pointer_release = e_input_action.release == action
         g_is_pointer_down = e_input_action.press == action
-        if g_is_pointer_release then
-            print("pointer release")
-        end
-        if g_is_pointer_down then
-            print("pointer down")
-        end
     end
 
     g_ui:input_event(event, action)
