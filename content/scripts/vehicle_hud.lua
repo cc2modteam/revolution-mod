@@ -3799,8 +3799,9 @@ function render_bad_signal(vehicle, screen_w, screen_h)
     update_ui_text(x, y + 35, text, 200, 0, color, 0)
 end
 
-function find_nearest_hostile_vehicle(vehicle, other_def)
-    -- find the nearest unit of a particualr type
+
+function find_nearest_vehicle(vehicle, other_def, hostile)
+        -- find the nearest unit of a particualr type
     local vehicle_count = update_get_map_vehicle_count()
     local self_team = vehicle:get_team_id()
     local self_pos = vehicle:get_position()
@@ -3810,7 +3811,12 @@ function find_nearest_hostile_vehicle(vehicle, other_def)
     for i = 0, vehicle_count - 1 do
         local unit = update_get_map_vehicle_by_index(i)
         if unit:get() then
-            if unit:get_team_id() ~= self_team then
+            local match_team = unit:get_team_id() == self_team
+            if hostile then
+                match_team = not match_team
+            end
+
+            if match_team then
                 if unit:get_definition_index() == other_def then
                     local dist = vec3_dist(self_pos, unit:get_position())
                     if dist < distance then
@@ -3823,6 +3829,10 @@ function find_nearest_hostile_vehicle(vehicle, other_def)
     end
 
     return nearest
+end
+
+function find_nearest_hostile_vehicle(vehicle, other_def)
+   return find_nearest_vehicle(vehicle, other_def, true)
 end
 
 function render_fault(vehicle, screen_w, screen_h)

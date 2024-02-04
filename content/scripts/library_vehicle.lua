@@ -689,6 +689,16 @@ g_radar_ranges = {
     golfball = 10000,
 }
 
+g_radar_multiplier = 1
+
+function get_radar_multiplier()
+
+    -- get_special_waypoint(update_get_screen_team_id(), F_DRYDOCK_WPTX_SETTING)
+
+    return g_radar_multiplier
+end
+
+
 function _get_radar_detection_range(definition_index)
     if definition_index == e_game_object_type.attachment_turret_carrier_ciws then
         return g_radar_ranges.ciws
@@ -768,7 +778,7 @@ function get_modded_radar_range(vehicle)
                 end
             end
 
-            return range
+            return range * get_radar_multiplier()
         end
     end
     return 0
@@ -1095,6 +1105,11 @@ F_DRYDOCK_WPTX_CURSOR   = 0x01
 F_DRYDOCK_WPTX_MARKER   = 0x02
 F_DRYDOCK_WPTX_SETTING  = 0x04
 
+-- y() values for settings waypoints
+WPT_SETTING_RADAR_X1   = 1  -- no multiplier
+WPT_SETTING_RADAR_X1_5 = 2  -- x1.5
+WPT_SETTING_RADAR_X2   = 3  -- x2
+
 MARKER_WPT_OFFSET = 80000
 
 MASK_DRYDOCK_WPTX_FLAGS = 0x00000000FF
@@ -1357,16 +1372,18 @@ function get_marker_value(team_id, marker_id)
 end
 
 function set_marker_waypoint(team_id, marker_id, x, y)
-    if is_marker_value_pending(marker_id) then
-        return
-    end
+    if update_get_is_focus_local() then
+        if is_marker_value_pending(marker_id) then
+            return
+        end
 
-    local marker = get_marker_waypoint(team_id, marker_id)
-    if marker ~= nil then
-        local drydock = find_team_drydock(team_id)
-        local packed = pack_alt_xy(x, y)
-        set_marker_pending(marker_id, packed)
-        drydock:set_waypoint_altitude(marker:get_id(), packed)
+        local marker = get_marker_waypoint(team_id, marker_id)
+        if marker ~= nil then
+            local drydock = find_team_drydock(team_id)
+            local packed = pack_alt_xy(x, y)
+            set_marker_pending(marker_id, packed)
+            drydock:set_waypoint_altitude(marker:get_id(), packed)
+        end
     end
 end
 
@@ -1578,7 +1595,14 @@ function _get_ship_name(vehicle)
             else
                 team = vehicle:get_team()
             end
-            local team_names = (team + g_ship_name_pseudo2) % #g_ship_names_choices
+            local perturb = g_ship_name_pseudo
+
+            local ship_setting = get_carrier_lifeboat_attachments_value(vehicle)
+            if ship_setting > 0 then
+                perturb = perturb + ship_setting
+            end
+
+            local team_names = (team + perturb) % #g_ship_names_choices
 
             local choices = g_ship_names_choices[1 + team_names]
 
@@ -1594,4 +1618,105 @@ function _get_ship_name(vehicle)
         end
     end
     return ""
+end
+
+function get_team_carriers(team)
+    local carriers = {}
+    local vehicle_count = update_get_map_vehicle_count()
+
+    for i = 0, vehicle_count - 1, 1 do
+        local vehicle = update_get_map_vehicle_by_index(i)
+
+        if vehicle:get() then
+            local vehicle_definition_index = vehicle:get_definition_index()
+            if vehicle_definition_index == e_game_object_type.chassis_carrier then
+                if vehicle:get_team() == team then
+                    table.insert(carriers, vehicle)
+                end
+            end
+        end
+    end
+    return carriers
+end
+
+function left_shift(x, bits)
+    return math.floor(x * (2^bits))
+end
+
+function right_shift(x, bits)
+    return math.floor(x / (2^bits))
+end
+
+g_carrier_lifeboat_bay_index = 16
+
+function set_carrier_lifeboat_attachments_value(vehicle, value)
+    local st, err = pcall(function()
+        if vehicle and vehicle:get() then
+            local lifeboat = update_get_map_vehicle_by_id(vehicle:get_attached_vehicle_id(g_carrier_lifeboat_bay_index))
+            if lifeboat and lifeboat:get() then
+                if lifeboat:get_definition_index() == e_game_object_type.chassis_sea_lifeboat then
+                    for i = 0, lifeboat:get_attachment_count()
+                    do
+                        if (right_shift(value, i) & 0x1) == 1 then
+                            vehicle:set_attached_vehicle_attachment(g_carrier_lifeboat_bay_index, i, e_game_object_type.attachment_camera)
+                        else
+                            vehicle:set_attached_vehicle_attachment(g_carrier_lifeboat_bay_index, i, -1)
+                        end
+                    end
+                    -- print(get_carrier_lifeboat_attachments_value(vehicle))
+                end
+            end
+        end
+
+    end)
+    if not st then
+        print(err)
+    end
+end
+
+
+function get_carrier_lifeboat(carrier)
+
+    if carrier.get_attached_vehicle_id == nil then
+        -- we are in the hud, find the lifeboat the crap way by finding the nearest lifeboat
+        -- to this carrier.. omg...
+        local lifeboat = find_nearest_vehicle(carrier, e_game_object_type.chassis_sea_lifeboat, false )
+        if lifeboat and lifeboat:get() then
+            return lifeboat
+        end
+    else
+        local lifeboat = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(g_carrier_lifeboat_bay_index))
+        return lifeboat
+    end
+    return nil
+end
+
+
+function get_carrier_lifeboat_attachments_value(vehicle)
+    -- this is insane, but it is how we can store "settings" for a team
+    -- and have it readable in all scripts including the HUD.
+    if vehicle and vehicle:get() then
+        -- assume that this is our carrier
+        -- iterate the 4 attachments on the lifeboat, empty/present is 0/1 for that bit,
+        -- this gives us 0-15 we can use
+        local lifeboat = get_carrier_lifeboat(vehicle)
+        if lifeboat and lifeboat:get() then
+            if lifeboat:get_definition_index() == e_game_object_type.chassis_sea_lifeboat then
+                local value = 0
+                for i = 0, lifeboat:get_attachment_count()
+                do
+                    local attached = lifeboat:get_attachment(i)
+                    if attached ~= nil then
+                        if attached:get() then
+                            if attached:get_definition_index() == e_game_object_type.attachment_camera then
+                                value = value | left_shift(1, i)
+                            end
+                        end
+                    end
+                end
+                return value
+            end
+        end
+    end
+    return 0
 end

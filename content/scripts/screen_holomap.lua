@@ -2163,6 +2163,8 @@ function render_selection_carrier(screen_w, screen_h, carrier_vehicle)
     local region_w = 0
     local region_h = 0
 
+    print(get_carrier_lifeboat_attachments_value(carrier_vehicle))
+
     update_add_ui_interaction_special(update_get_loc(e_loc.interaction_navigate), e_ui_interaction_special.gamepad_dpad_all)
 
     local window = ui:begin_window(update_get_loc(e_loc.upp_docked), 10 + (screen_w / 4), 10, left_w, 130, atlas_icons.column_pending, true, 2)

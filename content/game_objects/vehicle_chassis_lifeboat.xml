@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data display_name_loc="0" bounding_radius="3.00000000e+00" lod_scale="1.00000000e+00" ai_type="1">
+	<bodies>
+		<body mass="1.00000000e+03" name="body" is_static="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="-5.18986187e-09" m20="0.00000000e+00" m21="5.18986187e-09" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.00000000e+00" tz="0.00000000e+00"/>
+			<meshes/>
+			<boxes>
+				<box>
+					<size x="1.70000005e+00" y="2.00000003e-01" z="6.00000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="5.09999990e-01" tz="0.00000000e+00"/>
+				</box>
+				<box>
+					<size x="6.99999988e-01" y="5.00000000e-01" z="6.00000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.20000005e+00" ty="6.00000024e-01" tz="-5.00000000e-01"/>
+				</box>
+				<box>
+					<size x="6.99999988e-01" y="5.00000000e-01" z="6.00000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.20000005e+00" ty="6.00000024e-01" tz="-5.00000000e-01"/>
+				</box>
+				<box>
+					<size x="1.50000000e+00" y="1.00000000e+00" z="2.50000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.50000000e+00" tz="-2.79999995e+00"/>
+				</box>
+				<box>
+					<size x="1.50000000e+00" y="5.00000000e-01" z="1.00000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.00000000e+00" tz="2.00000000e+00"/>
+				</box>
+				<box>
+					<size x="1.60000002e+00" y="2.00000003e-01" z="3.00000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="2.20000005e+00" tz="-3.00000012e-01"/>
+				</box>
+			</boxes>
+			<spheres/>
+		</body>
+		<body mass="1.00000000e+00" name="body_front" is_static="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="8.22691798e-01" m12="5.68487644e-01" m20="0.00000000e+00" m21="-5.68487644e-01" m22="8.22691798e-01" tx="0.00000000e+00" ty="1.00000000e+00" tz="0.00000000e+00"/>
+			<meshes/>
+			<boxes>
+				<box>
+					<size x="1.60000002e+00" y="2.00000003e-01" z="2.00000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="2.40000010e+00" tz="6.99999988e-01"/>
+				</box>
+			</boxes>
+			<spheres/>
+		</body>
+	</bodies>
+	<constraints>
+		<constraint name="constraint_revolute_right" type="3" body_0="0" body_1="2" is_limits="false" limit_min="0.00000000e+00" limit_max="0.00000000e+00" drive_stiffness="1.00000000e+00" drive_damping="1.00000000e+00" drive_max_delta_position="1.00000000e+00" drive_max_delta_velocity="1.00000000e+00">
+			<transform m00="-4.37113883e-08" m01="0.00000000e+00" m02="1.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-1.00000000e+00" m21="0.00000000e+00" m22="-4.37113883e-08" tx="4.00000006e-01" ty="3.23214579e+00" tz="-2.69611627e-01"/>
+		</constraint>
+		<constraint name="constraint_revolute_left" type="3" body_0="0" body_1="1" is_limits="false" limit_min="0.00000000e+00" limit_max="0.00000000e+00" drive_stiffness="1.00000000e+00" drive_damping="1.00000000e+00" drive_max_delta_position="1.00000000e+00" drive_max_delta_velocity="1.00000000e+00">
+			<transform m00="-4.37113883e-08" m01="0.00000000e+00" m02="1.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-1.00000000e+00" m21="0.00000000e+00" m22="-4.37113883e-08" tx="-4.00000006e-01" ty="3.23214579e+00" tz="-2.69611627e-01"/>
+		</constraint>
+	</constraints>
+	<meshes>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat.mesh" name="base" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.05681062e+00" tz="-3.21581185e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_door_left.mesh" name="door_left" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="-3.82887065e-01" ty="2.25891161e+00" tz="-3.02175045e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_door_right.mesh" name="door_right" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="3.82700086e-01" ty="2.25804114e+00" tz="-3.01955193e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_handle_outside.mesh" name="handle_left" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="-9.05839562e-01" ty="1.25228095e+00" tz="5.05554020e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_handle_outside.mesh" name="handle_right" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.37113883e-08" m01="9.99999940e-01" m02="3.55271368e-15" m10="1.00000000e+00" m11="-4.37113847e-08" m12="1.19209290e-07" m20="8.94069672e-08" m21="0.00000000e+00" m22="-1.00000000e+00" tx="8.96949828e-01" ty="1.25228095e+00" tz="5.05554020e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_handle_inside.mesh" name="handle_mid_right" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="7.82719135e-01" ty="1.20207119e+00" tz="8.31395388e-04"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_handle_inside.mesh" name="handle_top_right" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="7.82719135e-01" ty="1.20207119e+00" tz="9.08825397e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_handle_inside.mesh" name="handle_bottom_right" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="7.38804102e-01" ty="1.20207119e+00" tz="-9.87680018e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_handle_inside.mesh" name="handle_bottom_left" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.37113883e-08" m01="1.00000000e+00" m02="3.82137093e-15" m10="1.00000000e+00" m11="-4.37113883e-08" m12="8.74227766e-08" m20="8.74227695e-08" m21="0.00000000e+00" m22="-9.99999940e-01" tx="-7.40048230e-01" ty="1.20207119e+00" tz="-9.87680018e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_handle_inside.mesh" name="handle_top_left" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.37113883e-08" m01="1.00000000e+00" m02="3.82137093e-15" m10="1.00000000e+00" m11="-4.37113883e-08" m12="8.74227766e-08" m20="8.74227695e-08" m21="0.00000000e+00" m22="-9.99999940e-01" tx="-8.55126619e-01" ty="1.20207119e+00" tz="9.08825397e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_handle_inside.mesh" name="handle_mid_left" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.37113883e-08" m01="1.00000000e+00" m02="-3.82137093e-15" m10="1.00000000e+00" m11="-4.37113883e-08" m12="-8.74227766e-08" m20="-8.74227695e-08" m21="0.00000000e+00" m22="-9.99999940e-01" tx="-8.00704300e-01" ty="1.20207119e+00" tz="8.31395388e-04"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_propeller.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="0.00000000e+00" ty="4.02000308e-01" tz="-3.87257457e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat_steeringwheel.mesh" name="steering_wheel" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="7.07106769e-01" m12="-7.07106769e-01" m20="0.00000000e+00" m21="7.07106769e-01" m22="7.07106769e-01" tx="-4.71401960e-01" ty="1.40785003e+00" tz="1.50103450e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/vehicle_lods/lifeboat_low.mesh" name="lod 1" lod="1" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.05700004e+00" tz="-3.21999997e-01"/>
+		</mesh>
+	</meshes>
+	<wheels/>
+	<attachments>
+		<attachment name="vehicle_control" type="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
+					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
+					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
+					   tx="0" ty="0" tz="0"/>
+		</attachment>
+		<attachment name="vehicle_control" type="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
+					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
+					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
+					   tx="0" ty="0" tz="0"/>
+		</attachment>
+		<attachment name="vehicle_control" type="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
+					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
+					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
+					   tx="0" ty="0" tz="0"/>
+		</attachment>
+		<attachment name="vehicle_control" type="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
+					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
+					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
+					   tx="0" ty="0" tz="0"/>
+		</attachment>
+		<attachment name="vehicle_control" type="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
+					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
+					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
+					   tx="0" ty="0" tz="0"/>
+		</attachment>
+	</attachments>
+	<force_emitters>
+		<force_emitter name="water" magnitude="3.20000000e+01">
+			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="-0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="0.00000000e+00" ty="0.00000000e+00" tz="-2.00000000e+00"/>
+		</force_emitter>
+		<force_emitter name="water_side" magnitude="4.00000000e+00">
+			<transform m00="-4.37113847e-08" m01="0.00000000e+00" m02="9.99999940e-01" m10="1.00000000e+00" m11="-4.37113847e-08" m12="4.37113883e-08" m20="4.37113883e-08" m21="9.99999940e-01" m22="1.91068547e-15" tx="0.00000000e+00" ty="0.00000000e+00" tz="-2.00000000e+00"/>
+		</force_emitter>
+	</force_emitters>
+	<control_surfaces>
+		<control_surface size="8.00000000e+00" max_angle="1.00000000e+00" water="true" name="control_surface">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="0.00000000e+00" ty="-1.00000000e+00" tz="0.00000000e+00"/>
+		</control_surface>
+	</control_surfaces>
+	<projectile_emitters/>
+	<cameras/>
+	<buoyancys>
+		<buoyancy name="buoyancy" radius="7.50000000e-01" magnitude="3.00000000e+00">
+			<pos x="-1.50000000e+00" y="2.50000000e-01" z="3.00000000e+00"/>
+		</buoyancy>
+		<buoyancy name="buoyancy" radius="7.50000000e-01" magnitude="3.00000000e+00">
+			<pos x="1.50000000e+00" y="2.50000000e-01" z="3.00000000e+00"/>
+		</buoyancy>
+		<buoyancy name="buoyancy" radius="7.50000000e-01" magnitude="3.00000000e+00">
+			<pos x="-1.50000000e+00" y="2.50000000e-01" z="-3.00000000e+00"/>
+		</buoyancy>
+		<buoyancy name="buoyancy" radius="7.50000000e-01" magnitude="3.00000000e+00">
+			<pos x="1.50000000e+00" y="2.50000000e-01" z="-3.00000000e+00"/>
+		</buoyancy>
+		<buoyancy name="buoyancy" radius="1.00000000e+00" magnitude="2.00000000e+00">
+			<pos x="0.00000000e+00" y="4.00000000e+00" z="0.00000000e+00"/>
+		</buoyancy>
+	</buoyancys>
+	<vehicle_attachments/>
+	<lights>
+		<light name="light" body_index="0" scale="1.00000000e+00" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.14262803e-04" ty="2.15222096e+00" tz="-6.85739875e-01"/>
+			<color x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light_ext" body_index="0" scale="1.00000000e+00" is_spotlight="true" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.14262803e-04" ty="1.60878015e+00" tz="2.38552713e+00"/>
+			<color x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+	</lights>
+	<seats/>
+	<button_panels>
+		<button_panel name="button_panel" body_index="0" texture="">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="7.07106769e-01" m12="-7.07106769e-01" m20="0.00000000e+00" m21="7.07106769e-01" m22="7.07106769e-01" tx="0.00000000e+00" ty="1.45964289e+00" tz="1.56434774e+00"/>
+			<size x="1.20000005e+00" y="1.00000001e-01" z="4.00000006e-01"/>
+		</button_panel>
+	</button_panels>
+	<buttons>
+		<button name="button_deploy" display_name_loc="455" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="4">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.00563228e-01" ty="4.41489043e-03" tz="1.17570691e-01"/>
+		</button>
+		<button name="button_start" display_name_loc="445" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="1">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-5.49823344e-01" ty="-1.97436326e-04" tz="1.20004907e-01"/>
+		</button>
+		<button name="button_stop" display_name_loc="446" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="1">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-3.87801677e-01" ty="-1.50890485e-03" tz="1.20192036e-01"/>
+		</button>
+		<button name="button_lights" display_name_loc="514" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="2">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000012e+00" m12="-2.18556959e-08" m20="0.00000000e+00" m21="2.18556959e-08" m22="1.00000012e+00" tx="4.04998027e-02" ty="3.82639887e-03" tz="-3.82639887e-03"/>
+		</button>
+		<button name="button_lights_ext" display_name_loc="515" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="2">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000012e+00" m12="-2.18556959e-08" m20="0.00000000e+00" m21="2.18556959e-08" m22="1.00000012e+00" tx="3.90247405e-02" ty="-3.16411810e-04" tz="-1.39015719e-01"/>
+		</button>
+		<button name="button_reverse" display_name_loc="447" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="2">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-2.46613652e-01" ty="4.41489043e-03" tz="1.17570691e-01"/>
+		</button>
+	</buttons>
+	<indicators/>
+	<dials>
+		<dial name="dial_fuel" display_name_loc="396" body_index="0" button_panel_index="0" type="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000012e+00" m12="-2.18556959e-08" m20="0.00000000e+00" m21="2.18556959e-08" m22="1.00000012e+00" tx="-1.71771586e-01" ty="1.17269647e-03" tz="-7.09371492e-02"/>
+		</dial>
+	</dials>
+	<screens>
+		<screen name="screen_map" display_name_loc="516" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="4294967295" controls="Q: Exit" type="3">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="7.07106769e-01" m12="-7.07106769e-01" m20="0.00000000e+00" m21="7.07106769e-01" m22="7.07106769e-01" tx="3.79076362e-01" ty="1.47981906e+00" tz="1.57684195e+00"/>
+		</screen>
+	</screens>
+	<doors/>
+	<graph_nodes/>
+	<graph_links/>
+	<foam_emitters>
+		<foam_emitter body_index="0" radius="1.00000000e+00" foam_scale="2.00000000e+00">
+			<position x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</foam_emitter>
+	</foam_emitters>
+	<particle_emitters/>
+	<sensors/>
+	<holomaps/>
+	<damage_zones/>
+	<nav_meshes/>
+</data>
+
