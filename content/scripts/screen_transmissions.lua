@@ -30,11 +30,21 @@ function update(screen_w, screen_h, ticks)
     ui:begin_ui()
 
     if team:get() then
+        local can_change_game_settings = false
+        local lock_game_settings_after = 120
+        local game_seconds = math.floor(update_get_logic_tick() / 30)
+
+        if game_seconds < lock_game_settings_after then
+            can_change_game_settings = true
+        end
+
+
         local current_ship = update_get_screen_vehicle()
         local main_win_h = screen_h - 11
 		local win_main = ui:begin_window(update_get_loc(e_loc.upp_options), 5, 5, screen_w - 10, main_win_h,
 				atlas_icons.column_distance, attached, 0, true, true)
 		local region_w, region_h = ui:get_region()
+
 		ui:header(update_get_loc(e_loc.upp_carrier))
 		ui:text(get_ship_name(current_ship))
         if ui:button("CHANGE", attached, 0) then
@@ -47,6 +57,26 @@ function update(screen_w, screen_h, ticks)
                 set_carrier_lifeboat_attachments_value(current_ship, value)
             end
 		end
+
+        ui:header("Revolution Settings")
+        if game_seconds < lock_game_settings_after then
+            ui:text(string.format("Lock Settings in %d sec", lock_game_settings_after - game_seconds))
+        else
+            ui:text("Settings locked")
+        end
+
+        ui:text("AWACS " .. update_get_loc(e_loc.upp_range))
+        local awacs_range = 10 * get_radar_multiplier()
+        ui:text(string.format("%d km", math.floor(awacs_range)))
+        if ui:button("CHANGE", can_change_game_settings, 0) then
+
+        end
+
+        ui:text("FOG OF WAR")
+        ui:text("enabled")
+        if ui:button("CHANGE", can_change_game_settings, 0) then
+
+        end
 
 		ui:end_window()
 
