@@ -1534,12 +1534,12 @@ g_ship_names_choices = {
         "SNOW LEOPARD",
     },
     { -- UEC Peacekeeping Force
-        "ROGUE AZURE"
-        "PURPLE PHOENIX"
-        "CRIMSON SENTINAL"
-        "FORSAKEN ONYX"
-        "OBSIDIAN SARAPH"
-        "VELVET BANSHEE"
+        "ROGUE AZURE",
+        "PURPLE PHOENIX",
+        "CRIMSON SENTINAL",
+        "FORSAKEN ONYX",
+        "OBSIDIAN SARAPH",
+        "VELVET BANSHEE",
 }
 
 function set_ship_names()
