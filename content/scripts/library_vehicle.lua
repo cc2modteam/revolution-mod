@@ -1536,9 +1536,11 @@ g_ship_names_choices = {
     { -- UEC Peacekeeping Force
         "ROGUE AZURE",
         "PURPLE PHOENIX",
+        "EMERALD BLAZE",
+        "VOID SAPPHIRE",
         "CRIMSON SENTINAL",
         "FORSAKEN ONYX",
-        "OBSIDIAN SARAPH",
+        "OBSIDIAN SERAPH",
         "VELVET BANSHEE",
 }
 
