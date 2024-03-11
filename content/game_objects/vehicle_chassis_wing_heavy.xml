@@ -83,7 +83,7 @@
 	</meshes>
 	<wheels>
 		<wheel steerable="true" stiffness="2.00000000e+02" damping="2.50000000e+02" suspension_length="5.00000000e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="5.00000000e-01" name="wheel_front" acceleration="2.00000003e-01">
-			<pos x="0.00000000e+00" y="-1.79999995e+00" z="2.59618425e+00"/>
+			<pos x="0.50000000e+00" y="-1.79999995e+00" z="2.59618425e+00"/>
 		</wheel>
 		<wheel steerable="false" stiffness="6.00000000e+01" damping="1.00000000e+02" suspension_length="5.00000000e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="5.00000000e-01" name="wheel_left" acceleration="2.00000003e-01">
 			<pos x="-1.70000005e+00" y="-1.73000002e+00" z="-2.26999998e+00"/>
