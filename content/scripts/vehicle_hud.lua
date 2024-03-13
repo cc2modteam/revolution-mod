@@ -150,6 +150,7 @@ end
 function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
     update_animations(delta_time, vehicle)
     g_notification:update(delta_time, vehicle)
+
     g_is_attachment_linked = false
 
     g_is_render_speed = true
@@ -174,8 +175,13 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
             Variometer:update(vehicle)
             local attachment = vehicle:get_attachment(g_selected_attachment_index)
             local is_attachment_render_center = false
+            local is_render_awacs = false
 
-            if g_is_map_overlay == false then
+            if attachment and attachment:get_definition_index() == e_game_object_type.attachment_radar_awacs then
+                is_render_awacs = true
+            end
+
+            if not is_render_awacs and not g_is_map_overlay then
                 if vehicle:get_attachment_count() > 1 and vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
                     if update_get_active_input_type() == e_active_input.gamepad then
                         update_add_ui_interaction(update_get_loc(e_loc.interaction_select_attachment), e_game_input.select_attachment_prev)
@@ -228,7 +234,7 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
                 update_add_ui_interaction(update_get_loc(e_loc.interaction_hide_map), e_game_input.map_overlay)
             end
             
-            if g_is_map_overlay == false then
+            if not is_render_awacs and not g_is_map_overlay then
                 if attachment:get() then       
                     if attachment:get_definition_index() < e_game_object_type.count then
                         render_attachment_info(vec2(10, screen_h / 2 - 80), map_data, vehicle, attachment, 255, screen_w, screen_h)
@@ -278,11 +284,11 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
 
             update_set_screen_background_type(0)
 
-            if g_is_map_overlay then
-                local map_x = 32
-                local map_y = 40
-                local map_w = screen_w - 50
-                local map_h = screen_h - 50
+            if g_is_map_overlay or is_render_awacs then
+                local map_x = 12
+                local map_y = 32
+                local map_w = screen_w - 25
+                local map_h = screen_h - 63
 
                 update_set_screen_background_clip(map_x, screen_h - map_y - map_h, map_w, map_h)
                 update_set_screen_background_type(8)
@@ -381,6 +387,8 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         attachment:get_is_viewing_sub_camera()
     end
 
+    local awacs_mode = false
+
     if is_viewing_sub_camera then
         camera_x = update_get_camera_position():x()
         camera_y = update_get_camera_position():z()
@@ -392,11 +400,8 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     else
         if get_is_vehicle_air(screen_vehicle_def) then
             local alt = screen_vehicle:get_altitude()
-            if alt < 100 then
-                camera_size = 500
-            elseif alt < 200 then
-                camera_size = 1000
-            elseif  alt < 1000 then
+            camera_size = 2000
+            if alt > 1000 then
                 camera_size = 5000
             end
             if screen_vehicle:get_linear_speed() > 90 then
@@ -405,13 +410,69 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         end
     end
 
-    update_ui_text(2 + x, h,
-        string.format("scale: %5dm", camera_size / 2),
-        w - 10, 0, col, 3
-    )
-    update_ui_line(14 + x, h + 10, 14 + x, h - 100, col)
-    update_ui_text(9 + x, h + 10, "<", 1, 0, col, 3)
-    update_ui_text(9 + x, h - 96, ">", 1, 0, col, 3)
+    -- if this is an AWACS, enable awacs mode
+    if attachment and attachment:get_definition_index() == e_game_object_type.attachment_radar_awacs then
+        awacs_mode = true
+        update_set_screen_background_type(6)
+    end
+
+    if awacs_mode then
+        camera_size = 20000
+    end
+
+    if awacs_mode then
+        -- range rings
+        local range_ring_col = color8(255, 255, 255, 130)
+
+        local pix_per_meter = screen_h / camera_size
+
+        render_circle(vec2(screen_w / 2, screen_h / 2), pix_per_meter * 2000, 16, range_ring_col)
+        update_ui_text((screen_w / 2) + pix_per_meter * 2000, screen_h / 2.05,
+                "2000", 32, 0, range_ring_col, 0)
+
+        render_circle(vec2(screen_w / 2, screen_h / 2), pix_per_meter * 4000, 20, range_ring_col)
+
+
+        render_circle(vec2(screen_w / 2, screen_h / 2), pix_per_meter * 6000, 24, range_ring_col)
+        update_ui_text((screen_w / 2) + pix_per_meter * 6000, screen_h / 2.05,
+                "6000", 32, 0, range_ring_col, 0)
+
+        render_circle(vec2(screen_w / 2, screen_h / 2), pix_per_meter * 8000, 24, range_ring_col)
+
+        -- dark background
+        update_ui_rectangle(0, 0, screen_w, screen_h, color8(8, 8, 8, 210))
+
+        local fuel_pct = math.floor(screen_vehicle:get_fuel_factor() * 100)
+        local fuel_col = col
+
+        local anim = update_get_logic_tick() % 60
+
+        if get_is_fuel_warning(screen_vehicle) then
+            if anim < 30 then
+                fuel_col = color_enemy
+            end
+        end
+        update_ui_text(2 + x, h,
+                "AWACS",
+                w - 10, 0, col, 3
+        )
+
+        update_ui_text(w - 45, h - 160,
+                string.format("FUEL %d%%", fuel_pct),
+                60, 0, fuel_col, 0
+        )
+
+
+    else
+        update_ui_text(2 + x, h,
+                string.format("scale: %5dm", camera_size / 2),
+                w - 10, 0, col, 3
+        )
+        update_ui_line(14 + x, h + 10, 14 + x, h - 100, col)
+        update_ui_text(9 + x, h + 10, "<", 1, 0, col, 3)
+        update_ui_text(9 + x, h - 96, ">", 1, 0, col, 3)
+
+    end
 
     update_set_screen_map_position_scale(camera_x, camera_y, camera_size)
 
@@ -448,12 +509,19 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local cone_length = 1000
     local p1 = vec2(math.sin(heading - fov / 2) * cone_length, -math.cos(heading - fov / 2) * cone_length)
     local p2 = vec2(math.sin(heading + fov / 2) * cone_length, -math.cos(heading + fov / 2) * cone_length)
-    
-    update_ui_begin_triangles()
-    update_ui_add_triangle(vec2(screen_x, screen_y), vec2(screen_x + p2:x(), screen_y + p2:y()), vec2(screen_x + p1:x(), screen_y + p1:y()), color8(255, 255, 255, 30))
-    update_ui_end_triangles()
+    if not awacs_mode then
+        update_ui_begin_triangles()
+        update_ui_add_triangle(vec2(screen_x, screen_y), vec2(screen_x + p2:x(), screen_y + p2:y()), vec2(screen_x + p1:x(), screen_y + p1:y()), color8(255, 255, 255, 5))
+        update_ui_end_triangles()
+    end
 
-    local p3 = vec2(math.sin(heading) * 32, -math.cos(heading) * 32)
+    local direction_len = 32
+
+    if awacs_mode then
+        direction_len = screen_vehicle:get_linear_speed() / 5
+    end
+
+    local p3 = vec2(math.sin(heading) * direction_len, -math.cos(heading) * direction_len)
     update_ui_line(screen_x, screen_y, screen_x + p1:x(), screen_y + p1:y(), color8(255, 255, 255, 64))
     update_ui_line(screen_x, screen_y, screen_x + p2:x(), screen_y + p2:y(), color8(255, 255, 255, 64))
     update_ui_line(screen_x, screen_y, screen_x + p3:x(), screen_y + p3:y(), color8(255, 255, 255, 64))
@@ -465,13 +533,20 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local vehicle_dir = screen_vehicle:get_forward()
     local vehicle_dir_xz = vec2_normal(vec2(vehicle_dir:x(), vehicle_dir:z()))
     local screen_x, screen_y = world_to_screen(screen_vehicle:get_position():x(), screen_vehicle:get_position():z())
-    update_ui_line(screen_x, screen_y, screen_x + vehicle_dir_xz:x() * 32, screen_y - vehicle_dir_xz:y() * 32, team_color)
+    update_ui_line(screen_x, screen_y, screen_x + vehicle_dir_xz:x() * direction_len, screen_y - vehicle_dir_xz:y() * direction_len, team_color)
     
     -- render vehicles
 
     local function filter_vehicles(v)
         local def = v:get_definition_index()
         return v:get_is_docked() == false and def ~= e_game_object_type.drydock and def ~= e_game_object_type.chassis_spaceship and v:get_is_observation_revealed()
+    end
+
+    local drawn_labels = {}
+
+    local function find_label_position(lx, ly, lw, lh)
+        -- find a space on the screen where this wont be obscured
+        return vec2(lx, ly)
     end
 
     for _, vehicle in iter_vehicles(filter_vehicles) do
@@ -481,15 +556,74 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         local vehicle_team = vehicle:get_team_id()
 
         local element_color = color8(16, 16, 16, 255)
-
+        local contact_text = color8(255, 255, 255, 140)
+        local friendly = false
         if vehicle_team == update_get_screen_team_id() then
             element_color = color_friendly
+            friendly = true
         else
             element_color = color_enemy
         end
 
         if vehicle:get_is_visible() then
             update_ui_image(screen_x - icon_offset, screen_y - icon_offset, icon_region, element_color, 0)
+            if awacs_mode and vehicle:get_id() ~= screen_vehicle:get_id() then
+                local v_def = vehicle:get_definition_index()
+                local v_spd = vehicle:get_linear_speed()
+                local v_alt = vehicle:get_altitude()
+                if get_is_vehicle_air(v_def) then
+                    local screen_x, screen_y = world_to_screen(vehicle:get_position():x(), vehicle:get_position():z())
+                    local name, icon, handle = get_chassis_data_by_definition_index(v_def)
+
+                    -- render ATC display for item
+                    -- eg
+                    -- MNT123   - callsign
+                    -- F034     - [alt / 10]
+                    -- M120     - [A/M/P/R][airspeed]
+
+                    if g_is_map_overlay and friendly then
+
+                        local label_pos = find_label_position(screen_x - 11, screen_y + 3, 32, 32)
+
+                        local x_label = label_pos:x()
+                        local y_label = label_pos:y()
+
+                        update_ui_rectangle(
+                                x_label,
+                                y_label,
+                                32,
+                                32,
+                                color8(1,1,1,230)
+                        )
+
+                        update_ui_text(x_label + 1, y_label + 2,
+                                string.format("%s%d", handle, vehicle:get_id())
+                        , 32, 0, contact_text, 0)
+
+                        update_ui_text(x_label + 1, y_label + 12,
+                                string.format("F%03d", math.ceil(v_alt/10))
+                        , 32, 0, contact_text, 0)
+
+                        update_ui_text(x_label + 1, y_label + 22,
+                                string.format("I%03d", math.floor(v_spd))
+                        , 32, 0, contact_text, 0)
+                        -- render player names
+
+
+                        -- remember where we drew
+                        table.insert(drawn_labels, {
+                            x = x_label,
+                            y =x_label
+                        })
+                    end
+
+                    local vehicle_dir = vehicle:get_forward()
+                    local vehicle_dir_xz = vec2_normal(vec2(vehicle_dir:x(), vehicle_dir:z()))
+                    local direction_len = v_spd / 5
+                    update_ui_line(screen_x, screen_y, screen_x + vehicle_dir_xz:x() * direction_len, screen_y - vehicle_dir_xz:y() * direction_len, color_white)
+                end
+            end
+
         else
             local last_known_position_xz, is_last_known_position_set = vehicle:get_vision_last_known_position_xz()
 
@@ -1092,6 +1226,7 @@ function render_attachment_hud(screen_w, screen_h, map_data, tick_fraction, vehi
     is_render_center = false
     if def == e_game_object_type.attachment_camera_vehicle_control
     then
+        render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
         -- no special hud for vehicle control camera
     elseif def == e_game_object_type.attachment_camera
     or def == e_game_object_type.attachment_camera_plane
@@ -1156,7 +1291,7 @@ function render_attachment_hud(screen_w, screen_h, map_data, tick_fraction, vehi
     elseif def == e_game_object_type.attachment_turret_carrier_flare_launcher
     or def == e_game_object_type.attachment_flare_launcher
     then
-        is_render_center = render_attachment_hud_flare(screen_w, screen_h, attachment)
+        is_render_center = render_attachment_hud_flare(screen_w, screen_h,map_data, vehicle, attachment)
     elseif def == e_game_object_type.attachment_radar_awacs then
         is_render_center = render_attachment_hud_radar(screen_w, screen_h, map_data, vehicle, attachment)
     elseif def == e_game_object_type.attachment_turret_robot_dog_capsule
@@ -1716,7 +1851,8 @@ function render_attachment_hud_artillery(screen_w, screen_h, map_data, vehicle, 
     return false
 end
 
-function render_attachment_hud_flare(screen_w, screen_h, attachment)
+function render_attachment_hud_flare(screen_w, screen_h, map_data, vehicle, attachment)
+    render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
     return false
 end
 
@@ -1735,23 +1871,7 @@ function render_attachment_hud_radar(screen_w, screen_h, map_data, vehicle, atta
         update_ui_image(hud_pos:x() - 7, hud_max:y() - 8, atlas_icons.icon_attachment_16_air_radar, color8(255, 0, 0, 255), 0)
         update_ui_text(hud_pos:x() - 128, hud_max:y() + 8, update_get_loc(e_loc.upp_radar_disabled), 256, 1, color8(255, 0, 0, 255), 0)
     else
-        render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
-
-        update_ui_push_clip(hud_min:x(), hud_min:y(), hud_size:x(), hud_size:y())
-    
-        for i = 0, 2 do
-            local factor = ((g_animation_time + 2000 / 3 * i) % 2000) / 2000
-            local rad =  hud_size:x() / 8 * factor ^ 0.75
-
-            if rad > 8 then
-                render_circle(vec2(hud_pos:x(), hud_max:y() - 1), rad, 16, color8(0, 255, 0, 255 - math.floor(factor ^ 4.0 * 255)))
-            end
-        end
-    
-        update_ui_pop_clip()
-
-        update_ui_image(hud_pos:x() - 7, hud_max:y() - 8, atlas_icons.icon_attachment_16_air_radar, col, 0)
-        update_ui_text(hud_pos:x() - 128, hud_max:y() + 8, update_get_loc(e_loc.upp_radar_active), 256, 1, col, 0)
+        g_is_map_overlay = false
     end
 
     return true
@@ -2653,9 +2773,14 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
         red = color8(255, 0, 0, 255),
         green = color8(0, 255, 0, 255)
     }
-    
+
     local range = 5000
     local range_ships = 10000
+
+    if attachment_def == e_game_object_type.attachment_camera_vehicle_control then
+        colors.red = color8(64, 64, 64, 180)
+    end
+
     local range_sq = range * range
     local range_ships_sq = range_ships * range_ships
     local safe_zone_min = vec2(100, 40)
@@ -2670,7 +2795,7 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
     local is_render_own_team = true --get_is_vision_render_own_team(attachment_def)
     local is_target_lock_behaviour = get_is_vision_target_lock_behaviour(attachment_def)
     local is_target_observation_behaviour = get_is_vision_target_observation_behaviour(attachment_def)
-    local is_vision_reveal_targets = get_is_vision_reveal_targets(attachment_def)
+    local is_vision_reveal_targets = true -- get_is_vision_reveal_targets(attachment_def)
     local is_show_target_distance = true --get_is_vision_show_target_distance(attachment_def)
 
     local laser_consuming_type = attachment:get_weapon_target_consuming_type()
