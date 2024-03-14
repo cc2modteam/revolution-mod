@@ -542,11 +542,155 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         return v:get_is_docked() == false and def ~= e_game_object_type.drydock and def ~= e_game_object_type.chassis_spaceship and v:get_is_observation_revealed()
     end
 
-    local drawn_labels = {}
+    -- labels to render once we've computed the layout
+    local labels = {}
+    local function add_label(lx, ly, ident, alt, speed, pilot, size)
+        local label = {
+            ident = ident,
+            alt = alt,
+            speed = speed,
+            pilot = pilot,
+            size = size,
+            x = lx + 2,
+            y = ly + 2,
+            origin = vec2(lx, ly),
+            fx = 0,
+            fy = 0,
+        }
+        table.insert(labels, label)
+    end
 
-    local function find_label_position(lx, ly, lw, lh)
-        -- find a space on the screen where this wont be obscured
-        return vec2(lx, ly)
+    local function compute_label_positions()
+        -- shift stuff that overlaps at x by 32 px
+        local overlaps = 1
+        while overlaps > 0 do
+            overlaps = 0
+            for i, item_a in pairs(labels) do
+                for j, item_b in pairs(labels) do
+                    if i ~= j then
+                        if math.abs(item_a.x - item_b.x) < 32 then
+                            -- potential overlap
+                            if math.abs(item_a.y - item_b.y) < 32 then
+                                -- definate overlap,
+                                overlaps = overlaps + 1
+                                -- move b down
+                                item_b.y = item_b.y - 34
+                            end
+                        end
+                    end
+                end
+                if overlaps > 0 then
+                    -- move a slightly right
+                    item_a.x = item_a.x + 34
+                end
+            end
+
+            -- meh... just do it
+            overlaps = 0
+        end
+    end
+
+    local function ___compute_label_positions()
+        -- a simple spring/charge graph model
+        local total_ke = 10
+        local charge = 1
+        local coulomb_const = 9
+        local spring_const = 0.5
+        local spring_len =  2
+        local damping = 0.2
+        local iterations = 0
+        local iteration_time = 0.7
+
+        while iterations < 10 do
+            iterations = iterations + 1
+            total_ke = 0
+            -- calc repulsion between labels
+            for i, item_a in pairs(labels) do
+
+                -- each label only has one spring to the origin
+                local spring_dx = math.abs(item_a.origin:x() - item_a.x)
+                local spring_dy = math.abs(item_a.origin:y() - item_a.y)
+                if spring_dx == 0 then
+                    spring_dx = 0.1
+                end
+                if spring_dy == 0 then
+                    spring_dy = 0.1
+                end
+
+                local spring_x_pull = -1 * spring_const * (spring_dx - spring_len)
+                local spring_y_pull = -1 * spring_const * (spring_dy - spring_len)
+
+                item_a.fx = spring_x_pull
+                item_a.fy = spring_y_pull
+
+                -- calc the repulsive force on this label from others
+                for j, item_b in pairs(labels) do
+                    if i ~= j then
+                        local dx = math.abs(item_a.x - item_b.x)
+                        local dy = math.abs(item_a.y - item_b.y)
+                        if dx == 0 then
+                            dx = 1
+                        end
+                        if dy == 0 then
+                            dy = 1
+                        end
+
+                        local x_repel = math.max((charge * charge * coulomb_const) / (dx * dx), 1) * damping
+                        item_a.fx = item_a.fx + (x_repel * (item_a.x - item_b.x))
+                        local y_repel = math.max((charge * charge * coulomb_const) / (dy * dy), 1) * damping
+                        item_a.fy = item_a.fy + (y_repel * (item_a.y - item_b.y))
+                    end
+                end
+
+                total_ke = total_ke + math.sqrt(item_a.fx * item_a.fx + item_a.fy * item_a.fy)
+
+                -- move based on forces
+                item_a.x = item_a.x + (item_a.fx * iteration_time)
+                -- item_a.y = item_a.y + (item_a.fy * iteration_time)
+
+            end
+
+            print(total_ke)
+
+        end
+    end
+
+    local function show_labels()
+        local contact_text = color8(255, 255, 255, 140)
+        for i, item in pairs(labels) do
+            -- render ATC display for item
+            -- eg
+            -- MNT123   - callsign
+            -- F034     - [alt / 10]
+            -- M120     - [A/M/P/R][airspeed]
+            local x_label = item.x
+            local y_label = item.y
+
+            update_ui_line(x_label, y_label,
+                    item.origin:x(),
+                    item.origin:y(),
+                    contact_text)
+
+            update_ui_rectangle(
+                    x_label,
+                    y_label,
+                    37,
+                    2 + 10 * item.size,
+                    color8(1,1,1,230)
+            )
+
+            update_ui_text(x_label + 1, y_label + 2,
+                    item.ident, 50, 0, contact_text, 0)
+
+            if item.alt ~= nil then
+                update_ui_text(x_label + 1, y_label + 12,
+                        item.alt,  50, 0, contact_text, 0)
+            end
+            if item.speed ~= nil then
+                update_ui_text(x_label + 1, y_label + 22,
+                        item.speed, 32, 0, contact_text, 0)
+            end
+        end
     end
 
     for _, vehicle in iter_vehicles(filter_vehicles) do
@@ -556,7 +700,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         local vehicle_team = vehicle:get_team_id()
 
         local element_color = color8(16, 16, 16, 255)
-        local contact_text = color8(255, 255, 255, 140)
+
         local friendly = false
         if vehicle_team == update_get_screen_team_id() then
             element_color = color_friendly
@@ -575,46 +719,18 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
                     local screen_x, screen_y = world_to_screen(vehicle:get_position():x(), vehicle:get_position():z())
                     local name, icon, handle = get_chassis_data_by_definition_index(v_def)
 
-                    -- render ATC display for item
-                    -- eg
-                    -- MNT123   - callsign
-                    -- F034     - [alt / 10]
-                    -- M120     - [A/M/P/R][airspeed]
 
-                    if g_is_map_overlay and friendly then
-
-                        local label_pos = find_label_position(screen_x - 11, screen_y + 3, 32, 32)
-
-                        local x_label = label_pos:x()
-                        local y_label = label_pos:y()
-
-                        update_ui_rectangle(
-                                x_label,
-                                y_label,
-                                32,
-                                32,
-                                color8(1,1,1,230)
-                        )
-
-                        update_ui_text(x_label + 1, y_label + 2,
-                                string.format("%s%d", handle, vehicle:get_id())
-                        , 32, 0, contact_text, 0)
-
-                        update_ui_text(x_label + 1, y_label + 12,
-                                string.format("F%03d", math.ceil(v_alt/10))
-                        , 32, 0, contact_text, 0)
-
-                        update_ui_text(x_label + 1, y_label + 22,
-                                string.format("I%03d", math.floor(v_spd))
-                        , 32, 0, contact_text, 0)
-                        -- render player names
-
-
-                        -- remember where we drew
-                        table.insert(drawn_labels, {
-                            x = x_label,
-                            y =x_label
-                        })
+                    if g_is_map_overlay then
+                        if friendly then
+                            add_label(screen_x,
+                                    screen_y,
+                                    string.format("%s%3d", handle, vehicle:get_id()),
+                                    string.format("F%03d", math.ceil(v_alt/10)),
+                                    string.format("I%03d", math.floor(v_spd)), nil, 3)
+                        else
+                            add_label(screen_x, screen_y,
+                                    string.format("%s%d", handle, vehicle:get_id()), nil, nil, nil, 1)
+                        end
                     end
 
                     local vehicle_dir = vehicle:get_forward()
@@ -632,6 +748,11 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
                 update_ui_image(screen_x - 2, screen_y - 2, atlas_icons.map_icon_last_known_pos, element_color, 0)
             end
         end
+    end
+
+    if g_is_map_overlay then
+        compute_label_positions()
+        show_labels()
     end
 
     update_ui_push_offset(x + 10, y + 10)
