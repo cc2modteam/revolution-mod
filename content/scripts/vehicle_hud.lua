@@ -464,7 +464,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
 
     if awacs_mode then
         update_set_screen_background_type(6)
-        camera_size = 20000
+        camera_size = 24000
     end
 
     if awacs_mode then
@@ -509,16 +509,30 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
                     string.format("FUEL %d%%", fuel_pct),
                     60, 0, fuel_col, 0
             )
-
+        end
+        if awacs_mode then
             -- display the mode toggles
             local radar_mode_name = "CONTACTS"
+            local mode_select_x = w - 130
+            local mode_select_y = h + 20
             if g_radar_mode == radar_modes.air_labels then
                 radar_mode_name = "ATC"
+                mode_select_x = mode_select_x + 6
             elseif g_radar_mode == radar_modes.air_threats then
                 radar_mode_name = "THREAT"
-            end
+                mode_select_x = mode_select_x + 12
+            else
 
-            update_ui_text(w - 90, h + 20,
+            end
+            update_ui_rectangle_outline(
+                    mode_select_x - 2,
+                    mode_select_y - 1,
+                    9, 11, col)
+            update_ui_text(w - 130,
+            mode_select_y,
+            "012", 64, 0, col, 0)
+
+            update_ui_text(w - 90, mode_select_y,
                     string.format("MODE: %s", radar_mode_name),
                     90, 0, col, 0
             )
@@ -615,8 +629,8 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             speed = speed,
             pilot = pilot,
             size = size,
-            x = lx + 2,
-            y = ly + 2,
+            x = lx + 8,
+            y = ly + 8,
             origin = vec2(lx, ly),
             fx = 0,
             fy = 0,
@@ -637,15 +651,16 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
                             if math.abs(item_a.y - item_b.y) < 32 then
                                 -- definate overlap,
                                 overlaps = overlaps + 1
-                                -- move b down
-                                item_b.y = item_b.y - 34
+                                -- move b right
+                                item_b.x = item_b.x + 40
+                                -- move a left
                             end
                         end
                     end
                 end
                 if overlaps > 0 then
                     -- move a slightly right
-                    item_a.x = item_a.x + 34
+                    item_a.x = item_a.x - 34
                 end
             end
 
@@ -690,6 +705,60 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
                         item.speed, 32, 0, contact_text, 0)
             end
         end
+    end
+
+    local function show_threats(self)
+        -- look through our aircraft, find the nearest hostile air
+        local hostile_range = 30000
+        local nearest_friendly = nil
+        local nearest_hostile = nil
+        for _, vehicle in iter_vehicles(filter_vehicles) do
+            local vehicle_team = vehicle:get_team_id()
+            if vehicle_team == update_get_screen_team_id() and get_is_vehicle_air(vehicle:get_definition_index()) then
+
+                local near_manta = find_nearest_hostile_vehicle(vehicle, e_game_object_type.chassis_air_wing_heavy)
+                if near_manta ~= nil then
+                    local dist = vec3_dist(near_manta:get_position(), vehicle:get_position())
+                    if dist < hostile_range then
+                        hostile_range = dist
+                        nearest_hostile = near_manta
+                        nearest_friendly = vehicle
+                    end
+                end
+                local near_alb = find_nearest_hostile_vehicle(vehicle, e_game_object_type.chassis_air_wing_light)
+                if near_alb ~= nil then
+                    local dist = vec3_dist(near_alb:get_position(), vehicle:get_position())
+                    if dist < hostile_range then
+                        hostile_range = dist
+                        nearest_hostile = near_alb
+                        nearest_friendly = vehicle
+                    end
+                end
+            end
+        end
+
+        if hostile_range < 10000 then
+
+
+            if nearest_friendly ~= nil then
+                if nearest_hostile ~= nil then
+                    -- find distance to this awacs
+                    local dist = vec3_dist(nearest_hostile:get_position(), self:get_position())
+                    if dist < 8000 then
+                        -- target is near to the radar
+                        -- draw red line between these
+                        local f_pos = nearest_friendly:get_position()
+                        local f_x, f_y = world_to_screen(f_pos:x(), f_pos:z())
+                        local e_pos = nearest_hostile:get_position()
+                        local e_x, e_y = world_to_screen(e_pos:x(), e_pos:z())
+
+                        update_ui_line(f_x, f_y, e_x, e_y, color_enemy)
+
+                    end
+                end
+            end
+        end
+
     end
 
     for _, vehicle in iter_vehicles(filter_vehicles) do
@@ -752,7 +821,10 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     if g_radar_mode == radar_modes.air_labels then
         compute_label_positions()
         show_labels()
+    elseif g_radar_mode == radar_modes.air_threats then
+        show_threats(screen_vehicle)
     end
+
 
     update_ui_push_offset(x + 10, y + 10)
     local arrow_w = 8
@@ -4055,7 +4127,7 @@ function find_nearest_vehicle(vehicle, other_def, hostile)
     local distance = 999999999
     for i = 0, vehicle_count - 1 do
         local unit = update_get_map_vehicle_by_index(i)
-        if unit:get() then
+        if unit:get() and unit:get_altitude() > 60 then
             local match_team = unit:get_team_id() == self_team
             if hostile then
                 match_team = not match_team
