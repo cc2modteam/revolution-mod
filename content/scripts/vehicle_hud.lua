@@ -177,7 +177,11 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
             local is_attachment_render_center = false
             local is_render_awacs = false
 
-            if attachment and attachment:get_definition_index() == e_game_object_type.attachment_radar_awacs then
+            if attachment and (
+                    attachment:get_definition_index() == e_game_object_type.attachment_radar_awacs
+                    or
+                    attachment:get_definition_index() == e_game_object_type.attachment_radar_golfball
+            ) then
                 is_render_awacs = true
             end
 
@@ -383,11 +387,27 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local camera_y = screen_vehicle:get_position():z()
     local is_viewing_sub_camera = false
     local col = color8(0, 255, 0, 255)
+    local is_awacs = false
+    local is_golfball = false
+    local awacs_mode = false
+    local radar_name = ""
+
     if attachment:get() then
         attachment:get_is_viewing_sub_camera()
+        is_awacs = attachment:get_definition_index() == e_game_object_type.attachment_radar_awacs
+        is_golfball = attachment:get_definition_index() == e_game_object_type.attachment_radar_golfball
+        awacs_mode = is_golfball or is_awacs
+
+        if awacs_mode then
+            if is_awacs then
+                radar_name = "AWACS"
+            elseif is_golfball then
+                radar_name = "RADAR"
+            end
+        end
+
     end
 
-    local awacs_mode = false
 
     if is_viewing_sub_camera then
         camera_x = update_get_camera_position():x()
@@ -410,13 +430,8 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         end
     end
 
-    -- if this is an AWACS, enable awacs mode
-    if attachment and attachment:get_definition_index() == e_game_object_type.attachment_radar_awacs then
-        awacs_mode = true
-        update_set_screen_background_type(6)
-    end
-
     if awacs_mode then
+        update_set_screen_background_type(6)
         camera_size = 20000
     end
 
@@ -453,14 +468,16 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             end
         end
         update_ui_text(2 + x, h,
-                "AWACS",
+                radar_name,
                 w - 10, 0, col, 3
         )
 
-        update_ui_text(w - 45, h - 160,
-                string.format("FUEL %d%%", fuel_pct),
-                60, 0, fuel_col, 0
-        )
+        if is_awacs then
+            update_ui_text(w - 45, h - 160,
+                    string.format("FUEL %d%%", fuel_pct),
+                    60, 0, fuel_col, 0
+            )
+        end
 
 
     else
@@ -520,11 +537,12 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     if awacs_mode then
         direction_len = screen_vehicle:get_linear_speed() / 5
     end
-
-    local p3 = vec2(math.sin(heading) * direction_len, -math.cos(heading) * direction_len)
-    update_ui_line(screen_x, screen_y, screen_x + p1:x(), screen_y + p1:y(), color8(255, 255, 255, 64))
-    update_ui_line(screen_x, screen_y, screen_x + p2:x(), screen_y + p2:y(), color8(255, 255, 255, 64))
-    update_ui_line(screen_x, screen_y, screen_x + p3:x(), screen_y + p3:y(), color8(255, 255, 255, 64))
+    if not is_golfball then
+        local p3 = vec2(math.sin(heading) * direction_len, -math.cos(heading) * direction_len)
+        update_ui_line(screen_x, screen_y, screen_x + p1:x(), screen_y + p1:y(), color8(255, 255, 255, 64))
+        update_ui_line(screen_x, screen_y, screen_x + p2:x(), screen_y + p2:y(), color8(255, 255, 255, 64))
+        update_ui_line(screen_x, screen_y, screen_x + p3:x(), screen_y + p3:y(), color8(255, 255, 255, 64))
+    end
 
     if is_viewing_sub_camera then
         update_ui_image_rot(screen_x, screen_y, atlas_icons.map_icon_camera, color_friendly, 0)
@@ -533,8 +551,9 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local vehicle_dir = screen_vehicle:get_forward()
     local vehicle_dir_xz = vec2_normal(vec2(vehicle_dir:x(), vehicle_dir:z()))
     local screen_x, screen_y = world_to_screen(screen_vehicle:get_position():x(), screen_vehicle:get_position():z())
-    update_ui_line(screen_x, screen_y, screen_x + vehicle_dir_xz:x() * direction_len, screen_y - vehicle_dir_xz:y() * direction_len, team_color)
-    
+    if not is_golfball then
+        update_ui_line(screen_x, screen_y, screen_x + vehicle_dir_xz:x() * direction_len, screen_y - vehicle_dir_xz:y() * direction_len, team_color)
+    end
     -- render vehicles
 
     local function filter_vehicles(v)
