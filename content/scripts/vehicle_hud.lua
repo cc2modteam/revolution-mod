@@ -381,6 +381,17 @@ end
 --
 --------------------------------------------------------------------------------
 
+g_radar_mode = 0
+g_last_map_overlay = false
+
+radar_modes = {
+    clear = 0,
+    air_labels = 1,
+    air_threats = 2,
+
+    count = 3,
+}
+
 function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, attachment)
     local screen_vehicle_def = screen_vehicle:get_definition_index()
     local camera_x = screen_vehicle:get_position():x()
@@ -404,10 +415,31 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             elseif is_golfball then
                 radar_name = "RADAR"
             end
+            local mode_change = false
+            if g_is_map_overlay then
+                -- map overlay enabled
+                if g_last_map_overlay then
+                    -- no change
+                else
+                    -- changed
+                    mode_change = true
+                end
+            else
+                -- map overlay disabled
+                if g_last_map_overlay then
+                    -- changed
+                    mode_change = true
+
+                else
+                    -- no change
+                end
+            end
+            g_last_map_overlay = g_is_map_overlay
+            if mode_change then
+                g_radar_mode = (g_radar_mode + 1) % radar_modes.count
+            end
         end
-
     end
-
 
     if is_viewing_sub_camera then
         camera_x = update_get_camera_position():x()
@@ -476,6 +508,19 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             update_ui_text(w - 45, h - 160,
                     string.format("FUEL %d%%", fuel_pct),
                     60, 0, fuel_col, 0
+            )
+
+            -- display the mode toggles
+            local radar_mode_name = "CONTACTS"
+            if g_radar_mode == radar_modes.air_labels then
+                radar_mode_name = "ATC"
+            elseif g_radar_mode == radar_modes.air_threats then
+                radar_mode_name = "THREAT"
+            end
+
+            update_ui_text(w - 90, h + 20,
+                    string.format("MODE: %s", radar_mode_name),
+                    90, 0, col, 0
             )
         end
 
@@ -609,71 +654,6 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         end
     end
 
-    local function ___compute_label_positions()
-        -- a simple spring/charge graph model
-        local total_ke = 10
-        local charge = 1
-        local coulomb_const = 9
-        local spring_const = 0.5
-        local spring_len =  2
-        local damping = 0.2
-        local iterations = 0
-        local iteration_time = 0.7
-
-        while iterations < 10 do
-            iterations = iterations + 1
-            total_ke = 0
-            -- calc repulsion between labels
-            for i, item_a in pairs(labels) do
-
-                -- each label only has one spring to the origin
-                local spring_dx = math.abs(item_a.origin:x() - item_a.x)
-                local spring_dy = math.abs(item_a.origin:y() - item_a.y)
-                if spring_dx == 0 then
-                    spring_dx = 0.1
-                end
-                if spring_dy == 0 then
-                    spring_dy = 0.1
-                end
-
-                local spring_x_pull = -1 * spring_const * (spring_dx - spring_len)
-                local spring_y_pull = -1 * spring_const * (spring_dy - spring_len)
-
-                item_a.fx = spring_x_pull
-                item_a.fy = spring_y_pull
-
-                -- calc the repulsive force on this label from others
-                for j, item_b in pairs(labels) do
-                    if i ~= j then
-                        local dx = math.abs(item_a.x - item_b.x)
-                        local dy = math.abs(item_a.y - item_b.y)
-                        if dx == 0 then
-                            dx = 1
-                        end
-                        if dy == 0 then
-                            dy = 1
-                        end
-
-                        local x_repel = math.max((charge * charge * coulomb_const) / (dx * dx), 1) * damping
-                        item_a.fx = item_a.fx + (x_repel * (item_a.x - item_b.x))
-                        local y_repel = math.max((charge * charge * coulomb_const) / (dy * dy), 1) * damping
-                        item_a.fy = item_a.fy + (y_repel * (item_a.y - item_b.y))
-                    end
-                end
-
-                total_ke = total_ke + math.sqrt(item_a.fx * item_a.fx + item_a.fy * item_a.fy)
-
-                -- move based on forces
-                item_a.x = item_a.x + (item_a.fx * iteration_time)
-                -- item_a.y = item_a.y + (item_a.fy * iteration_time)
-
-            end
-
-            print(total_ke)
-
-        end
-    end
-
     local function show_labels()
         local contact_text = color8(255, 255, 255, 140)
         for i, item in pairs(labels) do
@@ -739,7 +719,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
                     local name, icon, handle = get_chassis_data_by_definition_index(v_def)
 
 
-                    if g_is_map_overlay then
+                    if g_radar_mode == radar_modes.air_labels then
                         if friendly then
                             add_label(screen_x,
                                     screen_y,
@@ -769,7 +749,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         end
     end
 
-    if g_is_map_overlay then
+    if g_radar_mode == radar_modes.air_labels then
         compute_label_positions()
         show_labels()
     end
