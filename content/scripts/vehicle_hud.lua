@@ -707,6 +707,25 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         end
     end
 
+    local function show_missiles()
+        local m_col = color_white
+        local tick = update_get_logic_tick()
+        if tick % 15 > 7 then
+            m_col = color_enemy
+        end
+        local missile_count = update_get_missile_count()
+        for i = 0, missile_count - 1 do
+            local missile = update_get_missile_by_index(i)
+            if missile ~= nil and missile:get() then
+                local pos = missile:get_position()
+                if pos:y() > 50 then
+                    local mx, my = world_to_screen(pos:x(), pos:z())
+                    update_ui_rectangle_outline(mx, my, 1, 1, m_col)
+                end
+            end
+        end
+    end
+
     local function show_threats(self)
         -- look through our aircraft, find the nearest hostile air
         local hostile_range = 30000
@@ -734,17 +753,33 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
                         nearest_friendly = vehicle
                     end
                 end
+                local near_ptr = find_nearest_hostile_vehicle(vehicle, e_game_object_type.chassis_air_rotor_heavy)
+                if near_ptr ~= nil then
+                    local dist = vec3_dist(near_ptr:get_position(), vehicle:get_position())
+                    if dist < hostile_range then
+                        hostile_range = dist
+                        nearest_hostile = near_ptr
+                        nearest_friendly = vehicle
+                    end
+                end
+                local near_rzr = find_nearest_hostile_vehicle(vehicle, e_game_object_type.chassis_air_rotor_light)
+                if near_rzr ~= nil then
+                    local dist = vec3_dist(near_rzr:get_position(), vehicle:get_position())
+                    if dist < hostile_range then
+                        hostile_range = dist
+                        nearest_hostile = near_rzr
+                        nearest_friendly = vehicle
+                    end
+                end
             end
         end
 
         if hostile_range < 10000 then
-
-
             if nearest_friendly ~= nil then
                 if nearest_hostile ~= nil then
                     -- find distance to this awacs
                     local dist = vec3_dist(nearest_hostile:get_position(), self:get_position())
-                    if dist < 8000 then
+                    if dist < 10000 then
                         -- target is near to the radar
                         -- draw red line between these
                         local f_pos = nearest_friendly:get_position()
@@ -758,7 +793,6 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
                 end
             end
         end
-
     end
 
     for _, vehicle in iter_vehicles(filter_vehicles) do
@@ -775,6 +809,9 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             friendly = true
         else
             element_color = color_enemy
+            if awacs_mode then
+                element_color = update_get_team_color(vehicle_team)
+            end
         end
 
         if vehicle:get_is_visible() then
@@ -788,8 +825,8 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
                     local name, icon, handle = get_chassis_data_by_definition_index(v_def)
 
 
-                    if g_radar_mode == radar_modes.air_labels then
-                        if friendly then
+                    if g_radar_mode == radar_modes.air_labels or g_radar_mode == radar_modes.air_threats then
+                        if friendly and g_radar_mode == radar_modes.air_labels then
                             add_label(screen_x,
                                     screen_y,
                                     string.format("%s%3d", handle, vehicle:get_id()),
@@ -818,11 +855,15 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         end
     end
 
-    if g_radar_mode == radar_modes.air_labels then
-        compute_label_positions()
-        show_labels()
-    elseif g_radar_mode == radar_modes.air_threats then
-        show_threats(screen_vehicle)
+    if awacs_mode then
+        if g_radar_mode == radar_modes.air_labels or g_radar_mode == radar_modes.air_threats then
+            if g_radar_mode == radar_modes.air_threats then
+                show_threats(screen_vehicle)
+            end
+            compute_label_positions()
+            show_labels()
+            show_missiles()
+        end
     end
 
 
