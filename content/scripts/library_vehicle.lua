@@ -791,7 +791,8 @@ function _get_unit_visible_by_modded_radar(vehicle, other_unit)
         end
         if vehicle:get_id() ~= other_unit:get_id() then
             local dist = vec2_dist(vehicle:get_position_xz(), other_unit:get_position_xz())
-            if dist < get_modded_radar_range(vehicle) then
+            local mrr = get_modded_radar_range(vehicle)
+            if dist < mrr then
                 if get_is_ship_fish(vehicle:get_definition_index()) then
                     -- needlefish can all see anything less than 500m away
                     if dist < 500 then
