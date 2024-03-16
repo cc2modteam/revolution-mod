@@ -747,6 +747,11 @@ end
 function get_modded_radar_range(vehicle)
     if vehicle:get() then
         -- don't override the carrier radar range
+        local parent_id = vehicle:get_attached_parent_id()
+        if parent_id ~= 0 then
+            -- don't compute radars for docked units
+            return 0
+        end
         -- as we cont properly cope with it being turned off or broken
         local def =  vehicle:get_definition_index()
         if def ~= e_game_object_type.chassis_carrier then
