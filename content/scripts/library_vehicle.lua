@@ -1449,6 +1449,7 @@ g_ship_names_choices = {
         "BONAVENTURE", -- RCN
         "DREADNAUGHT",
         "BELLEROPHON",
+        "NORTHUMBERLAND",
     },
     { -- Indian Navy
         "VIKRANT",
@@ -1536,7 +1537,18 @@ g_ship_names_choices = {
         "SHIP HAPPENS",
         "BOATY MCBOATFACE",
         "SNOW LEOPARD",
-    }
+    },
+    { -- UEC Peacekeeping Force
+        "ROGUE AZURE",
+        "PURPLE PHOENIX",
+        "EMERALD BLAZE",
+        "VOID SAPPHIRE",
+        "RUBY CARDINAL",
+        "MARBLE HORNETS",
+        "CRIMSON SENTINEL",
+        "FORSAKEN ONYX",
+        "OBSIDIAN SERAPH",
+        "VELVET BANSHEE",
 }
 
 function set_ship_names()
