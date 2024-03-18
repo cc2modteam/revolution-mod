@@ -45,6 +45,38 @@ function get_selected_chassis_options(bay_index)
     return {}
 end
 
+function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index)
+    local attachment_type = vehicle:get_attachment_type(attachment_index)
+    local attachment_options = get_selected_vehicle_attachment_options(attachment_type)
+    local vdef = vehicle:get_definition_index()
+    if vdef == e_game_object_type.chassis_air_wing_light then
+        -- for wingtips, only allow the fuel tank/ecm
+        if attachment_index == 7 or attachment_index == 8 then
+            local alb_options = {
+                { region=atlas_icons.icon_attachment_16_none, type=-1 }
+            }
+            local attachment_data = get_attachment_data_by_definition_index(e_game_object_type.attachment_fuel_tank_plane)
+
+            table.insert(alb_options, {
+                region = attachment_data.icon16,
+                type = e_game_object_type.attachment_fuel_tank_plane
+            })
+            return alb_options
+        end
+    elseif vdef == e_game_object_type.chassis_land_wheel_medium then
+        -- allow walrus to have the 100m heavy gun
+        if attachment_index == 1 then
+            local attachment_data = get_attachment_data_by_definition_index(e_game_object_type.attachment_turret_heavy_cannon)
+            table.insert(attachment_options, {
+                region = attachment_data.icon16,
+                type = e_game_object_type.attachment_turret_heavy_cannon
+            })
+        end
+    end
+
+    return attachment_options
+end
+
 function get_selected_vehicle_attachment_options(attachment_type)
     local attachment_options = {
         { region=atlas_icons.icon_attachment_16_none, type=-1 }
@@ -209,8 +241,7 @@ function update(screen_w, screen_h, ticks)
 
                     if attachment:get() then
                         local attachment_definition = attachment:get_definition_index()
-                        local attachment_type = attached_vehicle:get_attachment_type(g_selected_attachment_index)
-                        local selection_options = get_selected_vehicle_attachment_options(attachment_type)
+                        local selection_options = get_selected_vehicle_attachment_extra_options(vehicle, g_selected_attachment_index)
 
                         for i = 1, #selection_options do
                             if attachment_definition == selection_options[i].type then
@@ -295,7 +326,7 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
     if attached_vehicle:get() then
         if g_selected_attachment_index ~= -1 then
             local attachment_type = attached_vehicle:get_attachment_type(g_selected_attachment_index)
-            local selection_options = get_selected_vehicle_attachment_options(attachment_type)
+            local selection_options = get_selected_vehicle_attachment_extra_options(attached_vehicle, g_selected_attachment_index)
 
             local button_w = iff(attachment_type == e_game_object_attachment_type.plate_logistics_container, 20, 16)
 

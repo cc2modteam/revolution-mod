@@ -2774,11 +2774,13 @@ function get_ui_vehicle_chassis_attachments(vehicle)
                 { i=1, x=0, y=-23 }
             },
             {
-                { i=2, x=-26, y=0 },
-                { i=4, x=-14, y=0 },
+                { i=7, x=-29, y=-2 },
+                { i=2, x=-18, y=-2 },
+                { i=4, x=-11, y=-2 },
                 { i=6, x=0, y=1 },
-                { i=5, x=14, y=0 },
-                { i=3, x=26, y=0 }
+                { i=5, x=11, y=-2 },
+                { i=3, x=18, y=-2 },
+                { i=8, x=29, y=-2 },
             }
         }
 
@@ -2918,7 +2920,7 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
                 attachment_w = 12
                 attachment_h = 12
             elseif attachment_type == e_game_object_attachment_type.hardpoint_small then
-                attachment_w = 8
+                attachment_w = 6
                 attachment_h = 24
             elseif attachment_type == e_game_object_attachment_type.hardpoint_large then
                 attachment_w = 12
