@@ -31,7 +31,7 @@ function update(screen_w, screen_h, ticks)
 
     if team:get() then
         local can_change_game_settings = false
-        local lock_game_settings_after = 120
+        local lock_game_settings_after = 240
         local game_seconds = math.floor(update_get_logic_tick() / 30)
 
         if game_seconds < lock_game_settings_after then
@@ -58,23 +58,27 @@ function update(screen_w, screen_h, ticks)
             end
 		end
 
-        ui:header("Revolution Settings")
-        if game_seconds < lock_game_settings_after then
-            ui:text(string.format("Lock Settings in %d sec", lock_game_settings_after - game_seconds))
-        else
-            ui:text("Settings locked")
-        end
+        if false then
 
-        ui:text("AWACS " .. update_get_loc(e_loc.upp_range))
-        local awacs_range = 10 * get_radar_multiplier()
-        ui:text(string.format("%d km", math.floor(awacs_range)))
-        if ui:button("CHANGE", can_change_game_settings, 0) then
+            ui:header("Revolution Settings")
+            if game_seconds < lock_game_settings_after then
+                ui:text(string.format("Lock Settings in %d sec", lock_game_settings_after - game_seconds))
+            else
+                ui:text("Settings locked")
+            end
 
-        end
+            ui:text("AWACS " .. update_get_loc(e_loc.upp_range))
+            local awacs_range = 10 * get_radar_multiplier()
+            ui:text(string.format("%d km", math.floor(awacs_range)))
+            if ui:button("CHANGE", can_change_game_settings, 0) then
 
-        ui:text("FOG OF WAR")
-        ui:text("enabled")
-        if ui:button("CHANGE", can_change_game_settings, 0) then
+            end
+
+            ui:text("FOG OF WAR")
+            ui:text("enabled")
+            if ui:button("CHANGE", can_change_game_settings, 0) then
+
+            end
 
         end
 
