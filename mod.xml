@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <data name="Revolution" author="Thumblegudget, Bredroll, QuantX" description="
-The Revolution mod brings Radar to Needlefish, ECM to aircraft and introduces a more immersive fog-of-war for island
+The Revolution mod (v1.1) brings Radar to Needlefish, ECM to aircraft and introduces a more immersive fog-of-war for island
 captures.
 
 For fully details on what the mod does, how you can contribute or request features see
@@ -25,6 +25,7 @@ to an AWACS, they will cause the enemy Radar to see multiple ghosts.
 [*] Cruise Missile fish can detect ships at 6km
 [*] Gun fish can detect ships at 2km
 [*] All Needlefish can see ships and aircraft that are closer than 0.5km.
+[*] AWACS and Golfball RADAR HUDs now show useful tactical air-map details
 [/list]
 
 [h2]Fog of War[/h2]
