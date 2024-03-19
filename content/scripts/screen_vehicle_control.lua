@@ -1231,8 +1231,12 @@ function update(screen_w, screen_h, ticks)
                                     visible = revealed
                                 end
                             end
+                            local decoy = false
+                            if get_vehicle_decoy_contact(vehicle) ~= nil then
+                                decoy = true
+                            end
 
-                            if vehicle_attached_parent_id == 0 and visible and revealed then
+                            if vehicle_attached_parent_id == 0 and ( decoy or ( visible and revealed )) then
                                 local vehicle_pos_xz = vehicle:get_position_xz()
                                 local screen_pos_x, screen_pos_y = get_screen_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                                 local vehicle_distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
@@ -1611,6 +1615,7 @@ function update(screen_w, screen_h, ticks)
                     local vehicle_team = vehicle:get_team()
                     local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                     local vehicle_definition_index = vehicle:get_definition_index()
+                    local decoy_type = get_vehicle_decoy_contact(vehicle)
                     local is_render_vehicle_icon = vehicle_attached_parent_id == 0
                     local also_render_duplicate = false
                     local duplicate_x = 0
@@ -1620,11 +1625,20 @@ function update(screen_w, screen_h, ticks)
                     if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
                         local is_visible = vehicle:get_is_visible()
                         local is_revealed = vehicle:get_is_observation_revealed()
+                        local is_decoy = false
+
+                        if decoy_type ~= nil then
+                            is_decoy = true
+                        end
 
                         if not is_visible or not is_revealed then
                             if get_is_visible_by_modded_radar(vehicle) then
                                 is_revealed = true
                                 is_visible = true
+                            end
+                            if is_decoy then
+                                is_visible = true
+                                is_revealed = true
                             end
                         end
 
@@ -1654,8 +1668,10 @@ function update(screen_w, screen_h, ticks)
                             end
 
                             -- hide low level aircraft
-                            if get_is_vehicle_masked_by_groundclutter(vehicle) then
-                                is_render_vehicle_icon = false
+                            if not is_decoy then
+                                if get_is_vehicle_masked_by_groundclutter(vehicle) then
+                                    is_render_vehicle_icon = false
+                                end
                             end
 
                             local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
@@ -1928,7 +1944,9 @@ function update(screen_w, screen_h, ticks)
 
                             if is_render_vehicle_icon then
                                 -- render vehicle icon
-                    
+                                if is_decoy then
+                                    vehicle_definition_index = decoy_type
+                                end
                                 local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
                 
                                 local element_color = get_vehicle_team_color(vehicle_team)
@@ -1956,7 +1974,7 @@ function update(screen_w, screen_h, ticks)
                                 end
                                 
                                 -- carrier direction indicator
-                                if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+                                if vehicle_definition_index == e_game_object_type.chassis_carrier then
                                     update_ui_image(screen_pos_x - 5, screen_pos_y - 5, atlas_icons.map_icon_circle_9, color_white, 0)
 
                                     local vehicle_dir = vehicle:get_direction()

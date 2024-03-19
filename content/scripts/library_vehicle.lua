@@ -251,7 +251,7 @@ function get_attachment_data_by_definition_index(index)
             name_short = "OBS CAM",
         },
         [e_game_object_type.attachment_radar_awacs] = {
-            name = update_get_loc(e_loc.upp_awacs_radar_system),
+            name = "AWACS RADAR, When fitted on ground units, generates an electronic decoy ship contact",
             icon16 = atlas_icons.icon_attachment_16_air_radar,
             name_short = "AWACS",
         },
@@ -677,6 +677,8 @@ end
 -- every unit in detection range of a needlefish (of any team)
 g_seen_by_hostile_radars = {}
 g_seen_by_friendly_radars = {}
+-- units that are generating decoy signatures
+g_decoy_enabled_units = {}
 
 
 g_radar_ranges = {
@@ -830,9 +832,10 @@ function refresh_modded_radar_cache()
     -- only do this every 30th tick (once every second)
     local now = update_get_logic_tick()
     if now % 30 == 0 then
-        local v1, v2 = _refresh_modded_radar_cache()
+        local v1, v2, v3 = _refresh_modded_radar_cache()
         g_seen_by_hostile_radars = v1
         g_seen_by_friendly_radars = v2
+        g_decoy_enabled_units = v3
     end
     --print(string.format("fish data %d %d", now, #g_seen_by_bad_needlefish))
 end
@@ -840,16 +843,16 @@ end
 function _refresh_modded_radar_cache()
     local seen_by_hostiles = {}
     local seen_by_ours = {}
+    local decoy_units = {}
     local vehicle_count = update_get_map_vehicle_count()
     local screen_team = update_get_screen_team_id()
 
     for ii = 0, vehicle_count - 1 do
         local vehicle = update_get_map_vehicle_by_index(ii)
         if vehicle:get() then
+            local _team = vehicle:get_team()
             if get_has_modded_radar(vehicle) then
                 -- we are a unit with a modded radar, see what it can see
-                local _team = vehicle:get_team()
-
                 -- iterate all other things on the map
                 for jj = 0, vehicle_count - 1 do
                     local target = update_get_map_vehicle_by_index(jj)
@@ -867,9 +870,36 @@ function _refresh_modded_radar_cache()
                     end
                 end
             end
+            -- decoy units are hostile ground units with an AWACS radar fitted
+            if _team ~= screen_team then
+                local parent_id = vehicle:get_attached_parent_id()
+                if parent_id == 0 and get_is_vehicle_land(vehicle:get_definition_index()) then
+                    -- does it have a AWACS radar
+                    if _get_radar_attachment(vehicle) == e_game_object_type.attachment_radar_awacs then
+                        decoy_units[vehicle:get_id()] = true
+                    end
+                end
+            end
         end
     end
-    return seen_by_hostiles, seen_by_ours
+    return seen_by_hostiles, seen_by_ours, decoy_units
+end
+
+function get_vehicle_decoy_contact(vehicle)
+    if vehicle:get() then
+        local vid = vehicle:get_id()
+        if g_decoy_enabled_units[vid] ~= nil then
+            local vdef = vehicle:get_definition_index()
+            if vdef == e_game_object_type.chassis_land_wheel_light then
+                return e_game_object_type.chassis_sea_ship_light
+            elseif vdef == e_game_object_type.chassis_land_wheel_medium then
+                return e_game_object_type.chassis_sea_barge
+            elseif vdef == e_game_object_type.chassis_land_wheel_heavy then
+                return e_game_object_type.chassis_carrier
+            end
+        end
+    end
+    return nil
 end
 
 function get_is_visible_by_modded_radar(vehicle)

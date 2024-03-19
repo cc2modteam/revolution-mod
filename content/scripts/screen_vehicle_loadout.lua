@@ -48,6 +48,16 @@ end
 function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index)
     local attachment_type = vehicle:get_attachment_type(attachment_index)
     local attachment_options = get_selected_vehicle_attachment_options(attachment_type)
+
+    local function add_attachment_option(attachment_table, attachment_definition)
+        local attachment_data = get_attachment_data_by_definition_index(attachment_definition)
+
+        table.insert(attachment_table, {
+            region = attachment_data.icon16,
+            type = attachment_definition
+        })
+    end
+
     local vdef = vehicle:get_definition_index()
     if vdef == e_game_object_type.chassis_air_wing_light then
         -- for wingtips, only allow the fuel tank/ecm
@@ -55,22 +65,25 @@ function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index
             local alb_options = {
                 { region=atlas_icons.icon_attachment_16_none, type=-1 }
             }
-            local attachment_data = get_attachment_data_by_definition_index(e_game_object_type.attachment_fuel_tank_plane)
-
-            table.insert(alb_options, {
-                region = attachment_data.icon16,
-                type = e_game_object_type.attachment_fuel_tank_plane
-            })
+            add_attachment_option(alb_options, e_game_object_type.attachment_fuel_tank_plane)
             return alb_options
         end
     elseif vdef == e_game_object_type.chassis_land_wheel_medium then
         -- allow walrus to have the 100m heavy gun
         if attachment_index == 1 then
-            local attachment_data = get_attachment_data_by_definition_index(e_game_object_type.attachment_turret_heavy_cannon)
-            table.insert(attachment_options, {
-                region = attachment_data.icon16,
-                type = e_game_object_type.attachment_turret_heavy_cannon
-            })
+            add_attachment_option(attachment_options, e_game_object_type.attachment_turret_heavy_cannon)
+        end
+
+    elseif (vdef == e_game_object_type.chassis_land_wheel_light
+            or vdef == e_game_object_type.chassis_land_wheel_medium
+            or vdef == e_game_object_type.chassis_land_wheel_heavy
+    ) then
+        -- allow putting the awacs on to a seal/walrus/bear to enable the automatic "decoy" mode.
+        -- seals generate decoy needle
+        -- walrus generate decoy barge
+        -- bear generates decoy carriers
+        if attachment_index == 1 then
+            add_attachment_option(attachment_options, e_game_object_type.attachment_radar_awacs)
         end
     end
 
