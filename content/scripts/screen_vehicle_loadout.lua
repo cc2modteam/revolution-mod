@@ -73,16 +73,21 @@ function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index
         if attachment_index == 1 then
             add_attachment_option(attachment_options, e_game_object_type.attachment_turret_heavy_cannon)
         end
+    end
 
-    elseif (vdef == e_game_object_type.chassis_land_wheel_light
+    if (vdef == e_game_object_type.chassis_land_wheel_light
             or vdef == e_game_object_type.chassis_land_wheel_medium
             or vdef == e_game_object_type.chassis_land_wheel_heavy
     ) then
+        local decoy_slot = 1
+        if vdef == e_game_object_type.chassis_land_wheel_heavy then
+            decoy_slot = 2
+        end
         -- allow putting the awacs on to a seal/walrus/bear to enable the automatic "decoy" mode.
         -- seals generate decoy needle
         -- walrus generate decoy barge
         -- bear generates decoy carriers
-        if attachment_index == 1 then
+        if attachment_index == decoy_slot then
             add_attachment_option(attachment_options, e_game_object_type.attachment_radar_awacs)
         end
     end
