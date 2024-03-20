@@ -4175,7 +4175,7 @@ function find_nearest_vehicle(vehicle, other_def, hostile)
             end
 
             if match_team then
-                if unit:get_definition_index() == other_def then
+                if other_def == -1 or unit:get_definition_index() == other_def then
                     local dist = vec3_dist(self_pos, unit:get_position())
                     if dist < distance then
                         distance = dist
@@ -4187,10 +4187,6 @@ function find_nearest_vehicle(vehicle, other_def, hostile)
     end
 
     return nearest
-end
-
-function find_nearest_hostile_vehicle(vehicle, other_def)
-   return find_nearest_vehicle(vehicle, other_def, true)
 end
 
 function render_fault(vehicle, screen_w, screen_h)

@@ -1637,8 +1637,14 @@ function update(screen_w, screen_h, ticks)
                                 is_visible = true
                             end
                             if is_decoy then
-                                is_visible = true
-                                is_revealed = true
+                                local nearest =  find_nearest_vehicle(vehicle, -1, false)
+                                if nearest ~= nil then
+                                    local nearest_dist = vec2_dist(nearest:get_position_xz(), vehicle:get_position_xz())
+                                    if nearest_dist < 10000 and nearest_dist > 3000 then
+                                        is_visible = true
+                                        is_revealed = true
+                                    end
+                                end
                             end
                         end
 
