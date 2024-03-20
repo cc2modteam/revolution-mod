@@ -1520,11 +1520,11 @@ function render_attachment_hud(screen_w, screen_h, map_data, tick_fraction, vehi
     or def == e_game_object_type.attachment_hardpoint_torpedo_noisemaker
     or def == e_game_object_type.attachment_hardpoint_torpedo_decoy
     then
-        is_render_center = render_attachment_hud_torpedo(screen_w, screen_h, vehicle, attachment)
+        is_render_center = render_attachment_hud_torpedo(screen_w, screen_h, map_data, vehicle, attachment)
     elseif def == e_game_object_type.attachment_turret_carrier_flare_launcher
     or def == e_game_object_type.attachment_flare_launcher
     then
-        is_render_center = render_attachment_hud_flare(screen_w, screen_h,map_data, vehicle, attachment)
+        is_render_center = render_attachment_hud_flare(screen_w, screen_h, map_data, vehicle, attachment)
     elseif def == e_game_object_type.attachment_radar_awacs then
         is_render_center = render_attachment_hud_radar(screen_w, screen_h, map_data, vehicle, attachment)
     elseif def == e_game_object_type.attachment_turret_robot_dog_capsule
@@ -1682,7 +1682,9 @@ function render_attachment_hud_bomb(screen_w, screen_h, map_data, vehicle, attac
     return false
 end
 
-function render_attachment_hud_torpedo(screen_w, screen_h, vehicle, attachment) 
+function render_attachment_hud_torpedo(screen_w, screen_h, map_data, vehicle, attachment)
+    render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
+
     if attachment:get_control_mode() == "manual" then
         local linked_attachments = {}
          
