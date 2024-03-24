@@ -159,6 +159,28 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
     g_is_render_hp = true
     g_is_render_control_mode = true
     g_is_render_compass = true
+    g_map_toggle = false
+    if g_is_map_overlay then
+        -- map overlay enabled
+        if g_last_map_overlay then
+            -- no change
+        else
+            -- changed
+            g_map_toggle = true
+        end
+    else
+        -- map overlay disabled
+        if g_last_map_overlay then
+            -- changed
+            g_map_toggle = true
+        else
+            -- no change
+        end
+    end
+    if g_map_toggle then
+        print("toggle map")
+    end
+    g_last_map_overlay = g_is_map_overlay
 
     if vehicle:get() == nil or g_is_connected == false then
         update_add_ui_interaction(update_get_loc(e_loc.interaction_cancel), e_game_input.back)
@@ -383,6 +405,7 @@ end
 
 g_radar_mode = 0
 g_last_map_overlay = false
+g_map_toggle = false
 
 radar_modes = {
     clear = 0,
@@ -415,26 +438,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             elseif is_golfball then
                 radar_name = "RADAR"
             end
-            local mode_change = false
-            if g_is_map_overlay then
-                -- map overlay enabled
-                if g_last_map_overlay then
-                    -- no change
-                else
-                    -- changed
-                    mode_change = true
-                end
-            else
-                -- map overlay disabled
-                if g_last_map_overlay then
-                    -- changed
-                    mode_change = true
-
-                else
-                    -- no change
-                end
-            end
-            g_last_map_overlay = g_is_map_overlay
+            local mode_change = g_map_toggle
             if mode_change then
                 g_radar_mode = (g_radar_mode + 1) % radar_modes.count
             end

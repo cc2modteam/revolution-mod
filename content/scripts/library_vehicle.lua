@@ -1694,7 +1694,6 @@ function set_carrier_lifeboat_attachments_value(vehicle, value)
                             vehicle:set_attached_vehicle_attachment(g_carrier_lifeboat_bay_index, i, -1)
                         end
                     end
-                    -- print(get_carrier_lifeboat_attachments_value(vehicle))
                 end
             end
         end
