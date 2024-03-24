@@ -1751,19 +1751,9 @@ function get_carrier_lifeboat_attachments_value(vehicle)
     return 0
 end
 
-function find_nearest_vehicle(vehicle, other_def, hostile)
-    local st, val = pcall(_find_nearest_vehicle, vehicle, other_def, hostile)
-    if not st then
-        print(val)
-    else
-        return val
-    end
 
-    return nil
-end
-
-function _find_nearest_vehicle(vehicle, other_def, hostile)
-        -- find the nearest unit of a particualr type
+function find_nearest_vehicle_types(vehicle, other_defs, hostile)
+    -- find the nearest unit of a particualr type
     local vehicle_count = update_get_map_vehicle_count()
     local self_team = vehicle:get_team()
     local self_pos = vehicle:get_position_xz()
@@ -1779,18 +1769,27 @@ function _find_nearest_vehicle(vehicle, other_def, hostile)
             end
 
             if match_team then
-                if other_def == -1 or unit:get_definition_index() == other_def then
-                    local dist = vec2_dist(self_pos, unit:get_position_xz())
-                    if dist < distance then
-                        distance = dist
-                        nearest = unit
+                for di = 1, #other_defs do
+                    local other_def = other_defs[di]
+                    if other_def == -1 or unit:get_definition_index() == other_def then
+                        local dist = vec2_dist(self_pos, unit:get_position_xz())
+                        if dist < distance then
+                            distance = dist
+                            nearest = unit
+                        end
                     end
+
                 end
             end
         end
     end
 
     return nearest
+end
+
+function find_nearest_vehicle(vehicle, other_def, hostile)
+    -- find the nearest unit of a particualr type
+    return find_nearest_vehicle_types(vehicle, {other_def}, hostile)
 end
 
 function find_nearest_hostile_vehicle(vehicle, other_def)
