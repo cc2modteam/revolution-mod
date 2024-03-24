@@ -1856,10 +1856,36 @@ function render_attachment_hud_ciws(screen_w, screen_h, map_data, vehicle, attac
     render_attachment_range(hud_pos, attachment)
     render_turret_vehicle_direction(screen_w, screen_h, vehicle, attachment, col)
 
+    -- always render the lead for the nearest air unit
+    local nearest_hostile_air = find_nearest_vehicle_types(vehicle, {
+        e_game_object_type.chassis_air_wing_light,
+        e_game_object_type.chassis_air_rotor_light,
+        e_game_object_type.chassis_air_rotor_heavy,
+        e_game_object_type.chassis_air_wing_heavy,
+    }, true)
+
+    local forced_target = false
+
+    if nearest_hostile_air ~= nil and g_selected_target_id == 0 then
+        local self_pos = vehicle:get_position()
+        local nearest_pos = nearest_hostile_air:get_position()
+        local dist = vec3_dist(self_pos, nearest_pos)
+        if dist < 1500 then
+            g_selected_target_type = 1
+            forced_target = true
+            g_selected_target_id = nearest_hostile_air:get_id()
+        end
+    end
+
     if g_selected_target_type == 1 and g_selected_target_id ~= 0 then
         local selected_target = update_get_map_vehicle_by_id(g_selected_target_id)
 
         if selected_target:get() then
+
+            local self_pos = vehicle:get_position()
+            local target_pos = selected_target:get_position()
+            local dist = vec3_dist(self_pos, target_pos)
+
             local lead_position = attachment:get_gun_lead_position(selected_target:get_position(), selected_target:get_linear_velocity())
             local lead_position_screen, is_clamped = update_world_to_screen(lead_position)
 
@@ -1869,7 +1895,25 @@ function render_attachment_hud_ciws(screen_w, screen_h, map_data, vehicle, attac
                 if is_target_clamped == false then
                     local lead_col = color8(255, 0, 0, 200)
                     update_ui_line(target_pos_screen:x(), target_pos_screen:y(), lead_position_screen:x(), lead_position_screen:y(), lead_col)
-                    update_ui_image_rot(lead_position_screen:x(), lead_position_screen:y(), atlas_icons.crosshair, lead_col, 0)
+
+                    -- draw a square,  vary size based on distance
+                    local dist_max = 1500
+                    local dist_scale = dist_max - dist
+
+                    if dist_scale > 0 then
+                        local size = 20 * ( 1 - ( dist / dist_max))
+                        local lx = lead_position_screen:x() - round_int(size / 2)
+                        local ly = lead_position_screen:y() - round_int(size / 2)
+                        update_ui_rectangle_outline(
+                                lx,
+                                ly,
+                                size,
+                                size,
+                                lead_col)
+
+                        update_ui_image_rot(lx + (size /2), ly + (size/2), atlas_icons.hud_gun_crosshair, lead_col, 0)
+
+                    end
                 end
             end
         end
@@ -1882,6 +1926,11 @@ function render_attachment_hud_ciws(screen_w, screen_h, map_data, vehicle, attac
         local zoom_power = zoom_factor * 3
         local display_zoom = 2 ^ zoom_power
         update_ui_text(hud_pos:x() - 250, hud_pos:y() + 50, string.format("%.2fx", display_zoom), 200, 2, col, 0)
+    end
+
+    if forced_target then
+        g_selected_target_id = -1
+        g_selected_target_type = 0
     end
 
     return false
@@ -4163,9 +4212,8 @@ function render_bad_signal(vehicle, screen_w, screen_h)
     update_ui_text(x, y + 35, text, 200, 0, color, 0)
 end
 
-
-function find_nearest_vehicle(vehicle, other_def, hostile)
-        -- find the nearest unit of a particualr type
+function find_nearest_vehicle_types(vehicle, other_defs, hostile)
+    -- find nearest vehicle of a range of types
     local vehicle_count = update_get_map_vehicle_count()
     local self_team = vehicle:get_team_id()
     local self_pos = vehicle:get_position()
@@ -4181,11 +4229,14 @@ function find_nearest_vehicle(vehicle, other_def, hostile)
             end
 
             if match_team then
-                if other_def == -1 or unit:get_definition_index() == other_def then
-                    local dist = vec3_dist(self_pos, unit:get_position())
-                    if dist < distance then
-                        distance = dist
-                        nearest = unit
+                for di = 1, #other_defs do
+                    local other_def = other_defs[di]
+                    if other_def == -1 or unit:get_definition_index() == other_def then
+                        local dist = vec3_dist(self_pos, unit:get_position())
+                        if dist < distance then
+                            distance = dist
+                            nearest = unit
+                        end
                     end
                 end
             end
@@ -4193,6 +4244,11 @@ function find_nearest_vehicle(vehicle, other_def, hostile)
     end
 
     return nearest
+end
+
+function find_nearest_vehicle(vehicle, other_def, hostile)
+    -- find the nearest unit of a particualr type
+    return find_nearest_vehicle_types(vehicle, {other_def}, hostile)
 end
 
 function render_fault(vehicle, screen_w, screen_h)
@@ -4293,4 +4349,9 @@ function do_comms_error(vehicle, screen_w, screen_h)
     end
 
     return false
+end
+
+
+function round_int(value)
+    return math.floor(value + 0.5)
 end
