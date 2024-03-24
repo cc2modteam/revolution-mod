@@ -4170,7 +4170,7 @@ function find_nearest_vehicle(vehicle, other_def, hostile)
     local distance = 999999999
     for i = 0, vehicle_count - 1 do
         local unit = update_get_map_vehicle_by_index(i)
-        if unit:get() and unit:get_altitude() > 60 then
+        if unit:get() and (unit:get_altitude() > 60 or other_def == e_game_object_type.chassis_sea_lifeboat) then
             local match_team = unit:get_team_id() == self_team
             if hostile then
                 match_team = not match_team

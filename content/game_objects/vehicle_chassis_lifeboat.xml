@@ -128,6 +128,18 @@
 					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
 					   tx="0" ty="0" tz="0"/>
 		</attachment>
+		<attachment name="vehicle_control" type="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
+					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
+					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
+					   tx="0" ty="0" tz="0"/>
+		</attachment>
+		<attachment name="vehicle_control" type="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
+					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
+					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
+					   tx="0" ty="0" tz="0"/>
+		</attachment>
 	</attachments>
 	<force_emitters>
 		<force_emitter name="water" magnitude="3.20000000e+01">
