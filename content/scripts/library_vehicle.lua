@@ -1218,28 +1218,19 @@ function get_nearest_friendly_airliftable_id(vehicle, max_range)
         -- petrel
         if not vehicle_has_cargo(vehicle) then
             -- empty
-            local team = vehicle:get_team()
-            local origin = vehicle:get_position_xz()
-            local nearest_dist = 99999
-            local nearest_id = -1
-            local vehicle_count = update_get_map_vehicle_count()
-            for i = 0, vehicle_count - 1, 1 do
-                local unit = update_get_map_vehicle_by_index(i)
-                if unit:get() then
-                    if unit:get_team() == team then
-                        if unit:get_attached_parent_id() == 0 and get_is_vehicle_airliftable(unit:get_definition_index()) then
-                            local pos = unit:get_position_xz()
-                            local range = vec2_dist(pos, origin)
-                            if range < max_range and range < nearest_dist then
-                                nearest_id = unit:get_id()
-                                nearest_dist = range
-                            end
-                        end
-                    end
+            local nearest = find_nearest_vehicle_types(vehicle,
+                    {
+                        e_game_object_type.chassis_land_wheel_mule,
+                        e_game_object_type.chassis_land_wheel_heavy,
+                        e_game_object_type.chassis_land_wheel_medium,
+                        e_game_object_type.chassis_land_wheel_light,
+                    }, false)
+            if nearest ~= nil then
+                local origin = vehicle:get_position_xz()
+                local nearest_dist = vec2_dist(origin, nearest:get_position_xz())
+                if nearest_dist < max_range then
+                    return nearest:get_id(), nearest_dist
                 end
-            end
-            if nearest_id ~= -1 then
-                return nearest_id, nearest_dist
             end
         end
     end
@@ -1752,29 +1743,32 @@ function get_carrier_lifeboat_attachments_value(vehicle)
 end
 
 
-function find_nearest_vehicle_types(vehicle, other_defs, hostile)
-    -- find the nearest unit of a particualr type
+function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team)
+    -- find the nearest unit of a particular type
     local vehicle_count = update_get_map_vehicle_count()
-    local self_team = vehicle:get_team()
     local self_pos = vehicle:get_position_xz()
+    if friendly_team == nil then
+        friendly_team = vehicle:get_team()
+    end
 
     local nearest = nil
-    local distance = 999999999
+    local distance_sq = 999999999
     for i = 0, vehicle_count - 1 do
         local unit = update_get_map_vehicle_by_index(i)
         if unit:get() then
-            local match_team = unit:get_team() == self_team
+            local match_team = unit:get_team() == friendly_team
             if hostile then
                 match_team = not match_team
             end
 
             if match_team then
+                local unit_def = unit:get_definition_index()
                 for di = 1, #other_defs do
                     local other_def = other_defs[di]
-                    if other_def == -1 or unit:get_definition_index() == other_def then
-                        local dist = vec2_dist(self_pos, unit:get_position_xz())
-                        if dist < distance then
-                            distance = dist
+                    if other_def == -1 or unit_def == other_def then
+                        local dist = vec2_dist_sq(self_pos, unit:get_position_xz())
+                        if dist < distance_sq then
+                            distance_sq = dist
                             nearest = unit
                         end
                     end

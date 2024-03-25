@@ -4212,29 +4212,32 @@ function render_bad_signal(vehicle, screen_w, screen_h)
     update_ui_text(x, y + 35, text, 200, 0, color, 0)
 end
 
-function find_nearest_vehicle_types(vehicle, other_defs, hostile)
+function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team)
     -- find nearest vehicle of a range of types
     local vehicle_count = update_get_map_vehicle_count()
-    local self_team = vehicle:get_team_id()
+    if friendly_team == nil then
+        friendly_team = vehicle:get_team_id()
+    end
     local self_pos = vehicle:get_position()
 
     local nearest = nil
-    local distance = 999999999
+    local distance_sq = 999999999
     for i = 0, vehicle_count - 1 do
         local unit = update_get_map_vehicle_by_index(i)
         if unit:get() and (unit:get_altitude() > 60 or other_def == e_game_object_type.chassis_sea_lifeboat) then
-            local match_team = unit:get_team_id() == self_team
+            local match_team = unit:get_team_id() == friendly_team
             if hostile then
                 match_team = not match_team
             end
 
             if match_team then
+                local unit_def = unit:get_definition_index()
                 for di = 1, #other_defs do
                     local other_def = other_defs[di]
-                    if other_def == -1 or unit:get_definition_index() == other_def then
-                        local dist = vec3_dist(self_pos, unit:get_position())
-                        if dist < distance then
-                            distance = dist
+                    if other_def == -1 or unit_def == other_def then
+                        local dist = vec3_dist_sq(self_pos, unit:get_position())
+                        if dist < distance_sq then
+                            distance_sq = dist
                             nearest = unit
                         end
                     end
