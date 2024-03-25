@@ -1676,11 +1676,15 @@ function update(screen_w, screen_h, ticks)
                                     is_render_vehicle_icon = false
                                 end
                             end
-
+                            local friendly_masked = false
                             -- hide low level aircraft
                             if not is_decoy then
                                 if get_is_vehicle_masked_by_groundclutter(vehicle) then
-                                    is_render_vehicle_icon = false
+                                    if vehicle:get_team() ~= update_get_screen_team_id() then
+                                        is_render_vehicle_icon = false
+                                    else
+                                        friendly_masked = true
+                                    end
                                 end
                             end
 
@@ -2050,6 +2054,9 @@ function update(screen_w, screen_h, ticks)
                                         end
 
                                         update_ui_image(screen_pos_x + 3, screen_pos_y - 2, atlas_icons.map_icon_visible, icon_color, 0)
+                                    end
+                                    if friendly_masked and not is_visible_by_enemy then
+                                        update_ui_image(screen_pos_x + 3, screen_pos_y - 2, atlas_icons.map_icon_visible, element_color, 0)
                                     end
 
                                     if fuel_factor < 0.5 and get_is_render_fuel_indicator(vehicle) then

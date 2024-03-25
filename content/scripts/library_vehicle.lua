@@ -742,16 +742,11 @@ end
 
 function get_is_vehicle_masked_by_groundclutter(vehicle)
     if get_is_vehicle_air(vehicle:get_definition_index()) then
-        if vehicle:get_team() ~= update_get_screen_team_id() then
-            local pos = vehicle:get_position_xz()
-            local waves = update_get_ocean_depth_factor(pos:x(), pos:y())
-            local clutter_base = 40
-            if waves > 0.23 then
-                clutter_base = 65
-            end
-            local alt = get_unit_altitude(vehicle)
-            return alt < clutter_base
-        end
+        local pos = vehicle:get_position_xz()
+        local waves = update_get_ocean_depth_factor(pos:x(), pos:y())
+        local clutter_base = 40 + (90 * waves)
+        local alt = get_unit_altitude(vehicle)
+        return alt < clutter_base
     end
     return false
 end
@@ -792,12 +787,13 @@ function _get_unit_visible_by_modded_radar(vehicle, other_unit)
             return false
         end
         if vehicle:get_id() ~= other_unit:get_id() then
-            local dist = vec2_dist(vehicle:get_position_xz(), other_unit:get_position_xz())
+            local dist_sq = vec2_dist_sq(vehicle:get_position_xz(), other_unit:get_position_xz())
             local mrr = get_modded_radar_range(vehicle)
-            if dist < mrr then
+            local mrr_sq = mrr * mrr
+            if dist_sq < mrr_sq then
                 if get_is_ship_fish(vehicle:get_definition_index()) then
                     -- needlefish can all see anything less than 500m away
-                    if dist < 500 then
+                    if dist_sq < 250000 then
                         return true
                     end
                 end
