@@ -1785,3 +1785,18 @@ end
 function find_nearest_hostile_vehicle(vehicle, other_def)
    return find_nearest_vehicle(vehicle, other_def, true)
 end
+
+function get_vehicle_scale(vehicle)
+    if vehicle and vehicle:get() then
+        local def = vehicle:get_definition_index()
+        if get_is_vehicle_sea(def) then
+            if def == e_game_object_type.chassis_carrier then
+                return 4
+            end
+            return 1.2
+        end
+
+        return 0.8
+    end
+    return 0
+end

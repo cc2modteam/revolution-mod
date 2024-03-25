@@ -177,9 +177,7 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
             -- no change
         end
     end
-    if g_map_toggle then
-        print("toggle map")
-    end
+
     g_last_map_overlay = g_is_map_overlay
 
     if vehicle:get() == nil or g_is_connected == false then
@@ -404,8 +402,11 @@ end
 --------------------------------------------------------------------------------
 
 g_radar_mode = 0
+g_camera_mode = 0
 g_last_map_overlay = false
 g_map_toggle = false
+
+g_enable_ir_camera = false
 
 radar_modes = {
     clear = 0,
@@ -413,6 +414,13 @@ radar_modes = {
     air_threats = 2,
 
     count = 3,
+}
+
+camera_modes = {
+    map = 0,
+    heatmap = 1,
+
+    count = 2,
 }
 
 function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, attachment)
@@ -438,8 +446,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             elseif is_golfball then
                 radar_name = "RADAR"
             end
-            local mode_change = g_map_toggle
-            if mode_change then
+            if g_map_toggle then
                 g_radar_mode = (g_radar_mode + 1) % radar_modes.count
             end
         end
@@ -1555,8 +1562,23 @@ end
 function render_attachment_hud_camera(screen_w, screen_h, map_data, vehicle, attachment)
     local hud_pos = vec2(screen_w / 2, screen_h / 2)
     local col = color8(0, 255, 0, 255)
+    local render_heat = false
+    if attachment:get_is_zoom_capable() then
 
-    render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
+        if g_enable_ir_camera then
+            if g_map_toggle then
+                g_camera_mode = (1 + g_camera_mode) % camera_modes.count
+            end
+
+            if g_camera_mode == camera_modes.heatmap then
+                render_heat = true
+                update_ui_text(32, 10, "INFRA RED", 90, 0, col, 0)
+            end
+        end
+
+    end
+
+    render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment, render_heat)
 
     local outer_radius = 72
     local inner_radius = outer_radius - 5
@@ -3051,7 +3073,7 @@ end
 --
 --------------------------------------------------------------------------------
 
-function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
+function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment, render_heat)
     local vehicle_id = vehicle:get_id()
     local vehicle_team = vehicle:get_team_id()
     local vehicle_pos = vehicle:get_position()
@@ -3092,6 +3114,10 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
     local filter_target = function(v)
         -- Ignore self and docked vehicles
         if v:get_id() ~= vehicle_id and not v:get_is_docked() then
+            if render_heat then
+                return true
+            end
+
             if (get_is_vision_render_land(attachment_def) and v:get_is_land_target())
             or (get_is_vision_render_air(attachment_def) and v:get_is_air_target())
             or (get_is_vision_render_sea(attachment_def) and get_is_vehicle_sea(v:get_definition_index())) then
@@ -3327,12 +3353,29 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
 
     for _, data in pairs(target_data) do
         if data.type == 1 then -- vehicle
-            if target_selected == nil or target_selected == data then
+            if target_selected == nil or target_selected == data or render_heat then
                 local is_target_locked = is_target_lock_behaviour and g_selected_target_id == data.id and g_selected_target_type == data.type
                 local is_friendly = data.team == vehicle_team
                 local col = iff(is_friendly, color_friendly, colors.red)
                 local is_hovered = data == target_hovered
                 local is_render_health = (data == target_selected or (target_selected == nil and data == target_hovered)) and data.is_observed
+
+
+
+
+                if data.dist_sq < (2500 * 2500) and data.vehicle:get_linear_speed() > 1 and data.vehicle:get_is_visible() and render_heat and not data.is_clamped then
+                    -- draw some heat blobs
+                    local screen_pos = data.screen_pos
+                    local hover_radius = target_hover_world_radius
+                    local vehicle_screen_radius = get_object_size_on_screen(screen_w, data.vehicle:get_position(), hover_radius)
+                    local blob_size = get_vehicle_scale(data.vehicle) * vehicle_screen_radius
+                    local blob_col = color_white
+
+                    local blob_w = blob_size * 2
+
+                    render_circle(screen_pos, blob_size, 16, blob_col)
+
+                end
 
                 if data.is_observed then
                     render_vision_target_vehicle_outline(data.screen_pos, data.vehicle, data.is_clamped, is_target_locked or data.is_laser_target, is_friendly, is_render_health, col)
@@ -3359,6 +3402,10 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
                 end
             end
         elseif data.type == 2 then -- missile
+            if render_heat then
+                -- TODO draw a heat blume around missiles
+            end
+
             render_vision_target_missile_outline(data.screen_pos, data.is_clamped, color_friendly)
             render_target_missile_info(data.screen_pos, data, colors.green)
         end
