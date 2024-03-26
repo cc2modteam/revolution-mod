@@ -3354,22 +3354,23 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
                 local is_hovered = data == target_hovered
                 local is_render_health = (data == target_selected or (target_selected == nil and data == target_hovered)) and data.is_observed
 
-                if data.dist_sq < (2500 * 2500) and data.vehicle:get_linear_speed() > 1 and data.vehicle:get_is_visible() and render_heat and not data.is_clamped then
-                    -- draw some heat blobs
-                    local screen_pos = vec2(data.screen_pos:x() - 1, data.screen_pos:y() - 1)
-                    local hover_radius = target_hover_world_radius
-                    --local vehicle_screen_radius = get_object_size_on_screen(screen_w, data.vehicle:get_position(), hover_radius)
-                    --local blob_size = get_vehicle_scale(data.vehicle) * vehicle_screen_radius
-                    local blob_col = color_white
-                    local blob_size = 5
-                    --if blob_size < 3 then
-                    --    blob_size = 3
-                    --end
-                    --if blob_size > 8 then
-                    --    blob_size = 8
-                    --end
-                    render_circle(screen_pos, blob_size, 6, blob_col)
-
+                if not is_friendly then
+                    if data.dist_sq < (2500 * 2500) and data.vehicle:get_linear_speed() > 1 and data.vehicle:get_is_visible() and render_heat and not data.is_clamped then
+                        -- draw some heat blobs
+                        local screen_pos = vec2(data.screen_pos:x() - 1, data.screen_pos:y() - 1)
+                        --local hover_radius = target_hover_world_radius
+                        --local vehicle_screen_radius = get_object_size_on_screen(screen_w, data.vehicle:get_position(), hover_radius)
+                        --local blob_size = get_vehicle_scale(data.vehicle) * vehicle_screen_radius
+                        local blob_col = color_white
+                        local blob_size = 5
+                        --if blob_size < 3 then
+                        --    blob_size = 3
+                        --end
+                        --if blob_size > 8 then
+                        --    blob_size = 8
+                        --end
+                        render_circle(screen_pos, blob_size, 6, blob_col)
+                    end
                 end
 
                 if data.is_observed then
