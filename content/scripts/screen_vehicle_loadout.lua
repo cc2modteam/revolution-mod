@@ -73,22 +73,30 @@ function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index
         if attachment_index == 1 then
             add_attachment_option(attachment_options, e_game_object_type.attachment_turret_heavy_cannon)
         end
+    elseif vdef == e_game_object_type.chassis_air_rotor_light then
+        -- allow razorbill to add actuated cameras to the utility points
+        -- this is a bit naff because the camera is inverted...
+        --if attachment_index == 3 or attachment_index == 4 then
+        --    add_attachment_option(attachment_options, e_game_object_type.attachment_camera)
+        --end
+        if attachment_index == 5 then
+            -- allow the 30mm twin auto gun from the combat droid
+            add_attachment_option(attachment_options, e_game_object_type.attachment_turret_droid)
+        end
     end
 
-    if (vdef == e_game_object_type.chassis_land_wheel_light
-            or vdef == e_game_object_type.chassis_land_wheel_medium
-            or vdef == e_game_object_type.chassis_land_wheel_heavy
+    if (
+            vdef == e_game_object_type.chassis_land_wheel_heavy
     ) then
-        local decoy_slot = 1
-        if vdef == e_game_object_type.chassis_land_wheel_heavy then
-            decoy_slot = 2
-        end
-        -- allow putting the awacs on to a seal/walrus/bear to enable the automatic "decoy" mode.
-        -- seals generate decoy needle
-        -- walrus generate decoy barge
-        -- bear generates decoy carriers
-        if attachment_index == decoy_slot then
-            add_attachment_option(attachment_options, e_game_object_type.attachment_radar_awacs)
+        if attachment_index == 2 then
+            -- allow putting the ECM on to a bear to enable the "decoy" mode.
+            add_attachment_option(attachment_options, e_game_object_type.attachment_fuel_tank_plane)
+        elseif attachment_index == 1 then
+            -- right side
+            add_attachment_option(attachment_options, e_game_object_type.attachment_hardpoint_missile_tv)
+        elseif attachment_index == 3 then
+            -- left side
+            add_attachment_option(attachment_options, e_game_object_type.attachment_hardpoint_missile_tv)
         end
     end
 

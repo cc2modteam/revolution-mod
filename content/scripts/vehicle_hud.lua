@@ -1562,23 +1562,7 @@ end
 function render_attachment_hud_camera(screen_w, screen_h, map_data, vehicle, attachment)
     local hud_pos = vec2(screen_w / 2, screen_h / 2)
     local col = color8(0, 255, 0, 255)
-    local render_heat = false
-    if attachment:get_is_zoom_capable() then
-
-        if g_enable_ir_camera then
-            if g_map_toggle then
-                g_camera_mode = (1 + g_camera_mode) % camera_modes.count
-            end
-
-            if g_camera_mode == camera_modes.heatmap then
-                render_heat = true
-                update_ui_text(32, 10, "INFRA RED", 90, 0, col, 0)
-            end
-        end
-
-    end
-
-    render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment, render_heat)
+    render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
 
     local outer_radius = 72
     local inner_radius = outer_radius - 5

@@ -866,12 +866,13 @@ function _refresh_modded_radar_cache()
                     end
                 end
             end
-            -- decoy units are hostile ground units with an AWACS radar fitted
+            -- decoy units are hostile ground units with an ECM pod
+            -- currently we only allow the bear to do this
             if _team ~= screen_team then
                 local parent_id = vehicle:get_attached_parent_id()
                 if parent_id == 0 and get_is_vehicle_land(vehicle:get_definition_index()) then
-                    -- does it have a AWACS radar
-                    if _get_radar_attachment(vehicle) == e_game_object_type.attachment_radar_awacs then
+                    -- does it have a ECM
+                    if _get_radar_attachment(vehicle) == e_game_object_type.attachment_fuel_tank_plane then
                         decoy_units[vehicle:get_id()] = true
                     end
                 end
@@ -886,12 +887,12 @@ function get_vehicle_decoy_contact(vehicle)
         local vid = vehicle:get_id()
         if g_decoy_enabled_units[vid] ~= nil then
             local vdef = vehicle:get_definition_index()
-            if vdef == e_game_object_type.chassis_land_wheel_light then
-                return e_game_object_type.chassis_sea_ship_light
-            elseif vdef == e_game_object_type.chassis_land_wheel_medium then
-                return e_game_object_type.chassis_sea_barge
-            elseif vdef == e_game_object_type.chassis_land_wheel_heavy then
+            if vdef == e_game_object_type.chassis_land_wheel_heavy then
                 return e_game_object_type.chassis_carrier
+            --elseif vdef == e_game_object_type.chassis_land_wheel_light then
+            --    return e_game_object_type.chassis_sea_ship_light
+            --elseif vdef == e_game_object_type.chassis_land_wheel_medium then
+            --    return e_game_object_type.chassis_sea_barge
             end
         end
     end

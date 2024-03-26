@@ -2804,6 +2804,7 @@ function get_ui_vehicle_chassis_attachments(vehicle)
     elseif vehicle_definition_index == e_game_object_type.chassis_air_rotor_light then
         vehicle_attachment_rows = {
             {
+                { i=5, x=0, y=-7},
                 { i=1, x=-26, y=0 },
                 { i=3, x=-14, y=0 },
                 { i=4, x=14, y=0 },

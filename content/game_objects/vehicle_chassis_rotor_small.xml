@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data display_name_loc="0" bounding_radius="1.00000000e+01" lod_scale="1.00000000e+00" ai_type="2">
+	<bodies>
+		<body mass="1.00000000e+03" name="body" is_static="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="8.89392495e-01" tz="0.00000000e+00"/>
+			<meshes/>
+			<boxes>
+				<box>
+					<size x="1.60000002e+00" y="1.75000000e+00" z="2.00000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
+				</box>
+				<box>
+					<size x="5.00000000e-01" y="5.00000000e-01" z="2.59999990e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="2.00000003e-01" tz="-2.29999995e+00"/>
+				</box>
+				<box>
+					<size x="2.40000010e+00" y="5.00000000e-01" z="5.00000000e-01"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="2.00000003e-01" tz="-3.40000010e+00"/>
+				</box>
+			</boxes>
+			<spheres/>
+		</body>
+	</bodies>
+	<constraints/>
+	<meshes>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_base.mesh" name="chassis" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="-1.20000005e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_rotorblades_bottom.mesh" name="rotorblades_bottom" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="8.45668077e-01" tz="-5.00000007e-02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_backwing_left.mesh" name="backwing_left" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="3.27284008e-01" m01="-9.44829822e-01" m02="-1.34805646e-02" m10="9.39154863e-01" m11="3.23677778e-01" m12="1.14981763e-01" m20="-1.04274839e-01" m21="-5.02920076e-02" m22="9.93276119e-01" tx="-7.63102710e-01" ty="1.64489985e-01" tz="-3.42751789e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_backwing_right.mesh" name="backwing_right" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="3.23578209e-01" m01="9.46192980e-01" m02="-3.99295660e-03" m10="-9.39674973e-01" m11="3.21838170e-01" m12="1.15892939e-01" m20="1.10942170e-01" m21="-3.37482803e-02" m22="9.93253767e-01" tx="7.62562752e-01" ty="1.65009260e-01" tz="-3.42993689e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_rotorblades_top.mesh" name="rotorblades_top" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.42648339e+00" tz="-5.00000007e-02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_turbine.mesh" name="turbine_right" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="1.00000000e+00" m20="0.00000000e+00" m21="-1.00000000e+00" m22="-4.37113883e-08" tx="5.19260526e-01" ty="3.99259806e-01" tz="2.50000000e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_turbine.mesh" name="turbine_left" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="1.00000000e+00" m20="0.00000000e+00" m21="-1.00000000e+00" m22="-4.37113883e-08" tx="-5.41358054e-01" ty="3.99259806e-01" tz="2.50000000e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_front_wheel.mesh" name="wheel_front" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="0.00000000e+00" ty="-7.86785722e-01" tz="9.52336311e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_back_wheel.mesh" name="wheel_right" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="6.44471645e-01" ty="-7.92618275e-01" tz="-1.43099999e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_back_wheel.mesh" name="wheel_left" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.36306493e-08" m01="-1.00000000e+00" m02="2.65557709e-09" m10="-9.98152852e-01" m11="-4.37113883e-08" m12="-6.07525408e-02" m20="6.07525408e-02" m21="0.00000000e+00" m22="-9.98152852e-01" tx="-6.46779776e-01" ty="-7.92618275e-01" tz="-1.43069673e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_landinggear_front.mesh" name="gear_front" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="2.45296955e-03" ty="-4.71636295e-01" tz="9.53065753e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_landinggear_right.mesh" name="gear_right" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="9.40575600e-01" m01="3.37445170e-01" m02="3.80565599e-02" m10="-3.39584380e-01" m11="9.34650481e-01" m12="1.05408475e-01" m20="0.00000000e+00" m21="-1.12068057e-01" m22="9.93700504e-01" tx="3.25989842e-01" ty="-2.30691493e-01" tz="-1.36838555e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_landinggear_left.mesh" name="gear_left" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="9.33968008e-01" m01="-3.55786443e-01" m02="-3.34617533e-02" m10="3.57353717e-01" m11="9.29485798e-01" m12="9.14033055e-02" m20="-1.41783629e-03" m21="-9.73254591e-02" m22="9.95251656e-01" tx="-3.26000005e-01" ty="-2.31000006e-01" tz="-1.36576247e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_rotorblades_blur_top.mesh" name="rotor_blur_top" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.42600000e+00" tz="-5.00000007e-02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_rotorblades_blur_bottom.mesh" name="rotor_blur_bottom" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="8.46000016e-01" tz="-5.00000007e-02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/small_helicopter/smallhelicopter_additive.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="-1.20000005e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/vehicle_lods/smallhelicopter_base001.mesh" name="lod 1" lod="1" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="-1.20000005e+00"/>
+		</mesh>
+	</meshes>
+	<wheels>
+		<wheel steerable="true" stiffness="1.00000000e+01" damping="3.20000000e+01" suspension_length="2.50000000e-01" relax_rate="5.00000007e-02" grip="2.00000000e+02" radius="4.00000006e-01" name="wheel_front" acceleration="2.00000003e-01">
+			<pos x="0.00000000e+00" y="-3.00000012e-01" z="1.00000000e+00"/>
+		</wheel>
+		<wheel steerable="false" stiffness="6.00000000e+00" damping="1.60000000e+01" suspension_length="2.50000000e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="4.00000006e-01" name="wheel_left" acceleration="2.00000003e-01">
+			<pos x="-8.00000012e-01" y="-3.00000012e-01" z="-1.45000005e+00"/>
+		</wheel>
+		<wheel steerable="false" stiffness="6.00000000e+00" damping="1.60000000e+01" suspension_length="2.50000000e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="4.00000006e-01" name="wheel_right" acceleration="2.00000003e-01">
+			<pos x="8.00000012e-01" y="-3.00000012e-01" z="-1.44992518e+00"/>
+		</wheel>
+	</wheels>
+	<attachments>
+		<attachment name="vehicle_control" type="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="3.90431195e-01" tz="9.89902616e-01"/>
+		</attachment>
+		<attachment name="left_1" type="3">
+			<transform m00="1.00000000e+00" m01="-1.78055452e-15" m02="0.00000000e+00" m10="1.78055452e-15" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999702e-01" tx="-1.14699996e+00" ty="-1.15000010e-01" tz="4.39999998e-02"/>
+		</attachment>
+		<attachment name="right_1" type="3">
+			<transform m00="1.00000000e+00" m01="1.74845553e-07" m02="0.00000000e+00" m10="-1.74845553e-07" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999702e-01" tx="1.14724612e+00" ty="-1.14600301e-01" tz="4.44683917e-02"/>
+		</attachment>
+		<attachment name="attachment" type="6">
+			<transform m00="9.99999940e-01" m01="-1.61376006e-14" m02="8.74227766e-08" m10="3.82137051e-15" m11="-9.99999821e-01" m12="-8.74227695e-08" m20="8.74227766e-08" m21="8.74227766e-08" m22="-9.99999940e-01" tx="-8.85999978e-01" ty="-1.75863206e-01" tz="8.32036138e-03"/>
+		</attachment>
+		<attachment name="attachment" type="6">
+			<transform m00="9.99999940e-01" m01="-1.61376039e-14" m02="8.74227624e-08" m10="-1.14641115e-14" m11="-9.99999821e-01" m12="8.74227695e-08" m20="8.74227624e-08" m21="-8.74227766e-08" m22="-9.99999940e-01" tx="8.85999978e-01" ty="-1.75863206e-01" tz="8.32036138e-03"/>
+		</attachment>
+		<attachment name="chin_gun" type="0">
+			<transform m00="1.000" m01="0.000" m02="0.000"
+					   m10="0.000" m11="0.940" m12="0.342"
+					   m20="0.000" m21="-0.342" m22="0.940"
+					   tx="0.00000000e+00" ty="-0.7" tz="1.2"/>
+		</attachment>
+	</attachments>
+	<force_emitters>
+		<force_emitter name="main_engine" magnitude="6.00000000e+01">
+			<transform m00="-1.00000000e+00" m01="-8.74227766e-08" m02="0.00000000e+00" m10="8.74227766e-08" m11="-1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="3.00000000e+00" tz="0.00000000e+00"/>
+		</force_emitter>
+		<force_emitter name="tail" magnitude="1.20000000e+01">
+			<transform m00="4.37113847e-08" m01="-1.00000000e+00" m02="2.13472712e-11" m10="-9.99999881e-01" m11="-4.37113883e-08" m12="-4.88368620e-04" m20="4.88368620e-04" m21="0.00000000e+00" m22="-9.99999821e-01" tx="0.00000000e+00" ty="0.00000000e+00" tz="-3.00000000e+00"/>
+		</force_emitter>
+	</force_emitters>
+	<control_surfaces>
+		<control_surface size="2.00000003e-01" max_angle="2.00000003e-01" water="false" name="yaw">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="-0.00000000e+00" m22="9.99999940e-01" tx="0.00000000e+00" ty="0.00000000e+00" tz="-4.00000000e+00"/>
+		</control_surface>
+	</control_surfaces>
+	<projectile_emitters/>
+	<cameras/>
+	<buoyancys>
+		<buoyancy name="buoyancy" radius="1.50000000e+00" magnitude="5.00000000e-01">
+			<pos x="0.00000000e+00" y="0.00000000e+00" z="4.00000000e+00"/>
+		</buoyancy>
+		<buoyancy name="buoyancy" radius="1.50000000e+00" magnitude="5.00000000e-01">
+			<pos x="3.70000005e+00" y="0.00000000e+00" z="-3.00000000e+00"/>
+		</buoyancy>
+		<buoyancy name="buoyancy" radius="1.50000000e+00" magnitude="5.00000000e-01">
+			<pos x="-3.70000005e+00" y="0.00000000e+00" z="-3.00000000e+00"/>
+		</buoyancy>
+	</buoyancys>
+	<vehicle_attachments/>
+	<lights>
+		<light name="light_port" body_index="0" scale="4.00000000e+00" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.15536833e+00" ty="-1.34765565e-01" tz="5.41039884e-01"/>
+			<color x="1.00000000e+00" y="4.00000006e-01" z="4.00000006e-01"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light_star" body_index="0" scale="4.00000000e+00" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.15499997e+00" ty="-1.35000005e-01" tz="5.41000009e-01"/>
+			<color x="4.00000006e-01" y="1.00000000e+00" z="4.00000006e-01"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="strobe" body_index="0" scale="1.00000000e+01" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="4.33893800e-01" tz="-3.64404917e+00"/>
+			<color x="1.00000000e+00" y="1.00000000e+00" z="1.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+	</lights>
+	<seats/>
+	<button_panels/>
+	<buttons/>
+	<indicators/>
+	<achievements/>
+	<dials/>
+	<screens/>
+	<doors/>
+	<graph_nodes/>
+	<graph_links/>
+	<foam_emitters/>
+	<particle_emitters>
+		<particle_emitter name="exhaust_right" body_index="0" life="60" velocity="4.00000000e+00" magnitude="2.50000000e-01" rise="0.00000000e+00" color="FFFFFFFF">
+			<transform m00="-5.00000060e-01" m01="-8.66025388e-01" m02="1.13133396e-08" m10="8.36516261e-01" m11="-4.82962936e-01" m12="-2.58819044e-01" m20="2.24143833e-01" m21="-1.29409507e-01" m22="9.65925753e-01" tx="7.10290313e-01" ty="4.02383208e-01" tz="-6.76759839e-01"/>
+		</particle_emitter>
+		<particle_emitter name="exhaust_left" body_index="0" life="60" velocity="4.00000000e+00" magnitude="2.50000000e-01" rise="0.00000000e+00" color="FFFFFFFF">
+			<transform m00="5.00000060e-01" m01="-8.66025388e-01" m02="1.13133352e-08" m10="-8.36516321e-01" m11="-4.82962966e-01" m12="-2.58818924e-01" m20="2.24143729e-01" m21="1.29409447e-01" m22="-9.65925813e-01" tx="-7.09999979e-01" ty="4.02000010e-01" tz="-6.76999986e-01"/>
+		</particle_emitter>
+	</particle_emitters>
+	<sensors/>
+	<splash_emitters/>
+	<holomaps/>
+	<damage_zones/>
+	<audio_zones/>
+	<nav_meshes/>
+</data>
+
