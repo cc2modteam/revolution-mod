@@ -1738,8 +1738,18 @@ end
 function render_attachment_hud_missile(screen_w, screen_h, map_data, vehicle, attachment)
     local hud_pos = vec2(screen_w / 2, screen_h / 2)
     local col = color8(0, 255, 0, 255)
+    local render_heat = false
+    -- if this is the TV, AA or IR, render the IR-ST overlays
+    local def = attachment:get_definition_index()
+    if attachment:get_ammo_remaining() > 0 then
+        if def == e_game_object_type.attachment_hardpoint_missile_ir
+                or def == e_game_object_type.attachment_hardpoint_missile_aa
+        then
+            render_heat = true
+        end
+    end
     
-    render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
+    render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment, render_heat)
     if attachment:get_definition_index() == e_game_object_type.attachment_turret_missile then
         render_turret_vehicle_direction(screen_w, screen_h, vehicle, attachment, col)
     end
@@ -1769,7 +1779,7 @@ function render_attachment_hud_tv_missile(screen_w, screen_h, map_data, vehicle,
     local is_viewing_missile = attachment:get_is_viewing_sub_camera()
 
     if is_viewing_missile then
-        render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
+        render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment, true)
 
         if g_animation_time % 500 > 250 then
             render_camera_crosshair(hud_pos:x(), hud_pos:y(), 48, 16, col)
@@ -1808,7 +1818,7 @@ function render_attachment_hud_tv_missile(screen_w, screen_h, map_data, vehicle,
         return true
     else
         if attachment:get_ammo_remaining() > 0 then
-            render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
+            render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment, true)
             render_camera_crosshair(hud_pos:x(), hud_pos:y(), 48, 16, col)
             render_camera_crosshair(hud_pos:x(), hud_pos:y(), 8, 4, col)
             update_ui_image_rot(hud_pos:x() + 1, hud_pos:y() + 1, atlas_icons.hud_horizon_cursor, col, 0)
@@ -3360,20 +3370,21 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
                 local is_hovered = data == target_hovered
                 local is_render_health = (data == target_selected or (target_selected == nil and data == target_hovered)) and data.is_observed
 
-
-
-
                 if data.dist_sq < (2500 * 2500) and data.vehicle:get_linear_speed() > 1 and data.vehicle:get_is_visible() and render_heat and not data.is_clamped then
                     -- draw some heat blobs
-                    local screen_pos = data.screen_pos
+                    local screen_pos = vec2(data.screen_pos:x() - 1, data.screen_pos:y() - 1)
                     local hover_radius = target_hover_world_radius
-                    local vehicle_screen_radius = get_object_size_on_screen(screen_w, data.vehicle:get_position(), hover_radius)
-                    local blob_size = get_vehicle_scale(data.vehicle) * vehicle_screen_radius
+                    --local vehicle_screen_radius = get_object_size_on_screen(screen_w, data.vehicle:get_position(), hover_radius)
+                    --local blob_size = get_vehicle_scale(data.vehicle) * vehicle_screen_radius
                     local blob_col = color_white
-
-                    local blob_w = blob_size * 2
-
-                    render_circle(screen_pos, blob_size, 16, blob_col)
+                    local blob_size = 5
+                    --if blob_size < 3 then
+                    --    blob_size = 3
+                    --end
+                    --if blob_size > 8 then
+                    --    blob_size = 8
+                    --end
+                    render_circle(screen_pos, blob_size, 6, blob_col)
 
                 end
 

@@ -1791,12 +1791,12 @@ function get_vehicle_scale(vehicle)
         local def = vehicle:get_definition_index()
         if get_is_vehicle_sea(def) then
             if def == e_game_object_type.chassis_carrier then
-                return 4
+                return 10
             end
-            return 1.2
+            return 2
         end
 
-        return 0.8
+        return 1
     end
     return 0
 end

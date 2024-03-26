@@ -1676,14 +1676,12 @@ function update(screen_w, screen_h, ticks)
                                     is_render_vehicle_icon = false
                                 end
                             end
-                            local friendly_masked = false
+
                             -- hide low level aircraft
                             if not is_decoy then
                                 if get_is_vehicle_masked_by_groundclutter(vehicle) then
                                     if vehicle:get_team() ~= update_get_screen_team_id() then
                                         is_render_vehicle_icon = false
-                                    else
-                                        friendly_masked = true
                                     end
                                 end
                             end
