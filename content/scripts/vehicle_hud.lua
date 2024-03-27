@@ -3369,7 +3369,18 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
                         --if blob_size > 8 then
                         --    blob_size = 8
                         --end
-                        render_circle(screen_pos, blob_size, 6, blob_col)
+
+                        -- limit circles to a 1/3 of the width and 1/2 of the height
+                        local area_w = screen_h / 4
+                        local min_x = (screen_w / 2) - (area_w / 2)
+                        local max_x = (screen_w / 2) + (area_w / 2)
+                        local min_y = (screen_h / 2) - (area_w / 2)
+                        local max_y = (screen_h / 2) + (area_w / 2)
+                        if screen_pos:x() > min_x and screen_pos:x() < max_x then
+                            if screen_pos:y() > min_y and screen_pos:y() < max_y then
+                                render_circle(screen_pos, blob_size, 6, blob_col)
+                            end
+                        end
                     end
                 end
 
