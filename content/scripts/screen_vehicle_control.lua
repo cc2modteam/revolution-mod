@@ -1644,7 +1644,7 @@ function update(screen_w, screen_h, ticks)
                                     if nearest_dist < 10000 * 10000 then
                                         is_visible = true
                                         is_revealed = true
-                                        if nearest_dist < 5000 * 5000 then
+                                        if nearest_dist < 4000 * 4000 then
                                             -- too close, decoy signal defeated
                                             is_decoy = false
                                         end

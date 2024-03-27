@@ -872,8 +872,11 @@ function _refresh_modded_radar_cache()
                 local parent_id = vehicle:get_attached_parent_id()
                 if parent_id == 0 and get_is_vehicle_land(vehicle:get_definition_index()) then
                     -- does it have a ECM
-                    if _get_radar_attachment(vehicle) == e_game_object_type.attachment_fuel_tank_plane then
-                        decoy_units[vehicle:get_id()] = true
+                    if vehicle:get_definition_index() == e_game_object_type.chassis_land_wheel_heavy then
+                        local main = vehicle:get_attachment(2)
+                        if main and main:get_definition_index() == e_game_object_type.attachment_fuel_tank_plane then
+                            decoy_units[vehicle:get_id()] = true
+                        end
                     end
                 end
             end
@@ -888,7 +891,17 @@ function get_vehicle_decoy_contact(vehicle)
         if g_decoy_enabled_units[vid] ~= nil then
             local vdef = vehicle:get_definition_index()
             if vdef == e_game_object_type.chassis_land_wheel_heavy then
-                return e_game_object_type.chassis_carrier
+                -- if this unit is within 300m of a barge, enable the carrier decoy
+                local nearest_barge = find_nearest_vehicle_types(
+                        vehicle, {e_game_object_type.chassis_sea_barge},
+                        false)
+                if nearest_barge ~= nil then
+                    local range = 300
+                    local nearest_dist = vec2_dist(vehicle:get_position_xz(), nearest_barge:get_position_xz())
+                    if nearest_dist < range then
+                        return e_game_object_type.chassis_carrier
+                    end
+                end
             --elseif vdef == e_game_object_type.chassis_land_wheel_light then
             --    return e_game_object_type.chassis_sea_ship_light
             --elseif vdef == e_game_object_type.chassis_land_wheel_medium then
