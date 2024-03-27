@@ -251,7 +251,7 @@ function get_attachment_data_by_definition_index(index)
             name_short = "OBS CAM",
         },
         [e_game_object_type.attachment_radar_awacs] = {
-            name = "AWACS RADAR, When fitted on ground units, generates an electronic decoy ship contact",
+            name = "AWACS RADAR",
             icon16 = atlas_icons.icon_attachment_16_air_radar,
             name_short = "AWACS",
         },
