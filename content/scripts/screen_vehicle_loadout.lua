@@ -8,6 +8,8 @@ g_no_stock_counter = 1000
 g_attachment_combo_scroll = -1
 g_chassis_combo_scroll = -1
 
+g_enable_ecm_decoys = false
+
 g_ui = nil
 
 function get_bay_name(index)
@@ -89,8 +91,10 @@ function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index
             vdef == e_game_object_type.chassis_land_wheel_heavy
     ) then
         if attachment_index == 2 then
-            -- allow putting the ECM on to a bear to enable the "decoy" mode.
-            add_attachment_option(attachment_options, e_game_object_type.attachment_fuel_tank_plane)
+            if g_enable_ecm_decoys then
+                -- allow putting the ECM on to a bear to enable the "decoy" mode.
+                add_attachment_option(attachment_options, e_game_object_type.attachment_fuel_tank_plane)
+            end
         elseif attachment_index == 1 then
             -- right side
             add_attachment_option(attachment_options, e_game_object_type.attachment_hardpoint_missile_tv)
