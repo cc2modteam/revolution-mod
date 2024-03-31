@@ -60,20 +60,32 @@ function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index
         })
     end
 
+    local restricted = {
+        { region=atlas_icons.icon_attachment_16_none, type=-1 }
+    }
+
     local vdef = vehicle:get_definition_index()
     if vdef == e_game_object_type.chassis_air_wing_light then
         -- for wingtips, only allow the fuel tank/ecm
         if attachment_index == 7 or attachment_index == 8 then
-            local alb_options = {
-                { region=atlas_icons.icon_attachment_16_none, type=-1 }
-            }
-            add_attachment_option(alb_options, e_game_object_type.attachment_fuel_tank_plane)
-            return alb_options
+            add_attachment_option(restricted, e_game_object_type.attachment_fuel_tank_plane)
+            return restricted
+        end
+    elseif vdef == e_game_object_type.chassis_land_wheel_light then
+        -- allow a 2nd virus bot on seals
+        if attachment_index == 3 then
+            add_attachment_option(attachment_options, e_game_object_type.attachment_turret_robot_dog_capsule)
         end
     elseif vdef == e_game_object_type.chassis_land_wheel_medium then
         -- allow walrus to have the 100m heavy gun
         if attachment_index == 1 then
             add_attachment_option(attachment_options, e_game_object_type.attachment_turret_heavy_cannon)
+        end
+    elseif vdef == e_game_object_type.chassis_air_wing_heavy then
+        if attachment_index == 9 then
+            -- internally mounted 20mm
+            add_attachment_option(restricted, e_game_object_type.attachment_turret_plane_chaingun)
+            return restricted
         end
     elseif vdef == e_game_object_type.chassis_air_rotor_light then
         -- allow razorbill to add actuated cameras to the utility points

@@ -2787,7 +2787,8 @@ function get_ui_vehicle_chassis_attachments(vehicle)
     elseif vehicle_definition_index == e_game_object_type.chassis_air_wing_heavy then
         vehicle_attachment_rows = {
             {
-                { i=1, x=0, y=-22 }
+                { i=1, x=0, y=-23 },
+                { i=9, x=6, y=-11 }
             },
             {
                 { i=2, x=-26, y=0 },
