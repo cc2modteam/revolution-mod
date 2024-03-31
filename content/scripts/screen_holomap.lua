@@ -571,12 +571,12 @@ function _update(screen_w, screen_h, ticks)
                     if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
                         local vehicle_team = vehicle:get_team()
                         local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
-                        local revealed = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
-                        if not revealed then
-                            revealed = get_is_visible_by_modded_radar(vehicle)
+                        local detected = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
+                        if not detected then
+                            detected = get_is_visible_by_modded_radar(vehicle)
                         end
 
-                        if vehicle_attached_parent_id == 0 and revealed then
+                        if vehicle_attached_parent_id == 0 and detected then
                             local vehicle_pos_xz = vehicle:get_position_xz()
                             local screen_pos_x, screen_pos_y = get_holomap_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), screen_w, screen_h)
 
@@ -635,10 +635,10 @@ function _update(screen_w, screen_h, ticks)
             if vehicle_team ~= screen_team then
                 if is_render_vehicle_icon then
                     -- hostile unit
-                    local revealed = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
-                    if not revealed then
-                        revealed = get_is_visible_by_modded_radar(vehicle)
-                        if revealed then
+                    local detected = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
+                    if not detected then
+                        detected = get_is_visible_by_modded_radar(vehicle)
+                        if detected then
                             -- not rendered by the holomap, render a static icon ourselves
                             local st, err = pcall(function()
                                 local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)

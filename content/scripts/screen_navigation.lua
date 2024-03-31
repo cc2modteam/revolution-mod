@@ -70,7 +70,6 @@ function update(screen_w, screen_h, ticks)
     g_animation_time = g_animation_time + ticks
 
     refresh_fow_islands()
-    refresh_jammer_units()
 
     if update_get_active_input_type() == e_active_input.gamepad then
         -- Set pointer to middle of screen
@@ -150,7 +149,6 @@ function update(screen_w, screen_h, ticks)
                     if not visible then
                         island_color = g_island_color_unknown
                     end
-
                     local island_position = island:get_position_xz()
                                 
                     if is_render_islands == false then
@@ -232,25 +230,13 @@ function update(screen_w, screen_h, ticks)
                             local vehicle_pos_xz = vehicle:get_position_xz()
                             local v_x = vehicle_pos_xz:x()
                             local v_y = vehicle_pos_xz:y()
-                            local ghost = get_spoofed_radar_contact(vehicle:get_id())
-                            if ghost ~= nil then
-                                v_x = ghost["x"]
-                                v_y = ghost["y"]
-                            end
                             local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
                             local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
                             local element_color = get_vehicle_team_color(vehicle_team)
 
                             update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
-
-                            if hostile_has_awacs(vehicle:get_id()) then
-                                -- duplicate
-                                local screen_pos_x, screen_pos_y = get_screen_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
-                            end
                         end
-
                     end
                 end
             end

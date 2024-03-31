@@ -1056,13 +1056,19 @@ function begin()
 end
 
 function update(screen_w, screen_h, ticks)
+    local st, err = pcall(_update, screen_w, screen_h, ticks)
+    if not st then
+        print(err)
+    end
+end
+
+function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
     g_is_mouse_mode = g_is_pointer_hovered and update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
     refresh_modded_radar_cache()
     refresh_fow_islands()
-    refresh_jammer_units()
 
     local screen_vehicle = update_get_screen_vehicle()
     g_screen_vehicle_pos = screen_vehicle:get_position_xz()
@@ -1225,18 +1231,14 @@ function update(screen_w, screen_h, ticks)
                             local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                             local revealed = vehicle:get_is_observation_revealed()
                             local visible = vehicle:get_is_visible()
-                            if not revealed then
+                            if not revealed and not visible then
                                 revealed = get_is_visible_by_modded_radar(vehicle)
                                 if revealed then
                                     visible = revealed
                                 end
                             end
-                            local decoy = false
-                            if get_vehicle_decoy_contact(vehicle) ~= nil then
-                                decoy = true
-                            end
 
-                            if vehicle_attached_parent_id == 0 and ( decoy or ( visible and revealed )) then
+                            if vehicle_attached_parent_id == 0 and ( visible and revealed ) then
                                 local vehicle_pos_xz = vehicle:get_position_xz()
                                 local screen_pos_x, screen_pos_y = get_screen_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                                 local vehicle_distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
@@ -1615,39 +1617,39 @@ function update(screen_w, screen_h, ticks)
                     local vehicle_team = vehicle:get_team()
                     local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                     local vehicle_definition_index = vehicle:get_definition_index()
-                    local decoy_type = get_vehicle_decoy_contact(vehicle)
                     local is_render_vehicle_icon = vehicle_attached_parent_id == 0
-                    local also_render_duplicate = false
-                    local duplicate_x = 0
-                    local duplicate_y = 0
-
 
                     if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
+                        local is_air = get_is_vehicle_air(vehicle_definition_index)
                         local is_visible = vehicle:get_is_visible()
                         local is_revealed = vehicle:get_is_observation_revealed()
-                        local is_decoy = false
-
-                        if decoy_type ~= nil then
-                            is_decoy = true
+                        if is_render_vehicle_icon then
+                            if not is_visible or not is_revealed then
+                                if get_is_visible_by_modded_radar(vehicle) then
+                                    is_revealed = true
+                                    is_visible = true
+                                end
+                            end
                         end
 
-                        if not is_visible or not is_revealed then
-                            if get_is_visible_by_modded_radar(vehicle) then
-                                is_revealed = true
-                                is_visible = true
-                            end
-                            if is_decoy then
-                                -- find the nearest unit to the target that we control
-                                local nearest = find_nearest_vehicle_types(vehicle, {-1}, false, update_get_screen_team_id())
-                                if nearest ~= nil then
-                                    local nearest_dist = vec2_dist_sq(nearest:get_position_xz(), vehicle:get_position_xz())
-                                    if nearest_dist < 10000 * 10000 then
-                                        is_visible = true
+                        if vehicle_team ~= screen_team then
+                            -- hostile vehicle
+                            if is_air then
+                                local radar_pwr = get_radar_power(vehicle_id)
+                                if is_visible then
+                                    if radar_pwr < g_radar_min_return_power then
+                                        -- concealed by its RCS
+                                        is_revealed = false
+                                        is_visible = false
+                                        is_render_vehicle_icon = false
+                                    end
+                                else
+                                    -- not visible by camera
+                                    if radar_pwr > g_radar_min_return_power then
+                                        -- thing with an extra huge RCS
+                                        is_render_vehicle_icon = true
                                         is_revealed = true
-                                        if nearest_dist < 4000 * 4000 then
-                                            -- too close, decoy signal defeated
-                                            is_decoy = false
-                                        end
+                                        is_visible = true
                                     end
                                 end
                             end
@@ -1658,30 +1660,12 @@ function update(screen_w, screen_h, ticks)
                             local v_x = vehicle_pos_xz:x()
                             local v_y = vehicle_pos_xz:y()
 
-                            if hostile_has_jammer(vehicle_id) then
-                                --print(string.format("jam %d", vehicle_id))
-                                local ghost = get_spoofed_radar_contact(vehicle_id)
-
-                                if ghost ~= nil then
-                                    if hostile_has_awacs(vehicle_id) then
-                                        --print(string.format("ghost %d", vehicle_id))
-                                        -- dupe the plot
-                                        also_render_duplicate = true
-                                        duplicate_x = v_x
-                                        duplicate_y = v_y
-                                    end
-                                    v_x = ghost["x"]
-                                    v_y = ghost["y"]
-                                else
-                                    -- ghost is nil, dont render
-                                    is_render_vehicle_icon = false
-                                end
-                            end
-
-                            -- hide low level aircraft
-                            if not is_decoy then
-                                if get_is_vehicle_masked_by_groundclutter(vehicle) then
+                            if is_air then
+                                -- hide low level aircraft
+                                if is_render_vehicle_icon and get_is_vehicle_masked_by_groundclutter(vehicle) then
                                     if vehicle:get_team() ~= update_get_screen_team_id() then
+                                        is_revealed = false
+                                        is_visible = false
                                         is_render_vehicle_icon = false
                                     end
                                 end
@@ -1957,9 +1941,6 @@ function update(screen_w, screen_h, ticks)
 
                             if is_render_vehicle_icon then
                                 -- render vehicle icon
-                                if is_decoy then
-                                    vehicle_definition_index = decoy_type
-                                end
                                 local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
                 
                                 local element_color = get_vehicle_team_color(vehicle_team)
@@ -1981,10 +1962,6 @@ function update(screen_w, screen_h, ticks)
                                 end
 
                                 update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
-                                if also_render_duplicate then
-                                    local dupe_x, dupe_y = get_screen_from_world(duplicate_x, duplicate_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                    update_ui_image(dupe_x - icon_offset, dupe_y - icon_offset, region_vehicle_icon, element_color, 0)
-                                end
                                 
                                 -- carrier direction indicator
                                 if vehicle_definition_index == e_game_object_type.chassis_carrier then
@@ -2118,6 +2095,60 @@ function update(screen_w, screen_h, ticks)
                                     local element_color = get_vehicle_team_color(vehicle_team)
         
                                     update_ui_image(screen_pos_x - 2, screen_pos_y - 2, atlas_icons.map_icon_last_known_pos, element_color, 0)
+                                end
+                            end
+                        end
+
+                        if g_radar_debug and (update_get_logic_tick() % 120 < 45) then
+                            local vehicle_pos_xz = vehicle:get_position_xz()
+                            local v_x = vehicle_pos_xz:x()
+                            local v_y = vehicle_pos_xz:y()
+                            local color = color8(0, 255, 0, 32)
+
+                            if get_is_radar(vehicle:get_id()) then
+                                color = color8(255, 255, 255, 255)
+                            end
+
+                            local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                            local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
+                            update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon,
+                                   color, 0)
+
+                            if get_is_vehicle_air(vehicle:get_definition_index()) then
+                                local rcs = get_rcs_cached(vehicle)
+                                if rcs ~= nil then
+                                    local is_visible = vehicle:get_is_visible()
+                                    local is_revealed = vehicle:get_is_observation_revealed()
+
+                                    update_ui_text(
+                                            screen_pos_x - icon_offset + 12,
+                                            screen_pos_y - icon_offset,
+                                    string.format("%1.2f v=%s r=%s", rcs, is_visible, is_revealed), 228, 0, color_white, 0)
+                                end
+
+                                -- draw line to nearest hostile radar that can see us
+                                local vid = vehicle:get_id()
+                                local nearest_hostile_radar = get_nearest_hostile_aew_radar(vid)
+                                if nearest_hostile_radar ~= nil  then
+                                    local radar_pos = hostile_radar:get_position_xz()
+                                    local r_sx, r_sy = get_screen_from_world(radar_pos:x(), radar_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                    update_ui_line(r_sx, r_sy, screen_pos_x, screen_pos_y, color_enemy)
+                                end
+
+                                -- draw a line from our nearest radar to the hostile it can see
+                                local nearest_ew, pwr = get_nearest_friendly_aew_radar(vid)
+                                if nearest_ew ~= nil and pwr > 0.00004 then
+                                    -- show very low power radar contacts
+                                    -- we only expose 0.00002+
+                                    local radar_pos = nearest_ew:get_position_xz()
+                                    local dist = vec2_dist(radar_pos, vehicle_pos_xz)
+                                    local r_sx, r_sy = get_screen_from_world(radar_pos:x(), radar_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                    update_ui_line(r_sx, r_sy, screen_pos_x, screen_pos_y, color_friendly)
+
+                                    update_ui_text(
+                                            screen_pos_x - icon_offset + 12,
+                                            screen_pos_y - icon_offset + 12,
+                                    string.format("%dm %1.6f", math.floor(dist), pwr), 128, 0, color_friendly, 0)
                                 end
                             end
                         end
@@ -2306,7 +2337,7 @@ function update(screen_w, screen_h, ticks)
 
             local highlighted_vehicle = update_get_map_vehicle_by_id(g_highlighted.vehicle_id)
 
-            if highlighted_vehicle:get() then
+            if highlighted_vehicle:get() and not get_is_masked_by_stealth(highlighted_vehicle) then
                 local vehicle_definition_index = highlighted_vehicle:get_definition_index()
 
                 if g_highlighted.waypoint_id > 0 then

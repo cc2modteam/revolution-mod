@@ -251,14 +251,14 @@ function get_attachment_data_by_definition_index(index)
             name_short = "OBS CAM",
         },
         [e_game_object_type.attachment_radar_awacs] = {
-            name = "AWACS RADAR",
+            name = update_get_loc(e_loc.upp_awacs_radar_system),
             icon16 = atlas_icons.icon_attachment_16_air_radar,
             name_short = "AWACS",
         },
         [e_game_object_type.attachment_fuel_tank_plane] = {
-            name = "ECM",
+            name = update_get_loc(e_loc.upp_external_fuel_tank),
             icon16 = atlas_icons.icon_attachment_16_air_fuel,
-            name_short = "ECM",
+            name_short = "FUEL TANK",
         },
         [e_game_object_type.attachment_flare_launcher] = {
             name = update_get_loc(e_loc.upp_ir_countermeasures),
@@ -399,7 +399,8 @@ end
 function get_is_vehicle_sea(definition_index)
     return definition_index == e_game_object_type.chassis_carrier
         or definition_index == e_game_object_type.chassis_sea_barge
-        or get_is_ship_fish(definition_index)
+        or definition_index == e_game_object_type.chassis_sea_ship_light
+        or definition_index == e_game_object_type.chassis_sea_ship_heavy
 end
 
 function get_is_vehicle_land(definition_index)
@@ -591,11 +592,6 @@ function begin_load_inventory_data()
     
     for i = 0, update_get_resource_inventory_item_count() - 1 do
         local item_type, item_category, item_mass, item_production_cost, item_production_time, item_name, item_desc, icon_name, transfer_duration = update_get_resource_inventory_item_data(i)
-        -- TODO figure out localization
-        if item_type == e_inventory_item.attachment_fuel_tank_plane then
-            item_name = "ECM"
-            item_desc = "Radar Jammer and Extra fuel"
-        end
 
         local item_object = 
         {
@@ -673,12 +669,19 @@ function join_strings(strings, delim)
 end
 
 -- fisheye mod
+g_all_radars = {}
+g_friendly_radars = {}
+g_radar_seen_by_ours = {}
+g_radar_seen_by_hostile = {}
 
--- every unit in detection range of a needlefish (of any team)
+-- every unit in detection range of a radar (of any team)
 g_seen_by_hostile_radars = {}
 g_seen_by_friendly_radars = {}
--- units that are generating decoy signatures
-g_decoy_enabled_units = {}
+
+-- the id of the nearest enemy unit that can see our aircraft
+g_nearest_hostile_radar = {}
+-- the id, pwr and dist, of the nearest friendly radar that can see hostile air
+g_nearest_friendly_radar = {}
 
 
 g_radar_ranges = {
@@ -690,7 +693,9 @@ g_radar_ranges = {
     carrier = 10000,
     golfball = 10000,
 }
+g_radar_debug = false
 
+g_radar_min_return_power = 0.00018
 g_radar_multiplier = 1
 
 function get_radar_multiplier()
@@ -719,7 +724,25 @@ function _get_radar_detection_range(definition_index)
     end
 end
 
+function _get_awacs_radar_attachment_position(vehicle)
+    local attachment_count = vehicle:get_attachment_count()
+    for i = 0, attachment_count - 1 do
+        local attachment = vehicle:get_attachment(i)
+        if attachment:get() then
+            local definition_index = attachment:get_definition_index()
+            if definition_index == e_game_object_type.attachment_radar_awacs then
+                return i
+            end
+        end
+    end
+    return -1
+end
+
 function _get_radar_attachment(vehicle)
+    if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+        return e_game_object_type.attachment_radar_awacs
+    end
+
     local attachment_count = vehicle:get_attachment_count()
     for i = 0, attachment_count - 1 do
         local attachment = vehicle:get_attachment(i)
@@ -824,31 +847,287 @@ function _get_unit_visible_by_modded_radar(vehicle, other_unit)
     return false
 end
 
-function refresh_modded_radar_cache()
-    -- only do this every 30th tick (once every second)
-    local now = update_get_logic_tick()
-    if now % 30 == 0 then
-        local v1, v2, v3 = _refresh_modded_radar_cache()
-        g_seen_by_hostile_radars = v1
-        g_seen_by_friendly_radars = v2
-        g_decoy_enabled_units = v3
+function get_awacs_radar_enabled(vehicle)
+    -- if enabled and not damaged
+    local radar_pos = _get_awacs_radar_attachment_position(vehicle)
+    if radar_pos > -1 then
+        if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+            local carrier_radar = vehicle:get_attachment(radar_pos)
+            if carrier_radar ~= nil then
+                local radar_mode = carrier_radar:get_control_mode()
+                if radar_mode == "off" then
+                    return false
+                end
+                if carrier_radar:get_is_damaged() then
+                    return false
+                end
+                if get_radar_interference(vehicle, carrier_radar) then
+                    return false
+                end
+            else
+                -- no radar fitted?
+                return false
+            end
+        end
+        return true
     end
-    --print(string.format("fish data %d %d", now, #g_seen_by_bad_needlefish))
+
+    return false
 end
 
-function _refresh_modded_radar_cache()
+function refresh_modded_radar_cache()
+    local st, err = pcall(update_modded_radar_data)
+    if not st then
+        print(err)
+    end
+end
+
+function get_nearest_hostile_aew_radar(vid)
+    local nearest_hostile = g_nearest_hostile_radar[vid]
+    if nearest_hostile ~= nil then
+        local hostile_radar = update_get_map_vehicle_by_id(nearest_hostile)
+        if hostile_radar and hostile_radar:get() then
+            return hostile_radar
+        end
+    end
+    return nil
+end
+
+function get_nearest_friendly_aew_radar(vid)
+    local nearest_radar = g_nearest_friendly_radar[vid]
+    if nearest_radar ~= nil then
+        local radar = update_get_map_vehicle_by_id(nearest_radar.id)
+        if radar and radar:get() then
+            return radar, nearest_radar.power
+        end
+    end
+    return nil, 0
+end
+
+function get_radar_power(vid)
+    local radar, pwr = get_nearest_friendly_aew_radar(vid)
+    if radar ~= nil then
+        return pwr
+    end
+    return 0
+end
+
+function get_is_masked_by_stealth(vehicle)
+    if vehicle and vehicle:get() then
+        local vdef = vehicle:get_definition_index()
+        if get_is_vehicle_air(vdef) then
+            local pwr = get_radar_power(vehicle:get_id())
+            if pwr < g_radar_min_return_power then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function update_modded_radar_data()
+    -- find all radars
+    local current_tick = update_get_logic_tick()
+    local update_air = current_tick % 2 == 0
+    local update_sea = current_tick % 4 == 3
+
+    local vehicle_count = update_get_map_vehicle_count()
+    local screen_team = update_get_screen_team_id()
+    g_all_radars = {}
+    g_friendly_radars = {}
+    g_nearest_hostile_radar = {}
+
+    for i = 0, vehicle_count - 1 do
+        local vehicle = update_get_map_vehicle_by_index(i)
+        if vehicle:get() and not get_vehicle_docked(vehicle) then
+            local radar_type = _get_radar_attachment(vehicle)
+
+            if radar_type ~= nil then
+                if radar_type == e_game_object_type.attachment_radar_awacs then
+                    if not get_awacs_radar_enabled(vehicle) then
+                        radar_type = nil
+                    end
+                end
+            end
+            if radar_type ~= nil then
+                local vid = vehicle:get_id()
+                g_all_radars[vid] = {
+                    vehicle = vehicle,
+                    type = radar_type
+                }
+
+                if get_vehicle_team_id(vehicle) == screen_team then
+                    g_friendly_radars[vid] = {
+                        vehicle = vehicle,
+                        type = radar_type
+                    }
+                end
+            end
+        end
+    end
+
+    -- clean the caches
+    for vid, _ in pairs(g_seen_by_friendly_radars) do
+        local v = update_get_map_vehicle_by_id(vid)
+        if v == nil or not v:get() then
+            g_seen_by_friendly_radars[vid] = nil
+        end
+    end
+    for vid, _ in pairs(g_seen_by_hostile_radars) do
+        local v = update_get_map_vehicle_by_id(vid)
+        if v == nil or not v:get() then
+            g_seen_by_hostile_radars[vid] = nil
+        end
+    end
+
+    if not update_air and not update_sea then
+        return
+    end
+
+    -- now calculate radar detection for each radar
+    for i = 0, vehicle_count - 1 do
+        local vehicle = update_get_map_vehicle_by_index(i)
+        if vehicle:get() then
+            local vteam = get_vehicle_team_id(vehicle)
+            local vdef = vehicle:get_definition_index()
+            if get_is_vehicle_land(vdef) then
+                -- ignore land units
+            else
+                if get_vehicle_docked(vehicle) or (get_is_vehicle_air(vdef) and get_unit_altitude(vehicle) < 50) then
+                    -- ignore docked or landed
+                else
+                    local target_is_air = get_is_vehicle_air(vdef)
+                    local target_is_sea = get_is_vehicle_sea(vdef)
+
+                    if update_sea and target_is_sea or update_air and target_is_air then
+                        local radar_return_power = 0
+                        local nearest_hostile_radar_dist_sq = 99999
+                        for _, radar in pairs(g_all_radars) do
+                            local radar_vehicle = radar.vehicle
+                            local radar_team = get_vehicle_team_id(radar_vehicle)
+                            -- dont scan the same team as the radar
+                            if radar_team ~= vteam then
+                                local radar_range = _get_radar_detection_range(radar.type)
+                                if update_sea and target_is_sea then
+                                    -- target is a ship
+                                    local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
+                                    if target_dist_sq < (radar_range * radar_range) then
+                                        -- ship seen
+                                        if radar_team == screen_team then
+                                            g_seen_by_friendly_radars[vehicle:get_id()] = true
+                                        else
+                                            if target_dist_sq < nearest_hostile_radar_dist_sq then
+                                                nearest_hostile_radar_dist_sq = target_dist_sq
+                                                g_nearest_hostile_radar[vehicle:get_id()] = radar_vehicle:get_id()
+                                            end
+                                            g_seen_by_hostile_radars[vehicle:get_id()] = true
+                                        end
+                                    end
+                                else
+                                    -- update air
+                                    if screen_team ~= radar_team then
+                                        -- update our nails
+                                        -- we can hear a hostile radar
+                                        local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
+                                        if target_dist_sq < (radar_range * radar_range) then
+                                            if target_dist_sq < nearest_hostile_radar_dist_sq then
+                                                nearest_hostile_radar_dist_sq = target_dist_sq
+                                                g_nearest_hostile_radar[vehicle:get_id()] = radar_vehicle:get_id()
+                                            end
+                                            g_seen_by_hostile_radars[vehicle:get_id()] = true
+                                        end
+                                    else
+                                        -- did any of our radars see this target?
+                                        local power = get_radar_return_power(vehicle, radar_vehicle, radar_range)
+                                        if power > radar_return_power then
+                                            radar_return_power = power
+                                            if power > 0.00002 then
+                                                g_nearest_friendly_radar[vehicle:get_id()] = {
+                                                    id = radar_vehicle:get_id(),
+                                                    power = power,
+                                                }
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                        -- radar_return_power is only ever set by a friendly radar
+                        if radar_return_power > 0.00002 then
+                            if radar_team == screen_team then
+                                g_seen_by_friendly_radars[vehicle:get_id()] = true
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function get_is_radar(vehicle_id)
+    return g_all_radars[vehicle_id] ~= nil
+end
+
+function old_refresh_modded_radar_cache()
+    local st, err = pcall(function()
+        -- only do this every 30th tick (once every second)
+        local now = update_get_logic_tick()
+        if now % 30 == 0 then
+            local v1, v2, v3 = _old_refresh_modded_radar_cache()
+            g_seen_by_hostile_radars = v1
+            g_seen_by_friendly_radars = v2
+            g_friendly_radars = v3
+        end
+    end)
+    if not st then
+        print(err)
+    end
+end
+
+function _old_refresh_modded_radar_cache()
     local seen_by_hostiles = {}
     local seen_by_ours = {}
-    local decoy_units = {}
+    local friendly_radars = {}
     local vehicle_count = update_get_map_vehicle_count()
     local screen_team = update_get_screen_team_id()
 
     for ii = 0, vehicle_count - 1 do
         local vehicle = update_get_map_vehicle_by_index(ii)
         if vehicle:get() then
+            local radar_id = vehicle:get_id()
             local _team = vehicle:get_team()
+            if _team == screen_team then
+                if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+                    -- if enabled and not damaged
+                    local radar_pos = _get_awacs_radar_attachment_position(vehicle)
+                    if radar_pos > -1 then
+                    local carrier_radar = vehicle:get_attachment(radar_pos)
+                        if carrier_radar ~= nil then
+
+                            local is_powered = carrier_radar:get_control_mode() ~= "off"
+                            local is_damaged = carrier_radar:get_is_damaged()
+                            if is_powered then
+                                if not is_damaged then
+                                    local radar_pos = _get_awacs_radar_attachment_position(vehicle)
+                                    if vehicle.get_is_attachment_radar_disabled ~= nil then
+                                        local is_interference = vehicle:get_is_attachment_radar_disabled(radar_pos)
+                                        if not is_interference then
+                                            friendly_radars[radar_id] = true
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
             if get_has_modded_radar(vehicle) then
                 -- we are a unit with a modded radar, see what it can see
+                if _team == screen_team then
+                    friendly_radars[radar_id] = true
+                end
                 -- iterate all other things on the map
                 for jj = 0, vehicle_count - 1 do
                     local target = update_get_map_vehicle_by_index(jj)
@@ -858,6 +1137,7 @@ function _refresh_modded_radar_cache()
                         if _get_unit_visible_by_modded_radar(vehicle, target) then
                             local tid = target:get_id()
                             if _team == screen_team then
+                                print(radar_id)
                                 seen_by_ours[tid] = true
                             else
                                 seen_by_hostiles[tid] = true
@@ -866,50 +1146,9 @@ function _refresh_modded_radar_cache()
                     end
                 end
             end
-            -- decoy units are hostile ground units with an ECM pod
-            -- currently we only allow the bear to do this
-            if _team ~= screen_team then
-                local parent_id = vehicle:get_attached_parent_id()
-                if parent_id == 0 and get_is_vehicle_land(vehicle:get_definition_index()) then
-                    -- does it have a ECM
-                    if vehicle:get_definition_index() == e_game_object_type.chassis_land_wheel_heavy then
-                        local main = vehicle:get_attachment(2)
-                        if main and main:get_definition_index() == e_game_object_type.attachment_fuel_tank_plane then
-                            decoy_units[vehicle:get_id()] = true
-                        end
-                    end
-                end
-            end
         end
     end
-    return seen_by_hostiles, seen_by_ours, decoy_units
-end
-
-function get_vehicle_decoy_contact(vehicle)
-    if vehicle:get() then
-        local vid = vehicle:get_id()
-        if g_decoy_enabled_units[vid] ~= nil then
-            local vdef = vehicle:get_definition_index()
-            if vdef == e_game_object_type.chassis_land_wheel_heavy then
-                -- if this unit is within 300m of a barge, enable the carrier decoy
-                local nearest_barge = find_nearest_vehicle_types(
-                        vehicle, {e_game_object_type.chassis_sea_barge},
-                        false)
-                if nearest_barge ~= nil then
-                    local range = 300
-                    local nearest_dist = vec2_dist(vehicle:get_position_xz(), nearest_barge:get_position_xz())
-                    if nearest_dist < range then
-                        return e_game_object_type.chassis_carrier
-                    end
-                end
-            --elseif vdef == e_game_object_type.chassis_land_wheel_light then
-            --    return e_game_object_type.chassis_sea_ship_light
-            --elseif vdef == e_game_object_type.chassis_land_wheel_medium then
-            --    return e_game_object_type.chassis_sea_barge
-            end
-        end
-    end
-    return nil
+    return seen_by_hostiles, seen_by_ours, friendly_radars
 end
 
 function get_is_visible_by_modded_radar(vehicle)
@@ -932,10 +1171,18 @@ end
 function _get_is_seen_by_friendly_modded_radar(vehicle)
     if vehicle:get() then
         local vid = vehicle:get_id()
-        local exists = g_seen_by_friendly_radars[vid]
-
-        if exists ~= nil then
-            return true
+        local vdef = vehicle:get_definition_index()
+        if get_is_vehicle_air(vdef) then
+            local radar, pwr = get_nearest_friendly_aew_radar(vid)
+            if radar ~= nil then
+                local seen = pwr > g_radar_min_return_power
+                return seen
+            end
+        else
+            local exists = g_seen_by_friendly_radars[vid]
+            if exists ~= nil then
+                return true
+            end
         end
     end
     return false
@@ -991,145 +1238,109 @@ function fow_island_visible(island_id)
     return g_fow_visible[island_id] == true
 end
 
--- radar jammer mod
+-- Radar cross section
 
-g_hostile_jammers = {}
-g_hostile_awacs = {}
+g_vehicle_rcs = {}
+g_vehicle_rcs[e_game_object_type.chassis_air_wing_heavy] = 0.2
+g_vehicle_rcs[e_game_object_type.chassis_air_wing_light] = 3.0
+g_vehicle_rcs[e_game_object_type.chassis_air_rotor_light] = 2.5
+g_vehicle_rcs[e_game_object_type.chassis_air_rotor_heavy] = 4.5
 
-g_hostile_jamming = {}
+g_attachment_rcs = {}
+g_attachment_rcs[e_game_object_type.attachment_radar_awacs] = 2.5
+g_attachment_rcs[e_game_object_type.attachment_turret_rocket_pod] = 0.8
+g_attachment_rcs[e_game_object_type.attachment_hardpoint_torpedo] = 0.7
+g_attachment_rcs[e_game_object_type.attachment_hardpoint_torpedo_noisemaker] = 0.7
+g_attachment_rcs[e_game_object_type.attachment_hardpoint_torpedo_decoy] = 0.6
+g_attachment_rcs[e_game_object_type.attachment_turret_gimbal_30mm] = 0.65
+g_attachment_rcs[e_game_object_type.attachment_camera_plane] = 0.8
+g_attachment_rcs[e_game_object_type.attachment_turret_plane_chaingun] = 0.4
+g_attachment_rcs[e_game_object_type.attachment_hardpoint_bomb_3] = 0.4
+g_attachment_rcs[e_game_object_type.attachment_hardpoint_bomb_2] = 0.35
+g_attachment_rcs[e_game_object_type.attachment_fuel_tank_plane] = 0.35
+g_attachment_rcs[e_game_object_type.attachment_hardpoint_bomb_1] = 0.3
+g_attachment_rcs[e_game_object_type.attachment_hardpoint_missile_ir] = 0.17
+g_attachment_rcs[e_game_object_type.attachment_hardpoint_missile_laser] = 0.2
+g_attachment_rcs[e_game_object_type.attachment_hardpoint_missile_aa] = 0.25
+g_attachment_rcs[e_game_object_type.attachment_hardpoint_missile_tv] = 0.12
+g_attachment_rcs[e_game_object_type.attachment_flare_launcher] = 0.1
 
-function refresh_jammer_units()
-    local st, err = pcall(_refresh_jammer_units)
-    if not st then
-        print(string.format("err = %s", err))
-    end
-end
+g_rcs_cache = {}
 
-function _refresh_jammer_units()
-    local now = update_get_logic_tick()
-    -- every 1 sec
-    if now % 30 == 0 then
-        g_hostile_jammers = {}
-        g_hostile_awacs = {}
-        g_hostile_jamming = {}
+function get_rcs(vehicle)
+    local rcs = nil
+    if vehicle and vehicle:get() then
+        local vdef = vehicle:get_definition_index()
+        if get_is_vehicle_air(vdef) then
+            local is_manta = vdef == e_game_object_type.chassis_air_wing_heavy
+            rcs = g_vehicle_rcs[vdef]
+            if rcs ~= nil then
+                for ai = 0, vehicle:get_attachment_count() - 1 do
+                    -- manta has internal gun, exclude from RCS
+                    local attachment = vehicle:get_attachment(ai)
+                    if attachment:get() then
+                        local a_def = attachment:get_definition_index()
+                        local a_rcs = g_attachment_rcs[a_def]
 
-        local friendly_radars = {}
-
-        local our_team = update_get_screen_team_id()
-        local vehicle_count = update_get_map_vehicle_count()
-
-        -- find all the hostile jammer units and radars
-        for ii = 0, vehicle_count - 1 do
-            local vehicle = update_get_map_vehicle_by_index(ii)
-            if vehicle:get() then
-                -- exists
-                local parent_id = vehicle:get_attached_parent_id()
-                if parent_id == 0 then
-                    -- not docked
-                    local vdef = vehicle:get_definition_index()
-                    local v_id = vehicle:get_id()
-                    if our_team ~= vehicle:get_team() then
-                        -- hostile
-                        if get_is_vehicle_air(vdef) then
-                            for ai = 0, vehicle:get_attachment_count() - 1 do
-                                local attachment = vehicle:get_attachment(ai)
-                                if attachment:get() then
-                                    local a_def = attachment:get_definition_index()
-                                    if a_def == e_game_object_type.attachment_fuel_tank_plane then
-                                        -- has jammer fitted
-                                        g_hostile_jammers[v_id] = vehicle
-                                    elseif a_def == e_game_object_type.attachment_radar_awacs then
-                                        -- has awacs fitted
-                                        g_hostile_awacs[v_id] = vehicle
-                                    end
-                                end
-                            end
-                        end
-                    else
-                        -- friendly
-                        local jammable = false
-                        if vdef == e_game_object_type.chassis_carrier or
-                            e_game_object_type.chassis_sea_ship_light then
-                            -- ship with a radar
-                            jammable = true
+                        if is_manta and ai == 9 then
+                            -- manta internal gun
+                            a_rcs = 0
                         end
 
-                        if not jammable then
-                            -- is it a ground radar or awacs
-                            for ai = 0, vehicle:get_attachment_count() - 1 do
-                                local attachment = vehicle:get_attachment(ai)
-                                if attachment:get() then
-                                    local a_def = attachment:get_definition_index()
-                                    if a_def == e_game_object_type.attachment_radar_awacs then
-                                        -- has awacs fitted
-                                        jammable = true
-                                    end
-                                end
-                            end
-                        end
-
-                        if jammable then
-                            friendly_radars[v_id] = vehicle
+                        if a_rcs ~= nil then
+                            rcs = rcs + a_rcs
                         end
                     end
                 end
             end
         end
+    end
+    return rcs
+end
 
-        -- for each jammer, find the nearest radar
-        for jammer_id, jammer in pairs(g_hostile_jammers) do
-            local radar_range = 15000
-            local nearest = nil
-            local jammer_pos = jammer:get_position_xz()
-            for radar_id, radar in pairs(friendly_radars) do
-                local radar_pos = radar:get_position_xz()
-                local dist = vec2_dist(radar_pos, jammer_pos)
-                if dist < radar_range then
-                    nearest = radar
-                    radar_range = dist
-                end
-            end
-            if nearest ~= nil then
-                -- show nothing between 9000-10000
-                if radar_range < 9000 then
-                    -- print(string.format("radar %d is nearest to jammer %d range %f", nearest:get_id(), jammer_id, radar_range))
-                    g_hostile_jamming[jammer_id] = nearest
-                end
+function get_rcs_cached(vehicle)
+    local rcs = nil
+    local cached_ticks = 120
+    if vehicle and vehicle:get() then
+        local vid = vehicle:get_id()
+        local cached = g_rcs_cache[vid]
+        local now = update_get_logic_tick()
+
+        if cached ~= nil then
+            if now > cached.expire then
+                cached = nil
             end
         end
-    end
-end
+        if cached == nil then
+            local v_rcs = get_rcs(vehicle)
+            if v_rcs ~= nil then
+                g_rcs_cache[vid] = {
+                    expire = now + cached_ticks,
+                    rcs = v_rcs
+                }
+                cached = g_rcs_cache[vid]
+            end
+        end
 
-function hostile_has_jammer(vehicle_id)
-    return g_hostile_jammers[vehicle_id] ~= nil
-end
-
-function hostile_has_awacs(vehicle_id)
-    return g_hostile_awacs[vehicle_id] ~= nil
-end
-
-function get_jammed_radar(vehicle_id)
-    -- get the radar unit that vehicle_id is jamming
-    return g_hostile_jamming[vehicle_id]
-end
-
-function get_spoofed_radar_contact(vehicle_id)
-    -- if vehicle_id is jamming a radar, return a position of a ghost contact, else nil
-    if hostile_has_jammer(vehicle_id) then
-        local radar = get_jammed_radar(vehicle_id)
-        if radar ~= nil then
-            local unit = g_hostile_jammers[vehicle_id]
-            local ghost = {}
-            local vehicle_dir = unit:get_direction()
-            local pos = unit:get_position_xz()
-            -- position 10 sec ago
-            ghost["x"] = pos:x() + vehicle_dir:x() * -900
-            ghost["y"] = pos:y() + vehicle_dir:y() * -900
-
-            return ghost
+        if cached ~= nil then
+            rcs = cached.rcs
         end
     end
-    return nil
+    return rcs
+end
+
+function get_radar_return_power(target, radar, radar_range)
+    if radar_range > 0 and target and target:get() then
+        local rcs = get_rcs_cached(target)
+        if rcs ~= nil and rcs > 0 then
+            local radar_power = radar_range * 10
+            local dist_sq = vec2_dist_sq(target:get_position_xz(), radar:get_position_xz())
+            local intensity = radar_power / (4 * math.pi * dist_sq)
+            local reflection = rcs * intensity
+            return reflection
+        end
+    end
+    return 0
 end
 
 -- drydock waypoint share system
@@ -1813,4 +2024,28 @@ function get_vehicle_scale(vehicle)
         return 1
     end
     return 0
+end
+
+function get_vehicle_docked(vehicle)
+    if vehicle.get_is_docked ~= nil then
+        return vehicle:get_is_docked()
+    end
+
+    if vehicle.get_attached_parent_id ~= nil then
+        return vehicle:get_attached_parent_id() ~= 0
+    end
+
+    return false
+end
+
+function get_vehicle_team_id(vehicle)
+    if vehicle.get_team ~= nil then
+        return vehicle:get_team()
+    end
+
+    return vehicle:get_team_id()
+end
+
+function get_radar_interference(vehicle, radar)
+    return false
 end
