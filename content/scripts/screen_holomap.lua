@@ -574,6 +574,14 @@ function _update(screen_w, screen_h, ticks)
                         local detected = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
                         if not detected then
                             detected = get_is_visible_by_modded_radar(vehicle)
+                            if get_is_vehicle_air(vehicle_definition_index) then
+                                local return_power = get_radar_power(vehicle:get_id())
+                                if return_power ~= nil then
+                                    if return_power < g_radar_min_return_power then
+                                        detected = false
+                                    end
+                                end
+                            end
                         end
 
                         if vehicle_attached_parent_id == 0 and detected then

@@ -693,7 +693,7 @@ g_radar_ranges = {
     carrier = 10000,
     golfball = 10000,
 }
-g_radar_debug = false
+g_radar_debug = true
 
 g_radar_min_return_power = 0.00018
 g_radar_multiplier = 1
