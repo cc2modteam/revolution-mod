@@ -259,12 +259,17 @@ function update(screen_w, screen_h, ticks)
                 update_ui_image(4, cy, atlas_icons.icon_ammo, color_white, 0)
                 update_ui_text(13, cy, string.format("%.0f%%", attached_vehicle:get_ammo_factor() * 100), 64, 0, color_status_ok, 0)
 
-                if get_is_vehicle_air(vehicle_definition_index) then
+                if get_is_vehicle_air(vehicle_definition_index) and update_get_is_focus_local() then
                     -- show RCS
                     cy = cy + 10
                     local rcs = get_rcs(attached_vehicle)
                     update_ui_image(4, cy, atlas_icons.column_controlling_peer, color_white, 0)
                     update_ui_text(13, cy, string.format("%1.2fm", rcs), 64, 0, color_status_ok, 0)
+
+                    cy = cy + 10
+                    local drange = get_rcs_detection_range(rcs)
+                    update_ui_image(3, cy, atlas_icons.column_distance, color_white, 0)
+                    update_ui_text(13, cy, string.format("%1.2fkm", drange), 64, 0, color_status_ok, 0)
                 end
 
                 local window = ui:begin_window("##vehicle", screen_w / 2, 14, screen_w / 2, screen_h - 14, nil, true, 1)

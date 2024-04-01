@@ -1228,9 +1228,9 @@ end
 
 g_vehicle_rcs = {}
 g_vehicle_rcs[e_game_object_type.chassis_air_wing_heavy] = 0.2
-g_vehicle_rcs[e_game_object_type.chassis_air_wing_light] = 3.0
-g_vehicle_rcs[e_game_object_type.chassis_air_rotor_light] = 2.5
-g_vehicle_rcs[e_game_object_type.chassis_air_rotor_heavy] = 4.5
+g_vehicle_rcs[e_game_object_type.chassis_air_wing_light] = 1.5
+g_vehicle_rcs[e_game_object_type.chassis_air_rotor_light] = 1.8
+g_vehicle_rcs[e_game_object_type.chassis_air_rotor_heavy] = 2.2
 
 g_attachment_rcs = {}
 g_attachment_rcs[e_game_object_type.attachment_radar_awacs] = 2.5
@@ -1277,12 +1277,32 @@ function get_rcs(vehicle)
                             -- cant figure out how to know if a tank has been dropped, but lets say if it is empty
                             -- we halve the RCS of the pod
                             a_rcs = (a_rcs / 2) + a_rcs * attachment:get_fuel_factor() * 0.5
+                        else
+                            -- for missiles, bombs, torps etc reduce rcs to 0 if the ammo is zero
+                            if a_def ~= e_game_object_type.attachment_turret_plane_chaingun and
+                                    a_def ~= e_game_object_type.attachment_turret_gimbal_30mm and
+                                    a_def ~= e_game_object_type.attachment_turret_droid and
+                                    a_def ~= e_game_object_type.attachment_flare_launcher and
+                                    a_def ~= e_game_object_type.attachment_turret_rocket_pod
+                            then
+                                if attachment:get_ammo_factor() == 0 then
+                                    a_rcs = 0
+                                end
+                            end
                         end
 
-                        if a_rcs ~= nil then
+                        if a_rcs ~= nil and a_rcs > 0 then
                             rcs = rcs + a_rcs
                         end
 
+                    end
+                end
+
+                if rcs and rcs > 0 then
+                    if vdef == e_game_object_type.chassis_air_rotor_heavy then
+                        if vehicle_has_cargo(vehicle) then
+                            rcs = rcs * 1.3
+                        end
                     end
                 end
             end
@@ -1329,9 +1349,26 @@ function get_radar_return_power(target, radar, radar_range)
             local radar_power = radar_range * 10
             local dist_sq = vec2_dist_sq(target:get_position_xz(), radar:get_position_xz())
             local intensity = radar_power / (4 * math.pi * dist_sq)
+            -- i = e/rcs
+            -- e = i * rcs
             local reflection = rcs * intensity
             return reflection
         end
+    end
+    return 0
+end
+
+function get_rcs_detection_range(rcs)
+    if rcs > 0 then
+        local pwr = 0
+        local dist = 50000
+        while pwr < g_radar_min_return_power do
+            dist = dist - 250
+            local radar_power = 10000 * 10
+            local intensity = radar_power / (4 * math.pi * dist * dist)
+            pwr = rcs * intensity
+        end
+        return (dist/1000)
     end
     return 0
 end
