@@ -783,7 +783,7 @@ function get_modded_radar_range(vehicle)
             -- don't compute radars for docked units
             return 0
         end
-        -- as we cont properly cope with it being turned off or broken
+
         local def =  vehicle:get_definition_index()
         if def ~= e_game_object_type.chassis_carrier then
             local range = _get_radar_detection_range(_get_radar_attachment(vehicle))
@@ -795,7 +795,7 @@ function get_modded_radar_range(vehicle)
                 local bonus_start = 1600
                 if alt > bonus_start then
                     local bonus_factor = alt / bonus_start
-                    range = range * bonus_factor
+                    range = range * bonus_factor * 1.3
                 end
             end
 
