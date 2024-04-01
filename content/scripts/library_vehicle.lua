@@ -798,8 +798,9 @@ function get_modded_radar_range(vehicle)
                     range = range * bonus_factor * 1.3
                 end
             end
-
             return range * get_radar_multiplier()
+        elseif get_awacs_radar_enabled(vehicle) then
+            return 10000 * get_radar_multiplier()
         end
     end
     return 0
@@ -1028,7 +1029,7 @@ function update_modded_radar_data()
     -- find all radars
     local current_tick = update_get_logic_tick()
     local next_air_scan = g_radar_last_air_scan + 60
-    local next_sea_scan = g_radar_last_sea_scan + 161
+    local next_sea_scan = g_radar_last_sea_scan + 121
 
     local update_air = current_tick > next_air_scan
     local update_sea = current_tick > next_sea_scan
@@ -1058,6 +1059,7 @@ function update_modded_radar_data()
         if vehicle:get() then
             local vteam = get_vehicle_team_id(vehicle)
             local vdef = vehicle:get_definition_index()
+            local vid = vehicle:get_id()
             if get_is_vehicle_land(vdef) then
                 -- ignore land units
             else
@@ -1075,23 +1077,29 @@ function update_modded_radar_data()
                             local radar_team = get_vehicle_team_id(radar_vehicle)
                             -- dont scan the same team as the radar
                             if radar_team ~= vteam then
-                                local radar_range = _get_radar_detection_range(radar.type)
+                                local radar_range = get_modded_radar_range(radar_vehicle)
                                 if update_sea and target_is_sea then
+                                    g_seen_by_friendly_radars[vid] = nil
+                                    g_nearest_hostile_radar[vid] = nil
+                                    g_seen_by_hostile_radars[vid] = nil
                                     -- target is a ship
                                     local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
                                     if target_dist_sq < (radar_range * radar_range) then
                                         -- ship seen
                                         if radar_team == screen_team then
-                                            g_seen_by_friendly_radars[vehicle:get_id()] = true
+                                            g_seen_by_friendly_radars[vid] = true
                                         else
                                             if target_dist_sq < nearest_hostile_radar_dist_sq then
                                                 nearest_hostile_radar_dist_sq = target_dist_sq
-                                                g_nearest_hostile_radar[vehicle:get_id()] = radar_vehicle:get_id()
+                                                g_nearest_hostile_radar[vid] = radar_vehicle:get_id()
                                             end
-                                            g_seen_by_hostile_radars[vehicle:get_id()] = true
+                                            g_seen_by_hostile_radars[vid] = true
                                         end
                                     end
                                 else
+                                    g_seen_by_friendly_radars[vid] = nil
+                                    g_nearest_hostile_radar[vid] = nil
+                                    g_seen_by_hostile_radars[vid] = nil
                                     -- update air
                                     if screen_team ~= radar_team then
                                         -- update our nails
@@ -1100,9 +1108,9 @@ function update_modded_radar_data()
                                         if target_dist_sq < (radar_range * radar_range) then
                                             if target_dist_sq < nearest_hostile_radar_dist_sq then
                                                 nearest_hostile_radar_dist_sq = target_dist_sq
-                                                g_nearest_hostile_radar[vehicle:get_id()] = radar_vehicle:get_id()
+                                                g_nearest_hostile_radar[vid] = radar_vehicle:get_id()
                                             end
-                                            g_seen_by_hostile_radars[vehicle:get_id()] = true
+                                            g_seen_by_hostile_radars[vid] = true
                                         end
                                     else
                                         -- did any of our radars see this target?
@@ -1110,7 +1118,7 @@ function update_modded_radar_data()
                                         if power > radar_return_power then
                                             radar_return_power = power
                                             if power > 0.00002 then
-                                                g_nearest_friendly_radar[vehicle:get_id()] = {
+                                                g_nearest_friendly_radar[vid] = {
                                                     id = radar_vehicle:get_id(),
                                                     power = power,
                                                 }
@@ -1123,7 +1131,7 @@ function update_modded_radar_data()
                         -- radar_return_power is only ever set by a friendly radar
                         if radar_return_power > 0.00002 then
                             if radar_team == screen_team then
-                                g_seen_by_friendly_radars[vehicle:get_id()] = true
+                                g_seen_by_friendly_radars[vid] = true
                             end
                         end
                     end
