@@ -7,7 +7,10 @@ g_selected_target_type = 0
 g_is_input_cycle_target_next = false
 g_is_input_cycle_target_prev = false
 g_is_map_overlay = false
+g_render_rwr = false
 g_active_attachment_time = 0
+
+g_nearest_hostile_ew_radar = nil
 
 g_attachment_factors = {}
 g_attachment_info_factor = 0
@@ -188,6 +191,25 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
 
     if vehicle:get() then
         if g_is_connected then
+            g_nearest_hostile_ew_radar = nil
+            if get_is_vehicle_air(vehicle:get_definition_index()) then
+                g_render_rwr = true
+                local st, err = pcall(function()
+                    update_modded_radar_list(true)
+                    local nearest_radar, radar_dist = get_nearest_hostile_radar(vehicle:get_id())
+                    if nearest_radar ~= nil then
+                        g_nearest_hostile_ew_radar = nearest_radar
+                    end
+                end)
+                if not st then
+                    print(err)
+                end
+            else
+                g_render_rwr = false
+            end
+
+
+
             if do_comms_error(vehicle, screen_w, screen_h) then
                 return
             end
@@ -1556,7 +1578,73 @@ function render_attachment_hud(screen_w, screen_h, map_data, tick_fraction, vehi
         update_ui_text(screen_w / 2, 20, update_get_loc(e_loc.unknown_attachment), 200, 0, color8(255, 0, 0, 255), 0)
     end
 
+    if g_render_rwr then
+        render_hud_rwr(screen_w, screen_h, vehicle)
+    end
+
     return is_render_center
+end
+
+function render_hud_rwr(screen_w, screen_h, vehicle)
+    local st, err = pcall(_render_hud_rwr, screen_w, screen_h, vehicle)
+    if not st then
+        print(err)
+    end
+end
+
+function _render_hud_rwr(screen_w, screen_h, vehicle)
+    local tick = update_get_logic_tick()
+
+    local green = color8(0, 255, 0, 180)
+    local red = color8(255, 0, 0, 110)
+
+    local size = 11
+    local w = 32
+    local n = 100
+
+    local fwd = green
+    local port = green
+    local stbd = green
+    local aft = green
+
+    if tick % 60 < 30 then
+        if g_nearest_hostile_ew_radar ~= nil then
+            -- change color
+            local sp, clamped = update_world_to_screen(g_nearest_hostile_ew_radar:get_position())
+
+            if sp:x() > 0 and sp:x() < screen_w then
+                if sp:y() > 0 and sp:y() < screen_h then
+                    if clamped then
+                        aft =red
+                    else
+                        fwd = red
+                    end
+                end
+            else
+                if sp:x() < 0 then
+                    if clamped then
+                        stbd = red
+                    else
+                        port = red
+                    end
+                elseif sp:x() > screen_w then
+                    if clamped then
+                        port = red
+                    else
+                        stbd = red
+                    end
+                end
+            end
+            update_ui_image_rot(w + 4, n + 14, atlas_icons.hud_warning, red, 0)
+        end
+    end
+
+    update_ui_image_rot(w - 6, n + 3, atlas_icons.column_controlling_peer, color8(0, 255, 0, 255), 0)
+    update_ui_rectangle(w - size, n + size, size - 4, size - 4, port)
+    update_ui_rectangle(w, n, size - 4, size - 4, fwd)
+    update_ui_rectangle(w + size, n + size, size - 4, size - 4, stbd)
+    update_ui_rectangle(w, n + size + size, size - 4, size - 4, aft)
+
 end
 
 function render_attachment_hud_camera(screen_w, screen_h, map_data, vehicle, attachment)
@@ -1569,6 +1657,7 @@ function render_attachment_hud_camera(screen_w, screen_h, map_data, vehicle, att
     render_circle(hud_pos, inner_radius, 16, col)
 
     if attachment:get_is_zoom_capable() then
+        g_render_rwr = false
         local zoom_factor = attachment:get_zoom_factor()
         local angle = math.pi * 0.5 * zoom_factor
         update_ui_image_rot(hud_pos:x() + math.cos(angle - math.pi) * outer_radius, hud_pos:y() + math.sin(angle - math.pi) * outer_radius, atlas_icons.hud_zoom_indicator_2, col, angle)
@@ -1794,6 +1883,7 @@ function render_attachment_hud_tv_missile(screen_w, screen_h, map_data, vehicle,
         g_is_render_hp = false
         g_is_render_control_mode = false
         g_is_render_compass = true
+        g_render_rwr = false
 
         if attachment:get_control_mode() == "manual" and attachment:get_is_controlling_peer() then
             render_mouse_flight_axis(hud_pos)

@@ -859,7 +859,7 @@ function get_awacs_radar_enabled(vehicle)
                 if radar_mode == "off" then
                     return false
                 end
-                if carrier_radar:get_is_damaged() then
+                if carrier_radar.get_is_damaged ~= nil and carrier_radar:get_is_damaged() then
                     return false
                 end
                 if get_radar_interference(vehicle, carrier_radar) then
@@ -892,6 +892,49 @@ function get_nearest_hostile_aew_radar(vid)
         end
     end
     return nil
+end
+
+function get_nearest_hostile_radar(vid)
+    -- used by HUD RWR
+    local rwr_vehicle = update_get_map_vehicle_by_id(vid)
+    if rwr_vehicle and rwr_vehicle:get() then
+        local rwr_team = get_vehicle_team_id(rwr_vehicle)
+        local rwr_pos = nil
+        local use_2d = false
+        if rwr_vehicle.get_position ~= nil then
+            rwr_pos = rwr_vehicle:get_position()
+        else
+            use_2d = true
+            rwr_pos = rwr_vehicle:get_position_xz()
+        end
+        local dist_sq = 19000 * 19000
+        local nearest = nil
+
+        for i, item in pairs(g_all_radars) do
+            local radar = item.vehicle
+            if radar and radar:get() then
+
+                local radar_team = get_vehicle_team_id(radar)
+                if radar_team ~= rwr_team then
+                    -- hostile, calc dist
+                    local d = dist_sq
+                    if use_2d then
+                        d = vec2_dist_sq(rwr_pos, radar:get_position_xz())
+                    else
+                        d = vec3_dist_sq(rwr_pos, radar:get_position())
+                    end
+                    if d < dist_sq then
+                        dist_sq = d
+                        nearest = radar
+                    end
+                end
+            end
+        end
+        if nearest and dist_sq < (18000 * 18000) then
+            return nearest, math.sqrt(dist_sq)
+        end
+    end
+    return nil, 0
 end
 
 function get_nearest_friendly_aew_radar(vid)
@@ -928,45 +971,39 @@ function get_is_masked_by_stealth(vehicle)
     return false
 end
 
-function update_modded_radar_data()
-    -- find all radars
-    local current_tick = update_get_logic_tick()
-    local next_air_scan = g_radar_last_air_scan + 60
-    local next_sea_scan = g_radar_last_sea_scan + 161
-
-    local update_air = current_tick > next_air_scan
-    local update_sea = current_tick > next_sea_scan
-
-    local vehicle_count = update_get_map_vehicle_count()
+function update_modded_radar_list(hostile_only)
     local screen_team = update_get_screen_team_id()
-    g_all_radars = {}
-    g_friendly_radars = {}
-    g_nearest_hostile_radar = {}
+    local vehicle_count = update_get_map_vehicle_count()
 
     for i = 0, vehicle_count - 1 do
         local vehicle = update_get_map_vehicle_by_index(i)
         if vehicle:get() and not get_vehicle_docked(vehicle) then
-            local radar_type = _get_radar_attachment(vehicle)
+            local vehicle_team = get_vehicle_team_id(vehicle)
+            if vehicle_team ~= screen_team or not hostile_only then
 
-            if radar_type ~= nil then
-                if radar_type == e_game_object_type.attachment_radar_awacs then
-                    if not get_awacs_radar_enabled(vehicle) then
-                        radar_type = nil
+                local radar_type = _get_radar_attachment(vehicle)
+
+                if radar_type ~= nil then
+                    if radar_type == e_game_object_type.attachment_radar_awacs then
+                        if not get_awacs_radar_enabled(vehicle) then
+                            radar_type = nil
+                        end
                     end
                 end
-            end
-            if radar_type ~= nil then
-                local vid = vehicle:get_id()
-                g_all_radars[vid] = {
-                    vehicle = vehicle,
-                    type = radar_type
-                }
+                if radar_type ~= nil then
 
-                if get_vehicle_team_id(vehicle) == screen_team then
-                    g_friendly_radars[vid] = {
+                    local vid = vehicle:get_id()
+                    g_all_radars[vid] = {
                         vehicle = vehicle,
                         type = radar_type
                     }
+
+                    if get_vehicle_team_id(vehicle) == screen_team then
+                        g_friendly_radars[vid] = {
+                            vehicle = vehicle,
+                            type = radar_type
+                        }
+                    end
                 end
             end
         end
@@ -985,6 +1022,24 @@ function update_modded_radar_data()
             g_seen_by_hostile_radars[vid] = nil
         end
     end
+end
+
+function update_modded_radar_data()
+    -- find all radars
+    local current_tick = update_get_logic_tick()
+    local next_air_scan = g_radar_last_air_scan + 60
+    local next_sea_scan = g_radar_last_sea_scan + 161
+
+    local update_air = current_tick > next_air_scan
+    local update_sea = current_tick > next_sea_scan
+
+    local vehicle_count = update_get_map_vehicle_count()
+    local screen_team = update_get_screen_team_id()
+    g_all_radars = {}
+    g_friendly_radars = {}
+    g_nearest_hostile_radar = {}
+
+    update_modded_radar_list(false)
 
     if not update_air and not update_sea then
         return
