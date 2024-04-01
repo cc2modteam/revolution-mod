@@ -693,8 +693,9 @@ g_radar_ranges = {
     carrier = 10000,
     golfball = 10000,
 }
-g_radar_debug = true
-
+g_radar_debug = false
+g_radar_last_sea_scan = 0
+g_radar_last_air_scan = 0
 g_radar_min_return_power = 0.00018
 g_radar_multiplier = 1
 
@@ -914,11 +915,13 @@ end
 
 function get_is_masked_by_stealth(vehicle)
     if vehicle and vehicle:get() then
-        local vdef = vehicle:get_definition_index()
-        if get_is_vehicle_air(vdef) then
-            local pwr = get_radar_power(vehicle:get_id())
-            if pwr < g_radar_min_return_power then
-                return true
+        if get_vehicle_team_id(vehicle) ~= update_get_screen_team_id() then
+            local vdef = vehicle:get_definition_index()
+            if get_is_vehicle_air(vdef) then
+                local pwr = get_radar_power(vehicle:get_id())
+                if pwr < g_radar_min_return_power then
+                    return true
+                end
             end
         end
     end
@@ -928,8 +931,11 @@ end
 function update_modded_radar_data()
     -- find all radars
     local current_tick = update_get_logic_tick()
-    local update_air = current_tick % 2 == 0
-    local update_sea = current_tick % 4 == 3
+    local next_air_scan = g_radar_last_air_scan + 60
+    local next_sea_scan = g_radar_last_sea_scan + 161
+
+    local update_air = current_tick > next_air_scan
+    local update_sea = current_tick > next_sea_scan
 
     local vehicle_count = update_get_map_vehicle_count()
     local screen_team = update_get_screen_team_id()
@@ -982,6 +988,13 @@ function update_modded_radar_data()
 
     if not update_air and not update_sea then
         return
+    end
+
+    if update_sea then
+        g_radar_last_sea_scan = current_tick
+    end
+    if update_air then
+        g_radar_last_air_scan = current_tick
     end
 
     -- now calculate radar detection for each radar
@@ -1069,88 +1082,6 @@ function get_is_radar(vehicle_id)
     return g_all_radars[vehicle_id] ~= nil
 end
 
-function old_refresh_modded_radar_cache()
-    local st, err = pcall(function()
-        -- only do this every 30th tick (once every second)
-        local now = update_get_logic_tick()
-        if now % 30 == 0 then
-            local v1, v2, v3 = _old_refresh_modded_radar_cache()
-            g_seen_by_hostile_radars = v1
-            g_seen_by_friendly_radars = v2
-            g_friendly_radars = v3
-        end
-    end)
-    if not st then
-        print(err)
-    end
-end
-
-function _old_refresh_modded_radar_cache()
-    local seen_by_hostiles = {}
-    local seen_by_ours = {}
-    local friendly_radars = {}
-    local vehicle_count = update_get_map_vehicle_count()
-    local screen_team = update_get_screen_team_id()
-
-    for ii = 0, vehicle_count - 1 do
-        local vehicle = update_get_map_vehicle_by_index(ii)
-        if vehicle:get() then
-            local radar_id = vehicle:get_id()
-            local _team = vehicle:get_team()
-            if _team == screen_team then
-                if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
-                    -- if enabled and not damaged
-                    local radar_pos = _get_awacs_radar_attachment_position(vehicle)
-                    if radar_pos > -1 then
-                    local carrier_radar = vehicle:get_attachment(radar_pos)
-                        if carrier_radar ~= nil then
-
-                            local is_powered = carrier_radar:get_control_mode() ~= "off"
-                            local is_damaged = carrier_radar:get_is_damaged()
-                            if is_powered then
-                                if not is_damaged then
-                                    local radar_pos = _get_awacs_radar_attachment_position(vehicle)
-                                    if vehicle.get_is_attachment_radar_disabled ~= nil then
-                                        local is_interference = vehicle:get_is_attachment_radar_disabled(radar_pos)
-                                        if not is_interference then
-                                            friendly_radars[radar_id] = true
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-
-            if get_has_modded_radar(vehicle) then
-                -- we are a unit with a modded radar, see what it can see
-                if _team == screen_team then
-                    friendly_radars[radar_id] = true
-                end
-                -- iterate all other things on the map
-                for jj = 0, vehicle_count - 1 do
-                    local target = update_get_map_vehicle_by_index(jj)
-                    local target_def = target:get_definition_index()
-                    if get_is_vehicle_sea(target_def) or get_is_vehicle_air(target_def) then
-                        -- ships or aircraft
-                        if _get_unit_visible_by_modded_radar(vehicle, target) then
-                            local tid = target:get_id()
-                            if _team == screen_team then
-                                print(radar_id)
-                                seen_by_ours[tid] = true
-                            else
-                                seen_by_hostiles[tid] = true
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-    return seen_by_hostiles, seen_by_ours, friendly_radars
-end
-
 function get_is_visible_by_modded_radar(vehicle)
     local st, val = pcall(_get_is_seen_by_friendly_modded_radar, vehicle)
     if not st then
@@ -1196,9 +1127,9 @@ g_fow_range = 16000
 g_island_color_unknown = color8(0x12, 0x12, 0x12, 0xff)
 
 function refresh_fow_islands()
-    -- only do this every 5x30th tick (once 5 seconds)
+    -- only do this every 2.5 seconds
     local now = update_get_logic_tick()
-    if now % (30 * 5) == 0 then
+    if now % 150 == 0 then
         g_fow_visible = {}
         local visible = 0
         -- reveal any island within 16km of one of our units
@@ -1287,9 +1218,16 @@ function get_rcs(vehicle)
                             a_rcs = 0
                         end
 
+                        if a_def == e_game_object_type.attachment_fuel_tank_plane then
+                            -- cant figure out how to know if a tank has been dropped, but lets say if it is empty
+                            -- we halve the RCS of the pod
+                            a_rcs = (a_rcs / 2) + a_rcs * attachment:get_fuel_factor() * 0.5
+                        end
+
                         if a_rcs ~= nil then
                             rcs = rcs + a_rcs
                         end
+
                     end
                 end
             end

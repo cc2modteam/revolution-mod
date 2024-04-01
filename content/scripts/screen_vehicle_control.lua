@@ -2019,7 +2019,9 @@ function _update(screen_w, screen_h, ticks)
                                     
                                     local is_visible_by_enemy = vehicle:get_is_visible_by_enemy()
                                     if not is_visible_by_enemy then
-                                        is_visible_by_enemy = get_is_visible_by_hostile_modded_radar(vehicle)
+                                        if get_is_vehicle_air(vehicle_definition_index) then
+                                            is_visible_by_enemy = get_is_visible_by_hostile_modded_radar(vehicle)
+                                        end
                                     end
 
                                     if is_visible_by_enemy and g_animation_time % 20 > 10 then
@@ -2030,9 +2032,6 @@ function _update(screen_w, screen_h, ticks)
                                         end
 
                                         update_ui_image(screen_pos_x + 3, screen_pos_y - 2, atlas_icons.map_icon_visible, icon_color, 0)
-                                    end
-                                    if friendly_masked and not is_visible_by_enemy then
-                                        update_ui_image(screen_pos_x + 3, screen_pos_y - 2, atlas_icons.map_icon_visible, element_color, 0)
                                     end
 
                                     if fuel_factor < 0.5 and get_is_render_fuel_indicator(vehicle) then
@@ -2099,7 +2098,7 @@ function _update(screen_w, screen_h, ticks)
                             end
                         end
 
-                        if g_radar_debug and (update_get_logic_tick() % 120 < 45) then
+                        if g_radar_debug and update_get_is_focus_local() and (update_get_logic_tick() % 120 < 45) then
                             local vehicle_pos_xz = vehicle:get_position_xz()
                             local v_x = vehicle_pos_xz:x()
                             local v_y = vehicle_pos_xz:y()

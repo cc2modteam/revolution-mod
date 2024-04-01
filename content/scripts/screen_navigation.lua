@@ -235,7 +235,18 @@ function update(screen_w, screen_h, ticks)
                             local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
                             local element_color = get_vehicle_team_color(vehicle_team)
 
-                            update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
+                            local show_target = true
+
+                            if screen_team ~= vehicle_team then
+                                -- hostile
+                                if get_is_masked_by_stealth(vehicle) then
+                                    show_target = false
+                                end
+                            end
+
+                            if show_target then
+                                update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
+                            end
                         end
                     end
                 end
