@@ -1321,8 +1321,17 @@ function get_rcs(vehicle)
                                     a_def ~= e_game_object_type.attachment_flare_launcher and
                                     a_def ~= e_game_object_type.attachment_turret_rocket_pod
                             then
-                                if attachment:get_ammo_factor() == 0 then
-                                    a_rcs = 0
+                                if attachment then
+                                    local ammo = 0
+                                    if attachment.get_ammo_factor ~= nil then
+                                        ammo = attachment:get_ammo_factor()
+                                    end
+                                    if attachment.get_ammo_remaining ~= nil then
+                                        ammo = attachment:get_ammo_remaining()
+                                    end
+                                    if ammo == 0 then
+                                        a_rcs = 0
+                                    end
                                 end
                             end
                         end

@@ -3224,9 +3224,18 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
         local is_manta = v:get_definition_index() == e_game_object_type.chassis_air_wing_heavy
         local observe_range_sq = iff(get_is_vehicle_sea(v:get_definition_index()), range_ships_sq, range_sq)
         if dist_sq < observe_range_sq then
-            if is_manta and get_rcs_cached(v) < 1.1 then
-                observe_range_sq = 2000 * 2000
+            local st, vv = pcall(function()
+                if is_manta and get_rcs_cached(v) < 1.1 then
+                    observe_range_sq = 2000 * 2000
+                end
+                return observe_range_sq
+            end)
+            if not st then
+                print(vv)
+            else
+                observe_range_sq = vv
             end
+
         end
 
         if dist_sq < observe_range_sq then
