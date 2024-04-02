@@ -399,8 +399,7 @@ end
 function get_is_vehicle_sea(definition_index)
     return definition_index == e_game_object_type.chassis_carrier
         or definition_index == e_game_object_type.chassis_sea_barge
-        or definition_index == e_game_object_type.chassis_sea_ship_light
-        or definition_index == e_game_object_type.chassis_sea_ship_heavy
+        or get_is_ship_fish(definition_index)
 end
 
 function get_is_vehicle_land(definition_index)
@@ -670,7 +669,6 @@ end
 
 -- fisheye mod
 g_all_radars = {}
-g_friendly_radars = {}
 g_radar_seen_by_ours = {}
 g_radar_seen_by_hostile = {}
 
@@ -726,13 +724,15 @@ function _get_radar_detection_range(definition_index)
 end
 
 function _get_awacs_radar_attachment_position(vehicle)
-    local attachment_count = vehicle:get_attachment_count()
-    for i = 0, attachment_count - 1 do
-        local attachment = vehicle:get_attachment(i)
-        if attachment:get() then
-            local definition_index = attachment:get_definition_index()
-            if definition_index == e_game_object_type.attachment_radar_awacs then
-                return i
+    if vehicle and vehicle:get() then
+        local attachment_count = vehicle:get_attachment_count()
+        for i = 0, attachment_count - 1 do
+            local attachment = vehicle:get_attachment(i)
+            if attachment and attachment:get() then
+                local definition_index = attachment:get_definition_index()
+                if definition_index == e_game_object_type.attachment_radar_awacs then
+                    return i
+                end
             end
         end
     end
@@ -740,24 +740,26 @@ function _get_awacs_radar_attachment_position(vehicle)
 end
 
 function _get_radar_attachment(vehicle)
-    if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
-        return e_game_object_type.attachment_radar_awacs
-    end
+    if vehicle and vehicle:get() then
+        if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+            return e_game_object_type.attachment_radar_awacs
+        end
 
-    local attachment_count = vehicle:get_attachment_count()
-    for i = 0, attachment_count - 1 do
-        local attachment = vehicle:get_attachment(i)
-        if attachment:get() then
-            local definition_index = attachment:get_definition_index()
-            if ( false
-                or (definition_index == e_game_object_type.attachment_radar_golfball)
-                or (definition_index == e_game_object_type.attachment_radar_awacs)
-                or (definition_index == e_game_object_type.attachment_turret_carrier_ciws)
-                or (definition_index == e_game_object_type.attachment_turret_carrier_torpedo)
-                or (definition_index == e_game_object_type.attachment_turret_carrier_missile_silo)
-                or (definition_index == e_game_object_type.attachment_turret_carrier_main_gun)
-            ) then
-                return definition_index
+        local attachment_count = vehicle:get_attachment_count()
+        for i = 0, attachment_count - 1 do
+            local attachment = vehicle:get_attachment(i)
+            if attachment and attachment:get() then
+                local definition_index = attachment:get_definition_index()
+                if ( false
+                        or (definition_index == e_game_object_type.attachment_radar_golfball)
+                        or (definition_index == e_game_object_type.attachment_radar_awacs)
+                        or (definition_index == e_game_object_type.attachment_turret_carrier_ciws)
+                        or (definition_index == e_game_object_type.attachment_turret_carrier_torpedo)
+                        or (definition_index == e_game_object_type.attachment_turret_carrier_missile_silo)
+                        or (definition_index == e_game_object_type.attachment_turret_carrier_main_gun)
+                ) then
+                    return definition_index
+                end
             end
         end
     end
@@ -765,12 +767,14 @@ function _get_radar_attachment(vehicle)
 end
 
 function get_is_vehicle_masked_by_groundclutter(vehicle)
-    if get_is_vehicle_air(vehicle:get_definition_index()) then
-        local pos = vehicle:get_position_xz()
-        local waves = update_get_ocean_depth_factor(pos:x(), pos:y())
-        local clutter_base = 40 + (90 * waves)
-        local alt = get_unit_altitude(vehicle)
-        return alt < clutter_base
+    if vehicle and vehicle:get() then
+        if get_is_vehicle_air(vehicle:get_definition_index()) then
+            local pos = vehicle:get_position_xz()
+            local waves = update_get_ocean_depth_factor(pos:x(), pos:y())
+            local clutter_base = 40 + (90 * waves)
+            local alt = get_unit_altitude(vehicle)
+            return alt < clutter_base
+        end
     end
     return false
 end
@@ -851,27 +855,29 @@ end
 
 function get_awacs_radar_enabled(vehicle)
     -- if enabled and not damaged
-    local radar_pos = _get_awacs_radar_attachment_position(vehicle)
-    if radar_pos > -1 then
-        if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
-            local carrier_radar = vehicle:get_attachment(radar_pos)
-            if carrier_radar ~= nil then
-                local radar_mode = carrier_radar:get_control_mode()
-                if radar_mode == "off" then
+    if vehicle and vehicle:get() then
+        local radar_pos = _get_awacs_radar_attachment_position(vehicle)
+        if radar_pos > -1 then
+            if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+                local carrier_radar = vehicle:get_attachment(radar_pos)
+                if carrier_radar ~= nil then
+                    local radar_mode = carrier_radar:get_control_mode()
+                    if radar_mode == "off" then
+                        return false
+                    end
+                    if carrier_radar.get_is_damaged ~= nil and carrier_radar:get_is_damaged() then
+                        return false
+                    end
+                    if get_radar_interference(vehicle, carrier_radar) then
+                        return false
+                    end
+                else
+                    -- no radar fitted?
                     return false
                 end
-                if carrier_radar.get_is_damaged ~= nil and carrier_radar:get_is_damaged() then
-                    return false
-                end
-                if get_radar_interference(vehicle, carrier_radar) then
-                    return false
-                end
-            else
-                -- no radar fitted?
-                return false
             end
+            return true
         end
-        return true
     end
 
     return false
@@ -912,9 +918,9 @@ function get_nearest_hostile_radar(vid)
         local nearest = nil
 
         for i, item in pairs(g_all_radars) do
-            local radar = item.vehicle
+            local radar_id = item.id
+            local radar = update_get_map_vehicle_by_id(radar_id)
             if radar and radar:get() then
-
                 local radar_team = get_vehicle_team_id(radar)
                 if radar_team ~= rwr_team then
                     -- hostile, calc dist
@@ -995,16 +1001,10 @@ function update_modded_radar_list(hostile_only)
 
                     local vid = vehicle:get_id()
                     g_all_radars[vid] = {
-                        vehicle = vehicle,
+                        id = vid,
                         type = radar_type
                     }
 
-                    if get_vehicle_team_id(vehicle) == screen_team then
-                        g_friendly_radars[vid] = {
-                            vehicle = vehicle,
-                            type = radar_type
-                        }
-                    end
                 end
             end
         end
@@ -1037,7 +1037,6 @@ function update_modded_radar_data()
     local vehicle_count = update_get_map_vehicle_count()
     local screen_team = update_get_screen_team_id()
     g_all_radars = {}
-    g_friendly_radars = {}
     g_nearest_hostile_radar = {}
 
     update_modded_radar_list(false)
@@ -1073,55 +1072,58 @@ function update_modded_radar_data()
                         local radar_return_power = 0
                         local nearest_hostile_radar_dist_sq = 99999
                         for _, radar in pairs(g_all_radars) do
-                            local radar_vehicle = radar.vehicle
-                            local radar_team = get_vehicle_team_id(radar_vehicle)
-                            -- dont scan the same team as the radar
-                            if radar_team ~= vteam then
-                                local radar_range = get_modded_radar_range(radar_vehicle)
-                                if update_sea and target_is_sea then
-                                    g_seen_by_friendly_radars[vid] = nil
-                                    g_nearest_hostile_radar[vid] = nil
-                                    g_seen_by_hostile_radars[vid] = nil
-                                    -- target is a ship
-                                    local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
-                                    if target_dist_sq < (radar_range * radar_range) then
-                                        -- ship seen
-                                        if radar_team == screen_team then
-                                            g_seen_by_friendly_radars[vid] = true
-                                        else
-                                            if target_dist_sq < nearest_hostile_radar_dist_sq then
-                                                nearest_hostile_radar_dist_sq = target_dist_sq
-                                                g_nearest_hostile_radar[vid] = radar_vehicle:get_id()
-                                            end
-                                            g_seen_by_hostile_radars[vid] = true
-                                        end
-                                    end
-                                else
-                                    g_seen_by_friendly_radars[vid] = nil
-                                    g_nearest_hostile_radar[vid] = nil
-                                    g_seen_by_hostile_radars[vid] = nil
-                                    -- update air
-                                    if screen_team ~= radar_team then
-                                        -- update our nails
-                                        -- we can hear a hostile radar
+                            local radar_id = radar.id
+                            local radar_vehicle = update_get_map_vehicle_by_id(radar_id)
+                            if radar_vehicle and radar_vehicle:get() then
+                                local radar_team = get_vehicle_team_id(radar_vehicle)
+                                -- dont scan the same team as the radar
+                                if radar_team ~= vteam then
+                                    local radar_range = get_modded_radar_range(radar_vehicle)
+                                    if update_sea and target_is_sea then
+                                        g_seen_by_friendly_radars[vid] = nil
+                                        g_nearest_hostile_radar[vid] = nil
+                                        g_seen_by_hostile_radars[vid] = nil
+                                        -- target is a ship
                                         local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
                                         if target_dist_sq < (radar_range * radar_range) then
-                                            if target_dist_sq < nearest_hostile_radar_dist_sq then
-                                                nearest_hostile_radar_dist_sq = target_dist_sq
-                                                g_nearest_hostile_radar[vid] = radar_vehicle:get_id()
+                                            -- ship seen
+                                            if radar_team == screen_team then
+                                                g_seen_by_friendly_radars[vid] = true
+                                            else
+                                                if target_dist_sq < nearest_hostile_radar_dist_sq then
+                                                    nearest_hostile_radar_dist_sq = target_dist_sq
+                                                    g_nearest_hostile_radar[vid] = radar_id
+                                                end
+                                                g_seen_by_hostile_radars[vid] = true
                                             end
-                                            g_seen_by_hostile_radars[vid] = true
                                         end
                                     else
-                                        -- did any of our radars see this target?
-                                        local power = get_radar_return_power(vehicle, radar_vehicle, radar_range)
-                                        if power > radar_return_power then
-                                            radar_return_power = power
-                                            if power > 0.00002 then
-                                                g_nearest_friendly_radar[vid] = {
-                                                    id = radar_vehicle:get_id(),
-                                                    power = power,
-                                                }
+                                        g_seen_by_friendly_radars[vid] = nil
+                                        g_nearest_hostile_radar[vid] = nil
+                                        g_seen_by_hostile_radars[vid] = nil
+                                        -- update air
+                                        if screen_team ~= radar_team then
+                                            -- update our nails
+                                            -- we can hear a hostile radar
+                                            local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
+                                            if target_dist_sq < (radar_range * radar_range) then
+                                                if target_dist_sq < nearest_hostile_radar_dist_sq then
+                                                    nearest_hostile_radar_dist_sq = target_dist_sq
+                                                    g_nearest_hostile_radar[vid] = radar_id
+                                                end
+                                                g_seen_by_hostile_radars[vid] = true
+                                            end
+                                        else
+                                            -- did any of our radars see this target?
+                                            local power = get_radar_return_power(vehicle, radar_vehicle, radar_range)
+                                            if power > radar_return_power then
+                                                radar_return_power = power
+                                                if power > 0.00002 then
+                                                    g_nearest_friendly_radar[vid] = {
+                                                        id = radar_id,
+                                                        power = power,
+                                                    }
+                                                end
                                             end
                                         end
                                     end
@@ -1155,7 +1157,7 @@ end
 
 function get_is_visible_by_hostile_modded_radar(vehicle)
     local seen = false
-    if vehicle:get() then
+    if vehicle and vehicle:get() then
         local vid = vehicle:get_id()
         seen = g_seen_by_hostile_radars[vid] ~= nil
     end
@@ -1163,7 +1165,7 @@ function get_is_visible_by_hostile_modded_radar(vehicle)
 end
 
 function _get_is_seen_by_friendly_modded_radar(vehicle)
-    if vehicle:get() then
+    if vehicle and vehicle:get() then
         local vid = vehicle:get_id()
         local vdef = vehicle:get_definition_index()
         if get_is_vehicle_air(vdef) then
