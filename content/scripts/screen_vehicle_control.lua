@@ -2091,7 +2091,7 @@ function _update(screen_w, screen_h, ticks)
                         elseif is_revealed then
                             local last_known_position_xz, is_last_known_position_set = vehicle:get_vision_last_known_position_xz()
 
-                            if is_last_known_position_setw then
+                            if is_last_known_position_set then
                                 local screen_pos_x, screen_pos_y = get_screen_from_world(last_known_position_xz:x(), last_known_position_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
                                 if vehicle_attached_parent_id == 0 then
