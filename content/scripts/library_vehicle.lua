@@ -1,3 +1,5 @@
+g_is_holomap = false
+
 function get_carrier_bay_name(index)
     bay_name = update_get_loc(e_loc.upp_acronym_surface).."1";
 
@@ -1030,9 +1032,29 @@ function update_modded_radar_data()
     local current_tick = update_get_logic_tick()
     local next_air_scan = g_radar_last_air_scan + 60
     local next_sea_scan = g_radar_last_sea_scan + 121
+    local user_connected = true
+    local script_id = string.format("%s", _G)
+    if not update_get_is_focus_local() then
+        local disconnected_delay_base = 250
+        if g_is_holomap then
+            disconnected_delay_base = 60
+            script_id = script_id .. " holomap"
+        end
+        -- not connected, reduce the frequency to once every 5-7 seconds
+        next_air_scan = g_radar_last_air_scan + disconnected_delay_base + math.floor(math.random(30, 90))
+        next_sea_scan = g_radar_last_sea_scan + disconnected_delay_base + math.floor(math.random(40, 80))
+        user_connected = false
+    end
 
     local update_air = current_tick > next_air_scan
     local update_sea = current_tick > next_sea_scan
+
+    if not user_connected and not g_is_holomap then
+        if not update_sea and not update_air then
+            -- do nothing
+            return
+        end
+    end
 
     local vehicle_count = update_get_map_vehicle_count()
     local screen_team = update_get_screen_team_id()
@@ -1043,6 +1065,10 @@ function update_modded_radar_data()
 
     if not update_air and not update_sea then
         return
+    end
+
+    if g_radar_debug then
+        print(string.format("update %s air=%s sea=%s local=%s", script_id, update_air, update_sea, user_connected))
     end
 
     if update_sea then

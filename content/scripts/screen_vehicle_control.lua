@@ -1618,6 +1618,7 @@ function _update(screen_w, screen_h, ticks)
                     local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                     local vehicle_definition_index = vehicle:get_definition_index()
                     local is_render_vehicle_icon = vehicle_attached_parent_id == 0
+                    local is_sealthed = false
 
                     if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
                         local is_air = get_is_vehicle_air(vehicle_definition_index)
@@ -1626,6 +1627,7 @@ function _update(screen_w, screen_h, ticks)
                         if is_render_vehicle_icon then
                             if not is_visible or not is_revealed then
                                 if get_is_visible_by_modded_radar(vehicle) then
+                                    is_sealthed = false
                                     is_revealed = true
                                     is_visible = true
                                 end
@@ -1641,6 +1643,7 @@ function _update(screen_w, screen_h, ticks)
                                         -- concealed by its RCS
                                         is_revealed = false
                                         is_visible = false
+                                        is_sealthed = true
                                         is_render_vehicle_icon = false
                                     end
                                 else
@@ -1648,6 +1651,7 @@ function _update(screen_w, screen_h, ticks)
                                     if radar_pwr > g_radar_min_return_power then
                                         -- thing with an extra huge RCS
                                         is_render_vehicle_icon = true
+                                        is_sealthed = false
                                         is_revealed = true
                                         is_visible = true
                                     end
@@ -2087,7 +2091,7 @@ function _update(screen_w, screen_h, ticks)
                         elseif is_revealed then
                             local last_known_position_xz, is_last_known_position_set = vehicle:get_vision_last_known_position_xz()
 
-                            if is_last_known_position_set then
+                            if is_last_known_position_setw then
                                 local screen_pos_x, screen_pos_y = get_screen_from_world(last_known_position_xz:x(), last_known_position_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
                                 if vehicle_attached_parent_id == 0 then

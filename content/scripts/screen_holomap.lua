@@ -134,6 +134,7 @@ function parse()
 end
 
 function begin()
+    g_is_holomap = true
     g_ui = lib_imgui:create_ui()
     begin_load()
     begin_load_inventory_data()
