@@ -484,13 +484,8 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         camera_size = 10000
     else
         if get_is_vehicle_air(screen_vehicle_def) then
-            local alt = screen_vehicle:get_altitude()
-            camera_size = 2000
-            if alt > 1000 then
-                camera_size = 5000
-            end
-            if screen_vehicle:get_linear_speed() > 90 then
-                camera_size = camera_size * 2
+            if screen_vehicle:get_linear_speed() > 150 then
+                camera_size = 10000
             end
         end
     end
