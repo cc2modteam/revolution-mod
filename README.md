@@ -13,6 +13,20 @@ and [Albatross AWACS](https://steamcommunity.com/sharedfiles/filedetails/?id=289
 
 As well as the fantastic solid basis from UI Enhancer, Révolution adds the following headline features!
 
+### Stealth and Radar
+
+Aircraft now have a "RADAR cross-section" value, this gets bigger if you fit large attachments to them (cameras, bombs, etc). 
+The Manta is now modelled as a stealth aircraft.
+
+Mantas and Razorbills can now also pickup emmissions from nearby hostile RADARs and give you a HUD indication of 
+the approximate direction of the source. 
+
+### Evolved Weapons
+
+The Walrus can now carry the 100mm heavy cannon. You only get 12 rounds but this packs a punch despite being fragile!.
+
+The Razorbill can now carry a chin-mounted twin auto-cannon, The weapon is powerful but difficult to aim.
+
 ### Fog of War
 
 ![CC2 Holomap with Fog of War](holomap-fow.jpg "Holomap Fog of War")
