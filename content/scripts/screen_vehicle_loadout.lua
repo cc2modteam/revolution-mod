@@ -73,9 +73,7 @@ function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index
         end
     elseif vdef == e_game_object_type.chassis_land_wheel_light then
         -- allow a 2nd virus bot on seals
-        if attachment_index == 3 then
-            add_attachment_option(attachment_options, e_game_object_type.attachment_turret_robot_dog_capsule)
-        end
+
     elseif vdef == e_game_object_type.chassis_land_wheel_medium then
         -- allow walrus to have the 100m heavy gun
         if attachment_index == 1 then
