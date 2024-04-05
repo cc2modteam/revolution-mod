@@ -193,7 +193,7 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
         if g_is_connected then
             g_nearest_hostile_ew_radar = nil
             if get_is_vehicle_air(vehicle:get_definition_index()) then
-                g_render_rwr = true
+                g_render_rwr = get_has_rwr(vehicle)
                 local st, err = pcall(function()
                     update_modded_radar_list(true)
                     local nearest_radar, radar_dist = get_nearest_hostile_radar(vehicle:get_id())

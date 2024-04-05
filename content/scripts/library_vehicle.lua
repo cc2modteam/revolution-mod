@@ -1418,6 +1418,17 @@ function get_rcs_detection_range(rcs)
     return 0
 end
 
+function get_has_rwr(vehicle)
+    if vehicle and vehicle:get() then
+        local def = vehicle:get_definition_index()
+        if def == e_game_object_type.chassis_air_wing_heavy or def == e_game_object_type.chassis_air_rotor_light then
+            return true
+        end
+    end
+
+    return false
+end
+
 -- drydock waypoint share system
 --
 -- it's easy to create waypoints, but we can't efficiently use the x,y as if we need
