@@ -1348,6 +1348,14 @@ function get_rcs(vehicle)
                         if vehicle_has_cargo(vehicle) then
                             rcs = rcs * 1.3
                         end
+                    else
+                        if get_vehicle_health_factor(vehicle) < 0.9 then
+                            -- damaged units have higher RCS
+                            rcs = rcs * 1.3
+                            if rcs < 1.5 then
+                                rcs = 1.5
+                            end
+                        end
                     end
                 end
             end
@@ -1414,6 +1422,13 @@ function get_rcs_detection_range(rcs)
             pwr = rcs * intensity
         end
         return (dist/1000)
+    end
+    return 0
+end
+
+function get_vehicle_health_factor(vehicle)
+    if vehicle and vehicle:get() then
+        return vehicle:get_hitpoints() / vehicle:get_total_hitpoints()
     end
     return 0
 end

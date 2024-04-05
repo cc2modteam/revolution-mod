@@ -1602,9 +1602,20 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     local stbd = green
     local aft = green
 
+    local show_alert = false
+
+    if get_vehicle_health_factor(vehicle) < 50 then
+        show_alert = true
+        fwd = red
+        port = red
+        aft = red
+        stbd = red
+    end
+
     if tick % 60 < 30 then
         if g_nearest_hostile_ew_radar ~= nil then
             -- change color
+            show_alert = true
             local sp, clamped = update_world_to_screen(g_nearest_hostile_ew_radar:get_position())
 
             if sp:x() > 0 and sp:x() < screen_w then
@@ -1630,6 +1641,8 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
                     end
                 end
             end
+        end
+        if show_alert then
             update_ui_image_rot(w + 4, n + 14, atlas_icons.hud_warning, red, 0)
         end
     end
