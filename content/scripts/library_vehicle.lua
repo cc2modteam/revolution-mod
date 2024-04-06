@@ -2002,7 +2002,7 @@ function set_carrier_lifeboat_attachments_value(vehicle, value)
                     for i = 0, lifeboat:get_attachment_count()
                     do
                         if (right_shift(value, i) & 0x1) == 1 then
-                            vehicle:set_attached_vehicle_attachment(g_carrier_lifeboat_bay_index, i, e_game_object_type.attachment_camera)
+                            vehicle:set_attached_vehicle_attachment(g_carrier_lifeboat_bay_index, i, e_game_object_type.attachment_turret_carrier_camera)
                         else
                             vehicle:set_attached_vehicle_attachment(g_carrier_lifeboat_bay_index, i, -1)
                         end
@@ -2051,7 +2051,7 @@ function get_carrier_lifeboat_attachments_value(vehicle)
                     local attached = lifeboat:get_attachment(i)
                     if attached ~= nil then
                         if attached:get() then
-                            if attached:get_definition_index() == e_game_object_type.attachment_camera then
+                            if attached:get_definition_index() == e_game_object_type.attachment_turret_carrier_camera then
                                 value = value | left_shift(1, i)
                             end
                         end
