@@ -133,6 +133,8 @@ function parse()
     g_selected_bay_index = parse_s32("", g_selected_bay_index)
 end
 
+g_first_update = true
+
 function begin()
     g_is_holomap = true
     g_ui = lib_imgui:create_ui()
@@ -169,6 +171,16 @@ end
 function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
+
+    if g_first_update then
+        g_first_update = false
+
+        --local drydock = find_team_drydock(update_get_screen_team_id())
+        --print("about to add a unit")
+        --drydock:set_attached_vehicle_chassis(1, e_game_object_type.chassis_land_robot_dog)
+        --print(drydock:get_attached_vehicle_id(1))
+        --print("done")
+    end
 
     if g_is_pointer_down then
         g_pointer_hold_count = 1 + g_pointer_hold_count
