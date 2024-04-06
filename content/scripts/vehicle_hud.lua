@@ -1604,7 +1604,8 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
 
     local show_alert = false
 
-    if get_vehicle_health_factor(vehicle) < 50 then
+    if get_vehicle_health_factor(vehicle) < 0.5 then
+        red = color8(255, 0, 0, 180)
         show_alert = true
         fwd = red
         port = red
