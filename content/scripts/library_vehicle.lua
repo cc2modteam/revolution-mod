@@ -1929,6 +1929,88 @@ function get_ship_name(vehicle)
     return v
 end
 
+g_ais_dec = {
+    '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+    'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[','\\', ']', '^', '_',
+    ' ', '!', '"', '#', '$', '%', '&', '\'','(', ')', '*', '+', ',', '-', '.', '/',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?',
+}
+g_ais_enc = {}
+for ii, vv in ipairs(g_ais_dec) do
+    g_ais_enc[vv] = ii
+end
+
+
+function pack_6bit_ais_string(text)
+    local st, pvalue = pcall(function()
+        local value = 0
+        for i = 1, #text do
+            local chr = text:sub(i, i)
+            local b6 = g_ais_enc[chr]
+            if b6 ~= nil then
+                if b6 > 0 then
+                    value = left_shift(value, 6) | b6
+                end
+            end
+        end
+        return value
+        end)
+    if not st then
+        print(pvalue)
+        return 0
+    end
+
+    return pvalue
+end
+
+function unpack_6bit_ais_string(value)
+    local st, pvalue = pcall(function()
+        local text = ""
+        while true do
+            local b6 = (value & 0x3F)
+            if b6 == 0 then
+                break
+            end
+            local chr = g_ais_dec[b6]
+            text = chr .. text
+            value = right_shift(value, 6)
+        end
+        return text
+    end)
+    if not st then
+        return "error"
+    end
+    return pvalue
+end
+
+
+function pack_7bit_string(text)
+    local value = 0
+    for i = 1, #text do
+        local chr = text:sub(i, i)
+        local byte = string.byte(chr) & 0x7F  -- take lower 7 bits
+        -- left shift value by 7 bits and put our char in
+        value = left_shift(value, 7) | byte
+    end
+    return value
+end
+
+function unpack_7bit_string(value)
+    local text = ""
+    while true do
+        local byte = value & 0x7F
+        if byte == 0 then
+            break
+        end
+        local chr = string.char(byte)
+        text = chr .. text
+        value = right_shift(value, 7)
+    end
+
+    return text
+end
+
+
 function _get_ship_name(vehicle)
     set_ship_names()
     if vehicle ~= nil and vehicle:get() then
@@ -1942,23 +2024,32 @@ function _get_ship_name(vehicle)
             local perturb = g_ship_name_pseudo
 
             local ship_setting = get_carrier_lifeboat_attachments_value(vehicle)
-            if ship_setting > 0 then
-                perturb = perturb + ship_setting
-            end
 
-            local team_names = (team + perturb) % #g_ship_names_choices
+            if ship_setting < 8 then
 
-            local choices = g_ship_names_choices[1 + team_names]
+                if ship_setting > 0 then
+                    perturb = perturb + ship_setting
+                end
 
-            local cid = 1
-            if vehicle:get_special_id() ~= 0 then
-                cid = (vehicle:get_special_id() + g_ship_name_pseudo) % #choices
+                local team_names = (team + perturb) % #g_ship_names_choices
+
+                local choices = g_ship_names_choices[1 + team_names]
+
+                local cid = 1
+                if vehicle:get_special_id() ~= 0 then
+                    cid = (vehicle:get_special_id() + g_ship_name_pseudo) % #choices
+                else
+                    cid = (g_ship_name_pseudo2 % #choices)
+                end
+                local ship_name = choices[1 + cid]
+                -- local name = string.format("%s %s", string.upper(vessel_names[1 + team]), choices[1 + cid])
+                return ship_name
             else
-                cid = (g_ship_name_pseudo2 % #choices)
+                -- decode custom ship name
+                local name = unpack_6bit_ais_string(ship_setting)
+                return name
             end
-            local ship_name = choices[1 + cid]
-            -- local name = string.format("%s %s", string.upper(vessel_names[1 + team]), choices[1 + cid])
-            return ship_name
+
         end
     end
     return ""
@@ -1996,11 +2087,13 @@ g_carrier_lifeboat_bay_index = 16
 function set_carrier_lifeboat_attachments_value(vehicle, value)
     local st, err = pcall(function()
         if vehicle and vehicle:get() then
+            local bits = 0
             local lifeboat = update_get_map_vehicle_by_id(vehicle:get_attached_vehicle_id(g_carrier_lifeboat_bay_index))
             if lifeboat and lifeboat:get() then
                 if lifeboat:get_definition_index() == e_game_object_type.chassis_sea_lifeboat then
-                    for i = 0, lifeboat:get_attachment_count()
+                    for i = 0, lifeboat:get_attachment_count() - 1
                     do
+                        bits = bits + 1
                         if (right_shift(value, i) & 0x1) == 1 then
                             vehicle:set_attached_vehicle_attachment(g_carrier_lifeboat_bay_index, i, e_game_object_type.attachment_turret_carrier_camera)
                         else
@@ -2009,6 +2102,7 @@ function set_carrier_lifeboat_attachments_value(vehicle, value)
                     end
                 end
             end
+            print(string.format("lifeboat data (%d bits) - value = %d", bits, value))
         end
 
     end)
@@ -2017,18 +2111,30 @@ function set_carrier_lifeboat_attachments_value(vehicle, value)
     end
 end
 
+g_current_lifeboat_id = -1
+g_current_carrier_id = -1
 
 function get_carrier_lifeboat(carrier)
+
+    if carrier:get_id() == g_current_carrier_id then
+        if g_current_lifeboat_id ~= -1 then
+            return update_get_map_vehicle_by_id(g_current_lifeboat_id)
+        end
+    end
+
+    g_current_carrier_id = carrier:get_id()
 
     if carrier.get_attached_vehicle_id == nil then
         -- we are in the hud, find the lifeboat the crap way by finding the nearest lifeboat
         -- to this carrier.. omg...
         local lifeboat = find_nearest_vehicle(carrier, e_game_object_type.chassis_sea_lifeboat, false )
         if lifeboat and lifeboat:get() then
+            g_current_lifeboat_id = lifeboat:get_id()
             return lifeboat
         end
     else
         local lifeboat = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(g_carrier_lifeboat_bay_index))
+        g_current_lifeboat_id = lifeboat:get_id()
         return lifeboat
     end
     return nil
@@ -2040,7 +2146,7 @@ function get_carrier_lifeboat_attachments_value(vehicle)
     -- and have it readable in all scripts including the HUD.
     if vehicle and vehicle:get() then
         -- assume that this is our carrier
-        -- iterate the 4 attachments on the lifeboat, empty/present is 0/1 for that bit,
+        -- iterate the attachments on the lifeboat, empty/present is 0/1 for that bit,
         -- this gives us 0-15 we can use
         local lifeboat = get_carrier_lifeboat(vehicle)
         if lifeboat and lifeboat:get() then
@@ -2051,7 +2157,7 @@ function get_carrier_lifeboat_attachments_value(vehicle)
                     local attached = lifeboat:get_attachment(i)
                     if attached ~= nil then
                         if attached:get() then
-                            if attached:get_definition_index() == e_game_object_type.attachment_turret_carrier_camera then
+                            if attached:get_definition_index() ~= -1 then
                                 value = value | left_shift(1, i)
                             end
                         end

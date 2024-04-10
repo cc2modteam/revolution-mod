@@ -58,6 +58,19 @@ function update(screen_w, screen_h, ticks)
             end
 		end
 
+        -- this is totally stupid, I cant type 'p'
+        if false and ui:button("CUSTOM", attached, 0) then
+            if attached then
+                g_input_custom_name = true
+                g_is_text_input = true
+                g_input_text = get_ship_name(current_ship)
+            end
+        end
+
+        if g_is_text_input then
+            ui:text(g_input_text)
+        end
+
         if false then
 
             ui:header("Revolution Settings")
@@ -92,11 +105,41 @@ function update(screen_w, screen_h, ticks)
 end
 
 function input_event(event, action)
-    g_ui:input_event(event, action)
 
-    if action == e_input_action.press and  event == e_input.back then
-        update_set_screen_state_exit()
+    if g_is_text_input then
+        if action == e_input_action.release then
+            if event == e_input.text_backspace then
+                g_input_text = string.sub(g_input_text, 0, -2)
+            elseif event == e_input.text_enter then
+                g_input_text_done = true
+                g_is_text_input = false
+
+                if g_input_custom_name then
+                    -- encode the name
+                    local value = pack_6bit_ais_string(g_input_text)
+                    g_input_text = ""
+                    set_carrier_lifeboat_attachments_value(update_get_screen_vehicle(), value)
+                end
+            end
+        end
     end
+
+    if action == e_input_action.press and event == e_input.back then
+        if g_is_text_input then
+            g_input_text = ""
+            g_input_text_done = true
+            g_is_text_input = false
+        else
+            update_set_screen_state_exit()
+        end
+    end
+
+    if g_is_text_input then
+        --update_set_is_pause_simulation(false)
+    else
+        --update_set_is_pause_simulation(true)
+    end
+    g_ui:input_event(event, action)
 end
 
 function input_pointer(is_hovered, x, y)
@@ -108,5 +151,19 @@ function input_scroll(dy)
 end
 
 function input_axis(x, y, z, w)
+end
+
+
+g_is_text_input = false
+g_input_custom_name = false
+g_input_text = ""
+g_input_text_done = false
+
+function input_text(text)
+    if g_is_text_input then
+        if #g_input_text < 9 then
+            g_input_text = g_input_text .. string.upper(text)
+        end
+    end
 end
 
