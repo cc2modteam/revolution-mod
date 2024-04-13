@@ -1627,6 +1627,7 @@ function render_node_tooltip(w, h, id, type)
             local seals = barge:get_inventory_count_by_item_index(1)
             local bombs = barge:get_inventory_count_by_item_index(14) + barge:get_inventory_count_by_item_index(15) + barge:get_inventory_count_by_item_index(16)
             local missiles = barge:get_inventory_count_by_item_index(17) + barge:get_inventory_count_by_item_index(18) + barge:get_inventory_count_by_item_index(19) + barge:get_inventory_count_by_item_index(29) + barge:get_inventory_count_by_item_index(37) + barge:get_inventory_count_by_item_index(38) + barge:get_inventory_count_by_item_index(14)
+            local fuel = barge:get_inventory_count_by_item_index(36)
 
             if mantas + albs + rzrs + ptrs > 0 then
                 update_ui_image(payload_x, cy, atlas_icons.map_icon_factory_chassis_air, color_grey_dark, 0)
@@ -1641,6 +1642,11 @@ function render_node_tooltip(w, h, id, type)
             if bombs + missiles > 0 then
                 update_ui_image(payload_x, cy, atlas_icons.map_icon_factory_large_munitions, color_grey_dark, 0)
                 update_ui_rectangle(payload_x, cy + 11, 1 + (math.floor((bombs + missiles)/10)), 1, color_grey_dark)
+                payload_x = payload_x + 10
+            end
+            if fuel > 0 then
+                update_ui_image(payload_x, cy, atlas_icons.map_icon_factory_fuel, color_grey_dark, 0)
+                update_ui_rectangle(payload_x, cy + 11, 1 + math.floor(fuel/10), 1, color_grey_dark)
                 payload_x = payload_x + 10
             end
 
