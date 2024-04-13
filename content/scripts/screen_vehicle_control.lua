@@ -1399,14 +1399,17 @@ function _update(screen_w, screen_h, ticks)
                                 end
                             end
                         else
-                            local difficulty_level = island:get_difficulty_level()
-                            local icon_w = 6
-                            local icon_spacing = 2
-                            local total_w = icon_w * difficulty_level + icon_spacing * (difficulty_level - 1)
+                            local category_data = g_item_categories[island:get_facility_category()]
+                            update_ui_image(screen_pos_x - 4, screen_pos_y, category_data.icon, island_color, 0)
 
-                            for i = 0, difficulty_level - 1 do
-                                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y, atlas_icons.column_difficulty, island_color, 0)
-                            end
+                            --local difficulty_level = island:get_difficulty_level()
+                            --local icon_w = 6
+                            --local icon_spacing = 2
+                            --local total_w = icon_w * difficulty_level + icon_spacing * (difficulty_level - 1)
+
+                            --for i = 0, difficulty_level - 1 do
+                            --    update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y, atlas_icons.column_difficulty, island_color, 0)
+                            --end
                         end
                     end
                 end
