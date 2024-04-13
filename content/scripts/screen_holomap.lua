@@ -982,6 +982,9 @@ function _update(screen_w, screen_h, ticks)
                         -- render vehicle tooltip
                         local peers = iff( highlighted_vehicle:get_team() == screen_team, get_vehicle_controlling_peers(highlighted_vehicle), {} )
                         local tool_height = 21 + (#peers * 10)
+                        if vehicle_definition_index == e_game_object_type.chassis_sea_barge then
+                            tool_height = tool_height + 16
+                        end
 
                         render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, 128, tool_height, 10, function(w, h) render_vehicle_tooltip(w, h, highlighted_vehicle, peers) end)
                         
@@ -1836,6 +1839,13 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
         end
 
         cy = cy + 10
+    end
+
+    if team == update_get_screen_team_id() then
+        if vehicle_definition_index == e_game_object_type.chassis_sea_barge then
+            render_barge_cargo_tooltip(vehicle, 2, cy, color_white)
+
+        end
     end
 end
 
