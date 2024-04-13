@@ -149,8 +149,14 @@ end
 -- UPDATE
 --
 --------------------------------------------------------------------------------
-
 function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
+    real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
+    if vehicle and vehicle:get() then
+        g_last_vid = vehicle:get_id()
+    end
+end
+
+function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
     update_animations(delta_time, vehicle)
     g_notification:update(delta_time, vehicle)
 
@@ -192,12 +198,19 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
     if vehicle:get() then
         if g_is_connected then
             g_nearest_hostile_ew_radar = nil
-            if get_is_vehicle_air(vehicle:get_definition_index()) then
+            local v_def = vehicle:get_definition_index()
+            if get_is_vehicle_air(v_def) then
                 g_render_rwr = get_has_rwr(vehicle)
                 local st, err = pcall(function()
                     update_modded_radar_list(true)
                     local nearest_radar, radar_dist = get_nearest_hostile_radar(vehicle:get_id())
                     if nearest_radar ~= nil then
+                        -- the manta is a stealth jet, it's coatings reduce the sensitivity of the RWR
+                        if v_def == e_game_object_type.chassis_air_wing_heavy then
+                            if radar_dist > 10000 then
+                                nearest_radar = nil
+                            end
+                        end
                         g_nearest_hostile_ew_radar = nearest_radar
                     end
                 end)
@@ -1594,8 +1607,8 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     local red = color8(255, 0, 0, 110)
 
     local size = 11
-    local w = 32
-    local n = 100
+    local w = screen_w - 32
+    local n = 130
 
     local fwd = green
     local port = green
@@ -4104,6 +4117,14 @@ TimedHistory = {
     sample_max = 0,
     last_value = 0,
 
+    reset = function(self)
+        for k in pairs (self.data) do
+            self.data[k] = nil
+        end
+        self.last_tick = update_get_logic_tick()
+        self.last_value = 0
+    end,
+
     add_value = function(self, v)
         local tick = update_get_logic_tick()
         local sample_sum = 0
@@ -4182,6 +4203,10 @@ Variometer = {
     end,
 
     _update = function(self, vehicle)
+        if g_last_vid ~= vehicle:get_id() then
+            self.alt:reset()
+            self.fuel:reset()
+        end
         self.alt:add_value(vehicle:get_altitude())
         self.fuel:add_value(vehicle:get_fuel_factor())
     end,
@@ -4451,7 +4476,6 @@ function do_comms_error(vehicle, screen_w, screen_h)
                 end
             end
             g_last_health = hp_pct
-            g_last_vid = our_vid
         end
 
         math.randomseed(g_animation_time)
