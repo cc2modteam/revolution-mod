@@ -606,6 +606,7 @@ function begin_load_inventory_data()
             icon = atlas_icons[icon_name],
             transfer_duration = transfer_duration,
         }
+        print(string.format("%d %s", item_type, item_name))
         g_item_data[item_type] = item_object
         g_item_count = g_item_count + 1
         
@@ -702,6 +703,12 @@ g_radar_multiplier = 1
 function get_radar_multiplier()
 
     -- get_special_waypoint(update_get_screen_team_id(), F_DRYDOCK_WPTX_SETTING)
+
+    if g_override_radar_multiplier ~= nil then
+        if g_override_radar_multiplier > 0 then
+            g_radar_multiplier = g_override_radar_multiplier
+        end
+    end
 
     return g_radar_multiplier
 end

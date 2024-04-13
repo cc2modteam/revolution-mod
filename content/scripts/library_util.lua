@@ -980,3 +980,21 @@ function findif(table, pred)
 
     return nil
 end
+
+function get_setting_show_island_difficulty()
+    if g_revolution_show_island_difficulty ~= nil then
+        return g_revolution_show_island_difficulty == true
+    end
+
+    return false
+end
+
+function get_setting_show_hostile_island_types()
+    -- not sure how to work this in to all the screens yet
+
+    --if g_revolution_show_hostile_island_types ~= nil then
+    --    return g_revolution_show_hostile_island_types == true
+    --end
+
+    return true
+end

@@ -517,10 +517,26 @@ function _update(screen_w, screen_h, ticks)
 
                     update_ui_text(screen_pos_x - 64, screen_pos_y, island:get_name(), 128, 1, island_color, 0)
 
-                local category_data = g_item_categories[island:get_facility_category()]
-                update_ui_image(screen_pos_x - 4, screen_pos_y + 10, category_data.icon, island_color, 0)
+                    local category_data = g_item_categories[island:get_facility_category()]
+                    if get_setting_show_island_difficulty() and island:get_team_control() ~= screen_team then
+                        local difficulty_level = island:get_difficulty_level() + 2
+                        local icon_w = 6
+                        local icon_spacing = 2
+                        local total_w = icon_w * difficulty_level + icon_spacing * (difficulty_level - 1)
 
+                        for i = 0, difficulty_level - 1 do
+                            if i == 0 then
+                                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + 10, category_data.icon, island_color, 0)
+                            elseif i >= 2 then
+                                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + 10, atlas_icons.column_difficulty, island_color, 0)
+                            end
+                        end
+                    else
+                        if get_setting_show_hostile_island_types() or island:get_team_control() == screen_team then
+                            update_ui_image(screen_pos_x - 4, screen_pos_y + 10, category_data.icon, island_color, 0)
+                        end
                     end
+                end
             end
 
             if on_screen_count == visible_on_screen_count then
