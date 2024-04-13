@@ -1436,7 +1436,10 @@ end
 function get_has_rwr(vehicle)
     if vehicle and vehicle:get() then
         local def = vehicle:get_definition_index()
-        if def == e_game_object_type.chassis_air_wing_heavy or def == e_game_object_type.chassis_air_rotor_light then
+        if def == e_game_object_type.chassis_air_wing_heavy
+                or def == e_game_object_type.chassis_air_rotor_heavy
+                or def == e_game_object_type.chassis_air_rotor_light
+        then
             return true
         end
     end
