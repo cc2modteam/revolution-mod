@@ -1537,6 +1537,13 @@ function render_map_facility_queue(x, y, w, h, tile)
 end
 
 function get_node_tooltip_h(tooltip_w, id, type)
+    if type == g_node_types.barge then
+        local barge = update_get_map_vehicle_by_id(id)
+        if barge and barge:get() then
+            return 23 + 18
+        end
+    end
+
     if type == g_node_types.tile then
         local tile = update_get_tile_by_id(id)
         local category_data = g_item_categories[tile:get_facility_category()]
@@ -1606,6 +1613,37 @@ function render_node_tooltip(w, h, id, type)
             update_ui_rectangle(60, cy + 3, bar_w, 3, color_grey_dark)
             update_ui_rectangle(60, cy + 3, bar_w * get_barge_transfer_progress(barge), 3, g_map_colors.progress)
             update_ui_image(w - 12, cy, atlas_icons.column_stock, color_grey_dark, 0)
+
+            cy = cy + 10
+            local payload_x = 18
+            -- update_ui_image(18, cy, atlas_icons.column_weight, color_grey_dark, 0)
+            -- show the barge payload
+            local mantas = barge:get_inventory_count_by_item_index(5)
+            local albs = barge:get_inventory_count_by_item_index(4)
+            local rzrs = barge:get_inventory_count_by_item_index(6)
+            local ptrs = barge:get_inventory_count_by_item_index(7)
+            local bears = barge:get_inventory_count_by_item_index(3)
+            local wlrs = barge:get_inventory_count_by_item_index(2)
+            local seals = barge:get_inventory_count_by_item_index(1)
+            local bombs = barge:get_inventory_count_by_item_index(14) + barge:get_inventory_count_by_item_index(15) + barge:get_inventory_count_by_item_index(16)
+            local missiles = barge:get_inventory_count_by_item_index(17) + barge:get_inventory_count_by_item_index(18) + barge:get_inventory_count_by_item_index(19) + barge:get_inventory_count_by_item_index(29) + barge:get_inventory_count_by_item_index(37) + barge:get_inventory_count_by_item_index(38) + barge:get_inventory_count_by_item_index(14)
+
+            if mantas + albs + rzrs + ptrs > 0 then
+                update_ui_image(payload_x, cy, atlas_icons.map_icon_factory_chassis_air, color_grey_dark, 0)
+                update_ui_rectangle(payload_x, cy + 11, mantas + albs + rzrs + ptrs, 1, color_grey_dark)
+                payload_x = payload_x + 10
+            end
+            if seals + wlrs + bears > 0 then
+                update_ui_image(payload_x, cy, atlas_icons.map_icon_factory_chassis_land, color_grey_dark, 0)
+                update_ui_rectangle(payload_x, cy + 11, seals + wlrs + bears, 1, color_grey_dark)
+                payload_x = payload_x + 10
+            end
+            if bombs + missiles > 0 then
+                update_ui_image(payload_x, cy, atlas_icons.map_icon_factory_large_munitions, color_grey_dark, 0)
+                update_ui_rectangle(payload_x, cy + 11, 1 + (math.floor((bombs + missiles)/10)), 1, color_grey_dark)
+                payload_x = payload_x + 10
+            end
+
         end
     elseif type == g_node_types.tile then
         local tile = update_get_tile_by_id(id)
