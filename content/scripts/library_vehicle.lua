@@ -606,7 +606,6 @@ function begin_load_inventory_data()
             icon = atlas_icons[icon_name],
             transfer_duration = transfer_duration,
         }
-        print(string.format("%d %s", item_type, item_name))
         g_item_data[item_type] = item_object
         g_item_count = g_item_count + 1
         

@@ -3951,3 +3951,46 @@ function imgui_item_description(ui, vehicle, item_data, is_inventory, is_active)
 
     ui:spacer(10)
 end
+
+function render_barge_cargo_tooltip(vehicle, cx, cy, color)
+    if color == nil then
+        color = color_grey_dark
+    end
+    local payload_x = cx
+    -- update_ui_image(18, cy, atlas_icons.column_weight, color_grey_dark, 0)
+    -- show the barge payload
+    local mantas = vehicle:get_inventory_count_by_item_index(5)
+    local albs = vehicle:get_inventory_count_by_item_index(4)
+    local rzrs = vehicle:get_inventory_count_by_item_index(6)
+    local ptrs = vehicle:get_inventory_count_by_item_index(7)
+    local bears = vehicle:get_inventory_count_by_item_index(3)
+    local wlrs = vehicle:get_inventory_count_by_item_index(2)
+    local seals = vehicle:get_inventory_count_by_item_index(1)
+    local mules = vehicle:get_inventory_count_by_item_index(58)
+    local bombs = vehicle:get_inventory_count_by_item_index(14) + vehicle:get_inventory_count_by_item_index(15) + vehicle:get_inventory_count_by_item_index(16)
+    local missiles = vehicle:get_inventory_count_by_item_index(17) + vehicle:get_inventory_count_by_item_index(18) + vehicle:get_inventory_count_by_item_index(19) + vehicle:get_inventory_count_by_item_index(29) + vehicle:get_inventory_count_by_item_index(37) + vehicle:get_inventory_count_by_item_index(38) + vehicle:get_inventory_count_by_item_index(14)
+    local fuel = vehicle:get_inventory_count_by_item_index(36)
+
+    if mantas + albs + rzrs + ptrs > 0 then
+        update_ui_image(payload_x, cy, atlas_icons.map_icon_factory_chassis_air, color, 0)
+        update_ui_rectangle(payload_x, cy + 11, mantas + albs + rzrs + ptrs, 1, color)
+        payload_x = payload_x + 10
+    end
+    if seals + wlrs + bears + mules > 0 then
+        update_ui_image(payload_x, cy, atlas_icons.map_icon_factory_chassis_land, color, 0)
+        update_ui_rectangle(payload_x, cy + 11, seals + wlrs + bears + mules, 1, color)
+        payload_x = payload_x + 10
+    end
+    if bombs + missiles > 0 then
+        update_ui_image(payload_x, cy, atlas_icons.map_icon_factory_large_munitions, color, 0)
+        update_ui_rectangle(payload_x, cy + 11, 1 + (math.floor((bombs + missiles) / 10)), 1, color)
+        payload_x = payload_x + 10
+    end
+    if fuel > 0 then
+        update_ui_image(payload_x, cy, atlas_icons.map_icon_factory_fuel, color, 0)
+        update_ui_rectangle(payload_x, cy + 11, 1 + math.floor(fuel / 10), 1, color)
+        payload_x = payload_x + 10
+    end
+
+    return cy
+end
