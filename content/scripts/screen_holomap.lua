@@ -518,23 +518,8 @@ function _update(screen_w, screen_h, ticks)
                     update_ui_text(screen_pos_x - 64, screen_pos_y, island:get_name(), 128, 1, island_color, 0)
 
                 local category_data = g_item_categories[island:get_facility_category()]
-
-                if island:get_team_control() ~= screen_team then
-                local difficulty_level = island:get_difficulty_level() + 2
-                local icon_w = 6
-                local icon_spacing = 2
-                local total_w = icon_w * difficulty_level + icon_spacing * (difficulty_level - 1)
-
-                for i = 0, difficulty_level - 1 do
-                if i == 0 then
-                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + 10, category_data.icon, island_color, 0)
-                elseif i >= 2 then
-                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + 10, atlas_icons.column_difficulty, island_color, 0)
-                end
-                end
-                else
                 update_ui_image(screen_pos_x - 4, screen_pos_y + 10, category_data.icon, island_color, 0)
-                    end
+
                     end
             end
 
@@ -548,7 +533,7 @@ function _update(screen_w, screen_h, ticks)
             end
 
         else
-            -- zoomed out, draw squares for islands
+            -- zoomed out, draw just icons for islands
             local island_count = update_get_tile_count()
             for i = 0, island_count - 1, 1 do
                 local island = update_get_tile_by_index(i)
@@ -563,7 +548,9 @@ function _update(screen_w, screen_h, ticks)
                     screen_pos_x, screen_pos_y = get_holomap_from_world(island_pos:x(), island_pos:y(), screen_w, screen_h)
                     screen_pos_y = screen_pos_y - 27
 
-                    update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 4, 8, 8, island_color)
+                    local category_data = g_item_categories[island:get_facility_category()]
+                    update_ui_image(screen_pos_x - 4, screen_pos_y + 10, category_data.icon, island_color, 0)
+                    --update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 4, 8, 8, island_color)
                 end
 
             end

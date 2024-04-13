@@ -160,14 +160,7 @@ function update(screen_w, screen_h, ticks)
                         update_ui_text(screen_pos_x - 64, screen_pos_y - 9, island:get_name(), 128, 1, island_color, 0)
                                     
                         if island:get_team_control() ~= update_get_screen_team_id() then
-                            local difficulty_level = island:get_difficulty_level()
-                            local icon_w = 6
-                            local icon_spacing = 2
-                            local total_w = icon_w * difficulty_level + icon_spacing * (difficulty_level - 1)
 
-                            for i = 0, difficulty_level - 1 do
-                                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y, atlas_icons.column_difficulty, island_color, 0)
-                            end
                         end
                     end
                 end
