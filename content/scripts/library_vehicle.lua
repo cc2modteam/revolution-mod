@@ -685,10 +685,10 @@ g_nearest_friendly_radar = {}
 
 
 g_radar_ranges = {
-    ciws = 5000,
-    torpedo = 3500,
-    cruise_missile = 6000,
-    naval_gun = 2000,
+    ciws = 11000,
+    torpedo = 9000,
+    cruise_missile = 12000,
+    naval_gun = 4500,
     awacs = 11000,
     carrier = 10000,
     golfball = 10000,
