@@ -563,7 +563,7 @@ function _update(screen_w, screen_h, ticks)
                     screen_pos_x, screen_pos_y = get_holomap_from_world(island_pos:x(), island_pos:y(), screen_w, screen_h)
                     screen_pos_y = screen_pos_y - 27
 
-                    update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 4, 8, 8, island_color)
+                    update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, island_color, 0)
                 end
 
             end
