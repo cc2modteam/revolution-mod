@@ -1523,12 +1523,27 @@ function _update(screen_w, screen_h, ticks)
                 local def = weapon_radius_vehicle:get_definition_index()
 
                 if get_has_modded_radar(weapon_radius_vehicle) then
+<<<<<<< Updated upstream
                     -- render needlefish radar circles
                     local radar_radius = get_modded_radar_range(weapon_radius_vehicle)
                     if radar_radius > 0 then
                         local vehicle_pos_xz = weapon_radius_vehicle:get_position_xz()
                         render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), radar_radius, color8(8, 8, 48, 64))
                     end
+=======
+					-- render needlefish radar circles
+                    if weapon_radius_vehicle:get_team() == update_get_screen_team_id() or weapon_radius_vehicle:get_is_observation_weapon_revealed() 
+					then
+						if weapon_radius_vehicle:get_team() == update_get_screen_team_id() or weapon_radius_vehicle:get_is_observation_weapon_revealed() 
+						then
+							local radar_radius = get_modded_radar_range(weapon_radius_vehicle)
+							if radar_radius > 0 then
+								local vehicle_pos_xz = weapon_radius_vehicle:get_position_xz()
+								render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), radar_radius, color8(8, 8, 48, 64))
+							end
+						end
+					end
+>>>>>>> Stashed changes
                 end
 
                 if def ~= e_game_object_type.chassis_carrier then
