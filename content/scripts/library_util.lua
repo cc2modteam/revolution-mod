@@ -983,6 +983,6 @@ end
 
 -- settings, these are set by library_enum.lua if that is also moddedm
 if g_revolution_hide_island_difficulty == nil then
-    -- default hide shields
-    g_revolution_hide_island_difficulty = true
+    -- default do not hide shields
+    g_revolution_hide_island_difficulty = false
 end
