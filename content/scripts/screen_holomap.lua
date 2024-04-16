@@ -501,40 +501,43 @@ function _update(screen_w, screen_h, ticks)
 
                     local command_center_count = island:get_command_center_count()
                     if command_center_count > 0 then
-                    --local command_center_position = island:get_command_center_position(0)
-                    --local cmd_pos_x, cmd_pos_y = get_holomap_from_world(command_center_position:x(), command_center_position:y(), screen_w, screen_h)
+                        --local command_center_position = island:get_command_center_position(0)
+                        --local cmd_pos_x, cmd_pos_y = get_holomap_from_world(command_center_position:x(), command_center_position:y(), screen_w, screen_h)
+                        local island_icon_y = 10
+                        local island_capture = island:get_team_capture()
+                        local island_team = island:get_team_control()
+                        local island_capture_progress = island:get_team_capture_progress()
+                        local team_color = update_get_team_color(island_capture)
 
-                    local island_capture = island:get_team_capture()
-                    local island_team = island:get_team_control()
-                    local island_capture_progress = island:get_team_capture_progress()
-                    local team_color = update_get_team_color(island_capture)
+                        if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
+                            update_ui_rectangle_outline(screen_pos_x - 13, screen_pos_y - 6, 26, 5, team_color)
+                            update_ui_rectangle(screen_pos_x - 12, screen_pos_y - 5, 24 * island_capture_progress, 3, team_color)
+                        end
 
-                    if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
-                    update_ui_rectangle_outline(screen_pos_x - 13, screen_pos_y - 6, 26, 5, team_color)
-                    update_ui_rectangle(screen_pos_x - 12, screen_pos_y - 5, 24 * island_capture_progress, 3, team_color)
-                    end
-                    end
+                        update_ui_text(screen_pos_x - 64, screen_pos_y, island:get_name(), 128, 1, island_color, 0)
 
-                    update_ui_text(screen_pos_x - 64, screen_pos_y, island:get_name(), 128, 1, island_color, 0)
+                        local category_data = g_item_categories[island:get_facility_category()]
+                        if (not g_revolution_hide_island_difficulty) and island:get_team_control() ~= screen_team then
+                            local difficulty_level = island:get_difficulty_level() + 2
+                            local icon_w = 6
+                            local icon_spacing = 2
+                            local total_w = icon_w * difficulty_level + icon_spacing * (difficulty_level - 1)
 
-                    local category_data = g_item_categories[island:get_facility_category()]
-                    if get_setting_show_island_difficulty() and island:get_team_control() ~= screen_team then
-                        local difficulty_level = island:get_difficulty_level() + 2
-                        local icon_w = 6
-                        local icon_spacing = 2
-                        local total_w = icon_w * difficulty_level + icon_spacing * (difficulty_level - 1)
-
-                        for i = 0, difficulty_level - 1 do
-                            if i == 0 then
-                                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + 10, category_data.icon, island_color, 0)
-                            elseif i >= 2 then
-                                update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + 10, atlas_icons.column_difficulty, island_color, 0)
+                            for i = 0, difficulty_level - 1 do
+                                if i == 0 then
+                                    if not g_revolution_hide_island_difficulty then
+                                        update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + island_icon_y, category_data.icon, island_color, 0)
+                                    end
+                                elseif i >= 2 then
+                                    update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + island_icon_y, atlas_icons.column_difficulty, island_color, 0)
+                                end
                             end
                         end
-                    else
-                        if get_setting_show_hostile_island_types() or island:get_team_control() == screen_team then
-                            update_ui_image(screen_pos_x - 4, screen_pos_y + 10, category_data.icon, island_color, 0)
+
+                        if island:get_team_control() == screen_team then
+                            update_ui_image(screen_pos_x - 4, screen_pos_y + island_icon_y + 10, category_data.icon, island_color, 0)
                         end
+
                     end
                 end
             end
@@ -565,8 +568,13 @@ function _update(screen_w, screen_h, ticks)
                     screen_pos_y = screen_pos_y - 27
 
                     local category_data = g_item_categories[island:get_facility_category()]
-                    update_ui_image(screen_pos_x - 4, screen_pos_y + 10, category_data.icon, island_color, 0)
-                    --update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 4, 8, 8, island_color)
+                    local icon = category_data.icon
+                    if not visible then
+                        if g_revolution_hide_hostile_island_types then
+                            icon = atlas_icons.map_icon_island
+                        end
+                    end
+                    update_ui_image(screen_pos_x - 4, screen_pos_y + 10, icon, island_color, 0)
                 end
 
             end

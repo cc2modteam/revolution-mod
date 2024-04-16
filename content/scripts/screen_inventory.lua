@@ -231,6 +231,8 @@ function update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
 
+    refresh_fow_islands()
+
     local st, err = pcall(update_barge_cap, ticks)
     if not st then
         print(err)
@@ -971,13 +973,23 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
             local name = tile:get_name()
             local name_factor = clamp(invlerp(g_tab_map.camera_size,  g_tab_map.camera_size_min, g_tab_map.camera_size_max * 0.35), 0, 1)
             local tile_size = tile:get_size()
+            local visible = fow_island_visible(tile:get_id())
+            local icon = category_data.icon
+            if not visible then
+                if g_revolution_hide_hostile_island_types then
+                    icon = atlas_icons.map_icon_damage_indicator
+                end
+            end
+
             local name_pos_x, name_pos_y = get_screen_from_world(tile_position:x(), tile_position:y() + tile_size:y() / 2, g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
 
             update_ui_text(name_pos_x - 100, math.min(screen_pos_y - 14, name_pos_y), name, 200, 1, color8_lerp(color8(0, 255, 255, 10), color_empty, name_factor), 0)
 
             update_ui_rectangle(screen_pos_x - 5, screen_pos_y - 4, 10, 8, tile_icon_bg)
             update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 5, 8, 10, tile_icon_bg)
-            update_ui_image(screen_pos_x - 4, screen_pos_y - 4, category_data.icon, tile_col, 0)
+            if icon then
+                update_ui_image(screen_pos_x - 4, screen_pos_y - 4, icon, tile_col, 0)
+            end
         end
         
         if tile:get_team_control() == vehicle_team then
@@ -1552,9 +1564,10 @@ function get_node_tooltip_h(tooltip_w, id, type)
             local is_player_tile = tile:get_team_control() == update_get_screen_team_id()
 
             if is_player_tile == false then
+                local visible = fow_island_visible(id) or not g_revolution_hide_hostile_island_types
                 local unlocks = get_tile_blueprint_unlocks(tile)
 
-                if #unlocks > 0 then
+                if visible and #unlocks > 0 then
                     local cx = 18
                     local cy = 13
 
@@ -1660,11 +1673,22 @@ function render_node_tooltip(w, h, id, type)
                 end
             else
                 local unlocks = get_tile_blueprint_unlocks(tile)
+                local tile_icon = category_data.icon
+                local tile_text = category_data.name
+                local visible = true
+                if g_revolution_hide_hostile_island_types then
+                    visible = fow_island_visible(id)
+                    if not visible then
+                        tile_text = "insufficiant data"
+                        tile_icon = atlas_icons.map_icon_island
+                        unlocks = {}
+                    end
+                end
 
-                if #unlocks > 0 then
+                if visible and #unlocks > 0 then
                     local cy = 3
-                    update_ui_image(5, cy, category_data.icon, color_grey_dark, 0)
-                    update_ui_text(18, cy, category_data.name, 200, 0, color_grey_dark, 0)
+                    update_ui_image(5, cy, tile_icon, color_grey_dark, 0)
+                    update_ui_text(18, cy, tile_text, 200, 0, color_grey_dark, 0)
 
                     cy = cy + 10
                     update_ui_image(8, cy + 4, atlas_icons.icon_tree_next, color_grey_dark, 0)
@@ -1688,8 +1712,8 @@ function render_node_tooltip(w, h, id, type)
                     end
                 else
                     local cy = h / 2 - 4
-                    update_ui_image(5, cy, category_data.icon, color_grey_dark, 0)
-                    update_ui_text(18, cy, category_data.name, 200, 0, color_grey_dark, 0)
+                    update_ui_image(5, cy, tile_icon, color_grey_dark, 0)
+                    update_ui_text(18, cy, tile_text, 200, 0, color_grey_dark, 0)
                 end
             end
         end

@@ -415,11 +415,25 @@ function get_is_vehicle_land(definition_index)
 end
 
 function get_is_vehicle_airliftable(definition_index)
+    if g_mod_allow_airlift ~= nil then
+        -- eg,
+        -- g_mod_allow_airlift = {
+        --  e_game_object_type.chassis_land_wheel_heavy = false,
+        --  e_game_object_type.chassis_land_wheel_medium = true,
+        -- }
+        --
+        local entry = g_mod_allow_airlift[definition_index]
+        if entry ~= nil then
+            return entry
+        end
+    end
+
     return definition_index == e_game_object_type.chassis_land_wheel_heavy
         or definition_index == e_game_object_type.chassis_land_wheel_medium
         or definition_index == e_game_object_type.chassis_land_wheel_light
         or definition_index == e_game_object_type.chassis_land_robot_dog
         or definition_index == e_game_object_type.chassis_land_wheel_mule
+        or definition_index == e_game_object_type.chassis_deployable_droid
 end
 
 function get_attack_type_icon(attack_type)

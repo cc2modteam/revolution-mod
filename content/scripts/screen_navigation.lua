@@ -159,7 +159,7 @@ function update(screen_w, screen_h, ticks)
                                     
                         update_ui_text(screen_pos_x - 64, screen_pos_y - 9, island:get_name(), 128, 1, island_color, 0)
                                     
-                        if get_setting_show_island_difficulty() and island:get_team_control() ~= update_get_screen_team_id() then
+                        if (not g_revolution_hide_island_difficulty) and island:get_team_control() ~= update_get_screen_team_id() then
                             local difficulty_level = island:get_difficulty_level()
                             local icon_w = 6
                             local icon_spacing = 2
