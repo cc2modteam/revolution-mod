@@ -1399,7 +1399,7 @@ function _update(screen_w, screen_h, ticks)
                                 end
                             end
                         else
-                            if get_setting_show_island_difficulty() then
+                            if not g_revolution_hide_island_difficulty then
                                 local difficulty_level = island:get_difficulty_level()
                                 local icon_w = 6
                                 local icon_spacing = 2
