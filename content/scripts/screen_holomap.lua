@@ -525,7 +525,7 @@ function _update(screen_w, screen_h, ticks)
 
                             for i = 0, difficulty_level - 1 do
                                 if i == 0 then
-                                    if not g_revolution_hide_island_difficulty then
+                                    if not g_revolution_hide_hostile_island_types then
                                         update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y + island_icon_y, category_data.icon, island_color, 0)
                                     end
                                 elseif i >= 2 then
