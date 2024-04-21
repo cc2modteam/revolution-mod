@@ -1050,8 +1050,8 @@ end
 function update_modded_radar_data()
     -- find all radars
     local current_tick = update_get_logic_tick()
-    local next_air_scan = g_radar_last_air_scan + 60
-    local next_sea_scan = g_radar_last_sea_scan + 121
+    local next_air_scan = g_radar_last_air_scan + 15
+    local next_sea_scan = g_radar_last_sea_scan + 32
     local user_connected = true
     local script_id = string.format("%s", _G)
     if not update_get_is_focus_local() then
@@ -1108,7 +1108,7 @@ function update_modded_radar_data()
             if get_is_vehicle_land(vdef) then
                 -- ignore land units
             else
-                if get_vehicle_docked(vehicle) or (get_is_vehicle_air(vdef) and get_unit_altitude(vehicle) < 50) then
+                if get_vehicle_docked(vehicle) or (get_is_vehicle_air(vdef) and get_unit_altitude(vehicle) < 65) then
                     -- ignore docked or landed
                 else
                     local target_is_air = get_is_vehicle_air(vdef)
@@ -1116,7 +1116,7 @@ function update_modded_radar_data()
 
                     if update_sea and target_is_sea or update_air and target_is_air then
                         local radar_return_power = 0
-                        local nearest_hostile_radar_dist_sq = 99999
+                        local nearest_hostile_radar_dist_sq = 999999
                         for _, radar in pairs(g_all_radars) do
                             local radar_id = radar.id
                             local radar_vehicle = update_get_map_vehicle_by_id(radar_id)
