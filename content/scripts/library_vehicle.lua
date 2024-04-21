@@ -707,7 +707,7 @@ g_radar_ranges = {
     carrier = 10000,
     golfball = 10000,
 }
-g_radar_debug = false
+
 g_radar_last_sea_scan = 0
 g_radar_last_air_scan = 0
 g_radar_min_return_power = 0.00018
@@ -1088,7 +1088,7 @@ function update_modded_radar_data()
     end
 
     if g_radar_debug then
-        print(string.format("update %s air=%s sea=%s local=%s", script_id, update_air, update_sea, user_connected))
+        -- print(string.format("update %s air=%s sea=%s local=%s", script_id, update_air, update_sea, user_connected))
     end
 
     if update_sea then
@@ -1115,6 +1115,10 @@ function update_modded_radar_data()
                     local target_is_sea = get_is_vehicle_sea(vdef)
 
                     if update_sea and target_is_sea or update_air and target_is_air then
+                        g_seen_by_friendly_radars[vid] = nil
+                        g_nearest_hostile_radar[vid] = nil
+                        g_seen_by_hostile_radars[vid] = nil
+
                         local radar_return_power = 0
                         local nearest_hostile_radar_dist_sq = 999999
                         for _, radar in pairs(g_all_radars) do
@@ -1126,9 +1130,6 @@ function update_modded_radar_data()
                                 if radar_team ~= vteam then
                                     local radar_range = get_modded_radar_range(radar_vehicle)
                                     if update_sea and target_is_sea then
-                                        g_seen_by_friendly_radars[vid] = nil
-                                        g_nearest_hostile_radar[vid] = nil
-                                        g_seen_by_hostile_radars[vid] = nil
                                         -- target is a ship
                                         local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
                                         if target_dist_sq < (radar_range * radar_range) then
@@ -1144,9 +1145,6 @@ function update_modded_radar_data()
                                             end
                                         end
                                     else
-                                        g_seen_by_friendly_radars[vid] = nil
-                                        g_nearest_hostile_radar[vid] = nil
-                                        g_seen_by_hostile_radars[vid] = nil
                                         -- update air
                                         if screen_team ~= radar_team then
                                             -- update our nails
@@ -1339,7 +1337,8 @@ function get_rcs(vehicle)
                                     a_def ~= e_game_object_type.attachment_turret_gimbal_30mm and
                                     a_def ~= e_game_object_type.attachment_turret_droid and
                                     a_def ~= e_game_object_type.attachment_flare_launcher and
-                                    a_def ~= e_game_object_type.attachment_turret_rocket_pod
+                                    a_def ~= e_game_object_type.attachment_turret_rocket_pod and
+                                    a_def ~= e_game_object_type.attachment_radar_awacs
                             then
                                 if attachment then
                                     local ammo = 0
