@@ -1231,14 +1231,17 @@ end
 -- fog of war mod --
 
 g_fow_visible = {}
-g_fow_range = 16000
+g_fow_last_tick = 0
+g_fow_range = 12000 * get_radar_multiplier()
 
 g_island_color_unknown = color8(0x12, 0x12, 0x12, 0xff)
 
 function refresh_fow_islands()
-    -- only do this every 2.5 seconds
+    -- only do this every 2 seconds
     local now = update_get_logic_tick()
-    if now % 150 == 0 then
+
+    if g_fow_last_tick + 60 < now then
+        g_fow_last_tick = now
         g_fow_visible = {}
         local visible = 0
         -- reveal any island within 16km of one of our units
@@ -1262,6 +1265,10 @@ function refresh_fow_islands()
                             local unit_pos = vehicle:get_position_xz()
                             local dist = vec2_dist(unit_pos, pos)
                             if dist < g_fow_range then
+                                --print(string.format("%s visible at %d km (< %d km)", island:get_name(),
+                                --        math.floor(dist/1000),
+                                --        math.floor(g_fow_range/1000)
+                                --))
                                 g_fow_visible[island_id] = true
                                 visible = visible + 1
                                 break
