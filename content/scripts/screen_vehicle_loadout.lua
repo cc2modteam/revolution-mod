@@ -33,7 +33,6 @@ function get_selected_chassis_options(bay_index)
             { region=atlas_icons.icon_chassis_16_wheel_medium, type=e_game_object_type.chassis_land_wheel_medium },
             { region=atlas_icons.icon_chassis_16_wheel_large, type=e_game_object_type.chassis_land_wheel_heavy },
             { region=atlas_icons.icon_chassis_16_wheel_mule, type=e_game_object_type.chassis_land_wheel_mule },
-            { region=atlas_icons.icon_chassis_16_droid, type=e_game_object_type.chassis_deployable_droid },
         }
     else
         return {
@@ -257,12 +256,13 @@ function update(screen_w, screen_h, ticks)
                 update_ui_image(4, cy, atlas_icons.icon_ammo, color_white, 0)
                 update_ui_text(13, cy, string.format("%.0f%%", attached_vehicle:get_ammo_factor() * 100), 64, 0, color_status_ok, 0)
 
-                if get_is_vehicle_air(vehicle_definition_index) and update_get_is_focus_local() then
+                if get_is_vehicle_air(vehicle_definition_index) and update_get_is_focus_local() and get_rcs_model_enabled() then
                     -- show RCS
                     cy = cy + 10
                     local rcs = get_rcs(attached_vehicle)
                     update_ui_image(4, cy, atlas_icons.column_controlling_peer, color_white, 0)
                     update_ui_text(13, cy, string.format("%1.2fm", rcs), 64, 0, color_status_ok, 0)
+                    update_ui_text(43, cy-2, "2", 64, 0, color_status_ok, 0)
 
                     cy = cy + 10
                     local drange = get_rcs_detection_range(rcs)

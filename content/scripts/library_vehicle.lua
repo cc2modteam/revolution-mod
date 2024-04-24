@@ -986,13 +986,17 @@ function get_radar_power(vid)
 end
 
 function get_is_masked_by_stealth(vehicle)
-    if vehicle and vehicle:get() then
-        if get_vehicle_team_id(vehicle) ~= update_get_screen_team_id() then
-            local vdef = vehicle:get_definition_index()
-            if get_is_vehicle_air(vdef) then
-                local pwr = get_radar_power(vehicle:get_id())
-                if pwr < g_radar_min_return_power then
-                    return true
+    if get_rcs_model_enabled() then
+        if vehicle and vehicle:get() then
+            if get_vehicle_team_id(vehicle) ~= update_get_screen_team_id() then
+                local vdef = vehicle:get_definition_index()
+                if get_is_vehicle_air(vdef) then
+                    local pwr = get_radar_power(vehicle:get_id())
+                    if pwr > 0 then
+                        if pwr < g_radar_min_return_power then
+                            return true
+                        end
+                    end
                 end
             end
         end
@@ -1316,9 +1320,13 @@ g_rcs_cache = {}
 
 function get_rcs(vehicle)
     local rcs = nil
+
     if vehicle and vehicle:get() then
         local vdef = vehicle:get_definition_index()
         if get_is_vehicle_air(vdef) then
+            if not get_rcs_model_enabled() then
+                return 2.3 -- yields 10km range for a 10km radar
+            end
             local is_manta = vdef == e_game_object_type.chassis_air_wing_heavy
             rcs = g_vehicle_rcs[vdef]
             if rcs ~= nil then
@@ -1382,6 +1390,12 @@ function get_rcs(vehicle)
                                 rcs = 1.5
                             end
                         end
+                    end
+
+                    if rcs > 2.5 then
+                        rcs = 2.5
+                    elseif rcs < 1.7 then
+                        rcs = 1.7
                     end
                 end
             end
@@ -2178,4 +2192,11 @@ end
 
 function get_radar_interference(vehicle, radar)
     return false
+end
+
+function get_rcs_model_enabled()
+    if g_revolution_enable_rcs ~= nil then
+        return g_revolution_enable_rcs
+    end
+    return true
 end
