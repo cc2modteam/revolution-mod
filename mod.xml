@@ -1,64 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Revolution 1.2" author="Thumblegudget, Bredroll, QuantX" description="
-The Revolution mod (v1.2) brings Radar enhancements and introduces a more immersive fog-of-war for island
-captures.
+<data name="Revolution 1.3 beta" author="Thumblegudget, Bredroll, QuantX" description="
+The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
+other enhancements.
+
+[b]This is the Beta Version of Revolution[/b]
 
 For fully details on what the mod does, how you can contribute or request features see
 [url=https://cc2maps.com/revolution-mod/]https://cc2maps.com/revolution-mod/[/url]
 
 The mod is based on UI Enhancer and Albatross AWACS, so you get those amazing benefits included.
-
-[h2]Enhanced Radar Sim[/h2]
-
-[list]
-[*] Manta can fly in 'stealth' configuration if you fit smaller/fewer hardpoint attachments, significantly reduce
-   their RADAR detection range.
-[*] Razorbill and Manta gain a RWR that can detect hostile radar sources
-[*] Razorbill gains the option of using a twin barrelled nose mounted gun
-[*] Walrus can now use the 100mm heavy cannon
-[*] Bear can now mount TV missiles on it's utility slots.
-[*] AWACS now has increased range if you fly above 1600m, up to a max of 12km.
-[*] Ground clutter/wave height are now considered when tracking low level aircraft in operator screens.
-[*] Flying below 40-50m you can try sneak in under your opponent's Radar.
-[*] CIWS fish can detect hostile aircraft at 5km
-[*] Torpedo fish can detect ships at 3.5km
-[*] Cruise Missile fish can detect ships at 6km
-[*] Gun fish can detect ships at 2km
-[*] All Needlefish can see ships and aircraft that are closer than 0.5km.
-[*] AWACS and Golfball RADAR HUDs now show useful tactical air-map details
-[/list]
-
-[h2]Fog of War[/h2]
-
-The color (team) of a hostile island will be hidden until you bring a unit within range of it. No more will
-capturing an AI controlled island give away your position 100km away.
-
-[h2]Barge Cap[/h2]
-
-[list]
-[*] Barge islands now serve as control nodes for your barges, each island lets you control two extra barges (plus a base two to start with)
-[*] Barge camera (HUD) video streams can be jammed by enemy carriers. If your barge gets very close (<200m) to a hostile carrier, you will get increasingly more signal degredation until your video drops out.
-[/list]
-
-For example:
-If your team has 2 carriers, and you control 2 barge islands, you will be able to build a maximum of 1 + 2 + 4 = 7 barges.
-If your team has 1 carrier, and one barge island, you'll be able to build no more than 1 + 1 + 2 = 4 total barges.
-
-If you lose an island or carrier, your barges won't go away, you just won't be able to build more than the cap for what
-you have.
-
-[h2]General Info[/h2]
-
-This is merged with 2 other mods:
-
-Albatross AWACS swaps the AWACS-carrying capability from the Manta to the Albatross - By Thumblegudget
-Also includes UI enhancer - By QuantX
-
-[h2]Credits[/h2]
-
-Thank-you to QuantX for UI Enhancer. And to Mr Scoot for showing how deep you can dive with modding CC2.
-
-Thanks also to Kazzik, CylindricalBobcat, Thumblegudget, RolandLoop, Pupboy1000 and Pointclearius and Delta Fleet for help testing the mod.
 
 ">
 </data>
