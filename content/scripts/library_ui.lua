@@ -2730,11 +2730,42 @@ function imgui_carrier_docking_bays(ui, carrier_vehicle, item_spacing, column_sp
     return selected_bay_index, is_action
 end
 
+function get_override_vehicle_loadout_rows(vehicle_definition_index)
+
+    if g_revolution_override_attachment_options ~= nil then
+        -- overrides available
+        local ov_type = g_revolution_override_attachment_options[vehicle_definition_index]
+        if ov_type ~= nil then
+            if ov_type["rows"] ~= nil then
+                return ov_type["rows"]
+            end
+        end
+    end
+    return nil
+end
+
+function get_override_vehicle_loadout_options(vehicle_definition_index, attachment_index)
+    if g_revolution_override_attachment_options ~= nil then
+        -- overrides available
+        local ov_type = g_revolution_override_attachment_options[vehicle_definition_index]
+        if ov_type ~= nil then
+            if ov_type["options"] ~= nil then
+                return ov_type["options"][attachment_index]
+            end
+        end
+    end
+    return nil
+end
+
 function get_ui_vehicle_chassis_attachments(vehicle)
     local vehicle_definition_index = vehicle:get_definition_index()
     local vehicle_attachment_count = vehicle:get_attachment_count()
 
     local vehicle_attachment_rows = {}
+    local override_rows = get_override_vehicle_loadout_rows(vehicle_definition_index)
+    if override_rows ~= nil then
+        return override_rows
+    end
 
     if vehicle_definition_index == e_game_object_type.chassis_land_wheel_light then
         vehicle_attachment_rows = {
