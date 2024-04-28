@@ -703,7 +703,7 @@ g_radar_ranges = {
     torpedo = 8000,
     cruise_missile = 9000,
     naval_gun = 4500,
-    awacs = 11000,
+    awacs = 10000,
     carrier = 10000,
     golfball = 10000,
 }
@@ -2231,12 +2231,10 @@ end
 
 function get_awacs_alt_boost_enabled()
     -- true if awacs range altitude boosts are enabled
-    if get_awacs_alt_boost_start() > 2500 then
-        return false
-    elseif get_awacs_alt_boost_factor() == 0 then
-        return false
+    if get_awacs_alt_boost_start() < 2000 and get_awacs_alt_boost_factor() > 0 then
+        return true
     end
-    return true
+    return false
 end
 
 function get_awacs_alt_boost_start()
