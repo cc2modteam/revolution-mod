@@ -3185,6 +3185,8 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
     local vehicle_pos = vehicle:get_position()
     local attachment_def = attachment:get_definition_index()
 
+    render_heat = render_heat and get_render_missile_heat_circles()
+
     local colors = {
         red = color8(255, 0, 0, 255),
         green = color8(0, 255, 0, 255)
@@ -3481,30 +3483,32 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
                 local is_render_health = (data == target_selected or (target_selected == nil and data == target_hovered)) and data.is_observed
 
                 if not is_friendly then
-                    if data.dist_sq < (2500 * 2500) and data.vehicle:get_linear_speed() > 1 and data.vehicle:get_is_visible() and render_heat and not data.is_clamped then
-                        -- draw some heat blobs
-                        local screen_pos = vec2(data.screen_pos:x() - 1, data.screen_pos:y() - 1)
-                        --local hover_radius = target_hover_world_radius
-                        --local vehicle_screen_radius = get_object_size_on_screen(screen_w, data.vehicle:get_position(), hover_radius)
-                        --local blob_size = get_vehicle_scale(data.vehicle) * vehicle_screen_radius
-                        local blob_col = color_white
-                        local blob_size = 5
-                        --if blob_size < 3 then
-                        --    blob_size = 3
-                        --end
-                        --if blob_size > 8 then
-                        --    blob_size = 8
-                        --end
+                    if render_heat then
+                        local heat_range = get_render_missile_heat_range()
+                        if data.dist_sq < (heat_range * heat_range) and data.vehicle:get_linear_speed() > 1 and data.vehicle:get_is_visible() and not data.is_clamped then
+                            -- draw some heat blobs
+                            local screen_pos = vec2(data.screen_pos:x() - 1, data.screen_pos:y() - 1)
+                            --local hover_radius = target_hover_world_radius
+                            --local vehicle_screen_radius = get_object_size_on_screen(screen_w, data.vehicle:get_position(), hover_radius)
+                            --local blob_size = get_vehicle_scale(data.vehicle) * vehicle_screen_radius
+                            local blob_col = color_white
+                            local blob_size = 5
+                            --if blob_size < 3 then
+                            --    blob_size = 3
+                            --end
+                            --if blob_size > 8 then
+                            --    blob_size = 8
+                            --end
 
-                        -- limit circles to a 1/3 of the width and 1/2 of the height
-                        local area_w = screen_h / 4
-                        local min_x = (screen_w / 2) - (area_w / 2)
-                        local max_x = (screen_w / 2) + (area_w / 2)
-                        local min_y = (screen_h / 2) - (area_w / 2)
-                        local max_y = (screen_h / 2) + (area_w / 2)
-                        if screen_pos:x() > min_x and screen_pos:x() < max_x then
-                            if screen_pos:y() > min_y and screen_pos:y() < max_y then
-                                render_circle(screen_pos, blob_size, 6, blob_col)
+                            local area_w = screen_h * get_render_missile_heat_scope_size()
+                            local min_x = (screen_w / 2) - (area_w / 2)
+                            local max_x = (screen_w / 2) + (area_w / 2)
+                            local min_y = (screen_h / 2) - (area_w / 2)
+                            local max_y = (screen_h / 2) + (area_w / 2)
+                            if screen_pos:x() > min_x and screen_pos:x() < max_x then
+                                if screen_pos:y() > min_y and screen_pos:y() < max_y then
+                                    render_circle(screen_pos, blob_size, 6, blob_col)
+                                end
                             end
                         end
                     end

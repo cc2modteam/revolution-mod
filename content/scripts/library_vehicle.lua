@@ -2276,3 +2276,24 @@ function get_low_level_radar_altitude(vehicle)
     end
     return 65
 end
+
+function get_render_missile_heat_circles()
+    -- render the small white close range circles for hot targets
+    return get_render_missile_heat_range() > 0
+end
+
+function get_render_missile_heat_range()
+    -- return the range where heat circles will start to appear
+    if g_revolution_hud_missile_heat_circles ~= nil then
+        return g_revolution_hud_missile_heat_circles
+    end
+    return 1500
+end
+
+function get_render_missile_heat_scope_size()
+    -- return the fraction of the middle of the HUD that heat blobs circles appear
+    if g_revolution_hud_missile_heat_scope ~= nil then
+        return g_revolution_hud_missile_heat_scope
+    end
+    return 0.25
+end
