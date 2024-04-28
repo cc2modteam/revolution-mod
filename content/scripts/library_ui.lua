@@ -2974,7 +2974,7 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
                 attachment_w = 12
                 attachment_h = 12
             elseif attachment_type == e_game_object_attachment_type.hardpoint_small then
-                attachment_w = 6
+                attachment_w = 8
                 attachment_h = 24
             elseif attachment_type == e_game_object_attachment_type.hardpoint_large then
                 attachment_w = 12

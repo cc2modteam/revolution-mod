@@ -2852,10 +2852,12 @@ function input_event(event, action)
                                                 end
                                                 
                                                 if is_highlighted_vehicle_found == false then
-                                                    local highlighted_vehicle_id = highlighted_vehicle:get_id()
+                                                    if vehicle_can_airlift(highlighted_vehicle) then
+                                                        local highlighted_vehicle_id = highlighted_vehicle:get_id()
 
-                                                    drag_vehicle:set_waypoint_attack_target_target_id(g_drag.waypoint_id, highlighted_vehicle_id)
-                                                    drag_vehicle:set_waypoint_attack_target_attack_type(g_drag.waypoint_id, attack_target_count, e_attack_type.airlift)
+                                                        drag_vehicle:set_waypoint_attack_target_target_id(g_drag.waypoint_id, highlighted_vehicle_id)
+                                                        drag_vehicle:set_waypoint_attack_target_attack_type(g_drag.waypoint_id, attack_target_count, e_attack_type.airlift)
+                                                    end
                                                 end
                                             else
                                                 if get_is_vehicle_waypoint_available(drag_vehicle) then

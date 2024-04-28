@@ -1582,7 +1582,11 @@ end
 function vehicle_can_airlift(vehicle)
     if vehicle:get() then
         local def = vehicle:get_definition_index()
-        return def == e_game_object_type.chassis_air_rotor_heavy
+        if def == e_game_object_type.chassis_air_rotor_heavy then
+            -- if this petrel has a radar, it cant airlift
+            local radar = _get_radar_attachment(vehicle)
+            return radar == nil
+        end
     end
     return false
 end
@@ -2365,18 +2369,18 @@ local st, _v = pcall(function()
                 -- comment/remove a line to remove that attachment
                 {
                     { i = 1, x = 0, y = -23 }, -- front camera slot
-                    { i = 9, x = 6, y = -11 }  -- internal gun
+                    { i = 9, x = 9, y = -7 }  -- internal gun
                 },
                 {
-                    { i = 2, x = -26, y = 0 }, -- left outer
-                    { i = 4, x = -13, y = 0 }, -- left inner
-                    { i = 6, x = 0, y = 0 },   -- centre
-                    { i = 5, x = 13, y = 0 },  -- right inner
-                    { i = 3, x = 26, y = 0 }   -- right outer
+                    --{ i = 2, x = -26, y = 0 }, -- left outer
+                    { i = 4, x = -18, y = 8 }, -- left inner
+                    { i = 6, x = 0, y = 12 },   -- centre
+                    { i = 5, x = 18, y = 8 },  -- right inner
+                    --{ i = 3, x = 26, y = 0 }   -- right outer
                 },
                 {
-                    { i = 7, x = -13, y = 20 }, -- left util
-                    { i = 8, x = 13, y = 20 }   -- right util
+                    -- { i = 7, x = -13, y = 20 }, -- left util
+                    -- { i = 8, x = 13, y = 20 }   -- right util
                 }
             },
             options = {
@@ -2395,6 +2399,9 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_fuel_tank_plane,
                     e_game_object_type.attachment_hardpoint_bomb_1,
                     e_game_object_type.attachment_hardpoint_bomb_2,
+                    e_game_object_type.attachment_hardpoint_bomb_3,
+                    e_game_object_type.attachment_hardpoint_torpedo,
+                    e_game_object_type.attachment_flare_launcher,
                 },
                 -- utils
                 [7] = _std_wing_utils,
@@ -2487,6 +2494,17 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_hardpoint_missile_tv,
                 })
             }
+        },
+        -- petrel
+        [e_game_object_type.chassis_air_rotor_heavy] = {
+            options = {
+                -- nose slot
+                [1] = {
+                    e_game_object_type.attachment_camera_plane,
+                    e_game_object_type.attachment_turret_gimbal_30mm,
+                    e_game_object_type.attachment_radar_golfball,   -- disables airlift ability when added
+                },
+            },
         }
 
     }
