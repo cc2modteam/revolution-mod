@@ -2219,7 +2219,7 @@ function get_rcs_model_enabled()
     if g_revolution_enable_rcs ~= nil then
         return g_revolution_enable_rcs
     end
-    return true
+    return false
 end
 
 function get_awacs_alt_boost_enabled()
@@ -2234,7 +2234,7 @@ end
 
 function get_awacs_alt_boost_start()
     --- get the altitude above which the awacs gets a range boost
-    if g_revolution_awacs_boost_above_alt ~ nil then
+    if g_revolution_awacs_boost_above_alt ~= nil then
         if g_revolution_awacs_boost_above_alt == false then
             return 9999  -- no boost
         end
@@ -2264,12 +2264,10 @@ end
 
 function get_low_level_radar_altitude(vehicle)
     -- below this altitude aircraft are masked from operator radars
-    -- if the aircraft is AI controlled and not moving it is in a hangar so mask that from operators like normal
     if vehicle and vehicle:get() then
-        if vehicle:get_team_id() == 1 then
-            if vehicle:get_velocity_magnitude() < 0.5 then
-                return 250
-            end
+        if vehicle:get_team() == 1 then
+            -- hides AI units in hangars on tall islands
+            return 100
         end
     end
 
