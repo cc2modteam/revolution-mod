@@ -1524,16 +1524,34 @@ function _update(screen_w, screen_h, ticks)
             if weapon_radius_vehicle:get() then
                 local def = weapon_radius_vehicle:get_definition_index()
 
-                if get_has_modded_radar(weapon_radius_vehicle) then
-                    -- render needlefish radar circles if it has been scanned or is friendly
-                    if weapon_radius_vehicle:get_team() == screen_team or weapon_radius_vehicle:get_is_observation_weapon_revealed() then
-                        local radar_radius = get_modded_radar_range(weapon_radius_vehicle)
-                        if radar_radius > 0 then
-                            local vehicle_pos_xz = weapon_radius_vehicle:get_position_xz()
-                            render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), radar_radius, color8(8, 8, 48, 64))
+                -- render needlefish radar circles if it has been scanned or is friendly
+                if weapon_radius_vehicle:get_team() == screen_team or weapon_radius_vehicle:get_is_observation_weapon_revealed() then
+                    local radar_type = get_vehicle_radar(weapon_radius_vehicle)
+                    if weapon_radius_vehicle:get_id() == 20 then
+                        print(radar_type)
+                    end
+                    local radar_radius = get_modded_radar_range(weapon_radius_vehicle)
+                    if radar_type ~= nil then
+                        if radar_radius < 1 then
+                            -- not modded, but might still have a radar enabled
+                            if radar_type == e_game_object_type.attachment_radar_awacs then
+                                print("awacs")
+                                if get_awacs_radar_enabled(weapon_radius_vehicle) then
+                                    radar_radius = 10000
+                                end
+                            elseif radar_type == e_game_object_type.attachment_radar_golfball then
+                                print("golf")
+                                radar_radius = 10000
+                            end
                         end
                     end
+
+                    if radar_radius > 0 then
+                        local vehicle_pos_xz = weapon_radius_vehicle:get_position_xz()
+                        render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), radar_radius, color8(8, 8, 48, 64))
+                    end
                 end
+
 
                 if def ~= e_game_object_type.chassis_carrier then
                     if weapon_radius_vehicle:get_team() == update_get_screen_team_id() or weapon_radius_vehicle:get_is_observation_weapon_revealed() then

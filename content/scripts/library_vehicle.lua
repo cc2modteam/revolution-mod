@@ -791,6 +791,10 @@ function _get_radar_attachment(vehicle)
     return nil
 end
 
+function get_vehicle_radar(vehicle)
+    return _get_radar_attachment(vehicle)
+end
+
 function get_is_vehicle_masked_by_groundclutter(vehicle)
     if vehicle and vehicle:get() then
         if get_is_vehicle_air(vehicle:get_definition_index()) then
@@ -832,7 +836,9 @@ function get_modded_radar_range(vehicle)
                     end
                 end
             end
-            return range * get_radar_multiplier()
+            if range ~= nil then
+                return range * get_radar_multiplier()
+            end
         elseif get_awacs_radar_enabled(vehicle) then
             return 10000 * get_radar_multiplier()
         end
