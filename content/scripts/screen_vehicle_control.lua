@@ -2359,6 +2359,9 @@ function _update(screen_w, screen_h, ticks)
                     -- render vehicle tooltip
                     local peers = iff( highlighted_vehicle:get_team() == update_get_screen_team_id(), get_vehicle_controlling_peers(highlighted_vehicle), {} )
                     local tool_height = 21 + (#peers * 10)
+                    if get_is_vehicle_air(highlighted_vehicle:get_definition_index()) then
+                        tool_height = tool_height + 10
+                    end
 
                     render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, 128, tool_height, 10, function(w, h) render_vehicle_tooltip(w, h, highlighted_vehicle, peers) end, color8(0, 0, 0, 190))
                 end
@@ -3227,6 +3230,12 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
         end
 
         cy = cy + 10
+    end
+
+    if get_is_vehicle_air(vehicle:get_definition_index()) then
+        local alt = get_unit_altitude(vehicle)
+        local fl_str = string.format("F%03d", math.floor(alt / 10))
+        update_ui_text(cx + 10, cy, fl_str, 32, 0, color_inactive, 0)
     end
 end
 
