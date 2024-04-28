@@ -699,9 +699,9 @@ g_nearest_friendly_radar = {}
 
 
 g_radar_ranges = {
-    ciws = 11000,
-    torpedo = 9000,
-    cruise_missile = 12000,
+    ciws = 7000,
+    torpedo = 8000,
+    cruise_missile = 9000,
     naval_gun = 4500,
     awacs = 11000,
     carrier = 10000,
@@ -816,12 +816,17 @@ function get_modded_radar_range(vehicle)
 
             -- adjust based on altitude for awacs
             if get_is_vehicle_air(def) then
-                -- if altitude is > 1600, boost it slightly
-                local alt = get_unit_altitude(vehicle)
-                local bonus_start = 1600
-                if alt > bonus_start then
-                    local bonus_factor = alt / bonus_start
-                    range = range * bonus_factor * 1.3
+                if get_awacs_alt_boost_enabled() then
+                    local alt_boost = get_awacs_alt_boost_factor()
+                    if alt_boost > 0 then
+                        -- if altitude is > 1600, boost it slightly
+                        local alt = get_unit_altitude(vehicle)
+                        local bonus_start = get_awacs_alt_boost_start()
+                        if alt > bonus_start then
+                            local bonus_factor = alt / bonus_start
+                            range = range * bonus_factor * alt_boost
+                        end
+                    end
                 end
             end
             return range * get_radar_multiplier()
@@ -838,17 +843,33 @@ function _get_unit_visible_by_modded_radar(vehicle, other_unit)
             return false
         end
         if vehicle:get_id() ~= other_unit:get_id() then
+            local radar_unit_def = vehicle:get_definition_index()
             local dist_sq = vec2_dist_sq(vehicle:get_position_xz(), other_unit:get_position_xz())
             local mrr = get_modded_radar_range(vehicle)
             local mrr_sq = mrr * mrr
             if dist_sq < mrr_sq then
+                local unit_def = other_unit:get_definition_index()
+
+                -- target is within the max range of this radar
+                -- now filter out different target types
+
+                -- if this is an awacs or golfball, do not detect ships beyond 10km
+                if get_is_vehicle_air(radar_unit_def) or get_is_vehicle_land(radar_unit_def) then
+                    if get_is_vehicle_sea(unit_def) then
+                        local max_ship_range = get_awacs_max_ship_detection_range()
+                        if dist_sq > (max_ship_range * max_ship_range) then
+                            return false
+                        end
+                    end
+                end
+
                 if get_is_ship_fish(vehicle:get_definition_index()) then
                     -- needlefish can all see anything less than 500m away
                     if dist_sq < 250000 then
                         return true
                     end
                 end
-                local unit_def = other_unit:get_definition_index()
+
                 -- print(string.format("a %d b %d dist = %d", needlefish:get_id(), unit:get_id(), math.floor(dist)))
                 local radar_type = _get_radar_attachment(vehicle)
                 if radar_type == e_game_object_type.attachment_radar_awacs
@@ -1112,7 +1133,7 @@ function update_modded_radar_data()
             if get_is_vehicle_land(vdef) then
                 -- ignore land units
             else
-                if get_vehicle_docked(vehicle) or (get_is_vehicle_air(vdef) and get_unit_altitude(vehicle) < 65) then
+                if get_vehicle_docked(vehicle) or (get_is_vehicle_air(vdef) and get_unit_altitude(vehicle) < get_low_level_radar_altitude(vehicle)) then
                     -- ignore docked or landed
                 else
                     local target_is_air = get_is_vehicle_air(vdef)
@@ -2199,4 +2220,61 @@ function get_rcs_model_enabled()
         return g_revolution_enable_rcs
     end
     return true
+end
+
+function get_awacs_alt_boost_enabled()
+    -- true if awacs range altitude boosts are enabled
+    if get_awacs_alt_boost_start() > 2500 then
+        return false
+    elseif get_awacs_alt_boost_factor() == 0 then
+        return false
+    end
+    return true
+end
+
+function get_awacs_alt_boost_start()
+    --- get the altitude above which the awacs gets a range boost
+    if g_revolution_awacs_boost_above_alt ~ nil then
+        if g_revolution_awacs_boost_above_alt == false then
+            return 9999  -- no boost
+        end
+        return g_revolution_awacs_boost_above_alt
+    end
+
+    return 1600
+end
+
+function get_awacs_alt_boost_factor()
+    -- get the amount of boost an awacs gains at higher altitude
+    if g_revolution_awacs_alt_boost_factor == nil or not g_revolution_awacs_alt_boost_factor then
+        -- turned off
+        return 0
+    end
+    -- default enabled
+    return 1.2
+end
+
+function get_awacs_max_ship_detection_range()
+    -- get the max range an awacs/golfball/needlefish radar can detect ships
+    if g_revolution_awacs_ship_max_range ~= nil then
+        return g_revolution_awacs_ship_max_range
+    end
+    return 10000
+end
+
+function get_low_level_radar_altitude(vehicle)
+    -- below this altitude aircraft are masked from operator radars
+    -- if the aircraft is AI controlled and not moving it is in a hangar so mask that from operators like normal
+    if vehicle and vehicle:get() then
+        if vehicle:get_team_id() == 1 then
+            if vehicle:get_velocity_magnitude() < 0.5 then
+                return 250
+            end
+        end
+    end
+
+    if g_revolution_radar_clutter_level ~= nil then
+        return g_revolution_radar_clutter_level
+    end
+    return 65
 end

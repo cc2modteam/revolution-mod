@@ -1525,20 +1525,21 @@ function _update(screen_w, screen_h, ticks)
                 local def = weapon_radius_vehicle:get_definition_index()
 
                 if get_has_modded_radar(weapon_radius_vehicle) then
-                    -- render needlefish radar circles
-                    local radar_radius = get_modded_radar_range(weapon_radius_vehicle)
-                    if radar_radius > 0 then
-                        local vehicle_pos_xz = weapon_radius_vehicle:get_position_xz()
-                        render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), radar_radius, color8(8, 8, 48, 64))
+                    -- render needlefish radar circles if it has been scanned or is friendly
+                    if weapon_radius_vehicle:get_team_id() == screen_team or weapon_radius_vehicle:get_is_observation_weapon_revealed() then
+                        local radar_radius = get_modded_radar_range(weapon_radius_vehicle)
+                        if radar_radius > 0 then
+                            local vehicle_pos_xz = weapon_radius_vehicle:get_position_xz()
+                            render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), radar_radius, color8(8, 8, 48, 64))
+                        end
                     end
                 end
 
                 if def ~= e_game_object_type.chassis_carrier then
                     if weapon_radius_vehicle:get_team() == update_get_screen_team_id() or weapon_radius_vehicle:get_is_observation_weapon_revealed() then
                         local weapon_range, weapon_range_col = get_vehicle_weapon_range(weapon_radius_vehicle)
-                        local vehicle_pos_xz = weapon_radius_vehicle:get_position_xz()
-
                         if weapon_range > 0 then
+                            local vehicle_pos_xz = weapon_radius_vehicle:get_position_xz()
                             render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), weapon_range, weapon_range_col)
                         end
                     end
