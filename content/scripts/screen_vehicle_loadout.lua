@@ -110,6 +110,8 @@ function begin()
     g_ui = lib_imgui:create_ui()
 end
 
+g_sanitised_attachments = false
+
 function update(screen_w, screen_h, ticks) 
     if update_screen_overrides(screen_w, screen_h, ticks)  then return end
 
@@ -121,6 +123,28 @@ function update(screen_w, screen_h, ticks)
 
     local this_vehicle = update_get_screen_vehicle()
     if this_vehicle:get() == false then return end
+
+    if not update_get_is_focus_local() and not g_sanitised_attachments then
+        if this_vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+            g_sanitised_attachments = true
+            sanitise_loadout(this_vehicle, 0)
+            sanitise_loadout(this_vehicle, 1)
+            sanitise_loadout(this_vehicle, 2)
+            sanitise_loadout(this_vehicle, 3)
+            sanitise_loadout(this_vehicle, 4)
+            sanitise_loadout(this_vehicle, 5)
+            sanitise_loadout(this_vehicle, 6)
+            sanitise_loadout(this_vehicle, 7)
+            sanitise_loadout(this_vehicle, 8)
+            sanitise_loadout(this_vehicle, 9)
+            sanitise_loadout(this_vehicle, 10)
+            sanitise_loadout(this_vehicle, 11)
+            sanitise_loadout(this_vehicle, 12)
+            sanitise_loadout(this_vehicle, 13)
+            sanitise_loadout(this_vehicle, 14)
+            sanitise_loadout(this_vehicle, 15)
+        end
+    end
 
     local ui = g_ui
 

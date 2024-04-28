@@ -500,6 +500,8 @@ function begin_load()
     for k, v in pairs(atlas_icons) do
         atlas_icons[k] = begin_get_ui_region_index(k)
     end
+
+
 end
 
 function get_attachment_icons(definition_index)

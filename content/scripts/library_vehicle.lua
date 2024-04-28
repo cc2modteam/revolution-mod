@@ -2330,6 +2330,46 @@ function concat_lists(t1, t2)
     return result
 end
 
+function get_loadout_attachment_hidden(vehicle, attachment_index)
+    local rows = get_ui_vehicle_chassis_attachments(vehicle)
+    for _, row in pairs(rows) do
+        if row then
+            for _, entry in pairs(row) do
+                if entry.i == attachment_index then
+                    return false
+                end
+            end
+        end
+    end
+    return true
+end
+
+function sanitise_loadout(carrier, bay_index)
+    local vehicle = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(bay_index))
+    -- remove weapons from hidden
+    if vehicle and vehicle:get() then
+        print("sanitise " .. bay_index)
+        local st, err = pcall(function()
+            local attachment_count = vehicle:get_attachment_count()
+            for i = 1, attachment_count do
+                local a = vehicle:get_attachment(i)
+                if a and a:get() then
+                    if a:get_definition_index() ~= -1 then
+                        local hidden = get_loadout_attachment_hidden(vehicle, i)
+                        if hidden then
+                            -- remove the attachment
+                            print(string.format("remove bay %d attachment %d", bay_index, i))
+                            carrier:set_attached_vehicle_attachment(bay_index, i, -1)
+                        end
+                    end
+                end
+            end
+        end)
+        if not st then
+            print(err)
+        end
+    end
+end
 
 local st, _v = pcall(function()
     local _std_wing_attachments = {
@@ -2379,7 +2419,7 @@ local st, _v = pcall(function()
                     --{ i = 3, x = 26, y = 0 }   -- right outer
                 },
                 {
-                    { i = 7, x = 0, y = -8 }, -- left util
+                    { i = 7, x = -6, y = 26 }, -- left util
                     -- { i = 8, x = 13, y = 20 }   -- right util
                 }
             },
