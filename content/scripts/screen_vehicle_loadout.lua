@@ -72,55 +72,6 @@ function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index
         return restricted
     end
 
-    local vdef = vehicle:get_definition_index()
-    if vdef == e_game_object_type.chassis_air_wing_light then
-        -- for wingtips, only allow the fuel tank/ecm
-        if attachment_index == 7 or attachment_index == 8 then
-            add_attachment_option(restricted, e_game_object_type.attachment_fuel_tank_plane)
-            return restricted
-        end
-    elseif vdef == e_game_object_type.chassis_land_wheel_light then
-
-    elseif vdef == e_game_object_type.chassis_land_wheel_medium then
-        -- allow walrus to have the 100m heavy gun
-        if attachment_index == 1 then
-            add_attachment_option(attachment_options, e_game_object_type.attachment_turret_heavy_cannon)
-        end
-    elseif vdef == e_game_object_type.chassis_air_wing_heavy then
-        if attachment_index == 9 then
-            -- internally mounted 20mm
-            add_attachment_option(restricted, e_game_object_type.attachment_turret_plane_chaingun)
-            return restricted
-        end
-    elseif vdef == e_game_object_type.chassis_air_rotor_light then
-        -- allow razorbill to add actuated cameras to the utility points
-        -- this is a bit naff because the camera is inverted...
-        --if attachment_index == 3 or attachment_index == 4 then
-        --    add_attachment_option(attachment_options, e_game_object_type.attachment_camera)
-        --end
-        if attachment_index == 5 then
-            -- allow the 30mm twin auto gun from the combat droid
-            add_attachment_option(attachment_options, e_game_object_type.attachment_turret_droid)
-        end
-    end
-
-    if (
-            vdef == e_game_object_type.chassis_land_wheel_heavy
-    ) then
-        if attachment_index == 2 then
-            if g_enable_ecm_decoys then
-                -- allow putting the ECM on to a bear to enable the "decoy" mode.
-                add_attachment_option(attachment_options, e_game_object_type.attachment_fuel_tank_plane)
-            end
-        elseif attachment_index == 1 then
-            -- right side
-            add_attachment_option(attachment_options, e_game_object_type.attachment_hardpoint_missile_tv)
-        elseif attachment_index == 3 then
-            -- left side
-            add_attachment_option(attachment_options, e_game_object_type.attachment_hardpoint_missile_tv)
-        end
-    end
-
     return attachment_options
 end
 

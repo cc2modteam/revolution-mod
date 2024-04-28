@@ -2741,10 +2741,23 @@ function get_override_vehicle_loadout_rows(vehicle_definition_index)
             end
         end
     end
+
+    if g_revolution_attachment_defaults ~= nil then
+        -- revolution changes
+        local ov_type = g_revolution_attachment_defaults[vehicle_definition_index]
+        if ov_type ~= nil then
+            if ov_type["rows"] ~= nil then
+                return ov_type["rows"]
+            end
+        end
+    end
+
     return nil
 end
 
 function get_override_vehicle_loadout_options(vehicle_definition_index, attachment_index)
+    -- use the library_enum overrides or the revolution defaults
+
     if g_revolution_override_attachment_options ~= nil then
         -- overrides available
         local ov_type = g_revolution_override_attachment_options[vehicle_definition_index]
@@ -2754,6 +2767,18 @@ function get_override_vehicle_loadout_options(vehicle_definition_index, attachme
             end
         end
     end
+    if g_revolution_attachment_defaults ~= nil then
+        -- revolution changes
+        local ov_type = g_revolution_attachment_defaults[vehicle_definition_index]
+        if ov_type ~= nil then
+            if ov_type["options"] ~= nil then
+                return ov_type["options"][attachment_index]
+            end
+        end
+    end
+
+    -- no change, use vanilla
+
     return nil
 end
 
@@ -2805,21 +2830,18 @@ function get_ui_vehicle_chassis_attachments(vehicle)
                 { i=1, x=0, y=-23 }
             },
             {
-                { i=7, x=-29, y=-2 },
-                { i=2, x=-18, y=-2 },
-                { i=4, x=-11, y=-2 },
+                { i=2, x=-26, y=0 },
+                { i=4, x=-14, y=0 },
                 { i=6, x=0, y=1 },
-                { i=5, x=11, y=-2 },
-                { i=3, x=18, y=-2 },
-                { i=8, x=29, y=-2 },
+                { i=5, x=14, y=0 },
+                { i=3, x=26, y=0 }
             }
         }
 
     elseif vehicle_definition_index == e_game_object_type.chassis_air_wing_heavy then
         vehicle_attachment_rows = {
             {
-                { i=1, x=0, y=-23 },
-                { i=9, x=6, y=-11 }
+                { i=1, x=0, y=-22 }
             },
             {
                 { i=2, x=-26, y=0 },
@@ -2836,7 +2858,6 @@ function get_ui_vehicle_chassis_attachments(vehicle)
     elseif vehicle_definition_index == e_game_object_type.chassis_air_rotor_light then
         vehicle_attachment_rows = {
             {
-                { i=5, x=0, y=-7},
                 { i=1, x=-26, y=0 },
                 { i=3, x=-14, y=0 },
                 { i=4, x=14, y=0 },

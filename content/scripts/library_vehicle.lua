@@ -2215,6 +2215,9 @@ function get_radar_interference(vehicle, radar)
     return false
 end
 
+
+-- get customisable settings
+
 function get_rcs_model_enabled()
     if g_revolution_enable_rcs ~= nil then
         return g_revolution_enable_rcs
@@ -2296,4 +2299,205 @@ function get_render_missile_heat_scope_size()
         return g_revolution_hud_missile_heat_scope
     end
     return 0.25
+end
+
+-- get expandeded loadout options
+
+function merge_tables(t1, t2)
+    local result = {}
+    for item, value in pairs(t1) do
+        result[item] = value
+    end
+    for item, value in pairs(t2) do
+        result[item] = value
+    end
+    return result
+end
+
+function concat_lists(t1, t2)
+    local result = {}
+    for _, value in pairs(t1) do
+        table.insert(result, value)
+    end
+    for _, value in pairs(t2) do
+        table.insert(result, value)
+    end
+
+    return result
+end
+
+
+local st, _v = pcall(function()
+    local _std_wing_attachments = {
+        e_game_object_type.attachment_turret_plane_chaingun,
+        e_game_object_type.attachment_turret_rocket_pod,
+        e_game_object_type.attachment_hardpoint_bomb_1,
+        e_game_object_type.attachment_hardpoint_bomb_2,
+        e_game_object_type.attachment_hardpoint_bomb_3,
+        e_game_object_type.attachment_hardpoint_missile_ir,
+        e_game_object_type.attachment_hardpoint_missile_laser,
+        e_game_object_type.attachment_hardpoint_missile_aa,
+        e_game_object_type.attachment_hardpoint_missile_tv,
+        e_game_object_type.attachment_hardpoint_torpedo,
+        e_game_object_type.attachment_hardpoint_torpedo_noisemaker,
+        e_game_object_type.attachment_hardpoint_torpedo_decoy,
+        e_game_object_type.attachment_fuel_tank_plane
+    }
+    _std_wing_utils = {
+        e_game_object_type.attachment_flare_launcher,
+        e_game_object_type.attachment_sonic_pulse_generator,
+        e_game_object_type.attachment_smoke_launcher_explosive,
+        e_game_object_type.attachment_smoke_launcher_stream
+    }
+
+    _std_land_turrets = {
+        e_game_object_type.attachment_turret_30mm,
+        e_game_object_type.attachment_turret_40mm,
+        e_game_object_type.attachment_turret_ciws,
+        e_game_object_type.attachment_turret_missile,
+        e_game_object_type.attachment_radar_golfball,
+    }
+
+    local ret = {
+        -- manta
+        [e_game_object_type.chassis_air_wing_heavy] = {
+            rows = {
+                -- comment/remove a line to remove that attachment
+                {
+                    { i = 1, x = 0, y = -23 }, -- front camera slot
+                    { i = 9, x = 6, y = -11 }  -- internal gun
+                },
+                {
+                    { i = 2, x = -26, y = 0 }, -- left outer
+                    { i = 4, x = -13, y = 0 }, -- left inner
+                    { i = 6, x = 0, y = 0 },   -- centre
+                    { i = 5, x = 13, y = 0 },  -- right inner
+                    { i = 3, x = 26, y = 0 }   -- right outer
+                },
+                {
+                    { i = 7, x = -13, y = 20 }, -- left util
+                    { i = 8, x = 13, y = 20 }   -- right util
+                }
+            },
+            options = {
+                -- nose slot
+                [1] = {
+                    e_game_object_type.attachment_camera_plane,
+                    e_game_object_type.attachment_turret_gimbal_30mm,
+                },
+                -- wings
+                [2] = _std_wing_attachments,
+                [3] = _std_wing_attachments,
+                [4] = _std_wing_attachments,
+                [5] = _std_wing_attachments,
+                -- middle
+                [6] = {
+                    e_game_object_type.attachment_fuel_tank_plane,
+                    e_game_object_type.attachment_hardpoint_bomb_1,
+                    e_game_object_type.attachment_hardpoint_bomb_2,
+                },
+                -- utils
+                [7] = _std_wing_utils,
+                [8] = _std_wing_utils,
+
+                -- internal gun
+                [9] = {
+                    e_game_object_type.attachment_turret_plane_chaingun
+                }
+            }
+        },
+        -- upp_albatross
+        [e_game_object_type.chassis_air_wing_light] = {
+            rows = {
+                {
+                    { i=1, x=0, y=-23 } -- front camera slot
+                },
+                {
+                    { i=7, x=-29, y=-2 }, -- left wingtip
+                    { i=2, x=-18, y=-2 }, -- left outer
+                    { i=4, x=-11, y=-2 }, -- left inner
+                    { i=6, x=0, y=1 },    -- AWACS
+                    { i=5, x=11, y=-2 },  -- right inner
+                    { i=3, x=18, y=-2 },  -- right outer
+                    { i=8, x=29, y=-2 },  -- right wingtip
+                }
+            } ,
+            options = {
+                -- nose slot
+                [1] = {
+                    e_game_object_type.attachment_camera_plane,
+                    e_game_object_type.attachment_turret_gimbal_30mm,
+                },
+                -- wings
+                [2] = _std_wing_attachments,
+                [3] = _std_wing_attachments,
+                [4] = _std_wing_attachments,
+                [5] = _std_wing_attachments,
+                -- middle
+                [6] = {
+                    e_game_object_type.attachment_radar_awacs,
+                },
+                -- wingtips
+                [7] = {
+                    e_game_object_type.attachment_fuel_tank_plane
+                },
+                [8] = {
+                    e_game_object_type.attachment_fuel_tank_plane
+                },
+            }
+        },
+        -- razorbill
+        [e_game_object_type.chassis_air_rotor_light] = {
+            rows = {
+                {
+                    { i=5, x=0, y=-7},
+                    { i=1, x=-26, y=0 },
+                    { i=3, x=-14, y=0 },
+                    { i=4, x=14, y=0 },
+                    { i=2, x=26, y=0 }
+                }
+            },
+            options = {
+                [1] = _std_wing_attachments,
+                [2] = _std_wing_attachments,
+                [3] = _std_wing_utils,
+                [4] = _std_wing_utils,
+                [5] = {
+                    e_game_object_type.attachment_turret_droid,
+                    e_game_object_type.attachment_flare_launcher,
+                    e_game_object_type.attachment_sonic_pulse_generator,
+                },
+            }
+        },
+        -- walrus
+        [e_game_object_type.chassis_land_wheel_medium] = {
+            options = {
+                [1] = concat_lists(_std_land_turrets, {e_game_object_type.attachment_turret_heavy_cannon})
+            },
+        },
+        -- bear
+        [e_game_object_type.chassis_land_wheel_heavy] = {
+            options = {
+                [1] = concat_lists(_std_wing_utils, {
+                    e_game_object_type.attachment_camera,
+                    e_game_object_type.attachment_hardpoint_missile_tv,
+                }),
+                [3] = concat_lists(_std_wing_utils, {
+                    e_game_object_type.attachment_camera,
+                    e_game_object_type.attachment_hardpoint_missile_tv,
+                })
+            }
+        }
+
+    }
+
+
+    return ret
+
+end)
+if not st then
+    print(_v)
+else
+    print("library_vehicle.lua loaded ok")
+    g_revolution_attachment_defaults = _v
 end
