@@ -703,9 +703,6 @@ g_radar_ranges = {
     torpedo = 8000,
     cruise_missile = 9000,
     naval_gun = 4500,
-    awacs = 10000,
-    carrier = 10000,
-    golfball = 10000,
 }
 
 g_radar_last_sea_scan = 0
@@ -714,7 +711,6 @@ g_radar_min_return_power = 0.00018
 g_radar_multiplier = 1
 
 function get_radar_multiplier()
-
     -- get_special_waypoint(update_get_screen_team_id(), F_DRYDOCK_WPTX_SETTING)
 
     if g_override_radar_multiplier ~= nil then
@@ -724,6 +720,13 @@ function get_radar_multiplier()
     end
 
     return g_radar_multiplier
+end
+
+if get_radar_multiplier() > 1 then
+    -- extended range is enabled, model the extra range for the stock radars
+    g_radar_ranges.awacs = 10000
+    g_radar_ranges.carrier = 10000
+    g_radar_ranges.golfball = 10000
 end
 
 

@@ -2120,15 +2120,17 @@ function _update(screen_w, screen_h, ticks)
                                    color, 0)
 
                             if get_is_vehicle_air(vehicle:get_definition_index()) then
-                                local rcs = get_rcs_cached(vehicle)
-                                if rcs ~= nil then
-                                    local is_visible = vehicle:get_is_visible()
-                                    local is_revealed = vehicle:get_is_observation_revealed()
+                                if get_rcs_model_enabled() then
+                                    local rcs = get_rcs_cached(vehicle)
+                                    if rcs ~= nil then
+                                        local is_visible = vehicle:get_is_visible()
+                                        local is_revealed = vehicle:get_is_observation_revealed()
 
-                                    update_ui_text(
-                                            screen_pos_x - icon_offset + 12,
-                                            screen_pos_y - icon_offset,
-                                    string.format("%1.2f v=%s r=%s", rcs, is_visible, is_revealed), 228, 0, color_white, 0)
+                                        update_ui_text(
+                                                screen_pos_x - icon_offset + 12,
+                                                screen_pos_y - icon_offset,
+                                                string.format("%1.2f v=%s r=%s", rcs, is_visible, is_revealed), 228, 0, color_white, 0)
+                                    end
                                 end
 
                                 -- draw line to nearest hostile radar that can see us
