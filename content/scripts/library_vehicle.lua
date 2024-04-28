@@ -2379,7 +2379,7 @@ local st, _v = pcall(function()
                     --{ i = 3, x = 26, y = 0 }   -- right outer
                 },
                 {
-                    -- { i = 7, x = -13, y = 20 }, -- left util
+                    { i = 7, x = 0, y = -8 }, -- left util
                     -- { i = 8, x = 13, y = 20 }   -- right util
                 }
             },
@@ -2401,7 +2401,6 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_hardpoint_bomb_2,
                     e_game_object_type.attachment_hardpoint_bomb_3,
                     e_game_object_type.attachment_hardpoint_torpedo,
-                    e_game_object_type.attachment_flare_launcher,
                 },
                 -- utils
                 [7] = _std_wing_utils,
