@@ -1657,7 +1657,7 @@ function _update(screen_w, screen_h, ticks)
 
                         if vehicle_team ~= screen_team then
                             -- hostile vehicle
-                            if is_air then
+                            if is_air and get_rcs_model_enabled() then
                                 local radar_pwr = get_radar_power(vehicle_id)
                                 if is_visible then
                                     if radar_pwr < g_radar_min_return_power then
