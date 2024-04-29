@@ -1527,20 +1527,15 @@ function _update(screen_w, screen_h, ticks)
                 -- render needlefish radar circles if it has been scanned or is friendly
                 if weapon_radius_vehicle:get_team() == screen_team or weapon_radius_vehicle:get_is_observation_weapon_revealed() then
                     local radar_type = get_vehicle_radar(weapon_radius_vehicle)
-                    if weapon_radius_vehicle:get_id() == 20 then
-                        print(radar_type)
-                    end
                     local radar_radius = get_modded_radar_range(weapon_radius_vehicle)
                     if radar_type ~= nil then
                         if radar_radius < 1 then
                             -- not modded, but might still have a radar enabled
                             if radar_type == e_game_object_type.attachment_radar_awacs then
-                                print("awacs")
                                 if get_awacs_radar_enabled(weapon_radius_vehicle) then
                                     radar_radius = 10000
                                 end
                             elseif radar_type == e_game_object_type.attachment_radar_golfball then
-                                print("golf")
                                 radar_radius = 10000
                             end
                         end
@@ -1656,7 +1651,7 @@ function _update(screen_w, screen_h, ticks)
                         end
 
                         if vehicle_team ~= screen_team then
-                            -- hostile vehicle
+                            -- hide/show hostile vehicle if RCS is enabled
                             if is_air and get_rcs_model_enabled() then
                                 local radar_pwr = get_radar_power(vehicle_id)
                                 if is_visible then
