@@ -1246,7 +1246,7 @@ function _get_is_seen_by_friendly_modded_radar(vehicle)
     if vehicle and vehicle:get() then
         local vid = vehicle:get_id()
         local vdef = vehicle:get_definition_index()
-        if get_is_vehicle_air(vdef) then
+        if get_is_vehicle_air(vdef) and get_rcs_model_enabled() then
             local radar, pwr = get_nearest_friendly_aew_radar(vid)
             if radar ~= nil then
                 local seen = pwr > g_radar_min_return_power
@@ -2407,6 +2407,7 @@ local st, _v = pcall(function()
         e_game_object_type.attachment_turret_ciws,
         e_game_object_type.attachment_turret_missile,
         e_game_object_type.attachment_radar_golfball,
+        e_game_object_type.attachment_turret_robot_dog_capsule,
     }
 
     local ret = {
