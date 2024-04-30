@@ -11,6 +11,7 @@ g_render_rwr = false
 g_active_attachment_time = 0
 
 g_nearest_hostile_ew_radar = nil
+g_nearest_hostile_ew_radar_range = 99999
 
 g_attachment_factors = {}
 g_attachment_info_factor = 0
@@ -198,6 +199,7 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
     if vehicle:get() then
         if g_is_connected then
             g_nearest_hostile_ew_radar = nil
+            g_nearest_hostile_ew_radar_range = 0
             local v_def = vehicle:get_definition_index()
             if get_is_vehicle_air(v_def) then
                 g_render_rwr = get_has_rwr(vehicle)
@@ -207,7 +209,9 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
                     if nearest_radar ~= nil then
                         if radar_dist > get_rwr_range() then
                             nearest_radar = nil
+                            radar_dist = 0
                         end
+                        g_nearest_hostile_ew_radar_range = radar_dist
                         g_nearest_hostile_ew_radar = nearest_radar
                     end
                 end)
@@ -1601,7 +1605,7 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     local tick = update_get_logic_tick()
 
     local green = color8(0, 255, 0, 180)
-    local red = color8(255, 0, 0, 110)
+    local red = color8(255, 0, 0, 180)
 
     local size = 11
     local w = screen_w - 32
@@ -1611,17 +1615,36 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     local port = green
     local stbd = green
     local aft = green
-    local show_nails = vehicle:get_is_visible()
+
+    -- visible by a radar
+    local show_spike = false
     local show_alert = false
+    local spike_color = red
 
     if get_vehicle_health_factor(vehicle) < 0.5 then
-        red = color8(255, 0, 0, 180)
+        red = color8(255, 0, 0, 210)
         show_alert = true
+        show_spike = true
         fwd = red
         port = red
         aft = red
         stbd = red
     end
+    if g_nearest_hostile_ew_radar ~= nil then
+        if g_nearest_hostile_ew_radar_range < 10000 then
+            show_spike = true
+            show_alert = true
+        end
+    end
+
+
+    if tick % 30 < 15 then
+        if show_spike then
+            update_ui_image_rot(w - 6, n + 24, atlas_icons.column_ammo, red, 0)
+            show_alert = true
+        end
+    end
+
 
     if tick % 60 < 30 then
         if g_nearest_hostile_ew_radar ~= nil then
@@ -1653,13 +1676,12 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
                 end
             end
         end
-        if show_alert then
-            update_ui_image_rot(w + 4, n + 14, atlas_icons.hud_warning, red, 0)
-        end
-        if show_nails then
-            update_ui_image_rot(w - 6, n + 24, atlas_icons.column_ammo, red, 0)
-        end
     end
+
+    if show_alert then
+        update_ui_image_rot(w + 4, n + 14, atlas_icons.hud_warning, red, 0)
+    end
+
 
     update_ui_image_rot(w - 6, n + 3, atlas_icons.column_controlling_peer, color8(0, 255, 0, 255), 0)
     update_ui_rectangle(w - size, n + size, size - 4, size - 4, port)
