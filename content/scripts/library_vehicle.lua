@@ -2317,7 +2317,7 @@ function get_rwr_range()
     if g_revolution_rwr_range ~= nil then
         return g_revolution_rwr_range
     end
-    return 8000
+    return 16000
 end
 
 -- get expandeded loadout options
