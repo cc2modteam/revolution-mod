@@ -2435,8 +2435,8 @@ local st, _v = pcall(function()
                     --{ i = 3, x = 26, y = 0 }   -- right outer
                 },
                 {
-                    { i = 7, x = 0, y = -12 }, -- left util
-                    { i = 8, x = 0, y = 24 }   -- right util
+                    { i = 7, x = -9, y = 24 }, -- left util
+                    { i = 8, x = 9, y = 24 }   -- right util
                 }
             },
             options = {
