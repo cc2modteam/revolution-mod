@@ -1611,7 +1611,7 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     local port = green
     local stbd = green
     local aft = green
-
+    local show_nails = vehicle:get_is_visible()
     local show_alert = false
 
     if get_vehicle_health_factor(vehicle) < 0.5 then
@@ -1655,6 +1655,9 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
         end
         if show_alert then
             update_ui_image_rot(w + 4, n + 14, atlas_icons.hud_warning, red, 0)
+        end
+        if show_nails then
+            update_ui_image_rot(w - 6, n + 24, atlas_icons.column_ammo, red, 0)
         end
     end
 
