@@ -2313,6 +2313,13 @@ function get_render_missile_heat_scope_size()
     return 0.25
 end
 
+function get_rwr_range()
+    if g_revolution_rwr_range ~= nil then
+        return g_revolution_rwr_range
+    end
+    return 8000
+end
+
 -- get expandeded loadout options
 
 function merge_tables(t1, t2)

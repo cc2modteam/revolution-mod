@@ -205,11 +205,8 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
                     update_modded_radar_list(true)
                     local nearest_radar, radar_dist = get_nearest_hostile_radar(vehicle:get_id())
                     if nearest_radar ~= nil then
-                        -- the manta is a stealth jet, it's coatings reduce the sensitivity of the RWR
-                        if v_def == e_game_object_type.chassis_air_wing_heavy then
-                            if radar_dist > 10000 then
-                                nearest_radar = nil
-                            end
+                        if radar_dist > get_rwr_range() then
+                            nearest_radar = nil
                         end
                         g_nearest_hostile_ew_radar = nearest_radar
                     end
