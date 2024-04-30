@@ -2475,13 +2475,13 @@ local st, _v = pcall(function()
                     { i=1, x=0, y=-23 } -- front camera slot
                 },
                 {
-                    { i=7, x=-29, y=-2 }, -- left wingtip
-                    { i=2, x=-18, y=-2 }, -- left outer
+                    { i=7, x=-28, y=-2 }, -- left wingtip
+                    { i=2, x=-19, y=-2 }, -- left outer
                     { i=4, x=-11, y=-2 }, -- left inner
                     { i=6, x=0, y=1 },    -- AWACS
                     { i=5, x=11, y=-2 },  -- right inner
-                    { i=3, x=18, y=-2 },  -- right outer
-                    { i=8, x=29, y=-2 },  -- right wingtip
+                    { i=3, x=19, y=-2 },  -- right outer
+                    { i=8, x=28, y=-2 },  -- right wingtip
                 }
             } ,
             options = {
