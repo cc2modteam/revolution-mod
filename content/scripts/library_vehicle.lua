@@ -2417,18 +2417,18 @@ local st, _v = pcall(function()
                 -- comment/remove a line to remove that attachment
                 {
                     { i = 1, x = 0, y = -23 }, -- front camera slot
-                    { i = 9, x = 9, y = -5 }  -- internal gun
+                    { i = 9, x = 9, y = -4 }  -- internal gun
                 },
                 {
                     --{ i = 2, x = -26, y = 0 }, -- left outer
-                    { i = 4, x = -18, y = 10 }, -- left inner
-                    { i = 6, x = 0, y = 10 },   -- centre
-                    { i = 5, x = 18, y = 10 },  -- right inner
+                    { i = 4, x = -18, y = 7 }, -- left inner
+                    { i = 6, x = 0, y = 7 },   -- centre
+                    { i = 5, x = 18, y = 7 },  -- right inner
                     --{ i = 3, x = 26, y = 0 }   -- right outer
                 },
                 {
-                    { i = 7, x = -6, y = 26 }, -- left util
-                    -- { i = 8, x = 13, y = 20 }   -- right util
+                    { i = 7, x = 0, y = -12 }, -- left util
+                    { i = 8, x = 0, y = 24 }   -- right util
                 }
             },
             options = {
