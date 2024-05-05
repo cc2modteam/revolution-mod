@@ -198,6 +198,7 @@ function _update(screen_w, screen_h, ticks)
     g_animation_time = g_animation_time + ticks
     refresh_modded_radar_cache()
     refresh_fow_islands()
+    refresh_missile_data(true)
     local screen_vehicle = update_get_screen_vehicle()
 
     local screen_team = update_get_screen_team_id()
@@ -635,6 +636,21 @@ function _update(screen_w, screen_h, ticks)
                             end
                         end
                     end
+                end
+            end
+        end
+
+        local blast_size = math.floor(160/ (g_map_size / 40))
+        if blast_size > 1 then
+            -- render bomb blasts to the map
+            for mid, blast in pairs(g_missile_impacts) do
+                if blast["visible"] then
+
+                    local x = blast["x"]
+                    local z = blast["z"]
+                    local age = update_get_logic_tick() - blast["tick"]
+                    local screen_pos_x, screen_pos_y = get_holomap_from_world(x, z, screen_w, screen_h)
+                    draw_explosion(screen_pos_x, screen_pos_y, age, blast_size)
                 end
             end
         end

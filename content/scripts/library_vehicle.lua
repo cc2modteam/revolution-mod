@@ -2229,6 +2229,131 @@ function get_radar_interference(vehicle, radar)
     return false
 end
 
+-- missile data
+g_missiles = {}
+g_missiles_last = {}
+g_missile_trails = {}
+g_missiles_last_update = 0
+g_missile_impacts = {}
+
+g_track_missile_explosions = {
+    [e_game_object_type.bomb_1] = true,
+    [e_game_object_type.bomb_2] = true,
+    [e_game_object_type.bomb_3] = true,
+    [e_game_object_type.missile_cruise] = true,
+}
+
+function refresh_missile_data(visible_only)
+    local st, err = pcall(_refresh_missile_data, visible_only)
+    if not st then
+        print(err)
+    end
+end
+
+function _refresh_missile_data(visible_only)
+    local tick = update_get_logic_tick()
+    if g_missiles_last_update + 20 < tick then
+        g_missiles_last_update = tick
+        -- clean up old impacts
+        local last_impacts = g_missile_impacts
+        g_missile_impacts = {}
+        for key, value in pairs(last_impacts) do
+            if value and tick - value["tick"] < 45  then
+                table.insert(g_missile_impacts, value)
+            end
+        end
+
+        -- find all the missiles
+        local trails_last_frame = g_missile_trails
+        g_missiles_last = g_missiles
+        g_missile_trails = {}
+        g_missiles = {}
+
+        local missile_count = update_get_missile_count()
+
+        for i = 0, missile_count - 1 do
+            local missile = update_get_missile_by_index(i)
+            if missile and missile:get() then
+                if missile:get_is_visible() or not visible_only then
+                    local def = missile:get_definition_index()
+                    local trail_count = missile:get_trail_count()
+                    if g_missile_debug then
+                        print(string.format("missile i=%d d=%d ts=%d", i, def, trail_count))
+                    end
+                    if g_track_missile_explosions[def] ~= nil then
+                        if trail_count > 0 then
+                            -- the last trail position can kind of be used as an id for the missile for a few frames,
+                            -- if the missile has more than 1 trail position, use the last as the first is usually the
+                            -- launcher that may be static if it is a ship or turret
+
+                            -- we just memorise that we've seen the last trail position of this missile
+                            -- if it has more than 2, we remember the last 2
+
+                            local pos = missile:get_position_xz()
+                            if trail_count > 1 then
+                                if trail_count > 2 then
+                                    local tpos = missile:get_trail_position(trail_count - 2)
+                                    local mid = string.format("%f,%f", tpos:x(), tpos:y())
+                                    g_missile_trails[mid] = pos
+                                end
+                                local tpos = missile:get_trail_position(trail_count - 1)
+                                local mid = string.format("%f,%f", tpos:x(), tpos:y())
+                                g_missile_trails[mid] = pos
+
+                                if g_missile_debug then
+                                    print(string.format("i=%d %s", i, mid))
+                                end
+                                g_missiles[mid] = {
+                                    pos = missile:get_position_xz(),
+                                    type = def,
+                                    visible = missile:get_is_visible(),
+                                    team = missile:get_team()
+                                }
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        for mid, pos in pairs(trails_last_frame) do
+            if g_missile_trails[mid] == nil and g_missiles_last[mid] ~= nil then
+                -- impact
+                local x = pos:x()
+                local z = pos:y()
+                table.insert(g_missile_impacts, {
+                    x = x,
+                    z = z,
+                    visible = g_missiles_last[mid]["visible"],
+                    def =  g_missiles_last[mid]["type"],
+                    tick = update_get_logic_tick(),
+                })
+                if g_missile_debug then
+                    print(string.format("impact %f, %f", x, z))
+                end
+            end
+        end
+    end
+end
+
+
+
+function draw_explosion(screen_pos_x, screen_pos_y, age, size)
+    local alpha = 75 - (2 * age)
+    if alpha > 0 then
+        if size == nil then
+            size = 5
+        end
+        local yellow = color8(255, 255, 0, alpha)
+        local fire = color8(255, 0, 0, alpha)
+        if update_get_logic_tick() % 2 == 0 then
+            fire = yellow
+        end
+        update_ui_circle(screen_pos_x,
+                screen_pos_y, size, 9, fire)
+    end
+end
+
 
 -- get customisable settings
 
