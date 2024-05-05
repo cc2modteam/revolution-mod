@@ -1701,6 +1701,9 @@ function _update(screen_w, screen_h, ticks)
                                         is_revealed = false
                                         is_visible = false
                                         is_render_vehicle_icon = false
+                                        if g_highlighted.vehicle_id == vehicle:get_id() then
+                                            g_highlighted.vehicle_id = nil
+                                        end
                                     end
                                 end
                             end
