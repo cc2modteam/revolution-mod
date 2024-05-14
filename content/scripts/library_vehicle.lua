@@ -1161,7 +1161,8 @@ function update_modded_radar_data()
                             if radar_vehicle and radar_vehicle:get() then
                                 local radar_team = get_vehicle_team_id(radar_vehicle)
                                 -- dont scan the same team as the radar
-                                if radar_team ~= vteam then
+                                -- and dont give needlefish "nails" from AI pve units
+                                if radar_team ~= 1 and radar_team ~= vteam then
                                     local radar_range = get_modded_radar_range(radar_vehicle)
                                     if update_sea and target_is_sea then
                                         -- target is a ship
@@ -2243,6 +2244,8 @@ g_track_missile_explosions = {
     [e_game_object_type.missile_cruise] = true,
 }
 
+g_track_missile_callbacks = {}
+
 function refresh_missile_data(visible_only)
     local st, err = pcall(_refresh_missile_data, visible_only)
     if not st then
@@ -2309,6 +2312,9 @@ function _refresh_missile_data(visible_only)
                                     visible = missile:get_is_visible(),
                                     team = missile:get_team()
                                 }
+                                if g_track_missile_callbacks["impact"] ~= nil then
+                                    g_track_missile_callbacks["impact"](g_missiles[mid])
+                                end
                             end
                         end
                     end

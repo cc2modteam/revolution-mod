@@ -2687,3 +2687,11 @@ function focus_world()
         g_tab_map.camera_size = math.max(max_x - min_x, max_z - min_z) * 1.5
     end
 end
+
+function on_missile_impact(impact)
+   -- a missile has hit somewhere on the map 
+end
+
+g_track_missile_callbacks = {
+    ["impact"] = on_missile_impact
+}
