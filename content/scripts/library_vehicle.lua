@@ -2361,9 +2361,7 @@ function _refresh_missile_data(visible_only)
                                     visible = missile:get_is_visible(),
                                     team = missile:get_team()
                                 }
-                                if g_track_missile_callbacks["impact"] ~= nil then
-                                    g_track_missile_callbacks["impact"](g_missiles[mid])
-                                end
+
                             end
                         end
                     end
@@ -2376,15 +2374,21 @@ function _refresh_missile_data(visible_only)
                 -- impact
                 local x = pos:x()
                 local z = pos:y()
-                table.insert(g_missile_impacts, {
+
+                local data = {
                     x = x,
                     z = z,
                     visible = g_missiles_last[mid]["visible"],
                     def =  g_missiles_last[mid]["type"],
                     tick = update_get_logic_tick(),
-                })
+                }
+
+                table.insert(g_missile_impacts, data)
                 if g_missile_debug then
                     print(string.format("impact %f, %f", x, z))
+                end
+                if g_track_missile_callbacks.impact ~= nil then
+                    g_track_missile_callbacks.impact(data)
                 end
             end
         end

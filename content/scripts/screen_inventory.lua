@@ -232,6 +232,7 @@ function update(screen_w, screen_h, ticks)
     g_screen_h = screen_h
 
     refresh_fow_islands()
+    refresh_missile_data(false)
 
     local st, err = pcall(update_barge_cap, ticks)
     if not st then
@@ -845,6 +846,8 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
     local is_collapse_icons = g_tab_map.camera_size > g_tab_map.camera_size_max * 0.4
     local team_color = update_get_team_color(vehicle_team)
     local tile_color = color8(16, 16, 16, 255)
+
+    render_seismic_data(screen_w, screen_h)
 
     local function render_waypoint_path(vehicle)
         local waypoint_count = vehicle:get_waypoint_count()
@@ -2688,10 +2691,80 @@ function focus_world()
     end
 end
 
+g_seismic_event_range = 300
+g_seismic_event = {}
+
+function render_seismic_data(screen_w, screen_h)
+    local tmp_data = {}
+    local now = update_get_logic_tick()
+    local eq_size = g_tab_map.camera_size
+    local st, err = pcall(function()
+        for _, impact in ipairs(g_seismic_event) do
+            local alpha = now - impact.tick
+            if alpha < 120 then
+                -- less than 2 sec
+                local earthquake_color = color8(64, 32, 0, 120 - alpha)
+                table.insert(tmp_data, impact)
+                -- draw a circle
+                local screen_pos_x, screen_pos_y = get_screen_from_world(impact.x, impact.z,
+                        g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
+
+                update_ui_circle(screen_pos_x, screen_pos_y, 2200 / screen_w, 12, earthquake_color)
+                update_ui_text(8, 16, "SEISMIC ANOMALY", screen_w, 0, color_enemy, 0)
+            end
+        end
+        g_seismic_event = tmp_data
+    end)
+    if not st then
+        print(err)
+    end
+end
+
 function on_missile_impact(impact)
-   -- a missile has hit somewhere on the map 
+    -- a missile has hit somewhere on the map
+    if impact then
+        local pos = vec2(impact.x, impact.z)
+        local island = get_nearest_island_tile(impact.x, impact.z)
+        if island:get() and fow_island_visible(island:get_id()) then
+            local name = island:get_name()
+
+            print(name)
+
+            if island:get() then
+                local command_center_count = island:get_command_center_count()
+                for j = 0, command_center_count - 1 do
+                    local command_center_pos_xz = island:get_command_center_position(j)
+                    local dist = vec2_dist(pos, command_center_pos_xz)
+                    print(dist)
+                    if dist < island:get_size():x() then
+                        table.insert(g_seismic_event, impact)
+                    end
+                    if island:get_team_control() == update_get_screen_team_id() then
+                        if dist < g_seismic_event_range then
+                            -- close to command center, cancel production
+                            cancel_island_production(island)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function cancel_island_production(island)
+    --
+
+    local queue_count = island:get_facility_production_queue_count()
+
+    for i = 0, queue_count - 1 do
+        local _, item_count = island:get_facility_production_queue_item(i)
+        if item_count > 0 then
+            island:set_facility_remove_production_queue_item(i, item_count)
+        end
+    end
+
 end
 
 g_track_missile_callbacks = {
-    ["impact"] = on_missile_impact
+    impact = on_missile_impact
 }
