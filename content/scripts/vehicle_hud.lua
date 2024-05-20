@@ -4350,27 +4350,9 @@ Variometer = {
 }
 
 function get_nearest_island_name(vehicle)
-    local name = "x"
+    local name = "-"
     local pos = vehicle:get_position()
-    pos:y(pos:z())
-    local tile_count = update_get_tile_count()
-    local index = 0
-    local nearest = nil
-    local dist = 99999
-
-    while index < tile_count do
-        local tile = update_get_tile_by_index(index)
-        if tile:get() then
-            index = index + 1
-            local tile_pos = tile:get_position_xz()
-            local tile_dist = vec2_dist(pos, tile_pos)
-
-            if tile_dist < dist then
-                dist = tile_dist
-                nearest = tile
-            end
-        end
-    end
+    local nearest = get_nearest_island_tile(pos:x(), pos:z())
     name = nearest:get_name()
     return name
 end

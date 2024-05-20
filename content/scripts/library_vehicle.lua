@@ -1161,8 +1161,8 @@ function update_modded_radar_data()
                             if radar_vehicle and radar_vehicle:get() then
                                 local radar_team = get_vehicle_team_id(radar_vehicle)
                                 -- dont scan the same team as the radar
-                                -- and dont give needlefish "nails" from AI pve units
-                                if radar_team ~= 1 and radar_team ~= vteam then
+                                -- and dont give needlefish "nails" from AI units
+                                if radar_team ~= vteam and get_team_has_humans(radar_team) then
                                     local radar_range = get_modded_radar_range(radar_vehicle)
                                     if update_sea and target_is_sea then
                                         -- target is a ship
@@ -1319,6 +1319,55 @@ end
 function fow_island_visible(island_id)
     return g_fow_visible[island_id] == true
 end
+
+
+function get_nearest_island_tile(x, y)
+    local tile_count = update_get_tile_count()
+    local index = 0
+    local nearest = nil
+    local dist = 99999
+
+    local pos = vec2(x, y)
+
+    while index < tile_count do
+        local tile = update_get_tile_by_index(index)
+        if tile:get() then
+            index = index + 1
+            local tile_pos = tile:get_position_xz()
+            local tile_dist = vec2_dist(pos, tile_pos)
+
+            if tile_dist < dist then
+                dist = tile_dist
+                nearest = tile
+            end
+        end
+    end
+    return nearest
+end
+
+-- ai team check
+
+function get_team_has_humans(team_id)
+    local current_team = update_get_screen_team_id()
+    if current_team == team_id then
+        -- easy shortcut
+        return true
+    end
+
+    -- look through multiplier members, if a pear doesnt have the same team ID as us, then that
+    -- team is human controlled, else it's AI controlled or nobody has joined it
+    local peer_count = update_get_peer_count()
+
+    for i = 0, peer_count - 1 do
+        local team = update_get_peer_team(i)
+        if team == team_id then
+            return true
+        end
+    end
+
+    return false
+end
+
 
 -- Radar cross section
 
