@@ -1581,6 +1581,7 @@ end
 F_DRYDOCK_WPTX_CURSOR   = 0x01
 F_DRYDOCK_WPTX_MARKER   = 0x02
 F_DRYDOCK_WPTX_SETTING  = 0x04
+F_DRYDOCK_WPTX_FACTORY_DAMAGED = 0x08
 
 -- y() values for settings waypoints
 WPT_SETTING_RADAR_X1   = 1  -- no multiplier
@@ -1792,9 +1793,10 @@ function add_special_waypoint(team_id, flag, special_id)
         local w_id = drydock:add_waypoint(flag, special_id)
         drydock:set_waypoint_altitude(w_id, 0)
         current = drydock:get_waypoint_by_id(w_id)
+        return w_id
     end
 
-    return current
+    return current:get_id()
 end
 
 function add_marker_waypoint(team_id, marker_id)
@@ -2757,4 +2759,72 @@ if not st then
 else
     print("library_vehicle.lua loaded ok")
     g_revolution_attachment_defaults = _v
+end
+
+
+-- script leader utils
+
+-- return True if this game client is the "lead" client for scripting
+-- this is used where you want to limit a chunk of code to happening
+-- for only one player per team
+function get_is_lead_team_peer()
+    -- get the peer names, return true if we are the first in sorted order
+    if not update_get_is_multiplayer() then
+        return true
+    end
+
+    local names = {}
+    local self_id = update_get_local_peer_id()
+    local self_idx = update_get_peer_index_by_id(self_id)
+    local self_name = update_get_peer_name(self_idx)
+    local peer_count = update_get_peer_count()
+    for i = 0, peer_count - 1 do
+        table.insert(names, update_get_peer_name(i))
+    end
+    table.sort(names, function(a, b) return a.lower() < b.lower() end)
+    for _, name in ipairs(names) do
+        return name == self_name
+    end
+
+    return false
+end
+
+-- if an island factory is damaged, return the number of ticks until it is repaired
+-- else return 0
+function get_island_factory_damage(island_id)
+    local team = update_get_screen_team_id()
+    local flag = get_special_waypoint(team, F_DRYDOCK_WPTX_FACTORY_DAMAGED, island_id)
+    if flag ~= nil then
+        local now = update_get_logic_tick()
+        local repaired = flag:get_altitude()
+        local remaining = repaired - now
+        if remaining > 0 then
+            return remaining
+        end
+    end
+    return 0
+end
+
+-- bomb damage can be fixed in minutes (longer for larger bombs)
+g_island_factory_damage_mins = 2.5
+g_island_factory_damage_ticks = 30 * 60 * g_island_factory_damage_mins
+
+-- mark a factory as damaged and set the time that we will say it is repaired
+function set_island_factory_damage(island_id, tick_when_fixed)
+    local team = update_get_screen_team_id()
+    local wpt = add_special_waypoint(team, F_DRYDOCK_WPTX_FACTORY_DAMAGED, island_id)
+    if wpt ~= nil then
+        local drydock = find_team_drydock(team)
+        if drydock and drydock:get() then
+            drydock:set_waypoint_altitude(wpt, tick_when_fixed)
+        end
+    end
+end
+
+
+function get_factory_damage_enabled()
+    if g_revolution_enable_factory_damage == nil then
+        return true
+    end
+    return g_revolution_enable_factory_damage
 end

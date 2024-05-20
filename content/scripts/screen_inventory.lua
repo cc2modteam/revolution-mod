@@ -230,7 +230,6 @@ end
 function update(screen_w, screen_h, ticks) 
     g_screen_w = screen_w
     g_screen_h = screen_h
-
     refresh_fow_islands()
     refresh_missile_data(false)
 
@@ -962,9 +961,13 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
         
         local tile_icon_color = g_map_colors.inactive
         local tile_icon_bg = color_black
+        local damaged = get_island_factory_damage(tile:get_id())
 
         if tile:get_team_control() == vehicle_team then
             tile_icon_color = g_map_colors.factory
+            if damaged > 0 then
+                tile_icon_color = color_status_dark_red
+            end
         end
 
         local category_data = g_item_categories[tile:get_facility_category()]
@@ -1463,17 +1466,25 @@ function render_map_facility_ui(screen_w, screen_h, x, y, w, h, category_data, f
 
         if item ~= nil then
             local window = ui:begin_window(item.name .. "##facilityitem", 30, y + 10, w - 60, h - 30, atlas_icons.column_stock, true, 2)
-                imgui_item_description(ui, screen_vehicle, item, false, true)
+            imgui_item_description(ui, screen_vehicle, item, false, true)
 
-                local production_count = facility_tile:get_facility_production_queue_item_type(item.index)
+            local production_count = facility_tile:get_facility_production_queue_item_type(item.index)
 
-                imgui_table_header(ui, {
-                    { w=134, margin=5, value=update_get_loc(e_loc.upp_queue) },
-                    { w=10, margin=0, value=atlas_icons.column_stock },
-                    { w=-1, margin=0, value="x" .. production_count }
-                })
+            imgui_table_header(ui, {
+                { w=134, margin=5, value=update_get_loc(e_loc.upp_queue) },
+                { w=10, margin=0, value=atlas_icons.column_stock },
+                { w=-1, margin=0, value="x" .. production_count }
+            })
 
-                ui:spacer(1)
+            ui:spacer(1)
+
+            local damaged = get_island_factory_damage(facility_tile:get_id())
+            if damaged > 0 then
+                ui:text_basic(string.format(
+                        "DAMAGED. %ds until repaired",
+                        math.floor(damaged / 30)
+                ))
+            else
                 local order_barges = false
                 local buy_number_buttons = { "+1", "+10", "+100", "+1000" }
                 if item.index == e_inventory_item.vehicle_barge then
@@ -1497,6 +1508,9 @@ function render_map_facility_ui(screen_w, screen_h, x, y, w, h, category_data, f
                 elseif result == 3 then
                     facility_tile:set_facility_add_production_queue_item(item.index, 1000)
                 end
+
+            end
+
             ui:end_window()
         else
             g_tab_map.selected_facility_item = -1
@@ -1528,9 +1542,16 @@ function render_map_facility_queue(x, y, w, h, tile)
     local queue_count = tile:get_facility_production_queue_count()
     local is_refitting = tile:get_facility_is_refit()
     local production_factor = tile:get_facility_production_factor()
-    
+    local progress_color = g_map_colors.progress
+
+    local damage_remaining = get_island_factory_damage(tile:get_id())
+    if damage_remaining > 0 then
+        progress_color = color_status_dark_red
+        production_factor = damage_remaining / (2.1 * g_island_factory_damage_ticks)
+    end
+
     update_ui_rectangle(0, cy, w, 3, color_grey_dark)
-    update_ui_rectangle(0, cy, w * production_factor, 3, g_map_colors.progress)
+    update_ui_rectangle(0, cy, w * production_factor, 3, progress_color)
     cy = cy + 4
 
     if is_refitting then
@@ -1544,7 +1565,11 @@ function render_map_facility_queue(x, y, w, h, tile)
         update_ui_text(18, cy + 3, "x", 20, 0, iff(is_selected, color_highlight, color_grey_dark), 0)
         update_ui_text(26, cy + 3, item_count, 30, 0, iff(is_selected, color_highlight, color_status_ok), 0)
     else
-        update_ui_text(0, cy + 3, update_get_loc(e_loc.upp_idle), w, 0, color_grey_dark, 0)
+        if damage_remaining > 0 then
+            update_ui_text(0, cy + 3, update_get_loc(e_loc.upp_damaged), w, 0, color_status_dark_red, 0)
+        else
+            update_ui_text(0, cy + 3, update_get_loc(e_loc.upp_idle), w, 0, color_grey_dark, 0)
+        end
     end
 
     update_ui_pop_clip()
@@ -2739,10 +2764,27 @@ function on_missile_impact(impact)
                     if dist < island:get_size():x() then
                         table.insert(g_seismic_event, impact)
                     end
-                    if island:get_team_control() == update_get_screen_team_id() then
-                        if dist < g_seismic_event_range then
-                            -- close to command center, cancel production
-                            cancel_island_production(island)
+                    if dist < g_seismic_event_range then
+                        if get_factory_damage_enabled() then
+                            if island:get_team_control() == update_get_screen_team_id() then
+                                -- close to command center, cancel production
+                                cancel_island_production(island)
+
+                            end
+                            if get_is_lead_team_peer() then
+                                print(string.format("mark %d as damaged", island:get_id()))
+                                -- record that the factory is now damaged and set a recovery tick time
+                                local dmg = g_island_factory_damage_ticks
+                                -- if large/med bomb, add more time
+                                if impact.def == e_game_object_type.bomb_2 then
+                                    dmg = 1.5 * dmg
+                                elseif impact.def == e_game_object_type.bomb_3 then
+                                    dmg = 2 * dmg
+                                end
+                                local repaired = math.floor(update_get_logic_tick() + dmg)
+
+                                set_island_factory_damage(island:get_id(), repaired)
+                            end
                         end
                     end
                 end
