@@ -2306,13 +2306,13 @@ end
 
 function _refresh_missile_data(visible_only)
     local tick = update_get_logic_tick()
-    if g_missiles_last_update + 20 < tick then
+    if tick > g_missiles_last_update + 10 then
         g_missiles_last_update = tick
         -- clean up old impacts
         local last_impacts = g_missile_impacts
         g_missile_impacts = {}
         for key, value in pairs(last_impacts) do
-            if value and tick - value["tick"] < 45  then
+            if value and tick - value["tick"] < 130  then
                 table.insert(g_missile_impacts, value)
             end
         end
@@ -2357,11 +2357,19 @@ function _refresh_missile_data(visible_only)
                                 if g_missile_debug then
                                     print(string.format("i=%d %s", i, mid))
                                 end
+                                local first_seen = update_get_logic_tick()
+                                if g_missiles_last[mid] ~= nil then
+                                    if g_missiles_last[mid].first - first_seen < 130 then
+                                        first_seen = g_missiles_last[mid].first
+                                    end
+                                end
+
                                 g_missiles[mid] = {
                                     pos = missile:get_position_xz(),
                                     type = def,
                                     visible = missile:get_is_visible(),
-                                    team = missile:get_team()
+                                    team = missile:get_team(),
+                                    first = first_seen
                                 }
 
                             end
@@ -2382,6 +2390,7 @@ function _refresh_missile_data(visible_only)
                     z = z,
                     visible = g_missiles_last[mid]["visible"],
                     def =  g_missiles_last[mid]["type"],
+                    first = g_missiles_last[mid]["first"],
                     tick = update_get_logic_tick(),
                 }
 
@@ -2818,7 +2827,11 @@ function set_island_factory_damage(island_id, tick_when_fixed)
     if wpt ~= nil then
         local drydock = find_team_drydock(team)
         if drydock and drydock:get() then
-            drydock:set_waypoint_altitude(wpt, math.min(tick_when_fixed, g_island_factory_damage_ticks_max))
+            local value = math.floor(math.min(tick_when_fixed, update_get_logic_tick() + g_island_factory_damage_ticks_max))
+            if g_missile_debug then
+                print("factory " .. island_id .. " dmg=" .. value)
+            end
+            drydock:set_waypoint_altitude(wpt, value)
         end
     end
 end

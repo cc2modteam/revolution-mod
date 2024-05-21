@@ -2777,13 +2777,17 @@ function on_missile_impact(impact)
                     return
                 end
                 local dist = vec2_dist(pos, command_center_pos_xz)
-                print(dist)
                 if dist < island:get_size():x() then
                     table.insert(g_seismic_event, impact)
                 end
                 if dist < g_seismic_event_range then
                     if get_factory_damage_enabled() then
-                        if get_is_lead_team_peer() then
+                        -- only cause damage for bombs that have been released more than 1 sec ago
+                        -- (ie, gained penetration through altitude)
+                        -- (also, missile data sample rate is reduced to 1/s when you are in the HUD)
+                        -- a value of 50 means you need to drop at least 300m above the target
+                        local missile_age = update_get_logic_tick() - impact.first
+                        if missile_age > 50 and get_is_lead_team_peer() then
                             if island:get_team_control() == update_get_screen_team_id() then
                                 -- close to command center, cancel production
                                 cancel_island_production(island)
