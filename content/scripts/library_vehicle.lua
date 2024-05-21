@@ -2808,6 +2808,8 @@ end
 -- bomb damage can be fixed in minutes (longer for larger bombs)
 g_island_factory_damage_mins = 2.5
 g_island_factory_damage_ticks = 30 * 60 * g_island_factory_damage_mins
+g_island_factory_damage_mins_max = 7
+g_island_factory_damage_ticks_max = 30 * 60 * g_island_factory_damage_mins_max
 
 -- mark a factory as damaged and set the time that we will say it is repaired
 function set_island_factory_damage(island_id, tick_when_fixed)
@@ -2816,7 +2818,7 @@ function set_island_factory_damage(island_id, tick_when_fixed)
     if wpt ~= nil then
         local drydock = find_team_drydock(team)
         if drydock and drydock:get() then
-            drydock:set_waypoint_altitude(wpt, tick_when_fixed)
+            drydock:set_waypoint_altitude(wpt, math.min(tick_when_fixed, g_island_factory_damage_ticks_max))
         end
     end
 end

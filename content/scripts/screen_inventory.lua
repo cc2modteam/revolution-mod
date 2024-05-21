@@ -955,61 +955,63 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
     -- render tiles
 
     for _, tile in iter_tiles() do 
-        local tile_position = tile:get_position_xz()
-        
-        local screen_pos_x, screen_pos_y = get_screen_from_world(tile_position:x(), tile_position:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
-        
-        local tile_icon_color = g_map_colors.inactive
-        local tile_icon_bg = color_black
-        local damaged = get_island_factory_damage(tile:get_id())
+        local tile_position = get_command_center_position(tile:get_id())
+        if tile_position ~= nil then
 
-        if tile:get_team_control() == vehicle_team then
-            tile_icon_color = g_map_colors.factory
-            if damaged > 0 then
-                tile_icon_color = color_status_dark_red
-            end
-        end
+            local screen_pos_x, screen_pos_y = get_screen_from_world(tile_position:x(), tile_position:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
 
-        local category_data = g_item_categories[tile:get_facility_category()]
-        local tile_col = iff(is_tile_hovered(tile), color_white, tile_icon_color)
-        
-        if is_collapse_icons then
-            update_ui_rectangle(screen_pos_x - 1, screen_pos_y - 1, 2, 2, tile_col)
-        else
-            local name = tile:get_name()
-            local name_factor = clamp(invlerp(g_tab_map.camera_size,  g_tab_map.camera_size_min, g_tab_map.camera_size_max * 0.35), 0, 1)
-            local tile_size = tile:get_size()
-            local visible = fow_island_visible(tile:get_id())
-            local icon = category_data.icon
-            if not visible then
-                if g_revolution_hide_hostile_island_types then
-                    icon = atlas_icons.map_icon_damage_indicator
+            local tile_icon_color = g_map_colors.inactive
+            local tile_icon_bg = color_black
+            local damaged = get_island_factory_damage(tile:get_id())
+
+            if tile:get_team_control() == vehicle_team then
+                tile_icon_color = g_map_colors.factory
+                if damaged > 0 then
+                    tile_icon_color = color_status_dark_red
                 end
             end
 
-            local name_pos_x, name_pos_y = get_screen_from_world(tile_position:x(), tile_position:y() + tile_size:y() / 2, g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
+            local category_data = g_item_categories[tile:get_facility_category()]
+            local tile_col = iff(is_tile_hovered(tile), color_white, tile_icon_color)
 
-            update_ui_text(name_pos_x - 100, math.min(screen_pos_y - 14, name_pos_y), name, 200, 1, color8_lerp(color8(0, 255, 255, 10), color_empty, name_factor), 0)
-
-            update_ui_rectangle(screen_pos_x - 5, screen_pos_y - 4, 10, 8, tile_icon_bg)
-            update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 5, 8, 10, tile_icon_bg)
-            if icon then
-                update_ui_image(screen_pos_x - 4, screen_pos_y - 4, icon, tile_col, 0)
-            end
-        end
-        
-        if tile:get_team_control() == vehicle_team then
-            local production_factor = tile:get_facility_production_factor()
-            local queue_count = tile:get_facility_production_queue_count()
-            
-            if queue_count > 0 then
-                if is_collapse_icons then
-                    if g_animation_time % 30 > 15 then
-                        update_ui_rectangle(screen_pos_x - 1, screen_pos_y - 1, 2, 2, g_map_colors.progress)
+            if is_collapse_icons then
+                update_ui_rectangle(screen_pos_x - 1, screen_pos_y - 1, 2, 2, tile_col)
+            else
+                local name = tile:get_name()
+                local name_factor = clamp(invlerp(g_tab_map.camera_size,  g_tab_map.camera_size_min, g_tab_map.camera_size_max * 0.35), 0, 1)
+                local tile_size = tile:get_size()
+                local visible = fow_island_visible(tile:get_id())
+                local icon = category_data.icon
+                if not visible then
+                    if g_revolution_hide_hostile_island_types then
+                        icon = atlas_icons.map_icon_damage_indicator
                     end
-                else
-                    update_ui_rectangle(screen_pos_x - 4, screen_pos_y + 5, 8, 2, color_black)
-                    update_ui_rectangle(screen_pos_x - 4, screen_pos_y + 5, 8 * production_factor, 2, g_map_colors.progress)
+                end
+
+                local name_pos_x, name_pos_y = get_screen_from_world(tile_position:x(), tile_position:y() + tile_size:y() / 2, g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
+
+                update_ui_text(name_pos_x - 100, math.min(screen_pos_y - 14, name_pos_y), name, 200, 1, color8_lerp(color8(0, 255, 255, 10), color_empty, name_factor), 0)
+
+                update_ui_rectangle(screen_pos_x - 5, screen_pos_y - 4, 10, 8, tile_icon_bg)
+                update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 5, 8, 10, tile_icon_bg)
+                if icon then
+                    update_ui_image(screen_pos_x - 4, screen_pos_y - 4, icon, tile_col, 0)
+                end
+            end
+
+            if tile:get_team_control() == vehicle_team then
+                local production_factor = tile:get_facility_production_factor()
+                local queue_count = tile:get_facility_production_queue_count()
+
+                if queue_count > 0 then
+                    if is_collapse_icons then
+                        if g_animation_time % 30 > 15 then
+                            update_ui_rectangle(screen_pos_x - 1, screen_pos_y - 1, 2, 2, g_map_colors.progress)
+                        end
+                    else
+                        update_ui_rectangle(screen_pos_x - 4, screen_pos_y + 5, 8, 2, color_black)
+                        update_ui_rectangle(screen_pos_x - 4, screen_pos_y + 5, 8 * production_factor, 2, g_map_colors.progress)
+                    end
                 end
             end
         end
@@ -2745,6 +2747,19 @@ function render_seismic_data(screen_w, screen_h)
     end
 end
 
+function get_command_center_position(island_id)
+    local island = update_get_tile_by_id(island_id)
+    if island and island:get() then
+        local command_center_count = island:get_command_center_count()
+        for j = 0, command_center_count - 1 do
+            return island:get_command_center_position(j)
+        end
+        -- could be a funny island that generated without land
+        return island:get_position_xz()
+    end
+    return nil
+end
+
 function on_missile_impact(impact)
     -- a missile has hit somewhere on the map
     if impact then
@@ -2753,38 +2768,42 @@ function on_missile_impact(impact)
         if island:get() and fow_island_visible(island:get_id()) then
             local name = island:get_name()
 
-            print(name)
-
             if island:get() then
-                local command_center_count = island:get_command_center_count()
-                for j = 0, command_center_count - 1 do
-                    local command_center_pos_xz = island:get_command_center_position(j)
-                    local dist = vec2_dist(pos, command_center_pos_xz)
-                    print(dist)
-                    if dist < island:get_size():x() then
-                        table.insert(g_seismic_event, impact)
-                    end
-                    if dist < g_seismic_event_range then
-                        if get_factory_damage_enabled() then
+                local command_center_pos_xz = get_command_center_position(island:get_id())
+                if command_center_pos_xz == nil then
+                    -- should not happen when the map is loaded
+                    return
+                end
+                local dist = vec2_dist(pos, command_center_pos_xz)
+                print(dist)
+                if dist < island:get_size():x() then
+                    table.insert(g_seismic_event, impact)
+                end
+                if dist < g_seismic_event_range then
+                    if get_factory_damage_enabled() then
+                        if get_is_lead_team_peer() then
                             if island:get_team_control() == update_get_screen_team_id() then
                                 -- close to command center, cancel production
                                 cancel_island_production(island)
-
                             end
-                            if get_is_lead_team_peer() then
-                                print(string.format("mark %d as damaged", island:get_id()))
-                                -- record that the factory is now damaged and set a recovery tick time
-                                local dmg = g_island_factory_damage_ticks
-                                -- if large/med bomb, add more time
-                                if impact.def == e_game_object_type.bomb_2 then
-                                    dmg = 1.5 * dmg
-                                elseif impact.def == e_game_object_type.bomb_3 then
-                                    dmg = 2 * dmg
-                                end
-                                local repaired = math.floor(update_get_logic_tick() + dmg)
 
-                                set_island_factory_damage(island:get_id(), repaired)
+                            -- record that the factory is now damaged and set a recovery tick time
+                            local dmg = g_island_factory_damage_ticks
+                            -- if large/med bomb, add more time
+                            if impact.def == e_game_object_type.bomb_2 then
+                                dmg = 1.5 * dmg
+                            elseif impact.def == e_game_object_type.bomb_3 then
+                                dmg = 2 * dmg
                             end
+                            local base = update_get_logic_tick()
+                            local repaired = base + dmg
+                            local damaged = get_island_factory_damage(island:get_id())
+                            if damaged > 0 then
+                                -- its already damaged, bump only by another few sec
+                                repaired = repaired + 0.2 * dmg
+                            end
+
+                            set_island_factory_damage(island:get_id(), repaired)
                         end
                     end
                 end
