@@ -1837,13 +1837,15 @@ function update_map_hovered(screen_w, screen_h)
 
         for _, tile in iter_tiles(tile_filter) do
             if is_tile_hoverable(tile) then
-                local tile_pos_xz = tile:get_position_xz()
-                local screen_x, screen_y = get_screen_from_world(tile_pos_xz:x(), tile_pos_xz:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
-                local dist_sq = vec2_dist_sq(vec2(screen_x, screen_y), vec2(g_tab_map.cursor_pos_x, g_tab_map.cursor_pos_y))
+                local tile_pos_xz = get_command_center_position(tile:get_id())
+                if tile_pos_xz then
+                    local screen_x, screen_y = get_screen_from_world(tile_pos_xz:x(), tile_pos_xz:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
+                    local dist_sq = vec2_dist_sq(vec2(screen_x, screen_y), vec2(g_tab_map.cursor_pos_x, g_tab_map.cursor_pos_y))
 
-                if dist_sq < min_hover_dist_sq and dist_sq < tile_radius_sq then
-                    min_hover_dist_sq = dist_sq
-                    set_map_hovered(tile:get_id(), g_node_types.tile)
+                    if dist_sq < min_hover_dist_sq and dist_sq < tile_radius_sq then
+                        min_hover_dist_sq = dist_sq
+                        set_map_hovered(tile:get_id(), g_node_types.tile)
+                    end
                 end
             end
         end
@@ -2737,7 +2739,7 @@ function render_seismic_data(screen_w, screen_h)
                         g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
 
                 update_ui_circle(screen_pos_x, screen_pos_y, 2200 / screen_w, 12, earthquake_color)
-                update_ui_text(8, 16, "SEISMIC ANOMALY", screen_w, 0, color_enemy, 0)
+                update_ui_text(8, 16, "SEISMIC ANOMALY", screen_w, 0, color_status_dark_red, 0)
             end
         end
         g_seismic_event = tmp_data
