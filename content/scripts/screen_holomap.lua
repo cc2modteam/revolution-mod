@@ -1053,6 +1053,23 @@ function _update(screen_w, screen_h, ticks)
         if g_button_mode == 0 then
             update_ui_text(1, 1, "MISSION TIME: " .. format_time( now / 30 ), label_w, 0, color_white, 0)
 
+            -- if the carrier is docked, show the welcome message
+            if g_revolution_welcome ~= nil then
+                local self = update_get_screen_vehicle()
+                if self and self:get() then
+                    if self:get_attached_parent_id() ~= 0 then
+                        update_ui_text(32, 13, get_ship_name(update_get_screen_vehicle()) .. " DOCKED", 480, 0, color_white, 0)
+                        update_ui_text(32, 13 * 2, g_revolution_welcome, 480, 0, color_white, 0)
+                        if update_get_is_multiplayer() then
+                            local server_name = update_get_server_name()
+                            if server_name ~= "" then
+                                update_ui_text(32, 13 * 3, server_name, 480, 0, color_white, 0)
+                            end
+                        end
+                    end
+                end
+            end
+
             update_ui_text(screen_w / 8, screen_h - 31,
                     string.format("ACC %s",
                             get_ship_name(update_get_screen_vehicle())), 400, 0, color_grey_mid, 0)
@@ -1974,19 +1991,19 @@ function holomap_override_startup( screen_w, screen_h, ticks )
 end
 
 function render_startup_memchk( screen_w, screen_h )
-    local anim = (g_animation_time - g_startup_phase_anim) * 2
+    local anim = (g_animation_time - g_startup_phase_anim) * 4
     
     local mem = math.min( 640, anim )
     update_ui_text(16, 16, string.format("%.0fKB OK", math.floor(mem)), 128, 0, color_white, 0)
     
-    if anim > 700 then
+    if anim > 200 then
         g_startup_phase_anim = g_animation_time
         g_startup_phase = g_startup_phase + 1
     end
 end
 
 function render_startup_bios( screen_w, screen_h )
-    local anim = math.floor( (g_animation_time - g_startup_phase_anim) / 5 ) + 1
+    local anim = math.floor( (g_animation_time - g_startup_phase_anim) / 2 ) + 1
     
     local bios_text = {
         "Firmware Version 3.22.7\n",
@@ -2460,3 +2477,5 @@ function render_map_scale(screen_w, screen_h)
         update_ui_pop_offset()
     end
 end
+
+g_revolution_welcome = "Carrier Command 2 + Revolution Mod"
