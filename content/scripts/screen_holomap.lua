@@ -174,12 +174,6 @@ function _update(screen_w, screen_h, ticks)
 
     if g_first_update then
         g_first_update = false
-
-        --local drydock = find_team_drydock(update_get_screen_team_id())
-        --print("about to add a unit")
-        --drydock:set_attached_vehicle_chassis(1, e_game_object_type.chassis_land_robot_dog)
-        --print(drydock:get_attached_vehicle_id(1))
-        --print("done")
     end
 
     if g_is_pointer_down then
