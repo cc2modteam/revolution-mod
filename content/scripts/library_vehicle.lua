@@ -2839,7 +2839,7 @@ end
 
 function get_factory_damage_enabled()
     if g_revolution_enable_factory_damage == nil then
-        return true
+        return false
     end
     return g_revolution_enable_factory_damage
 end
