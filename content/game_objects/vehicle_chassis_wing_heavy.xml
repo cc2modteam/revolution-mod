@@ -180,7 +180,21 @@
 	<indicators/>
 	<achievements/>
 	<dials/>
-	<screens/>
+	<screens>
+		<screen name="sfx"
+				type="5"
+				refresh_interval="0"
+				body_index="0"
+				seat_index="4294967295"
+				script_file_name="scripts/screen_vehicle_camera.lua"
+		>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
+					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
+					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
+					   tx="0.00000000e+00" ty="-0.6" tz="4"/>
+
+		</screen>
+	</screens>
 	<doors/>
 	<graph_nodes/>
 	<graph_links/>
