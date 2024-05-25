@@ -2550,6 +2550,22 @@ function concat_lists(t1, t2)
     return result
 end
 
+function get_loadout_attachment_not_allowed(vehicle, attachment_index)
+    local attachment = vehicle:get_attachment(attachment_index)
+    if attachment and attachment:get() then
+        local options = get_selected_vehicle_attachment_extra_options(vehicle, attachment_index)
+        local a_def = attachment:get_definition_index()
+        if a_def then
+            for _, item in pairs(options) do
+                if item.type == a_def then
+                    return false
+                end
+            end
+        end
+    end
+    return true
+end
+
 function get_loadout_attachment_hidden(vehicle, attachment_index)
     local rows = get_ui_vehicle_chassis_attachments(vehicle)
     for _, row in pairs(rows) do
@@ -2575,7 +2591,7 @@ function sanitise_loadout(carrier, bay_index)
                 local a = vehicle:get_attachment(i)
                 if a and a:get() then
                     if a:get_definition_index() ~= -1 then
-                        local hidden = get_loadout_attachment_hidden(vehicle, i)
+                        local hidden = get_loadout_attachment_hidden(vehicle, i) or get_loadout_attachment_not_allowed(vehicle, i)
                         if hidden then
                             -- remove the attachment
                             print(string.format("remove bay %d attachment %d", bay_index, i))
@@ -2630,11 +2646,11 @@ local st, _v = pcall(function()
                 -- comment/remove a line to remove that attachment
                 {
                     { i = 1, x = 0, y = -23 }, -- front camera slot
-                    { i = 7, x = 9, y = -4 }  -- internal gun
+                    { i = 4, x = 9, y = -4 }  -- internal gun
                 },
                 {
                     { i = 2, x = -18, y = 7 }, -- left inner
-                    { i = 4, x = 0, y = 7 },   -- centre
+                    { i = 7, x = 0, y = 7 },   -- centre
                     { i = 3, x = 18, y = 7 },  -- right inner
 
                     --{ i = 2, x = -26, y = 0 }, -- left outer
@@ -2658,7 +2674,7 @@ local st, _v = pcall(function()
                 [2] = _std_wing_attachments,
                 [3] = _std_wing_attachments,
                 -- middle
-                [4] = {
+                [7] = {
                     e_game_object_type.attachment_fuel_tank_plane,
                     e_game_object_type.attachment_hardpoint_bomb_1,
                     e_game_object_type.attachment_hardpoint_bomb_2,
@@ -2670,7 +2686,7 @@ local st, _v = pcall(function()
                 [6] = _std_wing_utils,
 
                 -- internal gun
-                [7] = {
+                [4] = {
                     e_game_object_type.attachment_turret_plane_chaingun
                 }
             }
