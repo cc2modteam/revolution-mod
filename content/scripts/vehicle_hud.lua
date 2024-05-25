@@ -9,7 +9,7 @@ g_is_input_cycle_target_prev = false
 g_is_map_overlay = false
 g_render_rwr = false
 g_active_attachment_time = 0
-
+g_is_hud = true
 g_nearest_hostile_ew_radar = nil
 g_nearest_hostile_ew_radar_range = 99999
 
