@@ -2194,11 +2194,21 @@ function get_carrier_lifeboat_attachments_value(vehicle)
     return 0
 end
 
+function get_pos_xz(vehicle)
+    if g_is_hud then
+        local pos = vehicle:get_position()
+        return vec2(pos:x(), pos:z())
+    end
+    return vehicle:get_position_xz()
+end
+
 
 function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team)
     -- find the nearest unit of a particular type
     local vehicle_count = update_get_map_vehicle_count()
-    local self_pos = vehicle:get_position_xz()
+
+
+    local self_pos = get_pos_xz(vehicle)
     if friendly_team == nil then
         friendly_team = vehicle:get_team()
     end
@@ -2218,7 +2228,7 @@ function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team)
                 for di = 1, #other_defs do
                     local other_def = other_defs[di]
                     if other_def == -1 or unit_def == other_def then
-                        local dist = vec2_dist_sq(self_pos, unit:get_position_xz())
+                        local dist = vec2_dist_sq(self_pos, get_pos_xz(unit))
                         if dist < distance_sq then
                             distance_sq = dist
                             nearest = unit
@@ -2620,18 +2630,22 @@ local st, _v = pcall(function()
                 -- comment/remove a line to remove that attachment
                 {
                     { i = 1, x = 0, y = -23 }, -- front camera slot
-                    { i = 9, x = 9, y = -4 }  -- internal gun
+                    { i = 7, x = 9, y = -4 }  -- internal gun
                 },
                 {
+                    { i = 2, x = -18, y = 7 }, -- left inner
+                    { i = 4, x = 0, y = 7 },   -- centre
+                    { i = 3, x = 18, y = 7 },  -- right inner
+
                     --{ i = 2, x = -26, y = 0 }, -- left outer
-                    { i = 4, x = -18, y = 7 }, -- left inner
-                    { i = 6, x = 0, y = 7 },   -- centre
-                    { i = 5, x = 18, y = 7 },  -- right inner
+                    --{ i = 4, x = -18, y = 7 }, -- left inner
+                    --{ i = 6, x = 0, y = 7 },   -- centre
+                    --{ i = 5, x = 18, y = 7 },  -- right inner
                     --{ i = 3, x = 26, y = 0 }   -- right outer
                 },
                 {
-                    { i = 7, x = -9, y = 24 }, -- left util
-                    { i = 8, x = 9, y = 24 }   -- right util
+                    { i = 5, x = -9, y = 24 }, -- left util
+                    { i = 6, x = 9, y = 24 }   -- right util
                 }
             },
             options = {
@@ -2643,10 +2657,8 @@ local st, _v = pcall(function()
                 -- wings
                 [2] = _std_wing_attachments,
                 [3] = _std_wing_attachments,
-                [4] = _std_wing_attachments,
-                [5] = _std_wing_attachments,
                 -- middle
-                [6] = {
+                [4] = {
                     e_game_object_type.attachment_fuel_tank_plane,
                     e_game_object_type.attachment_hardpoint_bomb_1,
                     e_game_object_type.attachment_hardpoint_bomb_2,
@@ -2654,11 +2666,11 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_hardpoint_torpedo,
                 },
                 -- utils
-                [7] = _std_wing_utils,
-                [8] = _std_wing_utils,
+                [5] = _std_wing_utils,
+                [6] = _std_wing_utils,
 
                 -- internal gun
-                [9] = {
+                [7] = {
                     e_game_object_type.attachment_turret_plane_chaingun
                 }
             }
