@@ -2788,7 +2788,6 @@ end)
 if not st then
     print(_v)
 else
-    print("library_vehicle.lua loaded ok")
     g_revolution_attachment_defaults = _v
 end
 
