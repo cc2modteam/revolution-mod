@@ -2650,18 +2650,12 @@ local st, _v = pcall(function()
                 },
                 {
                     { i = 2, x = -18, y = 7 }, -- left inner
-                    { i = 7, x = 0, y = 7 },   -- centre
-                    { i = 3, x = 18, y = 7 },  -- right inner
-
-                    --{ i = 2, x = -26, y = 0 }, -- left outer
-                    --{ i = 4, x = -18, y = 7 }, -- left inner
-                    --{ i = 6, x = 0, y = 7 },   -- centre
-                    --{ i = 5, x = 18, y = 7 },  -- right inner
-                    --{ i = 3, x = 26, y = 0 }   -- right outer
+                    { i = 3, x = 0, y = 7 },   -- centre
+                    { i = 5, x = 18, y = 7 },  -- right inner
                 },
                 {
-                    { i = 5, x = -9, y = 24 }, -- left util
-                    { i = 6, x = 9, y = 24 }   -- right util
+                    { i = 6, x = -9, y = 24 }, -- left util
+                    { i = 7, x = 9, y = 24 }   -- right util
                 }
             },
             options = {
@@ -2672,9 +2666,9 @@ local st, _v = pcall(function()
                 },
                 -- wings
                 [2] = _std_wing_attachments,
-                [3] = _std_wing_attachments,
+                [5] = _std_wing_attachments,
                 -- middle
-                [7] = {
+                [3] = {
                     e_game_object_type.attachment_fuel_tank_plane,
                     e_game_object_type.attachment_hardpoint_bomb_1,
                     e_game_object_type.attachment_hardpoint_bomb_2,
@@ -2682,8 +2676,8 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_hardpoint_torpedo,
                 },
                 -- utils
-                [5] = _std_wing_utils,
                 [6] = _std_wing_utils,
+                [7] = _std_wing_utils,
 
                 -- internal gun
                 [4] = {
