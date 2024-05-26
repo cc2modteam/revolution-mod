@@ -1060,12 +1060,6 @@ function _update(screen_w, screen_h, ticks)
                     if self:get_attached_parent_id() ~= 0 then
                         update_ui_text(32, 13, get_ship_name(update_get_screen_vehicle()) .. " DOCKED", 480, 0, color_white, 0)
                         update_ui_text(32, 13 * 2, g_revolution_welcome, 480, 0, color_white, 0)
-                        if update_get_is_multiplayer() then
-                            local server_name = update_get_server_name()
-                            if server_name ~= "" then
-                                update_ui_text(32, 13 * 3, server_name, 480, 0, color_white, 0)
-                            end
-                        end
                     end
                 end
             end
