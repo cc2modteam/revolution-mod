@@ -2432,8 +2432,8 @@ function _update(screen_w, screen_h, ticks)
                 end
 
                 render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_cursor_pos_x, g_cursor_pos_y, text_w + 18, 17, 10, function(w, h)
-                    update_ui_image(4, 4, atlas_icons.column_team_control, highlighted_island_team_color, 0)
-
+                    local category_data = g_item_categories[highlighted_island:get_facility_category()]
+                    update_ui_image(4, 4, category_data.icon, highlighted_island_team_color, 0)
                     if highlighted_island:get_team_control() == update_get_screen_team_id() then
                         update_ui_text(14, 4, text, w, 0, color_white, 0)
                     else
