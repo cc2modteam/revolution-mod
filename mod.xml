@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Revolution 1.3" author="Thumblegudget, Bredroll, QuantX" description="
+<data name="Revolution 1.3.1" author="Thumblegudget, Bredroll, QuantX" description="
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other enhancements.
 
@@ -8,6 +8,8 @@ other enhancements.
 * Needlefish rebalance (reduced simulated Radar range)
 * AWACS rebalance (~10-12km max range again for a better feel)
 * Manta rebalance (less deadly against carriers for more air combat)
+* Aircraft RWR sensor
+* Bomb enemy factories to slow production
 
 For fully details on what the mod does, how you can contribute or request features see
 [url=https://cc2maps.com/revolution-mod/]https://cc2maps.com/revolution-mod/[/url]

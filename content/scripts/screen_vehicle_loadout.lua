@@ -64,7 +64,7 @@ function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index
         { region=atlas_icons.icon_attachment_16_none, type=-1 }
     }
 
-    local override = get_override_vehicle_loadout_options(vehicle:get_definition_index(), attachment_index)
+    local override = get_override_vehicle_loadout_options(vehicle, attachment_index)
     if override ~= nil then
         for _, a_type in ipairs(override) do
             add_attachment_option(restricted, a_type)

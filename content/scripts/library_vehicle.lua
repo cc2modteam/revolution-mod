@@ -2685,7 +2685,7 @@ local st, _v = pcall(function()
                 }
             }
         },
-        -- upp_albatross
+        -- albatross
         [e_game_object_type.chassis_air_wing_light] = {
             rows = {
                 {

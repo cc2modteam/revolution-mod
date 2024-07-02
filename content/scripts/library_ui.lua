@@ -2730,56 +2730,65 @@ function imgui_carrier_docking_bays(ui, carrier_vehicle, item_spacing, column_sp
     return selected_bay_index, is_action
 end
 
-function get_override_vehicle_loadout_rows(vehicle_definition_index)
-
+function get_override_vehicle_loadout_rows(vehicle)
+    local vehicle_definition_index = vehicle:get_definition_index()
+    local dynamic = nil
     if g_revolution_override_attachment_options ~= nil then
         -- overrides available
         local ov_type = g_revolution_override_attachment_options[vehicle_definition_index]
         if ov_type ~= nil then
             if ov_type["rows"] ~= nil then
-                return ov_type["rows"]
+                dynamic = ov_type["rows"]
             end
         end
     end
 
-    if g_revolution_attachment_defaults ~= nil then
+    if dynamic == nil and g_revolution_attachment_defaults ~= nil then
         -- revolution changes
         local ov_type = g_revolution_attachment_defaults[vehicle_definition_index]
         if ov_type ~= nil then
             if ov_type["rows"] ~= nil then
-                return ov_type["rows"]
+                dynamic = ov_type["rows"]
             end
         end
     end
 
-    return nil
+    if custom_dynamic_vehicle_loadout_rows ~= nil then
+        dynamic = custom_dynamic_vehicle_loadout_rows(vehicle, dynamic)
+    end
+
+    return dynamic
 end
 
-function get_override_vehicle_loadout_options(vehicle_definition_index, attachment_index)
+function get_override_vehicle_loadout_options(vehicle, attachment_index)
     -- use the library_enum overrides or the revolution defaults
+    local vehicle_definition_index = vehicle:get_definition_index()
+    local dynamic = nil
 
     if g_revolution_override_attachment_options ~= nil then
         -- overrides available
         local ov_type = g_revolution_override_attachment_options[vehicle_definition_index]
         if ov_type ~= nil then
             if ov_type["options"] ~= nil then
-                return ov_type["options"][attachment_index]
+                dynamic = ov_type["options"][attachment_index]
             end
         end
     end
-    if g_revolution_attachment_defaults ~= nil then
+    if dynamic == nil and g_revolution_attachment_defaults ~= nil then
         -- revolution changes
         local ov_type = g_revolution_attachment_defaults[vehicle_definition_index]
         if ov_type ~= nil then
             if ov_type["options"] ~= nil then
-                return ov_type["options"][attachment_index]
+                dynamic = ov_type["options"][attachment_index]
             end
         end
     end
 
-    -- no change, use vanilla
+    if custom_dynamic_vehicle_loadout_options ~= nil then
+        dynamic = custom_dynamic_vehicle_loadout_options(vehicle, dynamic, attachment_index)
+    end
 
-    return nil
+    return dynamic
 end
 
 function get_ui_vehicle_chassis_attachments(vehicle)
@@ -2787,7 +2796,7 @@ function get_ui_vehicle_chassis_attachments(vehicle)
     local vehicle_attachment_count = vehicle:get_attachment_count()
 
     local vehicle_attachment_rows = {}
-    local override_rows = get_override_vehicle_loadout_rows(vehicle_definition_index)
+    local override_rows = get_override_vehicle_loadout_rows(vehicle)
     if override_rows ~= nil then
         return override_rows
     end
