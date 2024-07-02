@@ -2750,7 +2750,7 @@ function input_event(event, action)
                     if g_selected_child_vehicle_id ~= 0 then
                         -- add waypoint to vehicle
 
-                        local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, 256, 256)
+                        local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
                         local child_vehicle = update_get_map_vehicle_by_id(g_selected_child_vehicle_id)
                         
                         if child_vehicle:get() and get_is_vehicle_waypoint_available(child_vehicle) then
