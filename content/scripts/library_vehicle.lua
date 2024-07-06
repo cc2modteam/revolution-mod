@@ -462,9 +462,25 @@ function get_attack_type_icon(attack_type)
     return atlas_icons.icon_attack_type_any
 end
 
+function get_unit_team(unit)
+    if unit ~= nil then
+        if unit:get() then
+            if unit.get_team_id ~= nil then
+                return unit:get_team_id()
+            end
+            return unit:get_team()
+        end
+    end
+    return nil
+end
+
 function get_unit_altitude(unit)
     if unit ~= nil then
         if unit:get() then
+            if unit.get_altitude ~= nil then
+                return unit:get_altitude()
+            end
+
             local reference = find_team_drydock(nil)
             if reference ~= nil then
                 local rel = update_get_map_vehicle_position_relate_to_parent_vehicle(reference:get_id(), unit:get_id())
@@ -1611,7 +1627,7 @@ function find_team_drydock(team_id)
         local vehicle = update_get_map_vehicle_by_index(i)
         if vehicle:get() then
             if vehicle:get_definition_index() == e_game_object_type.drydock then
-                if vehicle:get_team() == team_id then
+                if get_unit_team(vehicle) == team_id then
                     if want_curren_team then
                         g_team_drydock = vehicle
                     end
@@ -1668,7 +1684,6 @@ function get_nearest_friendly_airliftable_id(vehicle, max_range)
     if vehicle ~= nil and vehicle_can_airlift(vehicle) then
         -- petrel
         if not vehicle_has_cargo(vehicle) then
-            -- empty
             local nearest = find_nearest_vehicle_types(vehicle,
                     {
                         e_game_object_type.chassis_land_wheel_mule,
@@ -1677,8 +1692,8 @@ function get_nearest_friendly_airliftable_id(vehicle, max_range)
                         e_game_object_type.chassis_land_wheel_light,
                     }, false)
             if nearest ~= nil then
-                local origin = vehicle:get_position_xz()
-                local nearest_dist = vec2_dist(origin, nearest:get_position_xz())
+                local origin = get_pos_xz(vehicle)
+                local nearest_dist = vec2_dist(origin, get_pos_xz(nearest))
                 if nearest_dist < max_range then
                     return nearest:get_id(), nearest_dist
                 end
@@ -2195,7 +2210,7 @@ function get_carrier_lifeboat_attachments_value(vehicle)
 end
 
 function get_pos_xz(vehicle)
-    if g_is_hud then
+    if vehicle.get_position ~= nil then
         local pos = vehicle:get_position()
         return vec2(pos:x(), pos:z())
     end
@@ -2210,7 +2225,7 @@ function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team)
 
     local self_pos = get_pos_xz(vehicle)
     if friendly_team == nil then
-        friendly_team = vehicle:get_team()
+        friendly_team = get_unit_team(vehicle)
     end
 
     local nearest = nil
@@ -2218,12 +2233,12 @@ function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team)
     for i = 0, vehicle_count - 1 do
         local unit = update_get_map_vehicle_by_index(i)
         if unit:get() then
-            local match_team = unit:get_team() == friendly_team
+            local match_team = get_unit_team(unit) == friendly_team
             if hostile then
                 match_team = not match_team
             end
 
-            if match_team then
+            if match_team and not get_vehicle_docked(unit) then
                 local unit_def = unit:get_definition_index()
                 for di = 1, #other_defs do
                     local other_def = other_defs[di]
@@ -2863,4 +2878,93 @@ function get_factory_damage_enabled()
         return true
     end
     return g_revolution_enable_factory_damage
+end
+
+-- rotary hover load/drop/landing detection
+g_rotary_hover = {}
+g_rotary_hover_last_tick = 0
+g_hover_callback = nil
+
+function update_hover_data()
+    local st, err = pcall(function()
+        -- find all petrels, try to detect if they are hovering for pickup or drop
+        if update_get_is_focus_local ~= nil and not update_get_is_focus_local() then
+            -- only bother doing hover calcs on screens in use
+            return
+        end
+
+        local tick = update_get_logic_tick()
+        local elapsed = tick - g_rotary_hover_last_tick
+        if elapsed < 20 then
+            return
+        end
+        g_rotary_hover_last_tick = tick
+        local vehicle_count = update_get_map_vehicle_count()
+
+        for i = 0, vehicle_count - 1, 1 do
+            local vehicle = update_get_map_vehicle_by_index(i)
+
+            if vehicle:get() then
+                local data = nil
+                local vehicle_definition_index = vehicle:get_definition_index()
+                local rotary = vehicle_definition_index == e_game_object_type.chassis_air_rotor_light or vehicle_definition_index == e_game_object_type.chassis_air_rotor_heavy
+                local team = get_unit_team(vehicle)
+                local alt = get_unit_altitude(vehicle)
+                if rotary and team == update_get_screen_team_id() and alt < 100 and not get_vehicle_docked(vehicle) then
+                    -- friendly, flying rotary aircraft under 100m alt
+                    local vid = vehicle:get_id()
+                    local is_petrel = vehicle_definition_index == e_game_object_type.chassis_air_rotor_heavy
+                    local previous = g_rotary_hover[vid]
+                    data = {pos = get_pos_xz(vehicle), alt = alt, ptr = is_petrel, tick = tick, count = 0}
+                    if previous ~= nil then
+                        local age = tick - previous.tick
+                        data.tick = previous.tick
+                        data.count = previous.count
+                        if age > 50 then
+                            -- existing entry
+                            -- if moved more than 5m, remove
+                            -- if stationary for more than 60 ticks, treat as a hover
+                            local a_dist = math.abs(previous.alt - data.alt)
+                            local stable = false
+                            if a_dist < 3 then
+                                -- alt stable
+                                local h_dist = vec2_dist(previous.pos, data.pos)
+                                if h_dist < 2 then
+                                    -- pos stable
+                                    if data.count == 0 then
+                                        print("hover start " .. vid .. " " .. age )
+                                        if g_hover_callback ~= nil then
+                                            g_hover_callback(vehicle, true)
+                                        end
+                                    end
+                                    data.count = data.count + 1
+                                    stable = true
+                                end
+                            end
+                            if not stable then
+                                -- moved more than 5m vertically or 2m horizontally, clear data
+                                if data.count > 0 then
+                                    print("hover end " .. vid .. " " .. age)
+                                    if g_hover_callback ~= nil then
+                                        g_hover_callback(vehicle, false)
+                                    end
+                                end
+                                data = nil
+                            end
+
+                        elseif age > 240 then
+                            -- too old
+                            -- data = nil
+                        end
+                    end
+                    g_rotary_hover[vid] = data
+                end
+
+            end
+        end
+
+    end)
+    if not st then
+        print(err)
+    end
 end

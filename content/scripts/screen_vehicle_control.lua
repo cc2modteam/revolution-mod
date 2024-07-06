@@ -1070,6 +1070,7 @@ function _update(screen_w, screen_h, ticks)
     refresh_modded_radar_cache()
     refresh_fow_islands()
     refresh_missile_data(true)
+    update_hover_data()
 
     local screen_vehicle = update_get_screen_vehicle()
     g_screen_vehicle_pos = screen_vehicle:get_position_xz()

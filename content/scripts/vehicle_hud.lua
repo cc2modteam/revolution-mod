@@ -159,6 +159,7 @@ end
 
 function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
     update_animations(delta_time, vehicle)
+    update_hover_data()
     g_notification:update(delta_time, vehicle)
 
     g_is_attachment_linked = false
@@ -2012,7 +2013,7 @@ function render_attachment_hud_ciws(screen_w, screen_h, map_data, vehicle, attac
         e_game_object_type.chassis_air_rotor_light,
         e_game_object_type.chassis_air_rotor_heavy,
         e_game_object_type.chassis_air_wing_heavy,
-    }, true)
+    }, true, nil, 10)
 
     local forced_target = false
 
@@ -2788,6 +2789,31 @@ function render_airspeed_meter(pos, vehicle, step, col)
     update_ui_rectangle(pos:x() + 17, pos:y() + 100 - throttle_bar_size - 2, 2, throttle_bar_size, col)
     update_ui_rectangle(pos:x() + 16, pos:y() + 100 - throttle_height - 4, 3, 1, col)
     update_ui_rectangle(pos:x() + 16, pos:y() + 100 - 1, 3, 1, col)
+
+    if g_hovering then
+        local word = "HOVR"
+        if vehicle:get_throttle_factor() < 0.4 then
+            word = "LAND"
+        end
+        update_ui_text(pos:x() + 184, pos:y() + 110, word, 200, 0, col, 0)
+    end
+
+    -- if we are a PTR show the nearest airliftable unit ID and distance
+    if e_game_object_type.chassis_air_rotor_heavy == vehicle:get_definition_index() then
+        if not vehicle_has_cargo(vehicle) then
+            local st, err = pcall(function()
+                local nearest, nearest_range = get_nearest_friendly_airliftable_id(vehicle, 500)
+                if nearest > 0 then
+                    -- render_vision_target_vehicle_outline()
+                    local near_range = string.format("ID%d %dm", nearest, math.floor(nearest_range))
+                    update_ui_text(pos:x() + 204, pos:y() + 130, near_range, 200, 0, col, 0)
+                end
+            end)
+            if not st then
+                print(err)
+            end
+        end
+    end
 end
 
 function render_altitude_ticker(pos, altitude, col)
@@ -4412,22 +4438,32 @@ function render_bad_signal(vehicle, screen_w, screen_h)
     update_ui_text(x, y + 35, text, 200, 0, color, 0)
 end
 
-function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team)
+function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team, min_alt)
     -- find nearest vehicle of a range of types
     local vehicle_count = update_get_map_vehicle_count()
     if friendly_team == nil then
         friendly_team = vehicle:get_team_id()
     end
     local self_pos = vehicle:get_position()
-
+    if min_alt == nil then
+        min_alt = -100
+    end
+    local want_lifeboat = false
+    if #other_defs == 1 then
+        want_lifeboat = other_defs[1] == e_game_object_type.chassis_sea_lifeboat
+    end
     local nearest = nil
     local distance_sq = 999999999
     for i = 0, vehicle_count - 1 do
         local unit = update_get_map_vehicle_by_index(i)
-        if unit:get() and (unit:get_altitude() > 60 or other_def == e_game_object_type.chassis_sea_lifeboat) then
+        if unit:get() and (unit:get_altitude() > min_alt or want_lifeboat) then
             local match_team = unit:get_team_id() == friendly_team
             if hostile then
                 match_team = not match_team
+            end
+            if not want_lifeboat then
+                -- skip docked things
+                match_team = not get_vehicle_docked(unit)
             end
 
             if match_team then
@@ -4451,7 +4487,7 @@ end
 
 function find_nearest_vehicle(vehicle, other_def, hostile)
     -- find the nearest unit of a particualr type
-    return find_nearest_vehicle_types(vehicle, {other_def}, hostile)
+    return find_nearest_vehicle_types(vehicle, {other_def}, hostile, nil, 60)
 end
 
 function render_fault(vehicle, screen_w, screen_h)
@@ -4556,4 +4592,27 @@ end
 
 function round_int(value)
     return math.floor(value + 0.5)
+end
+
+g_hovering = false
+
+function on_hover(vehicle, is_hover)
+    if vehicle and vehicle:get() then
+        g_hovering = is_hover
+    end
+end
+
+g_hover_callback = on_hover
+
+
+function vehicle_has_cargo(vehicle)
+    -- do not know how to return true here
+    return false
+end
+
+function get_unit_team(unit)
+    if unit and unit:get() then
+        return unit:get_team_id()
+    end
+    return nil
 end
