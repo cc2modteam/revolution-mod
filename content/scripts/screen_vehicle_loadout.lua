@@ -12,6 +12,9 @@ g_enable_ecm_decoys = false
 
 g_ui = nil
 
+g_screen_vehicle_id = 1
+g_managed_vehicle = 0
+
 function get_bay_name(index)
     if index >= 8 then
         return update_get_loc(e_loc.upp_acronym_air) .. (index - 7)
@@ -112,17 +115,37 @@ end
 
 g_sanitised_attachments = false
 
+function is_screen_vehicle()
+    return g_managed_vehicle == g_screen_vehicle_id
+end
+
+function get_managed_vehicle()
+    local this_vehicle = update_get_screen_vehicle()
+    if this_vehicle:get() == false then return nil end
+    g_screen_vehicle_id = this_vehicle:get_id()
+    if g_managed_vehicle == 0 then
+        g_managed_vehicle = g_screen_vehicle_id
+    end
+    if g_managed_vehicle ~= g_screen_vehicle_id then
+        this_vehicle = update_get_map_vehicle_by_id(g_managed_vehicle)
+    end
+    return this_vehicle
+end
+
+
 function update(screen_w, screen_h, ticks) 
     if update_screen_overrides(screen_w, screen_h, ticks)  then return end
 
     if g_no_stock_counter < 1000 then
         g_no_stock_counter = g_no_stock_counter + 1
     end
-
     g_animation_time = g_animation_time + ticks
 
-    local this_vehicle = update_get_screen_vehicle()
-    if this_vehicle:get() == false then return end
+    local this_vehicle = get_managed_vehicle()
+    local header_col = color_white
+    if not is_screen_vehicle() then
+        header_col = color_friendly
+    end
 
     if not update_get_is_focus_local() and not g_sanitised_attachments then
         if this_vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
@@ -154,10 +177,19 @@ function update(screen_w, screen_h, ticks)
         local window = ui:begin_window("##bay", 0, 0, screen_w, screen_h, nil, true, 1)
         local region_w, region_h = ui:get_region()
 
-        update_ui_rectangle(0, 0, region_w, 14, color_white)
+        update_ui_rectangle(0, 0, region_w, 14, header_col)
         update_ui_rectangle(region_w / 2, 0, 1, region_h, color_white)
-        update_ui_text(2, 4, update_get_loc(e_loc.upp_surface), 60, 1, color_black, 0)
-        update_ui_text(66, 4, update_get_loc(e_loc.upp_air), 60, 1, color_black, 0)
+        local this_vehicle_def = this_vehicle:get_definition_index()
+
+        local text = ""
+        if this_vehicle_def == e_game_object_type.chassis_carrier then
+            text = string.format("CRR %s", get_ship_name(this_vehicle))
+        else
+            vehicle_definition_name, region_vehicle_icon, vehicle_definition_abreviation, vehicle_definition_description = get_chassis_data_by_definition_index(this_vehicle_def)
+            text = string.format("%s %d", vehicle_definition_abreviation, this_vehicle:get_id())
+        end
+
+        update_ui_text(4, 4, text, 90, 0, color_black, 0)
 
         window.cy = window.cy + 15
         local selected_bay_index, is_pressed = imgui_carrier_docking_bays(ui, this_vehicle, 4, 10, g_animation_time)
@@ -315,6 +347,10 @@ function update(screen_w, screen_h, ticks)
         elseif g_screen_index == 3 then
             update_add_ui_interaction(update_get_loc(e_loc.interaction_cancel), e_game_input.back)
             render_screen_chassis(screen_w, screen_h, this_vehicle, true)
+        elseif g_screen_index == 4 then
+            -- choose to manage another unit
+            update_add_ui_interaction(update_get_loc(e_loc.interaction_cancel), e_game_input.back)
+            render_screen_chooser(screen_w, screen_h, true)
         end
     end
 
@@ -329,6 +365,11 @@ function input_event(event, action)
             if event == e_input.back then
                 update_set_screen_state_exit()
             end
+            if event == e_input.pointer_1 then
+                if g_pointer_pos_y < 10 then
+                    g_screen_index = 4
+                end
+            end
         elseif g_screen_index == 1 then
             if event == e_input.back then
                 g_screen_index = 0
@@ -341,12 +382,21 @@ function input_event(event, action)
             if event == e_input.back then
                 g_screen_index = 1
             end
+        elseif g_screen_index == 4 then
+            if event == e_input.back then
+                g_screen_index = 0
+            end
         end
     end
 end
 
+g_pointer_pos_x = 0
+g_pointer_pos_y = 0
+
 function input_pointer(is_hovered, x, y)
     g_ui:input_pointer(is_hovered, x, y)
+    g_pointer_pos_x = x
+    g_pointer_pos_y = y
 end
 
 function input_scroll(dy)
@@ -450,7 +500,8 @@ function render_screen_chassis(screen_w, screen_h, this_vehicle, is_active)
             local definition_index = selection_options[g_selected_option_index + 1].type
             local inventory_item_type = update_get_resource_item_for_definition(definition_index)
 
-            if g_selected_option_index == 0 then
+            if g_selected_option_index == 0 or this_vehicle:get_definition_index() == e_game_object_type.drydock then
+                print("set " .. definition_index)
                 this_vehicle:set_attached_vehicle_chassis(g_selected_bay_index, selection_options[g_selected_option_index + 1].type)
                 g_screen_index = 1
             elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 then
@@ -512,4 +563,45 @@ function format_ammo_quantity(amount)
     else
         return string.format("%.0f", amount / 1000) .. update_get_loc(e_loc.acronym_thousand)
     end
+end
+
+
+function render_screen_chooser(screen_w, screen_h, is_active)
+    local ui = g_ui
+    local screen_team = update_get_screen_team_id()
+    ui:begin_window("Select carrier", 0, 0, screen_w, screen_h, nil, is_active, 1)
+    update_ui_rectangle(0, 0, screen_w, 14, color_white)
+    ui:text_basic("SELECT CARRIER", color_grey_dark)
+    ui:spacer(1)
+
+    local vehicle_count = update_get_map_vehicle_count()
+
+    for i = 0, vehicle_count - 1, 1 do
+        local vehicle = update_get_map_vehicle_by_index(i)
+        if vehicle:get() then
+            local vehicle_team = vehicle:get_team()
+            if vehicle_team == screen_team then
+                local label = ""
+                local vid = vehicle:get_id()
+
+                local vehicle_definition_index = vehicle:get_definition_index()
+                if vehicle_definition_index == e_game_object_type.chassis_carrier then
+                    label = get_ship_name(vehicle)
+                end
+
+                if vid == g_screen_vehicle_id then
+                    label = label .. " *"
+                end
+
+                if label ~= "" then
+                    if ui:button(label, true, 1) then
+                        g_managed_vehicle = vid
+                        g_screen_index = 0
+                    end
+                end
+            end
+        end
+    end
+
+    ui:end_window()
 end
