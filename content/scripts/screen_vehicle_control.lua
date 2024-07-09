@@ -2730,6 +2730,23 @@ function render_vehicle_info_panel(x, y, vehicle)
     y = y + 1
     -- icon
     update_ui_image(x - icon_offset, y - icon_offset, type_icon, icon_col, 0)
+
+    -- fuel/ammo icons
+    if fuel_factor < 0.5 then
+        local fuel_color = color_status_dark_yellow
+        if fuel_factor < 0.25 then
+            fuel_color = color_enemy
+        end
+        update_ui_image(x + icon_w - 5, y + icon_w - 4, atlas_icons.map_icon_low_fuel, fuel_color, 0)
+    end
+    if ammo_factor < 0.5 then
+        local ammo_color = color_status_dark_yellow
+        if ammo_factor < 0.1 then
+            ammo_color = color_enemy
+        end
+        update_ui_image(x + icon_w - 5, y + 1, atlas_icons.map_icon_low_ammo, ammo_color, 0)
+    end
+
     x = x + icon_w
     -- bars
     local bar_h = h - 4
@@ -3040,14 +3057,14 @@ function input_event(event, action)
                                                 if get_is_vehicle_waypoint_available(drag_vehicle) then
                                                     if g_drag.vehicle_id == g_highlighted.vehicle_id then
                                                         if g_drag.waypoint_id > 0 then
-                                                            local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, 256, 256)
+                                                            local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
 
                                                             drag_vehicle:clear_waypoints_from(g_drag.waypoint_id)
                                                             drag_vehicle:add_waypoint(world_x, world_y)
                                                         elseif g_drag.vehicle_id > 0 then
                                                             -- add waypoint to vehicle
 
-                                                            local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, 256, 256)
+                                                            local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
                                                             drag_vehicle:clear_waypoints()
                                                             drag_vehicle:clear_attack_target()
                                                             drag_vehicle:add_waypoint(world_x, world_y)
@@ -3104,7 +3121,7 @@ function input_event(event, action)
                                     end
                                 else
                                     if g_drag.waypoint_id > 0 then
-                                        local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, 256, 256)
+                                        local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
 
                                         drag_vehicle:clear_waypoints_from(g_drag.waypoint_id)
                                         drag_vehicle:add_waypoint(world_x, world_y)
@@ -3112,7 +3129,7 @@ function input_event(event, action)
                                         -- add waypoint to vehicle
 
                                         if get_is_vehicle_waypoint_available(drag_vehicle) then
-                                            local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, 256, 256)
+                                            local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
                 
                                             drag_vehicle:clear_waypoints()
                                             drag_vehicle:clear_attack_target()
@@ -3212,7 +3229,7 @@ function render_cursor_info(screen_w, screen_h, world_pos_drag_start)
 
     local cy = screen_h - iff(world_pos_drag_start, 55, 35)
     local cx = 15
-    local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, 256, 256)
+    local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
     local icon_col = color_grey_mid
     local text_col = color_grey_dark
 
