@@ -939,6 +939,8 @@ function render_selection_map(screen_w, screen_h)
         ui:header(update_get_loc(e_loc.upp_options))
         if ui:list_item(update_get_loc(e_loc.upp_active) .. " " .. update_get_loc(e_loc.upp_vehicles), true) then
             g_screen_index = 2
+            g_is_ignore_tap = 1
+            return
         end
         
         ui:header(update_get_loc(e_loc.upp_map_mode))
@@ -2677,7 +2679,17 @@ function _update(screen_w, screen_h, ticks)
                             or (g_wall_mode == g_wall_gnd and get_is_vehicle_land(vehicle_def))
                             or (g_wall_mode == g_wall_sea and get_is_vehicle_sea(vehicle_def))
                     ) and not get_vehicle_docked(vehicle) then
-                        local vh = render_vehicle_info_panel(vx, vy, vehicle)
+                        local vh, vclicked = render_vehicle_info_panel(vx, vy, vehicle)
+                        if vclicked then
+                            -- go back to screen 1 and center on this unit
+                            g_camera_pos_x = vehicle:get_position_xz():x()
+                            g_camera_pos_y = vehicle:get_position_xz():y()
+                            g_selection:clear()
+                            g_screen_index = 0
+                            g_is_ignore_tap = 1
+                            return
+                        end
+
                         vy = vy + vh
                         shown = shown + 1
                         if vy > screen_h - vh then
@@ -2700,7 +2712,20 @@ end
 function render_vehicle_info_panel(x, y, vehicle)
     local w = 128
     local h = 22
-    update_ui_rectangle_outline(x, y, w, h, color_grey_dark)
+    local clicked = false
+    local ui = g_ui
+    local hover = false
+    if ui.mouse_x > x and ui.mouse_x < x + w then
+        hover = ui.mouse_y > y and ui.mouse_y < y + h
+    end
+    if hover and ui.input_pointer_1 then
+        clicked = true
+    end
+    if hover then
+        update_ui_rectangle_outline(x, y, w, h, color_grey_mid)
+    else
+        update_ui_rectangle_outline(x, y, w, h, color_grey_dark)
+    end
     y = y + 1
     local vehicle_definition_index = vehicle:get_definition_index()
     local vehicle_pos_xz = vehicle:get_position_xz()
@@ -2784,7 +2809,7 @@ function render_vehicle_info_panel(x, y, vehicle)
         update_ui_text(x, y + 9, nearest_island:get_name(), id_w - icon_w, 0, color_grey_mid, 0)
     end
 
-    return h + 1
+    return h + 1, clicked
 
 end
 
@@ -2977,10 +3002,11 @@ function input_event(event, action)
                 end
             else 
                 if event == e_input.action_a or event == e_input.pointer_1 then
+
                     if event == e_input.pointer_1 then
                         g_is_drag_pan_map = false
                     end
-                    
+
                     if g_is_ignore_tap then
                         g_is_ignore_tap = false
                     elseif get_is_highlighting_dragged_item() and g_selected_child_vehicle_id == 0 then
