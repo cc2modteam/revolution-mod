@@ -2799,18 +2799,18 @@ function render_vehicle_info_panel(x, y, vehicle)
             local peer = peers[i]
             local peer_name = peer.name
 
-            local max_text_chars = 19
+            local max_text_chars = 18
             local is_clipped = false
 
             if utf8.len(peer_name) > max_text_chars then
                 peer_name = peer_name:sub(1, utf8.offset(peer_name, max_text_chars) - 1)
                 is_clipped = true
             end
-            update_ui_text(x, y + 9, peer_name, id_w - icon_w, 0, color_grey_mid, 0)
+            update_ui_text(x, y + 9, peer_name, w - icon_w - 7, 0, color_grey_mid, 0)
         end
     else
         -- render island name
-        update_ui_text(x, y + 9, nearest_island:get_name(), id_w - icon_w, 0, color_grey_mid, 0)
+        update_ui_text(x, y + 9, nearest_island:get_name():sub(1, 18), w - icon_w - 7, 0, color_grey_mid, 0)
     end
 
     return h + 1, clicked
