@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <data name="Revolution 1.3" author="Thumblegudget, Bredroll, QuantX" description="
-v1.3.2
+v1.3.3
 
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other enhancements.
@@ -12,6 +12,11 @@ other enhancements.
 * Manta rebalance (less deadly against carriers for more air combat)
 * Aircraft RWR sensor
 * Bomb enemy factories to slow production
+
+* Operator screen can show a list of active friendly units from the screen menu
+* Operator screen will show island type in command center tooltips
+* Loadout screen can now manage loadouts for units on a different carrier
+* Helicopter HUD shows informational alerts when hovering (useful for tactical pickup/drops)
 
 For fully details on what the mod does, how you can contribute or request features see
 [url=https://cc2maps.com/revolution-mod/]https://cc2maps.com/revolution-mod/[/url]
