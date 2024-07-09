@@ -230,6 +230,7 @@ g_wall_all = 1
 g_wall_air = 2
 g_wall_gnd = 3
 g_wall_sea = 4
+g_wall_trt = 5
 g_wall_mode = g_wall_all -- all
 
 -- tutorial controls
@@ -2641,7 +2642,7 @@ function _update(screen_w, screen_h, ticks)
 
         local window = ui:begin_window(update_get_loc(e_loc.upp_vehicles), 0, 0, screen_w, 42, atlas_icons.column_pending, true, 2)
         local button_action = ui:button_group(
-                { "CLOSE", "", "", "ALL", "AIR", "GND", "SEA" }, true)
+                { "CLOSE", "", "", "ALL", "AIR", "GND", "SEA", "TRT" }, true)
         if button_action == 0 then
             g_screen_index = 0
         elseif button_action > 0 then
@@ -2649,13 +2650,15 @@ function _update(screen_w, screen_h, ticks)
         end
         local header = ""
         if g_wall_mode == g_wall_all then
-            header = "ALL VEHICLES"
+            header = "ALL UNITS"
         elseif g_wall_mode == g_wall_air then
             header = "AIRCRAFT"
         elseif g_wall_mode == g_wall_gnd then
             header = "GROUND"
         elseif g_wall_mode == g_wall_sea then
             header = "SEA"
+        elseif g_wall_mode == g_wall_trt then
+            header = "TURRETS"
         end
         ui:text_basic(header, color_grey_mid)
         ui:end_window()
@@ -2676,8 +2679,9 @@ function _update(screen_w, screen_h, ticks)
                     (
                             g_wall_mode == g_wall_all
                             or (g_wall_mode == g_wall_air and get_is_vehicle_air(vehicle_def))
-                            or (g_wall_mode == g_wall_gnd and get_is_vehicle_land(vehicle_def))
+                            or (g_wall_mode == g_wall_gnd and get_is_vehicle_land(vehicle_def) and vehicle_def ~= e_game_object_type.chassis_land_turret)
                             or (g_wall_mode == g_wall_sea and get_is_vehicle_sea(vehicle_def))
+                            or (g_wall_mode == g_wall_trt and vehicle_def == e_game_object_type.chassis_land_turret)
                     ) and not get_vehicle_docked(vehicle) then
                         local vh, vclicked = render_vehicle_info_panel(vx, vy, vehicle)
                         if vclicked then
