@@ -232,6 +232,7 @@ g_wall_gnd = 3
 g_wall_sea = 4
 g_wall_trt = 5
 g_wall_mode = g_wall_all -- all
+g_wall_offset = 0
 
 -- tutorial controls
 g_tut_is_carrier_selected = false
@@ -2640,6 +2641,54 @@ function _update(screen_w, screen_h, ticks)
         update_set_screen_background_type(0)
         local ui = g_ui
 
+        local team = update_get_screen_team_id()
+        local vehicle_count = update_get_map_vehicle_count()
+        local shown = 0
+        local number = 0
+        local total = 0
+        local vx = 0
+        local vy = 48
+        for i = 0, vehicle_count - 1, 1 do
+            local vehicle = update_get_map_vehicle_by_index(i)
+            if vehicle:get() then
+                local vehicle_id = vehicle:get_id()
+                local vehicle_def = vehicle:get_definition_index()
+                local vehicle_team = vehicle:get_team()
+                if vehicle_team == team then
+                    if vehicle_def ~= e_game_object_type.drydock and
+                    (
+                            g_wall_mode == g_wall_all
+                            or (g_wall_mode == g_wall_air and get_is_vehicle_air(vehicle_def))
+                            or (g_wall_mode == g_wall_gnd and get_is_vehicle_land(vehicle_def) and vehicle_def ~= e_game_object_type.chassis_land_turret)
+                            or (g_wall_mode == g_wall_sea and get_is_vehicle_sea(vehicle_def))
+                            or (g_wall_mode == g_wall_trt and vehicle_def == e_game_object_type.chassis_land_turret)
+                    ) and not get_vehicle_docked(vehicle) then
+                        total = total + 1
+                        number = number + 1
+                        if vx < screen_w - 126 and number >= g_wall_offset then
+                            shown = shown + 1
+                            local vh, vclicked = render_vehicle_info_panel(vx, vy, vehicle)
+                            if vclicked then
+                                -- go back to screen 1 and center on this unit
+                                g_camera_pos_x = vehicle:get_position_xz():x()
+                                g_camera_pos_y = vehicle:get_position_xz():y()
+                                g_selection:clear()
+                                g_screen_index = 0
+                                g_is_ignore_tap = 1
+                                return
+                            end
+
+                            vy = vy + vh
+                            if vy > screen_h - vh then
+                                vy = 48
+                                vx = vx + 128
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
         local window = ui:begin_window(update_get_loc(e_loc.upp_vehicles), 0, 0, screen_w, 42, atlas_icons.column_pending, true, 2)
         local button_action = ui:button_group(
                 { "CLOSE", "", "", "ALL", "AIR", "GND", "SEA", "TRT" }, true)
@@ -2660,51 +2709,18 @@ function _update(screen_w, screen_h, ticks)
         elseif g_wall_mode == g_wall_trt then
             header = "TURRETS"
         end
-        ui:text_basic(header, color_grey_mid)
+
+        --
+        local first = g_wall_offset
+        header = string.format("%s %d-%d/%d", header, first, first + shown - 1, total)
+        if ui:button(header, true, 0) then
+            g_wall_offset = g_wall_offset + shown
+            if g_wall_offset > total then
+                g_wall_offset = 0
+            end
+        end
         ui:end_window()
 
-        local team = update_get_screen_team_id()
-        local vehicle_count = update_get_map_vehicle_count()
-        local shown = 0
-        local vx = 0
-        local vy = 48
-        for i = 0, vehicle_count - 1, 1 do
-            local vehicle = update_get_map_vehicle_by_index(i)
-            if vehicle:get() then
-                local vehicle_id = vehicle:get_id()
-                local vehicle_def = vehicle:get_definition_index()
-                local vehicle_team = vehicle:get_team()
-                if vehicle_team == team then
-                    if vehicle_def ~= e_game_object_type.drydock and
-                    (
-                            g_wall_mode == g_wall_all
-                            or (g_wall_mode == g_wall_air and get_is_vehicle_air(vehicle_def))
-                            or (g_wall_mode == g_wall_gnd and get_is_vehicle_land(vehicle_def) and vehicle_def ~= e_game_object_type.chassis_land_turret)
-                            or (g_wall_mode == g_wall_sea and get_is_vehicle_sea(vehicle_def))
-                            or (g_wall_mode == g_wall_trt and vehicle_def == e_game_object_type.chassis_land_turret)
-                    ) and not get_vehicle_docked(vehicle) then
-                        local vh, vclicked = render_vehicle_info_panel(vx, vy, vehicle)
-                        if vclicked then
-                            -- go back to screen 1 and center on this unit
-                            g_camera_pos_x = vehicle:get_position_xz():x()
-                            g_camera_pos_y = vehicle:get_position_xz():y()
-                            g_selection:clear()
-                            g_screen_index = 0
-                            g_is_ignore_tap = 1
-                            return
-                        end
-
-                        vy = vy + vh
-                        shown = shown + 1
-                        if vy > screen_h - vh then
-                            vy = 48
-                            vx = 129
-                        end
-                    end
-                end
-            end
-
-        end
     end
 
     g_ui:end_ui()
@@ -2714,7 +2730,7 @@ function _update(screen_w, screen_h, ticks)
 end
 
 function render_vehicle_info_panel(x, y, vehicle)
-    local w = 128
+    local w = 127
     local h = 22
     local clicked = false
     local ui = g_ui
