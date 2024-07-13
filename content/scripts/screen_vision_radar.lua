@@ -64,7 +64,7 @@ function update(screen_w, screen_h, ticks)
 
     local range = g_range
     local step = range / 4
-    local radius = 50
+    local radius = math.floor(screen_w / 2.52)
 
     local function radar_col(a)
         local col = color8(0, 255, 0, 255)
@@ -84,12 +84,23 @@ function update(screen_w, screen_h, ticks)
 
     for i = step, range, step do
         local distance_factor = clamp((i - step) / (range - step), 0, 1)
-        render_circle(0, 0, i / range * radius, radar_col(math.ceil(lerp(255, 32, distance_factor)) * 0.25))
+        render_circle(0, 0, i / range * radius, radar_col(32))
+    end
+
+	--add tick marks at 15deg increments
+	for i = 0, 24, 1 do
+		local screen_dir = vec2(math.cos(i*math.pi/12), -math.sin(i*math.pi/12))
+		update_ui_line(screen_dir:x() * 0.96 * radius, -screen_dir:y() * 0.96 * radius, screen_dir:x() * radius, -screen_dir:y() * radius, radar_col(32))
     end
 
     if is_interference == false and is_damaged == false and is_powered then
+        local angle_mul = 80
+        local angle_fade_dist = 0.1
+        if screen_w > 128 then
+            angle_fade_dist = 0.15
+        end
         local screen_dir = screen_vehicle_map:get_direction()
-        update_ui_line(0, 0, screen_dir:x() * 20, -screen_dir:y() * 20, radar_col(32))
+        update_ui_line(0, 0, screen_dir:x() * angle_mul, -screen_dir:y() * angle_mul, radar_col(128))
 
         if screen_vehicle:get_is_carrier_torpedo_enabled() then
             local torpedo_bearing = screen_vehicle:get_carrier_torpedo_bearing() / 180 * math.pi - math.pi / 2
@@ -97,12 +108,11 @@ function update(screen_w, screen_h, ticks)
             update_ui_line(0, 0, screen_dir_torpedo:x() * 200, -screen_dir_torpedo:y() * 200, color8(255, 16, 16, 32))
         end
 
-        local angle = g_animation_time / 120 * math.pi * 2
+        local angle = g_animation_time / angle_mul * math.pi * 2
         local radar_dir = vec2(math.cos(angle), math.sin(angle))
-        update_ui_line(0, 0, radar_dir:x() * radius, radar_dir:y() * radius, color_white)
+        update_ui_line(0, 0, radar_dir:x() * radius, radar_dir:y() * radius, radar_col(128))
 
         local targets = get_radar_targets(range)
-        local angle_fade_dist = 0.1
 
         for i = 1, #targets do
             local screen_pos = target_to_screen(targets[i].pos, range, radius)
@@ -110,19 +120,28 @@ function update(screen_w, screen_h, ticks)
             
             local type = targets[i].type
             local team = targets[i].team
+			local id = targets[i].id
+			local target_dir = targets[i].target_dir
+			--print(id)
             local is_enemy = team ~= screen_vehicle_map:get_team()
 
             local target_angle = vec2_angle_360(radar_dir, dir)
-            local angle_factor = clamp(remap(target_angle, 0, 2 * math.pi, 0, 1 + angle_fade_dist) - angle_fade_dist, 0, 1)
+            local angle_factor = clamp(remap(target_angle, 0, 2 * math.pi, 0.5, 1 + angle_fade_dist) - angle_fade_dist, 0, 1)
             angle_factor = angle_factor ^ 3
             
             local target_color = iff(is_enemy, color8(255, 0, 0, math.ceil(angle_factor * 255)), radar_col(math.ceil(angle_factor * 255)))
+			local target_dir_color = color8(255, 255, 255, math.ceil(angle_factor * 255))
             local target_color_off = iff(is_enemy, color8(255, 0, 0, math.ceil(angle_factor * 128)), radar_col(math.ceil(angle_factor * 128)))
 
             if type == 0 then
+                update_ui_line(screen_pos:x(), screen_pos:y(), screen_pos:x()+target_dir:x() * 10, screen_pos:y()-target_dir:y() * 10, target_dir_color)
                 update_ui_image(screen_pos:x() - 2, screen_pos:y() - 2, atlas_icons.screen_radar_land, target_color, 0)
+				update_ui_text(screen_pos:x() + 2, screen_pos:y() + 2, id, 20, 0, target_color, 0)
+
             elseif type == 1 then
+                update_ui_line(screen_pos:x(), screen_pos:y()-1, screen_pos:x()+target_dir:x() * 10, screen_pos:y()-target_dir:y() * 10, target_dir_color)
                 update_ui_image(screen_pos:x() - 2, screen_pos:y() - 2, atlas_icons.screen_radar_air, target_color, 0)
+				update_ui_text(screen_pos:x() + 2, screen_pos:y() + 2, id, 20, 0, target_color, 0)
             elseif type == 2 then
                 if is_enemy then
                     if targets[i].dist < hostile_missile_dist then
@@ -137,10 +156,13 @@ function update(screen_w, screen_h, ticks)
     end
 
     update_ui_pop_offset()
-
+    local dist_icon_x = 75
+    if screen_w > 128 then
+        dist_icon_x = 205
+    end
     update_ui_image(10, screen_h - 15, atlas_icons.column_controlling_peer, col, 0)
     update_ui_text(20, screen_h - 15, string.format("%.0f", range) .. update_get_loc(e_loc.upp_acronym_meters), 200, 0, col, 0)
-    update_ui_image(75, screen_h - 15, atlas_icons.column_distance, col, 0)
+    update_ui_image(dist_icon_x, screen_h - 15, atlas_icons.column_distance, col, 0)
     update_ui_text(0, screen_h - 15, string.format("%.0f", step) .. update_get_loc(e_loc.upp_acronym_meters), screen_w - 10, 2, col, 0)
 
     if is_damaged then
@@ -262,6 +284,8 @@ function get_radar_targets(range)
                             pos = vec2(pos:x() - screen_pos:x(), pos:y() - screen_pos:y()),
                             dist = math.sqrt(dist_sq),
                             data = vehicle,
+							id = vehicle:get_id(),
+							target_dir = vehicle:get_direction()
                         })
                     end
                 end

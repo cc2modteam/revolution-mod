@@ -44,14 +44,14 @@ function update(screen_w, screen_h, ticks)
         local dv_z = -1e309;
 
         local sf = render_camera_index == 0
-        for i = iff(sf, 0,  8), iff(sf, 7, 15) do
+        for i = 0, 15 do
             local id = screen_vehicle:get_attached_vehicle_id(i)
             if id ~= 0 then
                 local v = update_get_map_vehicle_by_id(id)
                 if v:get() then
                     local rp = update_get_map_vehicle_position_relate_to_parent_vehicle(screen_vehicle:get_id(), v:get_id())
                     local ds = v:get_dock_state()
-                    if (ds == e_vehicle_dock_state.docking or ds == e_vehicle_dock_state.undocking) and rp:z() > dv_z then
+                    if (ds == e_vehicle_dock_state.docking or ds == e_vehicle_dock_state.undocking or ds == e_vehicle_dock_state.undock_holding) and rp:z() > dv_z then
                         docking_vehicle = v
                         dv_z = rp:z()
                     end
@@ -102,6 +102,14 @@ function update(screen_w, screen_h, ticks)
         if docking_vehicle ~= nil and docking_vehicle:get() then
             local name = get_chassis_data_by_definition_index(docking_vehicle:get_definition_index())
             title = name .. " " .. update_get_loc(e_loc.upp_id) .. " " .. tostring(docking_vehicle:get_id())
+
+			if docking_vehicle:get_dock_state()==7 then
+				local title = "HOLD ON DECK"
+				local title_w, title_h = update_ui_get_text_size( title, 10000, 0 )
+				title_w=title_w+6
+				update_ui_rectangle(0, (region_h-title_h)/2, region_w, title_h, color_status_bad)
+				update_ui_text((region_w-title_w)/2, (region_h-title_h)/2, title, title_w, 1, color_grey_mid, 0)
+			end
 		end
 
 		local title_w = update_ui_get_text_size( title, 10000, 0 ) + 4

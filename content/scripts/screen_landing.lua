@@ -416,7 +416,7 @@ function render_vehicle_list( win_list, is_air )
                     --iterate through the waypoints and see if they loop on themselves
                     for w = 0, waypoint_count - 1, 1 do
                         waypoint = vehicle:get_waypoint(w)
-                        
+
                         if waypoint:get_repeat_index(w) >= 0 then
                             vehicle_state_string = "LOOP"
                             vehicle_state_description = "Following Waypoint Loop"
@@ -425,10 +425,10 @@ function render_vehicle_list( win_list, is_air )
                         end
                     end
                 end
-            
+
             -- free and hover modes
             elseif waypoint_count <= 0 then
-                
+
                 -- drone behavior depends on drone type here. planes fly straight ahead, helis hover stationary
                 if v.is_wing then
                     vehicle_state_string = "FREE"
@@ -439,10 +439,10 @@ function render_vehicle_list( win_list, is_air )
                 end
                 vehicle_state_description = "Waiting for Tasking"
             end
-            
+
             -- remote control tab
             local controlling_peer_string = iff( vehicle_peer_id ~= 0, atlas_icons.column_controlling_peer, " " )
-            
+
             -- insert entry into table
             local is_action, selected_col, sx, sy, sw, sh = imgui_table_entry_grid(ui, {
 
@@ -452,7 +452,7 @@ function render_vehicle_list( win_list, is_air )
                 { w=column_widths[4], margin=column_margins[4], value=damage_string,            col=damage_color },
                 { w=column_widths[5], margin=column_margins[5], value=ammo_string,              col=ammo_color },
                 { w=column_widths[6], margin=column_margins[6], value=controlling_peer_string,  col=color_friendly },
-                
+
             })
 
             if ui:is_item_selected() and is_local then
@@ -462,9 +462,9 @@ function render_vehicle_list( win_list, is_air )
                     if g_is_mouse_mode and g_is_pointer_hovered then
                         sx = g_pointer_pos_x - iff(is_air, g_middle_boundry + 6, 6)
                     end
-                
+
                     local text = vehicle_state_description
-                    
+
                     if selected_col == 2 then
                         text = string.format("%s ID %d", full_name, id)
                     elseif selected_col == 3 then
@@ -523,7 +523,7 @@ function render_landing_pattern()
     update_ui_line(run_length / 2 + run_arc - final_arc, -final_arc, -14, -final_arc, g_colors.path)
     update_ui_line(10, -final_arc, 10 + final_arc, 0, g_colors.path)
     update_ui_line(run_length / 2 + final_arc, 0, 10 + final_arc, 0, g_colors.path)
-    
+
     update_ui_image(-22, -final_arc - 7, atlas_icons.holomap_icon_carrier, g_colors.carrier, 3)
 end
 
@@ -536,7 +536,7 @@ function render_docking_vehicle_wing(vehicle_parent, vehicle)
     local vehicle_dock_state = vehicle:get_dock_state()
     local p0x = 0
     local p0z = 0
-    
+
     if vehicle_dock_state == e_vehicle_dock_state.dock_queue then
         if relative_position:z() > pattern_length then
             local angle = update_get_angle_2d(relative_position:x() + 1000, relative_position:z() - pattern_length) - (math.pi * 0.5)
@@ -550,7 +550,7 @@ function render_docking_vehicle_wing(vehicle_parent, vehicle)
             else
                 p0z = run_arc
             end
-            
+
             local z_factor = (relative_position:z() - pattern_length) / (pattern_length * 2)
             p0x = -run_length / 2 - z_factor * run_length
         end
@@ -562,14 +562,14 @@ function render_docking_vehicle_wing(vehicle_parent, vehicle)
             return
         else
             p0z = -final_arc + 1
-            
+
             local z_factor = (relative_position:z() + pattern_length) / (pattern_length - 120)
             p0x = run_length - 14 - (z_factor * ((run_length / 2) + 12))
         end
     end
 
     local col = iff(vehicle_dock_state == e_vehicle_dock_state.dock_queue, g_colors.dock_queue, g_colors.docking)
-    
+
     if g_hovered_vehicle_id == vehicle:get_id() then
         col = color_white
     end
@@ -594,7 +594,7 @@ function render_docking_vehicle_rotor(vehicle_parent, vehicle)
         if g_hovered_vehicle_id == vehicle:get_id() then
             col = color_white
         end
-        
+
         local vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle:get_definition_index())
         update_ui_image(p0x - icon_offset, p0z - icon_offset, vehicle_icon, col, 0)
     end
@@ -607,13 +607,13 @@ function render_docking_vehicle_surface(vehicle_parent, vehicle)
 
     local p0x = relative_position:z() * -0.4
     local p0z = relative_position:x() * 0.4
-    
+
     local col = iff(vehicle_dock_state == e_vehicle_dock_state.dock_queue, g_colors.dock_queue, g_colors.docking)
 
     if g_hovered_vehicle_id == vehicle:get_id() then
         col = color_white
     end
-    
+
     local vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle:get_definition_index())
     update_ui_image(p0x - icon_offset, p0z - icon_offset, vehicle_icon, col, 0)
 end
@@ -634,8 +634,8 @@ function get_all_air_vehicles()
 
     local vehicle_count = update_get_map_vehicle_count()
     local screen_team = update_get_screen_team_id()
-    
-    for i = 0, vehicle_count - 1, 1 do 
+
+    for i = 0, vehicle_count - 1, 1 do
         local vehicle = update_get_map_vehicle_by_index(i)
 
         if vehicle:get() and vehicle:get_team() == screen_team and vehicle:get_dock_state() ~= e_vehicle_dock_state.docked and vec2_dist( carrier_pos, vehicle:get_position_xz() ) <= 10000 then
@@ -667,8 +667,8 @@ function get_all_surface_vehicles()
 
     local vehicle_count = update_get_map_vehicle_count()
     local screen_team = update_get_screen_team_id()
-    
-    for i = 0, vehicle_count - 1, 1 do 
+
+    for i = 0, vehicle_count - 1, 1 do
         local vehicle = update_get_map_vehicle_by_index(i)
 
         if vehicle:get() and vehicle:get_team() == screen_team and vehicle:get_dock_state() ~= e_vehicle_dock_state.docked and vec2_dist( carrier_pos, vehicle:get_position_xz() ) <= 10000 then

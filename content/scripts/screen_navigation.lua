@@ -25,6 +25,9 @@ g_map_window_scroll = 0
 g_is_vehicle_links = true
 g_is_follow_carrier = true
 
+g_screen_w = 128
+g_screen_h = 128
+
 function parse()
     g_is_camera_pos_initialised = parse_bool("is_map_init", g_is_camera_pos_initialised)
     g_camera_pos_x = parse_f32("map_x", g_camera_pos_x)
@@ -66,15 +69,17 @@ function begin()
     g_ui = lib_imgui:create_ui()
 end
 
-function update(screen_w, screen_h, ticks) 
+function update(screen_w, screen_h, ticks)
+    g_screen_w = screen_w
+    g_screen_h = screen_h
     g_animation_time = g_animation_time + ticks
 
     refresh_fow_islands()
 
     if update_get_active_input_type() == e_active_input.gamepad then
         -- Set pointer to middle of screen
-        g_pointer_pos_x = 64
-        g_pointer_pos_y = 64
+        g_pointer_pos_x = math.floor(screen_w / 2)
+        g_pointer_pos_y = math.floor(screen_h / 2)
     end
 
 
@@ -134,7 +139,7 @@ function update(screen_w, screen_h, ticks)
 
             update_set_screen_map_position_scale(g_camera_pos_x, g_camera_pos_y, g_camera_size)
 
-            local is_render_islands = (g_camera_size < (64 * 1024))
+            local is_render_islands = (g_camera_size < (screen_w / 2 * 1024))
 
             update_set_screen_background_is_render_islands(is_render_islands)
 
@@ -157,7 +162,7 @@ function update(screen_w, screen_h, ticks)
                     elseif g_is_island_names then
                         local screen_pos_x, screen_pos_y = get_screen_from_world(island_position:x(), island_position:y() + 3000.0, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                                     
-                        update_ui_text(screen_pos_x - 64, screen_pos_y - 9, island:get_name(), 128, 1, island_color, 0)
+                        update_ui_text(screen_pos_x - math.floor(screen_w / 2), screen_pos_y - 9, island:get_name(), 128, 1, island_color, 0)
                                     
                         if (not g_revolution_hide_island_difficulty) and island:get_team_control() ~= update_get_screen_team_id() then
                             local difficulty_level = island:get_difficulty_level()
