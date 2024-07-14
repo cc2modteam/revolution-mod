@@ -2413,7 +2413,7 @@ function _update(screen_w, screen_h, ticks)
                         tool_height = tool_height + 10
                     end
 
-                    render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, 128, tool_height, 10, function(w, h) render_vehicle_tooltip(w, h, highlighted_vehicle, peers) end, color8(0, 0, 0, 190))
+                    render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, 140, tool_height, 10, function(w, h) render_vehicle_tooltip(w, h, highlighted_vehicle, peers) end, color8(0, 0, 0, 190))
                 end
             end
         elseif g_highlighted.vehicle_id > 0 and g_highlighted.waypoint_id ~= 0 then
@@ -3388,7 +3388,68 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 --    and vehicle_definition_index ~= e_game_object_type.chassis_sea_ship_light
 --    and vehicle_definition_index ~= e_game_object_type.chassis_sea_ship_heavy
     then
-        if vehicle:get_is_observation_weapon_revealed() then
+        -- if friendly air or land, show all full/empty main attachments in the tooltip
+        if update_get_screen_team_id() == vehicle:get_team() and get_is_vehicle_air(vehicle_definition_index)
+        then
+            local a_x = cx
+
+            -- render primary attachment icons in first 16w slot
+
+            local attachments = {}
+
+            for i = 0, vehicle:get_attachment_count() - 1 do
+                local attachment_type = vehicle:get_attachment_type(i)
+                if  attachment_type == e_game_object_attachment_type.hardpoint_large
+                    or attachment_type == e_game_object_attachment_type.camera
+                then
+                    local attachment = vehicle:get_attachment(i)
+
+                    if attachment:get() then
+                        table.insert(attachments, attachment)
+                    end
+                end
+            end
+
+            if #attachments > 0 then
+                local attachment_index = (math.floor( g_animation_time / 20 ) % (#attachments)) + 1
+                local icon, icon_16 = get_attachment_icons(attachments[attachment_index]:get_definition_index())
+
+                if icon_16 ~= nil then
+                    update_ui_image(a_x, cy, icon_16, color_white, 0)
+                end
+            end
+            a_x = a_x + 11
+
+
+            for i = 0, vehicle:get_attachment_count() - 1 do
+                local attachment_type = vehicle:get_attachment_type(i)
+                if attachment_type == e_game_object_attachment_type.hardpoint_small then
+                    local attachment = vehicle:get_attachment(i)
+
+                    if attachment:get() then
+                        local attachment_def = attachment:get_definition_index()
+                        if attachment_def > 0 then
+                            local a_w = 11
+                            if attachment_type == e_game_object_attachment_type.hardpoint_small then
+                                a_w = 7
+                            end
+                            local icon, icon_16 = get_attachment_icons(attachment_def)
+                            if icon_16 ~= nil then
+                                local a_col = color_grey_mid
+                                if attachment:get_ammo_factor() == 0 then
+                                    a_col = color_status_dark_red
+                                end
+                                if a_x < w - 16 then
+                                    update_ui_image(a_x, cy, icon_16, a_col, 0)
+                                    a_x = a_x + a_w
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+        elseif vehicle:get_is_observation_weapon_revealed() then
             -- render primary attachment icon
 
             local attachments = {}
