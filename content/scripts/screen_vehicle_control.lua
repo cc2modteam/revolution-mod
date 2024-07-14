@@ -241,6 +241,10 @@ g_tut_undocking_vehicle_id = 0
 g_tut_selected_vehicle_id = 0
 g_tut_selected_waypoint_id = 0
 
+-- petrel tactical drop/lift
+g_tactical_vid = 0
+
+
 function ui_render_selection_carrier_vehicle_overview(x, y, w, h, carrier_vehicle)
     update_ui_rectangle(0, 0, 256, 256, color8(0, 0, 0, 128))
     
@@ -441,6 +445,25 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     end
 
                     if vehicle_can_airlift(vehicle) then
+                        local ptr_vid = vehicle:get_id()
+                        if ptr_vid ~= g_tactical_vid then
+                            if ui:list_item("SET TACTICAL MODE", true) then
+                                vehicle:clear_waypoints()
+                                vehicle:clear_attack_target()
+                                g_tactical_vid = vehicle:get_id()
+
+                                g_tactical_dropping = vehicle_has_cargo(vehicle)
+                                g_tactical_lifting = not g_tactical_dropping
+
+                            end
+                        else
+                            if ui:list_item("UNSET TACTICAL MODE", true) then
+                                vehicle:clear_waypoints()
+                                vehicle:clear_attack_target()
+                                g_tactical_vid = 0
+                            end
+                        end
+
                         if vehicle_has_cargo(vehicle) then
                             if ui:list_item(update_get_loc(e_loc.upp_deploy_vehicle), true) then
                                 set_airdrop_now(vehicle)
@@ -1086,7 +1109,28 @@ function _update(screen_w, screen_h, ticks)
     refresh_modded_radar_cache()
     refresh_fow_islands()
     refresh_missile_data(true)
-    update_hover_data()
+
+    g_hover_callback = nil
+
+    if g_tactical_vid ~= 0 then
+        if g_viewing_vehicle_id ~= 0 and g_viewing_vehicle_id ~= g_tactical_vid then
+            g_tactical_vid = 0
+        end
+        local tactical = update_get_map_vehicle_by_id(g_tactical_vid)
+        if tactical and tactical:get() then
+            -- unset if it has waypoints
+            if update_get_is_focus_local() then
+                -- we are in tactical mode
+
+                if g_viewing_vehicle_id == g_tactical_vid then
+                    -- operator is flying the tactical unit
+                    tactical_hover_check(tactical)
+                end
+            end
+        else
+            g_tactical_vid = 0
+        end
+    end
 
     local screen_vehicle = update_get_screen_vehicle()
     g_screen_vehicle_pos = screen_vehicle:get_position_xz()
@@ -2547,6 +2591,23 @@ function _update(screen_w, screen_h, ticks)
             update_ui_pop_offset()
         end
 
+
+        -- Show tactical mode enabled
+        if g_tactical_vid ~= 0 then
+            local tact_text = "TACTICAL MODE ON"
+            local rect_w = update_ui_get_text_size(tact_text, screen_w, 2) + 8
+            local rect_h = 14
+
+            update_ui_push_offset((screen_w - rect_w) / 2, screen_h - rect_h - 10)
+            update_ui_push_clip(0, 0, rect_w, rect_h)
+            update_ui_rectangle(0, 0, rect_w, rect_h, color_status_dark_yellow)
+            update_ui_text(0, rect_h / 2 - 4, tact_text, rect_w, 1, color_black, 0)
+
+            update_ui_pop_clip()
+            update_ui_pop_offset()
+        end
+
+
         local go_code_factor = 0
 
         if g_go_code_time < 5 then
@@ -3782,4 +3843,82 @@ function get_is_vehicle_waypoint_available(vehicle)
     end
 
     return true
+end
+
+-- tactical hover mode for ptr
+g_last_hover_check = 0
+g_tactical_cooldown = 0
+g_tactical_dropping = false
+g_tactical_lifting = false
+
+function tactical_hover_check(vehicle)
+    local tick = update_get_logic_tick()
+    if tick - g_last_hover_check > 60 then
+        -- handle early lift/drop
+        if g_tactical_vid > 0 and (g_tactical_dropping or g_tactical_lifting) then
+            if vehicle_has_cargo(vehicle) then
+                g_tactical_lifting = false
+            else
+                g_tactical_dropping = false
+            end
+            if not g_tactical_lifting and not g_tactical_dropping then
+                -- nothing to do, cancel tactical mode
+                g_tactical_vid = 0
+            end
+        end
+
+        if g_tactical_cooldown > 0 then
+            g_tactical_cooldown = g_tactical_cooldown - 1
+            return
+        end
+        print(string.format("lifting = %s dropping = %s vid = %d", g_tactical_lifting, g_tactical_dropping, g_tactical_vid))
+        g_last_hover_check = tick
+        if vehicle and vehicle:get() then
+            if vehicle:get_id() == g_tactical_vid then
+                if g_tactical_dropping then
+                    print("DROPPING")
+                    g_tactical_lifting = false
+                    -- ordered to drop next
+                    if vehicle_has_cargo(vehicle) then
+                        local ptr_alt = get_unit_altitude(vehicle)
+                        if ptr_alt < 70 then
+                            print("DROP")
+                            set_airdrop_now(vehicle)
+                            g_tactical_cooldown = 60
+                            return
+                        end
+                    else
+                        g_tactical_dropping = false
+                        g_tactical_vid = 0
+                    end
+                end
+
+                if g_tactical_lifting then
+                    print("LIFTING")
+                    g_tactical_dropping = false
+                    -- ordered to lift next
+                    if vehicle_has_cargo(vehicle) then
+                        g_tactical_lifting = false
+                        g_tactical_vid = 0
+                    else
+                        local nearest_id, nearest_range = get_nearest_friendly_airliftable_id(vehicle, 150)
+                        if nearest_id > 0 and nearest_range < 8 then
+                            -- get actual alt difference of both
+                            local nearest = update_get_map_vehicle_by_id(nearest_id)
+                            if nearest and nearest:get() then
+                                print(nearest_range)
+                                local ptr_alt = get_unit_altitude(vehicle)
+                                local lift_alt = get_unit_altitude(nearest)
+                                if ptr_alt - lift_alt < 50 then
+                                    print("LIFT")
+                                    set_airlift_now(vehicle, nearest_id)
+                                    g_tactical_cooldown = 60
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
 end

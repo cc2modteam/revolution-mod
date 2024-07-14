@@ -2796,23 +2796,38 @@ function render_airspeed_meter(pos, vehicle, step, col)
             word = "LAND"
         end
         update_ui_text(pos:x() + 184, pos:y() + 110, word, 200, 0, col, 0)
+    else
+        --
     end
 
     -- if we are a PTR show the nearest airliftable unit ID and distance
     if e_game_object_type.chassis_air_rotor_heavy == vehicle:get_definition_index() then
-        if not vehicle_has_cargo(vehicle) then
-            local st, err = pcall(function()
-                local nearest, nearest_range = get_nearest_friendly_airliftable_id(vehicle, 500)
-                if nearest > 0 then
+        local st, err = pcall(function()
+            local nearest_col = col
+            if vehicle_has_cargo(vehicle) then
+                nearest_col = color8(200, 200, 0, 255)
+            end
+            local nearest_id, nearest_range = get_nearest_friendly_airliftable_id(vehicle, 500)
+            if nearest_id > 0 then
+
+                local nearest = update_get_map_vehicle_by_id(nearest_id)
+                if nearest and nearest:get() then
+                    -- work out real nearest range
+                    if nearest_range < 50 then
+                        local np = nearest:get_position()
+                        local vp = vehicle:get_position()
+                        nearest_range = vec3_dist(np, vp)
+                    end
                     -- render_vision_target_vehicle_outline()
-                    local near_range = string.format("ID%d %dm", nearest, math.floor(nearest_range))
+                    local near_range = string.format("ID%d %dm", nearest_id, math.floor(nearest_range))
                     update_ui_text(pos:x() + 204, pos:y() + 130, near_range, 200, 0, col, 0)
                 end
-            end)
-            if not st then
-                print(err)
             end
+        end)
+        if not st then
+            print(err)
         end
+
     end
 end
 
