@@ -2661,11 +2661,11 @@ local st, _v = pcall(function()
                 -- comment/remove a line to remove that attachment
                 {
                     { i = 1, x = 0, y = -23 }, -- front camera slot
-                    { i = 4, x = 9, y = -4 }  -- internal gun
+                    { i = 2, x = 9, y = -4 }  -- internal gun
                 },
                 {
-                    { i = 2, x = -18, y = 7 }, -- left inner
                     { i = 3, x = 0, y = 7 },   -- centre
+                    { i = 4, x = -18, y = 7 }, -- left inner
                     { i = 5, x = 18, y = 7 },  -- right inner
                 },
                 {
@@ -2679,9 +2679,6 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_camera_plane,
                     e_game_object_type.attachment_turret_gimbal_30mm,
                 },
-                -- wings
-                [2] = _std_wing_attachments,
-                [5] = _std_wing_attachments,
                 -- middle
                 [3] = {
                     e_game_object_type.attachment_fuel_tank_plane,
@@ -2690,12 +2687,16 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_hardpoint_bomb_3,
                     e_game_object_type.attachment_hardpoint_torpedo,
                 },
+                -- wings
+                [4] = _std_wing_attachments,
+                [5] = _std_wing_attachments,
+
                 -- utils
                 [6] = _std_wing_utils,
                 [7] = _std_wing_utils,
 
                 -- internal gun
-                [4] = {
+                [2] = {
                     e_game_object_type.attachment_turret_plane_chaingun
                 }
             }
@@ -2707,12 +2708,12 @@ local st, _v = pcall(function()
                     { i=1, x=0, y=-23 } -- front camera slot
                 },
                 {
-                    { i=7, x=-28, y=-2 }, -- left wingtip
                     { i=2, x=-19, y=-2 }, -- left outer
-                    { i=4, x=-11, y=-2 }, -- left inner
-                    { i=6, x=0, y=1 },    -- AWACS
-                    { i=5, x=11, y=-2 },  -- right inner
                     { i=3, x=19, y=-2 },  -- right outer
+                    { i=4, x=-11, y=-2 }, -- left inner
+                    { i=5, x=11, y=-2 },  -- right inner
+                    { i=6, x=0, y=1 },    -- AWACS
+                    { i=7, x=-28, y=-2 }, -- left wingtip
                     { i=8, x=28, y=-2 },  -- right wingtip
                 }
             } ,
