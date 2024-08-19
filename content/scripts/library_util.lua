@@ -997,7 +997,7 @@ function get_is_spectator_mode()
 end
 
 function get_team_name(team_id)
-    if get_is_spectator_mode() then
+    if team_id == g_revolution_spectator_team then
         return "CCN Live"
     end
     return string.format("Team %d", team_id)

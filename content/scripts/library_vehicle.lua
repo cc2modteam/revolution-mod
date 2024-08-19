@@ -13,6 +13,22 @@ function get_carrier_bay_name(index)
     return bay_name
 end
 
+function get_icon_data_by_definition_index_graphic(index)
+    local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(index)
+    if index == e_game_object_type.chassis_carrier then
+        -- region_vehicle_icon = atlas_icons.icon_chassis_16_carrier
+    elseif index == e_game_object_type.chassis_air_wing_light then
+        region_vehicle_icon = atlas_icons.icon_chassis_16_wing_small
+    elseif index == e_game_object_type.chassis_air_wing_heavy then
+        region_vehicle_icon = atlas_icons.icon_chassis_16_wing_large
+    elseif index == e_game_object_type.chassis_air_rotor_heavy then
+        region_vehicle_icon = atlas_icons.icon_chassis_16_rotor_large
+    elseif index == e_game_object_type.chassis_air_rotor_light then
+        region_vehicle_icon = atlas_icons.icon_chassis_16_rotor_small
+    end
+    return region_vehicle_icon, icon_offset
+end
+
 function get_icon_data_by_definition_index(index)
     region_vehicle_icon = atlas_icons.map_icon_air
     icon_offset = 4
@@ -1271,6 +1287,11 @@ function _get_is_seen_by_friendly_modded_radar(vehicle)
     if vehicle and vehicle:get() then
         local vid = vehicle:get_id()
         local vdef = vehicle:get_definition_index()
+
+        if get_is_spectator_mode() then
+            return get_is_vehicle_land(vdef) or get_is_vehicle_air(vdef) or get_is_vehicle_sea(vdef)
+        end
+
         if get_is_vehicle_air(vdef) and get_rcs_model_enabled() then
             local radar, pwr = get_nearest_friendly_aew_radar(vid)
             if radar ~= nil then
@@ -1372,18 +1393,34 @@ end
 function render_team_holomap_cursor(team_id)
     -- render captain's holomap cursor
     local holomap_x, holomap_y = get_team_holomap_cursor(team_id)
-
-    if holomap_x ~= g_holomap_last_x or holomap_y ~= g_holomap_last_y then
-        g_holomap_last_x = holomap_x
-        g_holomap_last_y = holomap_y
-        g_holomap_last_anim = g_animation_time
+    if holomap_x == 0 and holomap_y == 0 then
+        return
     end
 
-    local fade = math.max( 255 - math.floor(g_animation_time - g_holomap_last_anim), 0 )
+    if g_holomap_last == nil then
+        g_holomap_last = {}
+    end
+    if g_holomap_last[team_id] == nil then
+        g_holomap_last[team_id] = {0, 0, 0}
+    end
+
+    if holomap_x ~= g_holomap_last[team_id][1] or holomap_y ~= g_holomap_last[team_id][2] then
+        g_holomap_last[team_id][1] = holomap_x
+        g_holomap_last[team_id][2] = holomap_y
+        g_holomap_last[team_id][3] = g_animation_time
+    end
+
+    local fade = math.max( 255 - math.floor(g_animation_time - g_holomap_last[team_id][3]), 0 )
     if fade > 0 then
-        local cursor_x, cursor_y = get_screen_from_world( holomap_x, holomap_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+        local cursor_x = 0
+        local cursor_y = 0
+        if g_is_holomap then
+            cursor_x, cursor_y = get_holomap_from_world( holomap_x, holomap_y, g_screen_w, g_screen_h)
+        else
+            cursor_x, cursor_y = get_screen_from_world( holomap_x, holomap_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+        end
         update_ui_image_rot(cursor_x, cursor_y, atlas_icons.map_icon_crosshair, color8(255, 255, 255, fade), math.pi / 4)
-        local team_name = get_team_name(update_get_screen_team_id())
+        local team_name = get_team_name(team_id)
         update_ui_text(cursor_x + 10, cursor_y + 10, team_name, 64, 0, color8(255, 255, 255, fade), 0)
     end
 end

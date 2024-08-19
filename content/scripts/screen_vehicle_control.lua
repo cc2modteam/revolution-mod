@@ -2112,7 +2112,7 @@ function _update(screen_w, screen_h, ticks)
                                     cy = cy + 2
                                 end
 
-                                if vehicle_team == update_get_screen_team_id() and vehicle_definition_index ~= e_game_object_type.chassis_land_robot_dog then
+                                if (get_is_spectator_mode() or vehicle_team == update_get_screen_team_id()) and vehicle_definition_index ~= e_game_object_type.chassis_land_robot_dog then
                                     cx = screen_pos_x - 4
 
                                     local is_visible_by_enemy = vehicle:get_is_visible_by_enemy()
@@ -3390,7 +3390,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
     local team = vehicle:get_team()
     local color_inactive = color8(8, 8, 8, 255)
 
-    if vehicle:get_is_observation_type_revealed() then
+    if vehicle:get_is_observation_type_revealed() or get_is_spectator_mode() then
         update_ui_rectangle(cx + 0, cy, 1, bar_h, color8(16, 16, 16, 255))
         update_ui_rectangle(cx + 0, cy + bar_h - repair_bar, 1, repair_bar, color8(47, 116, 255, 255))
         update_ui_rectangle(cx + 2, cy, 1, bar_h, color8(16, 16, 16, 255))

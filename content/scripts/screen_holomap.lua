@@ -432,6 +432,12 @@ function _update(screen_w, screen_h, ticks)
 
         if get_is_spectator_mode() then
             -- render team holomap cursors
+            pcall(function()
+                render_team_holomap_cursor(2)
+                render_team_holomap_cursor(3)
+                render_team_holomap_cursor(4)
+                render_team_holomap_cursor(5)
+            end)
         end
 
 
@@ -583,7 +589,7 @@ function _update(screen_w, screen_h, ticks)
         if is_local and (not g_is_mouse_mode or g_is_pointer_hovered) then
             g_highlighted_vehicle_id = 0
             g_highlighted_waypoint_id = 0
-            local highlighted_distance_best = 4 * math.max( 1, 2000 / cur_map_zoom )
+            local highlighted_distance_best = 5 * math.max( 1, 2000 / cur_map_zoom )
 
             for i = 0, vehicle_count - 1, 1 do
                 local vehicle = update_get_map_vehicle_by_index(i)
@@ -594,7 +600,7 @@ function _update(screen_w, screen_h, ticks)
                     if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
                         local vehicle_team = vehicle:get_team()
                         local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
-                        local detected = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
+                        local detected = get_is_spectator_mode() or (vehicle:get_is_observation_revealed() and vehicle:get_is_visible())
 
                         if detected and get_is_masked_by_stealth(vehicle) then
                             detected = false
@@ -604,7 +610,10 @@ function _update(screen_w, screen_h, ticks)
                             local vehicle_pos_xz = vehicle:get_position_xz()
                             local screen_pos_x, screen_pos_y = get_holomap_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), screen_w, screen_h)
 
-                            local vehicle_distance_to_cursor = vec2_dist( vec2( screen_pos_x, screen_pos_y ), vec2( g_pointer_pos_x, g_pointer_pos_y ) )
+                            local vehicle_distance_to_cursor = vec2_dist( vec2( screen_pos_x, screen_pos_y ), vec2( g_pointer_pos_x, g_pointer_pos_y) )
+                            --if get_is_vehicle_air(vehicle_definition_index) then
+                                vehicle_distance_to_cursor = vehicle_distance_to_cursor * 0.55
+                            --end
 
                             if vehicle_distance_to_cursor < highlighted_distance_best then
                                 g_highlighted_vehicle_id = vehicle:get_id()
@@ -671,7 +680,7 @@ function _update(screen_w, screen_h, ticks)
             local waypoint_pos_x_prev = screen_pos_x
             local waypoint_pos_y_prev = screen_pos_y
 
-            if vehicle_team ~= screen_team then
+            if vehicle_team ~= screen_team or get_is_spectator_mode() then
                 if is_render_vehicle_icon then
                     -- hostile unit
                     local detected = vehicle:get_is_observation_revealed() and vehicle:get_is_visible()
@@ -680,9 +689,21 @@ function _update(screen_w, screen_h, ticks)
                         if detected then
                             -- not rendered by the holomap, render a static icon ourselves
                             local st, err = pcall(function()
-                                local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
+                                local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index_graphic(vehicle_definition_index)
                                 local element_color = update_get_team_color(vehicle_team)
-                                update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
+                                local heading = 0
+                                local alt_h = 0
+                                if get_is_vehicle_air(vehicle:get_definition_index()) then
+                                    heading = vehicle:get_rotation_y()
+                                    -- draw the alt line
+                                    local h_scale = (g_map_size + g_map_size_offset)
+                                    local altitude = get_unit_altitude(vehicle)
+                                    if altitude > 20 and h_scale < 20000 then
+                                        alt_h = ((altitude / 2000) * 50) / (h_scale / 5000)
+                                        update_ui_line(screen_pos_x - icon_offset, screen_pos_y - icon_offset - alt_h, screen_pos_x - icon_offset, screen_pos_y - icon_offset, color_grey_dark)
+                                    end
+                                end
+                                update_ui_image_rot(screen_pos_x - icon_offset, screen_pos_y - icon_offset - alt_h, region_vehicle_icon, element_color, heading)
                             end)
                             if not st then
                                 print(string.format("err2 = %s", err))
@@ -692,7 +713,7 @@ function _update(screen_w, screen_h, ticks)
                 end
             end
                         
-            if vehicle_team == screen_team and vehicle_definition_index ~= e_game_object_type.chassis_sea_barge and vehicle_definition_index ~= e_game_object_type.drydock then
+            if (vehicle_team == screen_team or get_is_spectator_mode()) and vehicle_definition_index ~= e_game_object_type.chassis_sea_barge and vehicle_definition_index ~= e_game_object_type.drydock then
                 local waypoint_remove = -1
                 local waypoint_color = g_color_waypoint
 
@@ -1011,7 +1032,7 @@ function _update(screen_w, screen_h, ticks)
                         render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, 128, tool_height, 10, function(w, h) render_vehicle_tooltip(w, h, highlighted_vehicle, peers) end)
                         
                         if vehicle_definition_index ~= e_game_object_type.chassis_carrier then
-                            if highlighted_vehicle:get_team() == screen_team or highlighted_vehicle:get_is_observation_weapon_revealed() then
+                            if get_is_spectator_mode() or highlighted_vehicle:get_team() == screen_team or highlighted_vehicle:get_is_observation_weapon_revealed() then
                                 local weapon_range = get_vehicle_weapon_range(highlighted_vehicle)
                                 local vehicle_pos_xz = highlighted_vehicle:get_position_xz()
 
@@ -1744,7 +1765,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
     local team = vehicle:get_team()
     local color_inactive = color8(8, 8, 8, 255)
 
-    if vehicle:get_is_observation_type_revealed() then
+    if vehicle:get_is_observation_type_revealed() or get_is_spectator_mode() then
         update_ui_rectangle(cx + 0, cy, 1, bar_h, color8(16, 16, 16, 255))
         update_ui_rectangle(cx + 0, cy + bar_h - repair_bar, 1, repair_bar, color8(47, 116, 255, 255))
         update_ui_rectangle(cx + 2, cy, 1, bar_h, color8(16, 16, 16, 255))
@@ -1766,7 +1787,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
         display_id = update_get_loc(e_loc.upp_id) .. string.format( " %.0f", vehicle:get_id() )
     end
 
-    if vehicle:get_is_observation_type_revealed() then
+    if vehicle:get_is_observation_type_revealed() or get_is_spectator_mode() then
 --        update_ui_image(cx, 2, vehicle_definition_region, color_white, 0)
 --        cx = cx + 18
 
@@ -1788,11 +1809,11 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
                            update_ui_get_text_size(display_name, 10000, 0)) + 2
     end
 
-    if  vehicle_definition_index ~= e_game_object_type.chassis_carrier
+    if  vehicle_definition_index ~= e_game_object_type.chassis_carrier or get_is_spectator_mode()
 --    and vehicle_definition_index ~= e_game_object_type.chassis_sea_ship_light
 --    and vehicle_definition_index ~= e_game_object_type.chassis_sea_ship_heavy
     then
-        if vehicle:get_is_observation_weapon_revealed() then
+        if vehicle:get_is_observation_weapon_revealed() or get_is_spectator_mode() then
             -- render primary attachment icon
 
             local attachments = {}
