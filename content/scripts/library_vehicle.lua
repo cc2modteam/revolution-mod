@@ -826,6 +826,14 @@ end
 
 function get_modded_radar_range(vehicle)
     if vehicle:get() then
+
+        if g_revolution_override_radar_range ~= nil then
+            local r_range = g_revolution_override_radar_range(vehicle)
+            if r_range ~= nil then
+                return r_range
+            end
+        end
+
         -- don't override the carrier radar range
         local parent_id = vehicle:get_attached_parent_id()
         if parent_id ~= 0 then
@@ -1333,7 +1341,7 @@ function refresh_fow_islands()
 end
 
 function fow_island_visible(island_id)
-    return g_fow_visible[island_id] == true
+    return g_fow_visible[island_id] == true or get_is_spectator_mode()
 end
 
 
@@ -1359,6 +1367,25 @@ function get_nearest_island_tile(x, y)
         end
     end
     return nearest
+end
+
+function render_team_holomap_cursor(team_id)
+    -- render captain's holomap cursor
+    local holomap_x, holomap_y = get_team_holomap_cursor(team_id)
+
+    if holomap_x ~= g_holomap_last_x or holomap_y ~= g_holomap_last_y then
+        g_holomap_last_x = holomap_x
+        g_holomap_last_y = holomap_y
+        g_holomap_last_anim = g_animation_time
+    end
+
+    local fade = math.max( 255 - math.floor(g_animation_time - g_holomap_last_anim), 0 )
+    if fade > 0 then
+        local cursor_x, cursor_y = get_screen_from_world( holomap_x, holomap_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+        update_ui_image_rot(cursor_x, cursor_y, atlas_icons.map_icon_crosshair, color8(255, 255, 255, fade), math.pi / 4)
+        local team_name = get_team_name(update_get_screen_team_id())
+        update_ui_text(cursor_x + 10, cursor_y + 10, team_name, 64, 0, color8(255, 255, 255, fade), 0)
+    end
 end
 
 -- ai team check

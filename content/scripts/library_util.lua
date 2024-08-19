@@ -988,3 +988,17 @@ if g_revolution_hide_island_difficulty == nil then
     -- default do not hide shields
     g_revolution_hide_island_difficulty = false
 end
+
+function get_is_spectator_mode()
+    if g_revolution_spectator_team ~= nil then
+        return g_revolution_spectator_team == update_get_screen_team_id()
+    end
+    return false
+end
+
+function get_team_name(team_id)
+    if get_is_spectator_mode() then
+        return "CCN Live"
+    end
+    return string.format("Team %d", team_id)
+end

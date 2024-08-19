@@ -430,6 +430,10 @@ function _update(screen_w, screen_h, ticks)
             print(string.format("err3 = %s", err))
         end
 
+        if get_is_spectator_mode() then
+            -- render team holomap cursors
+        end
+
 
         -- draw island names
         if cur_map_zoom < 95000 then
@@ -609,7 +613,7 @@ function _update(screen_w, screen_h, ticks)
                             end
                         end
 
-                        if vehicle_team == screen_team then
+                        if vehicle_team == screen_team or get_is_spectator_mode() then
                             local waypoint_count = vehicle:get_waypoint_count()
 
                             for j = 0, waypoint_count - 1, 1 do
@@ -1064,9 +1068,15 @@ function _update(screen_w, screen_h, ticks)
                 end
             end
 
-            update_ui_text(screen_w / 8, screen_h - 31,
-                    string.format("ACC %s",
-                            get_ship_name(update_get_screen_vehicle())), 400, 0, color_grey_mid, 0)
+            if get_is_spectator_mode() then
+                update_ui_text(screen_w / 9, screen_h - 24,
+                        "Revolution Spectator Studio TM", 400, 0, color_grey_mid, 0)
+            else
+                update_ui_text(screen_w / 8, screen_h - 31,
+                        string.format("ACC %s",
+                                get_ship_name(update_get_screen_vehicle())), 400, 0, color_grey_mid, 0)
+
+            end
 
             local ui = g_ui
 
@@ -1947,6 +1957,10 @@ end
 
 function holomap_override_startup( screen_w, screen_h, ticks )
     local screen_vehicle = update_get_screen_vehicle()
+
+    if get_is_spectator_mode() then
+        return false
+    end
 
     if g_startup_op_num == 0 then
         g_startup_op_num = math.random(9999999999)

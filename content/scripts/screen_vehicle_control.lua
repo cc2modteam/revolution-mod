@@ -2541,19 +2541,7 @@ function _update(screen_w, screen_h, ticks)
             end
 
             -- render captain's holomap cursor
-            local holomap_x, holomap_y = get_team_holomap_cursor(screen_vehicle:get_team())
-
-            if holomap_x ~= g_holomap_last_x or holomap_y ~= g_holomap_last_y then
-                g_holomap_last_x = holomap_x
-                g_holomap_last_y = holomap_y
-                g_holomap_last_anim = g_animation_time
-            end
-
-            local fade = math.max( 255 - math.floor(g_animation_time - g_holomap_last_anim), 0 )
-            if fade > 0 then
-                local cursor_x, cursor_y = get_screen_from_world( holomap_x, holomap_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                update_ui_image_rot(cursor_x, cursor_y, atlas_icons.map_icon_crosshair, color8(255, 255, 255, fade), math.pi / 4)
-            end
+            render_team_holomap_cursor(screen_vehicle:get_team())
 
             render_cursor_info(screen_w, screen_h, drag_start_pos)
             render_map_scale(screen_w, screen_h)
@@ -3617,7 +3605,7 @@ function get_is_vehicle_enterable(vehicle)
         local team = vehicle:get_team()
         local def = vehicle:get_definition_index()
 
-        if team == update_get_screen_team_id() and def ~= e_game_object_type.chassis_carrier and def ~= e_game_object_type.chassis_land_robot_dog then
+        if get_is_spectator_mode() or team == update_get_screen_team_id() and def ~= e_game_object_type.chassis_carrier and def ~= e_game_object_type.chassis_land_robot_dog then
             return true
         end
     end

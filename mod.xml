@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <data name="Revolution 1.3" author="Thumblegudget, Bredroll, QuantX" description="
-v1.3.5
+v1.3.7
 
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other enhancements.
+
+Added basic support for a spectator mode extension mod
 
 * Fog of war
 * Bomb enemy factories (disabled by default)
