@@ -1420,8 +1420,10 @@ function render_team_holomap_cursor(team_id)
             cursor_x, cursor_y = get_screen_from_world( holomap_x, holomap_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
         end
         update_ui_image_rot(cursor_x, cursor_y, atlas_icons.map_icon_crosshair, color8(255, 255, 255, fade), math.pi / 4)
-        local team_name = get_team_name(team_id)
-        update_ui_text(cursor_x + 10, cursor_y + 10, team_name, 64, 0, color8(255, 255, 255, fade), 0)
+        if get_is_spectator_mode() then
+            local team_name = get_team_name(team_id)
+            update_ui_text(cursor_x + 10, cursor_y + 10, team_name, 64, 0, color8(255, 255, 255, fade), 0)
+        end
     end
 end
 
