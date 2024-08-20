@@ -60,6 +60,18 @@ function get_icon_data_by_definition_index(index)
 end
 
 function get_chassis_data_by_definition_index(index)
+    if g_revolution_custom_vehicle_chassis_data ~= nil then
+        local v_name, v_icon, v_abbr, v_desc = g_revolution_custom_vehicle_chassis_data(index)
+        if v_name ~= nil then
+            return v_name, v_icon, v_abbr, v_desc
+        end
+    end
+
+    local v_name, v_icon, v_abbr, v_desc = get_chassis_data_by_definition_index_orig(index)
+    return v_name, v_icon, v_abbr, v_desc
+end
+
+function get_chassis_data_by_definition_index_orig(index)
     if index == e_game_object_type.chassis_carrier then
         return update_get_loc(e_loc.upp_carrier), atlas_icons.icon_chassis_16_carrier, update_get_loc(e_loc.upp_crr), update_get_loc(e_loc.upp_logistics_carrier)
     elseif index == e_game_object_type.chassis_land_wheel_light then
