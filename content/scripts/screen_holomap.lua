@@ -356,7 +356,7 @@ function _update(screen_w, screen_h, ticks)
         g_notification_time = g_notification_time + ticks
         update_set_screen_background_type(0)
         update_set_screen_background_is_render_islands(false)
-        
+
         local notification = update_get_notification_holomap()
         local notification_col = get_notification_color(notification)
 
@@ -383,7 +383,7 @@ function _update(screen_w, screen_h, ticks)
         end
 
         local is_dismiss = g_is_dismiss_pressed or (g_is_pointer_pressed and g_is_pointer_hovered and g_is_mouse_mode)
-        
+
         if g_notification_time >= 30 then
             local color_dismiss = color_white
             update_ui_push_offset(screen_w / 2, screen_h - 34)
@@ -584,7 +584,7 @@ function _update(screen_w, screen_h, ticks)
 
             end
         end
-        
+
         -- find hovered vehilce or waypoint
         if is_local and (not g_is_mouse_mode or g_is_pointer_hovered) then
             g_highlighted_vehicle_id = 0
@@ -612,7 +612,7 @@ function _update(screen_w, screen_h, ticks)
 
                             local vehicle_distance_to_cursor = vec2_dist( vec2( screen_pos_x, screen_pos_y ), vec2( g_pointer_pos_x, g_pointer_pos_y) )
                             --if get_is_vehicle_air(vehicle_definition_index) then
-                                vehicle_distance_to_cursor = vehicle_distance_to_cursor * 0.55
+                            vehicle_distance_to_cursor = vehicle_distance_to_cursor * 0.55
                             --end
 
                             if vehicle_distance_to_cursor < highlighted_distance_best then
@@ -660,6 +660,36 @@ function _update(screen_w, screen_h, ticks)
                     draw_explosion(screen_pos_x, screen_pos_y, age, blast_size)
                 end
             end
+        end
+
+        -- render missiles if they are not on the holomap
+        -- get_fired_vehicle_id
+        if get_is_spectator_mode() then
+            local missile_count = update_get_missile_count()
+
+            for i = 0, missile_count - 1 do
+                local missile = update_get_missile_by_index(i)
+                local fired_from_id = missile:get_fired_vehicle_id()
+                if fired_from_id then
+                    local launcher = update_get_map_vehicle_by_id(fired_from_id)
+                    local detected = launcher:get_is_observation_revealed() and launcher:get_is_visible()
+                    if not detected then
+                        --local def = missile:get_definition_index()
+                        --local wep_idx = missile:get_fired_attachment_index()
+                        --local wep = launcher:get_attachment(wep_idx)
+                        --local wep_def = wep:get_definition_index()
+                        local position_xz = missile:get_position_xz()
+                        -- render a shape/missile/bomb
+                        --local data = get_attachment_data_by_definition_index(wep_def)
+                        local icon = atlas_icons.map_icon_missile
+                        local screen_pos_x, screen_pos_y = get_holomap_from_world(position_xz:x(), position_xz:y(), screen_w, screen_h)
+                        update_ui_image_rot(screen_pos_x, screen_pos_y, icon, color_status_dark_red, 0)
+                    end
+                end
+
+
+            end
+
         end
 
         -- render vehicle stuff
