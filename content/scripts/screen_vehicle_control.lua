@@ -1666,7 +1666,7 @@ function _update(screen_w, screen_h, ticks)
                             local vehicle = update_get_map_vehicle_by_id(vehicle_id)
 
                             if vehicle:get() then
-                                if vehicle:get_is_visible() and vehicle:get_is_observation_revealed() then
+                                if (vehicle:get_is_visible() and vehicle:get_is_observation_revealed()) or get_is_spectator_mode() then
                                     local position_xz = vehicle:get_position_xz()
                                     local length = 0.04 * g_camera_size
 
@@ -1692,6 +1692,23 @@ function _update(screen_w, screen_h, ticks)
                     local age = update_get_logic_tick() - blast["tick"]
                     local screen_pos_x, screen_pos_y = get_screen_from_world(x, z, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                     draw_explosion(screen_pos_x, screen_pos_y, age, blast_size)
+                end
+            end
+        end
+
+        -- render gunfire in spec mode
+
+        if is_placing_turret == false and get_is_spectator_mode() then
+            local projectile_count = update_get_projectile_count()
+            for i = 0, projectile_count - 1, 1 do
+                local p = update_get_projectile_by_index(i)
+                if p then
+                    local screen_pos_x, screen_pos_y = get_screen_from_world(p:x(), p:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                    if screen_pos_x > 0 and screen_pos_x < g_screen_w then
+                        if screen_pos_y > 0 and screen_pos_y < g_screen_h then
+                            update_ui_line(screen_pos_x, screen_pos_y, screen_pos_x + 1, screen_pos_y + 1, color8(255, 255, 0, 128))
+                        end
+                    end
                 end
             end
         end
@@ -2268,7 +2285,7 @@ function _update(screen_w, screen_h, ticks)
                 local position_xz = missile:get_position_xz()
                 local screen_pos_x, screen_pos_y = get_screen_from_world(position_xz:x(), position_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                if missile:get_is_visible() then
+                if missile:get_is_visible() or get_is_spectator_mode() then
                     if get_missile_should_draw_trail(def) then
                         local missile_trail_count = missile:get_trail_count()
                         if missile_trail_count > 6 then
