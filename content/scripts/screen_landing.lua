@@ -85,7 +85,7 @@ function count_team_units_active(team_id, def_index)
             if vehicle:get_team() == team_id then
                 local vehicle_def = vehicle:get_definition_index()
                 g_unit_record[team_id][vehicle:get_id()] = vehicle_def
-                if not get_vehicle_docked(vehicle) then
+                if vehicle_def == e_game_object_type.chassis_carrier or not get_vehicle_docked(vehicle) then
                     local vehicle_def = vehicle:get_definition_index()
                     if vehicle_def == def_index then
                         number = number + 1
@@ -129,13 +129,15 @@ function spectator_update(screen_w, screen_h, ticks)
 
     -- mission time in SE corner
     local time_str = format_time(update_get_logic_tick() / 30)
-    update_ui_line(0, screen_h - 14, screen_w, screen_h - 14, color_grey_dark)
+    update_ui_line(0, screen_h - 14, screen_w, screen_h - 14, color_grey_mid)
     update_ui_text(0, screen_h - 12, time_str, screen_w - 8, 2, color_grey_mid, 0)
 
     -- render a row for each team
     render_team_units(2, 8, update_get_team_color(2))
-    render_team_units(3, 8 + 32, update_get_team_color(3))
-    render_team_units(4, 8 + 64, update_get_team_color(4))
+    update_ui_line(0, 8 + 33, screen_w, 8 + 33, color8(16, 16, 16, 32))
+    render_team_units(3, 8 + 34, update_get_team_color(3))
+    update_ui_line(0, 8 + 68, screen_w, 8 + 68, color8(16, 16, 16, 32))
+    render_team_units(4, 8 + 69, update_get_team_color(4))
 
     -- go through each teams previous unit set,
     -- if there is a unit not in the current set, it waas destroyed
@@ -151,19 +153,22 @@ function render_unit_active_loss(x_offset, y_offset, team_id, def_index, icon_of
     local ox = x_offset
     local active = count_team_units_active(team_id, def_index)
     local lost = get_team_lost(team_id, def_index)
-    if active + lost > 0 then
+    --if active + lost > 0 then
         update_ui_text(ox, y_offset, active, 24, 1, color_grey_mid, 0)
-        if lost > 0 then
-            update_ui_text(ox, y_offset + 8, lost, 24, 1, color_status_dark_red, 0)
-        end
-        update_ui_image(ox, y_offset + 16 + icon_offset, icon, col, 0)
-        x_offset = x_offset + 16
-    end
+        update_ui_image(ox, y_offset + 8 + icon_offset, icon, col, 0)
+        update_ui_text(ox, y_offset + 23, lost, 24, 1, color_status_dark_red, 0)
+        x_offset = x_offset + 20
+    --end
     return x_offset
 end
 
 function render_team_units(team_id, y_offset)
-    local ox = render_unit_active_loss(5, y_offset, team_id,
+    local crrs = count_team_units_active(team_id, e_game_object_type.chassis_carrier)
+    if crrs == 0 then
+        return
+    end
+
+    local ox = render_unit_active_loss(7, y_offset, team_id,
             e_game_object_type.chassis_air_wing_heavy,
             0,
             atlas_icons.icon_chassis_16_wing_large
@@ -197,6 +202,11 @@ function render_team_units(team_id, y_offset)
             e_game_object_type.chassis_land_wheel_light,
             0,
             atlas_icons.icon_chassis_16_wheel_small
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_land_wheel_mule,
+            0,
+            atlas_icons.icon_chassis_16_wheel_mule
     )
     ox = render_unit_active_loss(ox, y_offset, team_id,
             e_game_object_type.chassis_sea_barge,
