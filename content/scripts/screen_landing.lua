@@ -42,7 +42,41 @@ g_pulse = 0
 g_pulse_delta = 1
 g_pulse_max = 40
 
+g_unit_record = {}
+g_unit_record_prev = {}
+
+g_unit_lost_log = {}
+
+function add_team_lost(team_id, def_index)
+    local lost = g_unit_lost_log[team_id]
+    if lost == nil then
+        lost = {}
+    end
+    local type_count = lost[def_index]
+    if type_count == nil then
+        type_count = 0
+    end
+    type_count = type_count + 1
+    lost[def_index] = type_count
+    g_unit_lost_log[team_id] = lost
+end
+
+function get_team_lost(team_id, def_index)
+    local lost = g_unit_lost_log[team_id]
+    if lost ~= nil then
+        local count = lost[def_index]
+        if count ~= nil then
+            return count
+        end
+    end
+    return 0
+end
+
 function count_team_units_active(team_id, def_index)
+    if g_unit_record[team_id] == nil then
+        g_unit_record[team_id] = {}
+    end
+
     local vehicle_count = update_get_map_vehicle_count()
     local number = 0
     for i = 0, vehicle_count - 1, 1 do
@@ -50,13 +84,32 @@ function count_team_units_active(team_id, def_index)
         if vehicle:get() then
             if vehicle:get_team() == team_id then
                 local vehicle_def = vehicle:get_definition_index()
-                if vehicle_def == def_index then
-                    number = number + 1
+                g_unit_record[team_id][vehicle:get_id()] = vehicle_def
+                if not get_vehicle_docked(vehicle) then
+                    local vehicle_def = vehicle:get_definition_index()
+                    if vehicle_def == def_index then
+                        number = number + 1
+                    end
                 end
             end
         end
     end
     return number
+end
+
+function find_destroyed_units(team_id)
+    if #g_unit_record_prev > 0 then
+        local team_rec = g_unit_record_prev[team_id]
+        if team_rec ~= nil then
+            for v_id, v_def in pairs(team_rec) do
+                -- if this unit isn't in the current record, it died
+                local exist = g_unit_record[team_id][v_id]
+                if exist == nil then
+                    add_team_lost(team_id, v_def)
+                end
+            end
+        end
+    end
 end
 
 function spectator_update(screen_w, screen_h, ticks)
@@ -66,6 +119,9 @@ function spectator_update(screen_w, screen_h, ticks)
     elseif g_pulse == g_pulse_max then
         g_pulse_delta = -1
     end
+
+    g_unit_record_prev = g_unit_record
+    g_unit_record = {}
 
     local dark_red = color8(128, 0, 0, math.min(9, g_pulse))
     -- render a background spectator title
@@ -78,8 +134,11 @@ function spectator_update(screen_w, screen_h, ticks)
 
     -- render a row for each team
     render_team_units(2, 8, update_get_team_color(2))
-    render_team_units(3, 8 + 24, update_get_team_color(3))
-    render_team_units(4, 8 + 24 + 24, update_get_team_color(4))
+    render_team_units(3, 8 + 32, update_get_team_color(3))
+    render_team_units(4, 8 + 64, update_get_team_color(4))
+
+    -- go through each teams previous unit set,
+    -- if there is a unit not in the current set, it waas destroyed
 
 end
 
@@ -87,85 +146,79 @@ function incr(num, delta)
     return num + delta
 end
 
-function render_team_units(team_id, y_offset, col)
-    local ox = 8
-    local w = 15
-
-    local alb = count_team_units_active(team_id, e_game_object_type.chassis_air_wing_light)
-    local mnt = count_team_units_active(team_id, e_game_object_type.chassis_air_wing_heavy)
-    local ptr = count_team_units_active(team_id, e_game_object_type.chassis_air_rotor_heavy)
-    local rzr = count_team_units_active(team_id, e_game_object_type.chassis_air_rotor_light)
-
-    local sel = count_team_units_active(team_id, e_game_object_type.chassis_land_wheel_light)
-    local wlr = count_team_units_active(team_id, e_game_object_type.chassis_land_wheel_medium)
-    local ber = count_team_units_active(team_id, e_game_object_type.chassis_land_wheel_heavy)
-    local mul = count_team_units_active(team_id, e_game_object_type.chassis_land_wheel_mule)
-
-    local brg = count_team_units_active(team_id, e_game_object_type.chassis_sea_barge)
-    local ndl = count_team_units_active(team_id, e_game_object_type.chassis_sea_ship_light)
-    local vir = count_team_units_active(team_id, e_game_object_type.chassis_land_robot_dog)
-    local trt = count_team_units_active(team_id, e_game_object_type.chassis_land_turret)
-
-    if mnt > 0 then
-        update_ui_text(ox, y_offset, mnt, 24, 1, color_grey_mid, 0)
-        update_ui_image(ox, y_offset + 8, atlas_icons.icon_chassis_16_wing_large, col, 0)
-        ox = incr(ox, w)
+function render_unit_active_loss(x_offset, y_offset, team_id, def_index, icon_offset, icon)
+    local col = update_get_team_color(team_id)
+    local ox = x_offset
+    local active = count_team_units_active(team_id, def_index)
+    local lost = get_team_lost(team_id, def_index)
+    if active + lost > 0 then
+        update_ui_text(ox, y_offset, active, 24, 1, color_grey_mid, 0)
+        if lost > 0 then
+            update_ui_text(ox, y_offset + 8, lost, 24, 1, color_status_dark_red, 0)
+        end
+        update_ui_image(ox, y_offset + 16 + icon_offset, icon, col, 0)
+        x_offset = x_offset + 16
     end
+    return x_offset
+end
 
-    if alb > 0 then
-        update_ui_text(ox, y_offset, alb, 24, 1, color_grey_mid, 0)
-        update_ui_image(ox, y_offset + 8, atlas_icons.icon_chassis_16_wing_small, col, 0)
-        ox = incr(ox, w)
-    end
-
-    if rzr > 0 then
-        update_ui_text(ox, y_offset, rzr, 24, 1, color_grey_mid, 0)
-        update_ui_image(ox, y_offset + 9, atlas_icons.icon_chassis_16_rotor_small, col, 0)
-        ox = incr(ox, w)
-    end
-
-    if ptr > 0 then
-        update_ui_text(ox, y_offset, ptr, 24, 1, color_grey_mid, 0)
-        update_ui_image(ox, y_offset + 8, atlas_icons.icon_chassis_16_rotor_large, col, 0)
-        ox = incr(ox, w)
-    end
-
-    if sel > 0 then
-        update_ui_text(ox, y_offset, sel, 24, 1, color_grey_mid, 0)
-        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_wheel_small, col, 0)
-        ox = incr(ox, w)
-    end
-
-    if wlr > 0 then
-        update_ui_text(ox, y_offset, wlr, 24, 1, color_grey_mid, 0)
-        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_wheel_medium, col, 0)
-        ox = incr(ox, w)
-    end
-
-    if ber > 0 then
-        update_ui_text(ox, y_offset, ber, 24, 1, color_grey_mid, 0)
-        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_wheel_large, col, 0)
-        ox = incr(ox, w)
-    end
-
-    if mul > 0 then
-        update_ui_text(ox, y_offset, mul, 24, 1, color_grey_mid, 0)
-        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_wheel_mule, col, 0)
-        ox = incr(ox, w)
-    end
-
-    if vir > 0 then
-        update_ui_text(ox, y_offset, vir, 24, 1, color_grey_mid, 0)
-        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_robot_dog, col, 0)
-        ox = incr(ox, w)
-    end
-
-    if brg > 0 then
-        update_ui_text(ox, y_offset, brg, 24, 1, color_grey_mid, 0)
-        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_barge, col, 0)
-        ox = incr(ox, w)
-    end
-
+function render_team_units(team_id, y_offset)
+    local ox = render_unit_active_loss(5, y_offset, team_id,
+            e_game_object_type.chassis_air_wing_heavy,
+            0,
+            atlas_icons.icon_chassis_16_wing_large
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_air_wing_light,
+            0,
+            atlas_icons.icon_chassis_16_wing_small
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_air_rotor_light,
+            1,
+            atlas_icons.icon_chassis_16_rotor_small
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_air_rotor_heavy,
+            0,
+            atlas_icons.icon_chassis_16_rotor_large
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_land_wheel_heavy,
+            0,
+            atlas_icons.icon_chassis_16_wheel_large
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_land_wheel_medium,
+            0,
+            atlas_icons.icon_chassis_16_wheel_medium
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_land_wheel_light,
+            0,
+            atlas_icons.icon_chassis_16_wheel_small
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_sea_barge,
+            0,
+            atlas_icons.icon_chassis_16_barge
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_land_robot_dog,
+            0,
+            atlas_icons.icon_chassis_16_robot_dog
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_land_turret,
+            0,
+            atlas_icons.icon_chassis_16_land_turret
+    )
+    ox = render_unit_active_loss(ox, y_offset, team_id,
+            e_game_object_type.chassis_sea_ship_light,
+            0,
+            atlas_icons.icon_chassis_16_ship_light
+    )
+    find_destroyed_units(team_id)
 end
 
 
