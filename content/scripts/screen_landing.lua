@@ -38,9 +38,149 @@ function begin()
     g_ui = lib_imgui:create_ui()
 end
 
+g_pulse = 0
+g_pulse_delta = 1
+g_pulse_max = 40
+
+function count_team_units_active(team_id, def_index)
+    local vehicle_count = update_get_map_vehicle_count()
+    local number = 0
+    for i = 0, vehicle_count - 1, 1 do
+        local vehicle = update_get_map_vehicle_by_index(i)
+        if vehicle:get() then
+            if vehicle:get_team() == team_id then
+                local vehicle_def = vehicle:get_definition_index()
+                if vehicle_def == def_index then
+                    number = number + 1
+                end
+            end
+        end
+    end
+    return number
+end
+
+function spectator_update(screen_w, screen_h, ticks)
+    g_pulse = g_pulse + g_pulse_delta
+    if g_pulse == 0 then
+        g_pulse_delta = 1
+    elseif g_pulse == g_pulse_max then
+        g_pulse_delta = -1
+    end
+
+    local dark_red = color8(128, 0, 0, math.min(9, g_pulse))
+    -- render a background spectator title
+    update_ui_text_scale(5, screen_h * 0.36, "CC2TV", screen_w, 1, dark_red, 0, 4)
+
+    -- mission time in SE corner
+    local time_str = format_time(update_get_logic_tick() / 30)
+    update_ui_line(0, screen_h - 14, screen_w, screen_h - 14, color_grey_dark)
+    update_ui_text(0, screen_h - 12, time_str, screen_w - 8, 2, color_grey_mid, 0)
+
+    -- render a row for each team
+    render_team_units(2, 8, update_get_team_color(2))
+    render_team_units(3, 8 + 24, update_get_team_color(3))
+    render_team_units(4, 8 + 24 + 24, update_get_team_color(4))
+
+end
+
+function incr(num, delta)
+    return num + delta
+end
+
+function render_team_units(team_id, y_offset, col)
+    local ox = 8
+    local w = 15
+
+    local alb = count_team_units_active(team_id, e_game_object_type.chassis_air_wing_light)
+    local mnt = count_team_units_active(team_id, e_game_object_type.chassis_air_wing_heavy)
+    local ptr = count_team_units_active(team_id, e_game_object_type.chassis_air_rotor_heavy)
+    local rzr = count_team_units_active(team_id, e_game_object_type.chassis_air_rotor_light)
+
+    local sel = count_team_units_active(team_id, e_game_object_type.chassis_land_wheel_light)
+    local wlr = count_team_units_active(team_id, e_game_object_type.chassis_land_wheel_medium)
+    local ber = count_team_units_active(team_id, e_game_object_type.chassis_land_wheel_heavy)
+    local mul = count_team_units_active(team_id, e_game_object_type.chassis_land_wheel_mule)
+
+    local brg = count_team_units_active(team_id, e_game_object_type.chassis_sea_barge)
+    local ndl = count_team_units_active(team_id, e_game_object_type.chassis_sea_ship_light)
+    local vir = count_team_units_active(team_id, e_game_object_type.chassis_land_robot_dog)
+    local trt = count_team_units_active(team_id, e_game_object_type.chassis_land_turret)
+
+    if mnt > 0 then
+        update_ui_text(ox, y_offset, mnt, 24, 1, color_grey_mid, 0)
+        update_ui_image(ox, y_offset + 8, atlas_icons.icon_chassis_16_wing_large, col, 0)
+        ox = incr(ox, w)
+    end
+
+    if alb > 0 then
+        update_ui_text(ox, y_offset, alb, 24, 1, color_grey_mid, 0)
+        update_ui_image(ox, y_offset + 8, atlas_icons.icon_chassis_16_wing_small, col, 0)
+        ox = incr(ox, w)
+    end
+
+    if rzr > 0 then
+        update_ui_text(ox, y_offset, rzr, 24, 1, color_grey_mid, 0)
+        update_ui_image(ox, y_offset + 9, atlas_icons.icon_chassis_16_rotor_small, col, 0)
+        ox = incr(ox, w)
+    end
+
+    if ptr > 0 then
+        update_ui_text(ox, y_offset, ptr, 24, 1, color_grey_mid, 0)
+        update_ui_image(ox, y_offset + 8, atlas_icons.icon_chassis_16_rotor_large, col, 0)
+        ox = incr(ox, w)
+    end
+
+    if sel > 0 then
+        update_ui_text(ox, y_offset, sel, 24, 1, color_grey_mid, 0)
+        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_wheel_small, col, 0)
+        ox = incr(ox, w)
+    end
+
+    if wlr > 0 then
+        update_ui_text(ox, y_offset, wlr, 24, 1, color_grey_mid, 0)
+        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_wheel_medium, col, 0)
+        ox = incr(ox, w)
+    end
+
+    if ber > 0 then
+        update_ui_text(ox, y_offset, ber, 24, 1, color_grey_mid, 0)
+        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_wheel_large, col, 0)
+        ox = incr(ox, w)
+    end
+
+    if mul > 0 then
+        update_ui_text(ox, y_offset, mul, 24, 1, color_grey_mid, 0)
+        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_wheel_mule, col, 0)
+        ox = incr(ox, w)
+    end
+
+    if vir > 0 then
+        update_ui_text(ox, y_offset, vir, 24, 1, color_grey_mid, 0)
+        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_robot_dog, col, 0)
+        ox = incr(ox, w)
+    end
+
+    if brg > 0 then
+        update_ui_text(ox, y_offset, brg, 24, 1, color_grey_mid, 0)
+        update_ui_image(ox + 1, y_offset + 9, atlas_icons.icon_chassis_16_barge, col, 0)
+        ox = incr(ox, w)
+    end
+
+end
+
+
 function update(screen_w, screen_h, ticks)
-    g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
+    if get_is_spectator_mode() then
+        local st, err = pcall( function()
+            spectator_update(screen_w, screen_h, ticks)
+        end)
+        if not st then
+            print(err)
+        end
+        return
+    end
+    g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
     if update_screen_overrides(screen_w, screen_h, ticks)  then return end
 
     local ui = g_ui
