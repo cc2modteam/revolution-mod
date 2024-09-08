@@ -2790,18 +2790,16 @@ function render_airspeed_meter(pos, vehicle, step, col)
     update_ui_rectangle(pos:x() + 16, pos:y() + 100 - throttle_height - 4, 3, 1, col)
     update_ui_rectangle(pos:x() + 16, pos:y() + 100 - 1, 3, 1, col)
 
-    if g_hovering then
-        local word = "HOVR"
-        if vehicle:get_throttle_factor() < 0.4 then
-            word = "LAND"
-        end
-        update_ui_text(pos:x() + 184, pos:y() + 110, word, 200, 0, col, 0)
-    else
-        --
-    end
-
     -- if we are a PTR show the nearest airliftable unit ID and distance
     if e_game_object_type.chassis_air_rotor_heavy == vehicle:get_definition_index() then
+        if g_hovering then
+            local word = "HOVR"
+            if vehicle:get_throttle_factor() < 0.4 then
+                word = "LAND"
+            end
+            update_ui_text(pos:x() + 184, pos:y() + 110, word, 200, 0, col, 0)
+        end
+
         local st, err = pcall(function()
             local nearest_col = col
             if vehicle_has_cargo(vehicle) then
@@ -4418,7 +4416,10 @@ function render_snowstorm(vehicle, screen_w, screen_h, multi)
     -- render some phantom targets
     if multi < 2 then
         for i = 0, math.random(4) do
-            local pos = vec2(x_offset + screen_w / i , math.random(48) + (screen_h / 2) - 48 )
+            local vx = x_offset + screen_w / i
+            local dvx = math.random(-27, 38)
+            vx = vx + dvx
+            local pos = vec2(vx , math.random(48) + (screen_h / 2) - 48 )
             render_vision_target_vehicle_outline(pos, vehicle, false, false, false, false, color_enemy)
         end
     end
