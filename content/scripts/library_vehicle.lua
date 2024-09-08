@@ -2300,7 +2300,6 @@ function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team)
     -- find the nearest unit of a particular type
     local vehicle_count = update_get_map_vehicle_count()
 
-
     local self_pos = get_pos_xz(vehicle)
     if friendly_team == nil then
         friendly_team = get_unit_team(vehicle)

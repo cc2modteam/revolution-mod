@@ -2007,24 +2007,26 @@ function render_attachment_hud_ciws(screen_w, screen_h, map_data, vehicle, attac
     render_attachment_range(hud_pos, attachment)
     render_turret_vehicle_direction(screen_w, screen_h, vehicle, attachment, col)
 
-    -- always render the lead for the nearest air unit
+    -- always render the lead for the nearest hostile air unit
     local nearest_hostile_air = find_nearest_vehicle_types(vehicle, {
         e_game_object_type.chassis_air_wing_light,
         e_game_object_type.chassis_air_rotor_light,
         e_game_object_type.chassis_air_rotor_heavy,
         e_game_object_type.chassis_air_wing_heavy,
-    }, true, nil, 10)
+    }, true, nil)
 
     local forced_target = false
 
     if nearest_hostile_air ~= nil and g_selected_target_id == 0 then
-        local self_pos = vehicle:get_position()
-        local nearest_pos = nearest_hostile_air:get_position()
-        local dist = vec3_dist(self_pos, nearest_pos)
-        if dist < 1500 then
-            g_selected_target_type = 1
-            forced_target = true
-            g_selected_target_id = nearest_hostile_air:get_id()
+        if vehicle:get_team_id() ~= nearest_hostile_air:get_team_id() then
+            local self_pos = vehicle:get_position()
+            local nearest_pos = nearest_hostile_air:get_position()
+            local dist = vec3_dist(self_pos, nearest_pos)
+            if dist < 1500 then
+                g_selected_target_type = 1
+                forced_target = true
+                g_selected_target_id = nearest_hostile_air:get_id()
+            end
         end
     end
 
