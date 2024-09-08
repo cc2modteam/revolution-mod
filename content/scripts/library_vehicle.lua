@@ -3010,7 +3010,6 @@ function update_hover_data()
                                 if h_dist < 2 then
                                     -- pos stable
                                     if data.count == 0 then
-                                        print("hover start " .. vid .. " " .. age )
                                         if g_hover_callback ~= nil then
                                             g_hover_callback(vehicle, true)
                                         end
@@ -3022,7 +3021,6 @@ function update_hover_data()
                             if not stable then
                                 -- moved more than 5m vertically or 2m horizontally, clear data
                                 if data.count > 0 then
-                                    print("hover end " .. vid .. " " .. age)
                                     if g_hover_callback ~= nil then
                                         g_hover_callback(vehicle, false)
                                     end
