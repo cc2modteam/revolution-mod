@@ -2724,19 +2724,21 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     local steps = math.floor(math.pi * 0.5 / angle_step)
     local angle_width = 20
 
+
     for i = 1, steps do
+        local angle_col = color8(col:r(), col:g(), col:b(), 150)
         projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y() + math.tan(i * angle_step) * project_dist, position:z() + forward_xz:z() * project_dist)
         horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
         
         if i ~= steps then
             update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_high, col, roll)
-            update_ui_text(horizon:x()-angle_width/2, horizon:y()-5, math.floor(i*angle_step_deg), 20, 1, col, 0)
+            update_ui_text(horizon:x()-angle_width/2, horizon:y()-5, math.floor(i*angle_step_deg), 20, 1, angle_col, 0)
         end
 
         projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y() - math.tan(i * angle_step) * project_dist, position:z() + forward_xz:z() * project_dist)
         horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
         update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_low, col, roll)
-        update_ui_text(horizon:x()-angle_width/2, horizon:y()-3, math.floor(-i*angle_step_deg), 20, 1, col, 0)
+        update_ui_text(horizon:x()-angle_width/2, horizon:y()-3, math.floor(-i*angle_step_deg), 20, 1, angle_col, 0)
     end
 
     --update_ui_pop_clip()
