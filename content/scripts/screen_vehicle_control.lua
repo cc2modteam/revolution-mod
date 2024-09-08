@@ -1729,7 +1729,40 @@ function _update(screen_w, screen_h, ticks)
                     local is_render_vehicle_icon = vehicle_attached_parent_id == 0
                     local is_sealthed = false
 
-                    if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
+                    if vehicle_definition_index == e_game_object_type.drydock then
+                        -- draw the drydock as grey
+                        local vehicle_pos_xz = vehicle:get_position_xz()
+                        local v_x = vehicle_pos_xz:x()
+                        local v_y = vehicle_pos_xz:y()
+                        local v_nx = v_x + 90
+                        local v_ny = v_y + 160
+                        local v_sx = v_x - 130
+                        local v_sy = v_y - 280
+                        local st, err = pcall(function()
+                            update_world_triangle(
+                                    v_nx, v_ny,
+                                    v_nx + 30, v_ny - 15,
+                                    v_sx, v_sy,
+                                    color_grey_dark
+                            )
+                            update_world_triangle(
+                                    v_sx + 30, v_sy - 15,
+                                    v_nx + 30, v_ny - 15,
+                                    v_sx, v_sy,
+                                    color_grey_dark
+                            )
+                        end)
+                        if not st then
+                            print(err)
+                        end
+
+                        --update_world_line(v_nx, v_ny, v_sx, v_sy, color_grey_dark)
+                        --update_world_line(v_nx + 4, v_ny, v_sx + 4, v_sy, color_grey_dark)
+                        --update_world_line(v_nx + 8, v_ny, v_sx + 8, v_sy, color_grey_dark)
+                        --update_world_line(v_nx + 12, v_ny, v_sx + 12, v_sy, color_grey_dark)
+
+
+                    elseif vehicle_definition_index ~= e_game_object_type.chassis_spaceship then
                         local is_air = get_is_vehicle_air(vehicle_definition_index)
                         local is_visible = vehicle:get_is_visible()
                         local is_revealed = vehicle:get_is_observation_revealed()
@@ -3926,4 +3959,20 @@ function tactical_hover_check(vehicle)
             end
         end
     end
+end
+
+function update_world_line(x1, y1, x2, y2, col)
+    local ax, ay = get_screen_from_world(x1, y1, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+    local bx, by = get_screen_from_world(x2, y2, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+    update_ui_line(ax, ay, bx, by, col)
+end
+
+function update_world_triangle(ax, ay, bx, by, cx, cy, col)
+    update_ui_begin_triangles()
+    local ax, ay = get_screen_from_world(ax, ay, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+    local bx, by = get_screen_from_world(bx, by, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+    local cx, cy = get_screen_from_world(cx, cy, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+
+    update_ui_add_triangle(vec2(ax, ay), vec2(bx, by), vec2(cx, cy), col)
+    update_ui_end_triangles()
 end
