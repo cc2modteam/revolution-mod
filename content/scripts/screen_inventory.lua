@@ -497,6 +497,16 @@ function tab_barges_render(screen_w, screen_h, x, y, w, h, is_tab_active, screen
 
             window.label_bias = 0.1
             ui:stat(atlas_icons.icon_health, string.format("%.0f%%", hp_factor * 100), get_color_hp(hp_factor))
+
+            -- warn when there are no carrier delivery waypoints
+            if not get_barge_has_carrier_waypoint(selected_barge) then
+                local msg = string.format("%s %s %s",
+                        update_get_loc(e_loc.upp_no),
+                        update_get_loc(e_loc.upp_crr),
+                        update_get_loc(e_loc.upp_waypoint)
+                )
+                ui:stat(atlas_icons.column_distance, msg, color_status_dark_red)
+            end
             window.label_bias = 0.5
 
             ui:header(update_get_loc(e_loc.upp_inventory))
@@ -868,6 +878,8 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
                         if is_vehicle_hovered(vehicle) and g_tab_map.hovered_waypoint_id == 0 then
                             waypoint_col = color_white
                         end
+
+
                     end
                 elseif is_vehicle_hovered(vehicle) then
                     waypoint_col = g_map_colors.barge
@@ -1026,7 +1038,9 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
     end
 
  -- render modifying waypoint path
-            
+
+
+
     for _, vehicle in iter_vehicles(vehicle_filter) do
         if is_barge_waypoint_mode() and is_vehicle_modify_waypoints(vehicle) then
             render_waypoint_path(vehicle)
@@ -1076,6 +1090,16 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
         local selected_barge = update_get_map_vehicle_by_id(g_tab_map.selected_barge_id)
 
         if selected_barge:get() then
+            if is_barge_waypoint_mode() and not get_barge_has_carrier_waypoint(selected_barge) then
+                -- this barge has no delivery waypoints, add a message
+                local msg = string.format("%s %s %s",
+                        update_get_loc(e_loc.upp_no),
+                        update_get_loc(e_loc.upp_crr),
+                        update_get_loc(e_loc.upp_deliver_order)
+                )
+                update_ui_text(9, 18, msg , 200, 0, color_status_dark_red, 0)
+            end
+
             render_vehicle(selected_barge)
         end
     end
@@ -1097,6 +1121,21 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
             update_ui_image(g_tab_map.cursor_pos_x - 5, g_tab_map.cursor_pos_y - 5, atlas_icons.map_icon_crosshair, iff(g_tab_map.hovered_id ~= 0, color_black, color_white), 0)
         end
     end
+end
+
+function get_barge_has_carrier_waypoint(vehicle)
+    local waypoint_count = vehicle:get_waypoint_count()
+
+    for i = 0, waypoint_count do
+        local waypoint_data = vehicle:get_waypoint(i)
+        local waypoint_type = waypoint_data:get_type()
+        if waypoint_data:get() then
+            if waypoint_type == e_waypoint_type.barge_unload_carrier then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 function render_map_ui(screen_w, screen_h, x, y, w, h, screen_vehicle, is_tab_active)
