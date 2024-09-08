@@ -86,7 +86,6 @@ function count_team_units_active(team_id, def_index)
                 local vehicle_def = vehicle:get_definition_index()
                 g_unit_record[team_id][vehicle:get_id()] = vehicle_def
                 if vehicle_def == e_game_object_type.chassis_carrier or not get_vehicle_docked(vehicle) then
-                    local vehicle_def = vehicle:get_definition_index()
                     if vehicle_def == def_index then
                         number = number + 1
                     end
