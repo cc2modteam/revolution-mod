@@ -4622,7 +4622,7 @@ g_hovering = false
 
 function on_hover(vehicle, is_hover)
     if vehicle and vehicle:get() then
-        g_hovering = is_hover
+        -- g_hovering = is_hover
     end
 end
 
