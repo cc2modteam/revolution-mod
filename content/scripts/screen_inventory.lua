@@ -757,7 +757,7 @@ function get_destination_pos_xz(barge_id, destination_id, destination_type)
         local tile = update_get_tile_by_id(destination_id)
 
         if tile:get() then
-            return tile:get_position_xz()
+            return get_command_center_position(tile:get_id())
         end
     elseif destination_type == e_barge_destination_type.vehicle then
         local vehicle = update_get_map_vehicle_by_id(destination_id)
@@ -772,7 +772,7 @@ function get_destination_pos_xz(barge_id, destination_id, destination_type)
             local waypoint = vehicle:get_waypoint_by_id(destination_id)
 
             if waypoint:get() then
-                return waypoint:get_position_xz()
+                return get_waypoint_position(waypoint)
             end
         end
     end
@@ -866,7 +866,7 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
             local waypoint_data = vehicle:get_waypoint(i)
 
             if waypoint_data:get() then
-                local waypoint_pos = waypoint_data:get_position_xz()
+                local waypoint_pos = get_waypoint_position(waypoint_data)
                 local s0x, s0y = get_screen_from_world(pos_prev:x(), pos_prev:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
                 local s1x, s1y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
                 local waypoint_col = color8(0, 255, 255, 2)
@@ -878,8 +878,6 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
                         if is_vehicle_hovered(vehicle) and g_tab_map.hovered_waypoint_id == 0 then
                             waypoint_col = color_white
                         end
-
-
                     end
                 elseif is_vehicle_hovered(vehicle) then
                     waypoint_col = g_map_colors.barge
@@ -891,7 +889,7 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
 
                 if waypoint_repeat_index >= 0 then
                     local waypoint_repeat = vehicle:get_waypoint(waypoint_repeat_index)
-                    local waypoint_repeat_pos = waypoint_repeat:get_position_xz()
+                    local waypoint_repeat_pos = get_waypoint_position(waypoint_repeat)
                     local repeat_screen_pos_x, repeat_screen_pos_y = get_screen_from_world(waypoint_repeat_pos:x(), waypoint_repeat_pos:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
 
                     update_ui_line(s1x, s1y, repeat_screen_pos_x, repeat_screen_pos_y, waypoint_col)
@@ -1039,8 +1037,6 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
 
  -- render modifying waypoint path
 
-
-
     for _, vehicle in iter_vehicles(vehicle_filter) do
         if is_barge_waypoint_mode() and is_vehicle_modify_waypoints(vehicle) then
             render_waypoint_path(vehicle)
@@ -1058,7 +1054,7 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
             local waypoint_data = vehicle:get_waypoint(i)
 
             if waypoint_data:get() then
-                local waypoint_pos = waypoint_data:get_position_xz()
+                local waypoint_pos = get_waypoint_position(waypoint_data)
                 local sx, sy = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
                 
                 if is_barge_waypoint_mode() then
@@ -1110,7 +1106,6 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
 
             if drag_start then
                 local screen_drag_x, screen_drag_y = get_screen_from_world(drag_start:x(), drag_start:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
-
                 update_ui_line(screen_drag_x, screen_drag_y, g_tab_map.cursor_pos_x, g_tab_map.cursor_pos_y, color_white)
             end
         end
@@ -1121,6 +1116,19 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
             update_ui_image(g_tab_map.cursor_pos_x - 5, g_tab_map.cursor_pos_y - 5, atlas_icons.map_icon_crosshair, iff(g_tab_map.hovered_id ~= 0, color_black, color_white), 0)
         end
     end
+end
+
+function get_waypoint_position(waypoint_data)
+    local waypoint_pos = waypoint_data:get_position_xz()
+    local waypoint_type = waypoint_data:get_type()
+        if waypoint_type == e_waypoint_type.barge_load_tile then
+        -- move the wpt pos to the island command center
+        local tile = get_nearest_island_tile(waypoint_pos:x(), waypoint_pos:y())
+        if tile and tile:get() then
+            waypoint_pos = get_command_center_position(tile:get_id())
+        end
+    end
+    return waypoint_pos
 end
 
 function get_barge_has_carrier_waypoint(vehicle)
@@ -1854,7 +1862,7 @@ function update_map_hovered(screen_w, screen_h)
                 local waypoint_data = selected_barge:get_waypoint(i)
 
                 if waypoint_data:get() then
-                    local waypoint_pos = waypoint_data:get_position_xz()
+                    local waypoint_pos = get_waypoint_position(waypoint_data)
                     local screen_x, screen_y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
                     local dist_sq = vec2_dist_sq(vec2(screen_x, screen_y), vec2(g_tab_map.cursor_pos_x, g_tab_map.cursor_pos_y))
 
@@ -2146,7 +2154,7 @@ function add_barge_waypoint(barge, x, y, hovered_id, hovered_type)
         local tile = update_get_tile_by_id(hovered_id)
 
         if tile:get() and tile:get_team_control() == update_get_screen_team_id() then
-            local tile_pos = tile:get_position_xz()
+            local tile_pos = get_command_center_position(tile:get_id())
             local waypoint_id = barge:add_waypoint(tile_pos:x(), tile_pos:y())
             barge:set_waypoint_type_barge_load_tile(waypoint_id, hovered_id)
 
@@ -2175,7 +2183,7 @@ function get_resource_node_position(id, type, waypoint_id)
                 local waypoint = vehicle:get_waypoint_by_id(waypoint_id)
 
                 if waypoint:get() then
-                    return waypoint:get_position_xz()
+                    return get_waypoint_position(waypoint)
                 end
             end
 
@@ -2185,7 +2193,7 @@ function get_resource_node_position(id, type, waypoint_id)
         local tile = update_get_tile_by_id(id)
 
         if tile:get() then
-            return tile:get_position_xz()
+            return get_command_center_position(tile:get_id())
         end
     end
 
