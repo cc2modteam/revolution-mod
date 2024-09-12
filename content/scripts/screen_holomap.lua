@@ -174,6 +174,7 @@ function _update(screen_w, screen_h, ticks)
 
     if g_first_update then
         g_first_update = false
+        focus_carrier()
     end
 
     if g_is_pointer_down then
