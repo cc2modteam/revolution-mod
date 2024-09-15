@@ -129,7 +129,7 @@ function imgui_notification_log(ui, log, column_widths, column_margins, is_read)
         text_col = color_highlight
     elseif log_type == e_map_notification_type.enemy_vehicle_destroyed then
         local definition_name = get_chassis_data_by_definition_index(log:get_vehicle_definition_index())
-        log_message = update_get_loc(e_loc.vehicle_destroyed) .. " - " .. definition_name .. " - " .. log:get_team_id()
+        log_message = update_get_loc(e_loc.destroyed) .. " " .. definition_name .. " - " .. log:get_team_id()
     elseif log_type == e_map_notification_type.team_vehicle_destroyed then
         local definition_name = get_chassis_data_by_definition_index(log:get_vehicle_definition_index())
         log_message = update_get_loc(e_loc.vehicle_destroyed) .. " - "  .. definition_name
