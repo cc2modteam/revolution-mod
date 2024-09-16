@@ -1023,10 +1023,14 @@ function _update(screen_w, screen_h, ticks)
             end
 
             update_ui_image(cx, cy, atlas_icons.column_angle, icon_col, 0)
-            update_ui_text(cx + 15, cy, string.format("%.0f deg", bearing_world), 100, 0, text_col, 0)
+            update_ui_text(cx + 15, cy, string.format("Bearing: %.0f deg", bearing_world), 100, 0, text_col, 0)
             cy = cy - 10
 
             local dist = vec2_dist(vec2(g_ruler_x, g_ruler_y), vec2(world_x, world_y))
+            
+            update_ui_image(cx, cy, atlas_icons.map_icon_loop, icon_col, 0)
+            update_ui_text(cx + 15, cy, string.format("Torpedo Delay: %.0f s", dist/50), 500, 0, text_col, 0)
+            cy = cy - 10
 
             if dist < 10000 then
                 update_ui_image(cx, cy, atlas_icons.column_distance, icon_col, 0)
@@ -1124,7 +1128,7 @@ function _update(screen_w, screen_h, ticks)
                 update_ui_text(screen_w / 9, screen_h - 24,
                         "Revolution Spectator Studio TM", 400, 0, color_grey_mid, 0)
             else
-                update_ui_text(screen_w / 8, screen_h - 31,
+                update_ui_text(screen_w / 4, screen_h - 31,
                         string.format("ACC %s",
                                 get_ship_name(update_get_screen_vehicle())), 400, 0, color_grey_mid, 0)
 
