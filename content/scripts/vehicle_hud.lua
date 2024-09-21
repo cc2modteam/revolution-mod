@@ -2701,19 +2701,11 @@ function render_compass(pos, col)
 end
 
 function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
-    -- render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, col, true)
-    render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, color_white, false)
-end
-
-function render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, col, rel)
-    --update_ui_push_clip(pos:x() - size:x() / 2, pos:y() - size:y() / 2, size:x(), size:y())
-
     local scale = 1
     local position = update_get_camera_position()
     local project_dist = 500
 
     local velocity = vehicle:get_linear_velocity()
-    local p_fwd = nil
     local alt = position:y()
 
     local predicted_position = nil
@@ -2739,16 +2731,16 @@ function render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, co
                 p_y,
                 position:z() + velocity:z() * p_project_sec)
         p_alt = projected_velocity:y()
-        p_fwd = vec3_normal(projected_velocity)
         --end
         local t = update_get_logic_tick()
         if t % 30 == 0 then
             print(t, alt, p_alt, velocity:y(), vehicle:get_linear_speed())
         end
         predicted_position = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_velocity))
+        p_fwd = predicted_position
         local vv_col = col
         if p_y < 1 then
-            vv_col = color_enemy
+            vv_col = color_white
         end
         update_ui_image_rot(predicted_position:x(), predicted_position:y(), atlas_icons.hud_horizon_cursor, vv_col, 0)
         Variometer.predicted_vector.x = predicted_position:x()
@@ -2757,22 +2749,24 @@ function render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, co
 
     local forward = update_get_camera_forward()
 
-    if rel then
-        if p_fwd ~= nil then
-            local vdef = vehicle:get_definition_index()
-            if vdef == e_game_object_type.chassis_air_wing_light or vdef == e_game_object_type.chassis_air_wing_heavy then
-                --forward = p_fwd
-                --forward = vec3(forward:x(), forward:y(), forward:z())
-            end
+    if p_fwd ~= nil then
+        local vdef = vehicle:get_definition_index()
+        if vdef == e_game_object_type.chassis_air_wing_light or vdef == e_game_object_type.chassis_air_wing_heavy then
+            rel = true
+            --forward = p_fwd
+            --forward = vec3(forward:x(), forward:y(), forward:z())
         end
     end
+
 
     local forward_xz = vec3(forward:x(), 0, forward:z())
     forward_xz = vec3_normal(forward_xz)
 
     local side_xz = vec3(-forward_xz:z(), 0, forward_xz:x())
 
-    local fx_sx = forward_xz:x() + side_xz:x()
+    if rel and p_fwd then
+        -- position = vec3(p_fwd:x(), position:y(), position:z())
+    end
 
     local roll_pos_a = update_world_to_screen(vec3(position:x() + (forward_xz:x() + side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() + side_xz:z()) * project_dist))
     local roll_pos_b = update_world_to_screen(vec3(position:x() + (forward_xz:x() - side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() - side_xz:z()) * project_dist))
@@ -2781,6 +2775,9 @@ function render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, co
     
     local projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y(), position:z() + forward_xz:z() * project_dist)
     local horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
+
+    local hx = round_int( p_fwd:x() - horizon:x())
+    horizon = vec2(hx + horizon:x(), horizon:y())
 
     update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_mid, col, roll)
 
@@ -2793,7 +2790,7 @@ function render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, co
     for i = 1, steps do
         projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y() + math.tan(i * angle_step) * project_dist, position:z() + forward_xz:z() * project_dist)
         horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
-        
+        horizon = vec2(hx + horizon:x(), horizon:y())
         if i ~= steps then
             update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_high, col, roll)
             --update_ui_text(horizon:x()-angle_width/2, horizon:y()-5, math.floor(i*angle_step_deg), 20, 1, col, 0)
@@ -2804,6 +2801,7 @@ function render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, co
 
         projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y() - math.tan(i * angle_step) * project_dist, position:z() + forward_xz:z() * project_dist)
         horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
+        horizon = vec2(hx + horizon:x(), horizon:y())
         update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_low, col, roll)
         --update_ui_text(horizon:x()-angle_width/2, horizon:y()-3, math.floor(-i*angle_step_deg), 20, 1, col, 0)
         local hoz_width = 41
