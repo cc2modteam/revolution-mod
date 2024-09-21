@@ -1691,18 +1691,17 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     update_ui_rectangle(w, n + size + size, size - 4, size - 4, aft)
 
     -- show RADAR type
-    local rtype = g_nearest_hostile_ew_radar:get_definition_index()
-    local rinfo = ""
-    if get_is_vehicle_sea(rtype) or get_is_vehicle_land(rtype) then
-        rinfo = "S"
-    elseif get_is_vehicle_air(rtype)  then
-        rinfo = "A"
+    if g_nearest_hostile_ew_radar ~= nil then
+        local rtype = g_nearest_hostile_ew_radar:get_definition_index()
+        local rinfo = ""
+        if get_is_vehicle_sea(rtype) or get_is_vehicle_land(rtype) then
+            rinfo = "S"
+        elseif get_is_vehicle_air(rtype)  then
+            rinfo = "A"
+        end
+        -- update_ui_text(x, y, txt, width, 2, col, 0)
+        update_ui_text(w + 10, n - 1, rinfo, 8, 2, red, 0)
     end
-    -- update_ui_text(x, y, txt, width, 2, col, 0)
-    update_ui_text(w + 10, n - 1, rinfo, 8, 2, red, 0)
-
-
-
 end
 
 function render_attachment_hud_camera(screen_w, screen_h, map_data, vehicle, attachment)
@@ -2705,23 +2704,31 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     --update_ui_push_clip(pos:x() - size:x() / 2, pos:y() - size:y() / 2, size:x(), size:y())
 
     local scale = 1.5
-
-    local forward = update_get_camera_forward()
-    local forward_xz = vec3(forward:x(), 0, forward:z())
-    forward_xz = vec3_normal(forward_xz)
-    local side_xz = vec3(-forward_xz:z(), 0, forward_xz:x())
-
     local position = update_get_camera_position()
     local project_dist = 10000
-    
+
     local velocity = vehicle:get_linear_velocity()
+    local p_fwd = nil
     if vehicle:get_linear_speed() > 1 then
         local projected_velocity = vec3(position:x() + velocity:x() * project_dist, position:y() + velocity:y() * project_dist, position:z() + velocity:z() * project_dist)
         local predicted_position = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_velocity))
         update_ui_image_rot(predicted_position:x(), predicted_position:y(), atlas_icons.hud_horizon_cursor, col, 0)
         Variometer.predicted_vector.x = predicted_position:x()
         Variometer.predicted_vector.y = predicted_position:y()
+        p_fwd = projected_velocity
     end
+
+    local forward = update_get_camera_forward()
+
+    if p_fwd ~= nil then
+       forward = p_fwd
+    end
+
+    local forward_xz = vec3(forward:x(), 0, forward:z())
+    forward_xz = vec3_normal(forward_xz)
+
+
+    local side_xz = vec3(-forward_xz:z(), 0, forward_xz:x())
 
     local roll_pos_a = update_world_to_screen(vec3(position:x() + (forward_xz:x() + side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() + side_xz:z()) * project_dist))
     local roll_pos_b = update_world_to_screen(vec3(position:x() + (forward_xz:x() - side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() - side_xz:z()) * project_dist))
@@ -2730,6 +2737,7 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     
     local projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y(), position:z() + forward_xz:z() * project_dist)
     local horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
+
     update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_mid, col, roll)
 
     local angle_step_deg = 10
