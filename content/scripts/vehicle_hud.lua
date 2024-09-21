@@ -2701,37 +2701,78 @@ function render_compass(pos, col)
 end
 
 function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
+    -- render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, col, true)
+    render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, color_white, false)
+end
+
+function render_artificial_horizion_x(screen_w, screen_h, pos, size, vehicle, col, rel)
     --update_ui_push_clip(pos:x() - size:x() / 2, pos:y() - size:y() / 2, size:x(), size:y())
 
-    local scale = 1.5
+    local scale = 1
     local position = update_get_camera_position()
-    local project_dist = 10000
+    local project_dist = 500
 
     local velocity = vehicle:get_linear_velocity()
     local p_fwd = nil
+    local alt = position:y()
+
+    local predicted_position = nil
+    local projected_velocity = nil
     if vehicle:get_linear_speed() > 1 then
-        local projected_velocity = vec3(position:x() + velocity:x() * project_dist, position:y() + velocity:y() * project_dist, position:z() + velocity:z() * project_dist)
-        local predicted_position = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_velocity))
-        update_ui_image_rot(predicted_position:x(), predicted_position:y(), atlas_icons.hud_horizon_cursor, col, 0)
+
+        local p_alt = -100
+        local p_project_sec = project_dist
+        local p_y = position:y() + (velocity:y() * p_project_sec)
+
+        local p_y_c = 0
+        while p_y < 10 do
+            p_project_sec = p_project_sec * 0.45
+            p_y = position:y() + (velocity:y() * p_project_sec)
+            p_y_c = p_y_c + 1
+            if p_y_c > 4 then
+                break
+            end
+        end
+
+        projected_velocity = vec3(
+                position:x() + velocity:x() * p_project_sec,
+                p_y,
+                position:z() + velocity:z() * p_project_sec)
+        p_alt = projected_velocity:y()
+        p_fwd = vec3_normal(projected_velocity)
+        --end
+        local t = update_get_logic_tick()
+        if t % 30 == 0 then
+            print(t, alt, p_alt, velocity:y(), vehicle:get_linear_speed())
+        end
+        predicted_position = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_velocity))
+        local vv_col = col
+        if p_y < 1 then
+            vv_col = color_enemy
+        end
+        update_ui_image_rot(predicted_position:x(), predicted_position:y(), atlas_icons.hud_horizon_cursor, vv_col, 0)
         Variometer.predicted_vector.x = predicted_position:x()
         Variometer.predicted_vector.y = predicted_position:y()
-        p_fwd = projected_velocity
     end
 
     local forward = update_get_camera_forward()
 
-    if p_fwd ~= nil then
-        local vdef = vehicle:get_definition_index()
-        if vdef == e_game_object_type.chassis_air_wing_light or vdef == e_game_object_type.chassis_air_wing_heavy then
-            forward = p_fwd
+    if rel then
+        if p_fwd ~= nil then
+            local vdef = vehicle:get_definition_index()
+            if vdef == e_game_object_type.chassis_air_wing_light or vdef == e_game_object_type.chassis_air_wing_heavy then
+                --forward = p_fwd
+                --forward = vec3(forward:x(), forward:y(), forward:z())
+            end
         end
     end
 
     local forward_xz = vec3(forward:x(), 0, forward:z())
     forward_xz = vec3_normal(forward_xz)
 
-
     local side_xz = vec3(-forward_xz:z(), 0, forward_xz:x())
+
+    local fx_sx = forward_xz:x() + side_xz:x()
 
     local roll_pos_a = update_world_to_screen(vec3(position:x() + (forward_xz:x() + side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() + side_xz:z()) * project_dist))
     local roll_pos_b = update_world_to_screen(vec3(position:x() + (forward_xz:x() - side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() - side_xz:z()) * project_dist))
