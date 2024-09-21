@@ -2701,13 +2701,14 @@ function render_compass(pos, col)
 end
 
 function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
+    local rel = false
     local scale = 1
     local position = update_get_camera_position()
     local project_dist = 500
 
     local velocity = vehicle:get_linear_velocity()
     local alt = position:y()
-
+    local p_fwd = nil
     local predicted_position = nil
     local projected_velocity = nil
     if vehicle:get_linear_speed() > 1 then
@@ -2753,21 +2754,13 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
         local vdef = vehicle:get_definition_index()
         if vdef == e_game_object_type.chassis_air_wing_light or vdef == e_game_object_type.chassis_air_wing_heavy then
             rel = true
-            --forward = p_fwd
-            --forward = vec3(forward:x(), forward:y(), forward:z())
         end
     end
-
 
     local forward_xz = vec3(forward:x(), 0, forward:z())
     forward_xz = vec3_normal(forward_xz)
 
     local side_xz = vec3(-forward_xz:z(), 0, forward_xz:x())
-
-    if rel and p_fwd then
-        -- position = vec3(p_fwd:x(), position:y(), position:z())
-    end
-
     local roll_pos_a = update_world_to_screen(vec3(position:x() + (forward_xz:x() + side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() + side_xz:z()) * project_dist))
     local roll_pos_b = update_world_to_screen(vec3(position:x() + (forward_xz:x() - side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() - side_xz:z()) * project_dist))
     local roll_normal = vec2_normal(vec2(roll_pos_b:x() - roll_pos_a:x(), roll_pos_b:y() - roll_pos_a:y()))
@@ -2777,7 +2770,7 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     local horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
 
     local hx = round_int( p_fwd:x() - horizon:x())
-    horizon = vec2(hx + horizon:x(), horizon:y())
+    horizon = vec2(p_fwd:x(), horizon:y())
 
     update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_mid, col, roll)
 
