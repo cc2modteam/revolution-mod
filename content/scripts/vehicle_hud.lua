@@ -2721,7 +2721,10 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     local forward = update_get_camera_forward()
 
     if p_fwd ~= nil then
-       forward = p_fwd
+        local vdef = vehicle:get_definition_index()
+        if vdef == e_game_object_type.chassis_air_wing_light or vdef == e_game_object_type.chassis_air_wing_heavy then
+            forward = p_fwd
+        end
     end
 
     local forward_xz = vec3(forward:x(), 0, forward:z())
