@@ -2701,8 +2701,10 @@ function render_compass(pos, col)
 end
 
 function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
-    local rel = false
-    local scale = 1
+    --update_ui_push_clip(pos:x() - size:x() / 2, pos:y() - size:y() / 2, size:x(), size:y())
+
+    local scale = 1.5
+
     local position = update_get_camera_position()
     local project_dist = 500
 
@@ -2732,28 +2734,31 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
                 p_y,
                 position:z() + velocity:z() * p_project_sec)
         p_alt = projected_velocity:y()
-        --end
-        local t = update_get_logic_tick()
-        if t % 30 == 0 then
-            print(t, alt, p_alt, velocity:y(), vehicle:get_linear_speed())
-        end
+
         predicted_position = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_velocity))
         p_fwd = predicted_position
         local vv_col = col
         if p_y < 1 then
             vv_col = color_white
         end
+        -- draw velocity vector
         update_ui_image_rot(predicted_position:x(), predicted_position:y(), atlas_icons.hud_horizon_cursor, vv_col, 0)
+
         Variometer.predicted_vector.x = predicted_position:x()
         Variometer.predicted_vector.y = predicted_position:y()
     end
 
     local forward = update_get_camera_forward()
+    local offset_x = 0
+    local offset_y = 0
 
     if p_fwd ~= nil then
         local vdef = vehicle:get_definition_index()
         if vdef == e_game_object_type.chassis_air_wing_light or vdef == e_game_object_type.chassis_air_wing_heavy then
             rel = true
+            offset_x = predicted_position:x() - (screen_w / 2)
+            offset_y = predicted_position:y() - (screen_h / 2)
+            slow_print(string.format("%f %f", offset_x, offset_y))
         end
     end
 
@@ -2768,38 +2773,51 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     
     local projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y(), position:z() + forward_xz:z() * project_dist)
     local horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
-
-    local hx = round_int( p_fwd:x() - horizon:x())
-    horizon = vec2(p_fwd:x(), horizon:y())
-
-    update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_mid, col, roll)
+    -- draw horizon
+    update_ui_image_rot(horizon:x() + offset_x, horizon:y() + offset_y, atlas_icons.hud_horizon_mid, col, roll)
 
     local angle_step_deg = 10
     local angle_step = angle_step_deg / 180 * math.pi
     local steps = math.floor(math.pi * 0.5 / angle_step)
     local angle_width = 20
 
-
     for i = 1, steps do
         projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y() + math.tan(i * angle_step) * project_dist, position:z() + forward_xz:z() * project_dist)
         horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
-        horizon = vec2(hx + horizon:x(), horizon:y())
+
         if i ~= steps then
-            update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_high, col, roll)
+            update_ui_image_rot(
+                    horizon:x() + offset_x,
+                    horizon:y() + offset_y,
+                    atlas_icons.hud_horizon_high, col, roll)
             --update_ui_text(horizon:x()-angle_width/2, horizon:y()-5, math.floor(i*angle_step_deg), 20, 1, col, 0)
             local hoz_width = 38
-			update_ui_text(horizon:x()-angle_width/2-math.floor(hoz_width*math.cos(roll)), horizon:y()-5-math.floor(hoz_width*math.sin(roll)), math.floor(i*angle_step_deg), 20, 1, col, 0)
-			update_ui_text(horizon:x()-angle_width/2+math.floor(hoz_width*math.cos(roll))+1, horizon:y()-5+math.floor(hoz_width*math.sin(roll)), math.floor(i*angle_step_deg), 20, 1, col, 0)
+			update_ui_text(
+                    horizon:x()-angle_width/2-math.floor(hoz_width*math.cos(roll)) + offset_x,
+                    horizon:y()-5-math.floor(hoz_width*math.sin(roll)) + offset_y,
+                    math.floor(i*angle_step_deg), 20, 1, col, 0)
+			update_ui_text(
+                    horizon:x()-angle_width/2+math.floor(hoz_width*math.cos(roll))+1 + offset_x,
+                    horizon:y()-5+math.floor(hoz_width*math.sin(roll)) + offset_y,
+                    math.floor(i*angle_step_deg), 20, 1, col, 0)
         end
 
         projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y() - math.tan(i * angle_step) * project_dist, position:z() + forward_xz:z() * project_dist)
         horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
-        horizon = vec2(hx + horizon:x(), horizon:y())
-        update_ui_image_rot(horizon:x(), horizon:y(), atlas_icons.hud_horizon_low, col, roll)
+        update_ui_image_rot(
+                horizon:x() + offset_x,
+                horizon:y() + offset_y,
+                atlas_icons.hud_horizon_low, col, roll)
         --update_ui_text(horizon:x()-angle_width/2, horizon:y()-3, math.floor(-i*angle_step_deg), 20, 1, col, 0)
         local hoz_width = 41
-		update_ui_text(horizon:x()-angle_width/2-math.floor(hoz_width*math.cos(roll)), horizon:y()-3-math.floor(hoz_width*math.sin(roll)), math.floor(-i*angle_step_deg), 20, 1, col, 0)
-		update_ui_text(horizon:x()-angle_width/2+math.floor(hoz_width*math.cos(roll))+1, horizon:y()-3+math.floor(hoz_width*math.sin(roll)), math.floor(-i*angle_step_deg), 20, 1, col, 0)
+		update_ui_text(
+                horizon:x()-angle_width/2-math.floor(hoz_width*math.cos(roll)) + offset_x,
+                horizon:y()-3-math.floor(hoz_width*math.sin(roll)) + offset_y,
+                math.floor(-i*angle_step_deg), 20, 1, col, 0)
+		update_ui_text(
+                horizon:x()-angle_width/2+math.floor(hoz_width*math.cos(roll))+1 + offset_x,
+                horizon:y()-3+math.floor(hoz_width*math.sin(roll)) + offset_y,
+                math.floor(-i*angle_step_deg), 20, 1, col, 0)
     end
 
     --update_ui_pop_clip()
@@ -4700,4 +4718,10 @@ function get_unit_team(unit)
         return unit:get_team_id()
     end
     return nil
+end
+
+function slow_print(msg)
+    if update_get_logic_tick() % 30 == 0 then
+        print(msg)
+    end
 end
