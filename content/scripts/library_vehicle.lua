@@ -2676,7 +2676,6 @@ function sanitise_loadout(carrier, bay_index)
     local vehicle = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(bay_index))
     -- remove weapons from hidden
     if vehicle and vehicle:get() then
-        print("sanitise " .. bay_index)
         local st, err = pcall(function()
             local attachment_count = vehicle:get_attachment_count()
             for i = 1, attachment_count do
@@ -2686,7 +2685,6 @@ function sanitise_loadout(carrier, bay_index)
                         local hidden = get_loadout_attachment_hidden(vehicle, i) or get_loadout_attachment_not_allowed(vehicle, i)
                         if hidden then
                             -- remove the attachment
-                            print(string.format("remove bay %d attachment %d", bay_index, i))
                             carrier:set_attached_vehicle_attachment(bay_index, i, -1)
                         end
                     end

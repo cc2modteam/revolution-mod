@@ -2793,12 +2793,15 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     local roll = vec2_angle(roll_normal, vec2(1, 0))
 
     local horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
-    -- draw horizon
-    update_ui_image_rot(
-            clamp(offset_x + horizon:x(), 20, screen_w - 20),
-            clamp(offset_y + horizon:y(), 10, screen_h - 10),
-            atlas_icons.hud_horizon_mid, col, roll)
+     -- draw horizon
+    local horizon_y = clamp(offset_y + horizon:y(), 2, screen_h - 2)
 
+    if horizon_y == offset_y + horizon:y() then
+        update_ui_image_rot(
+                clamp(offset_x + horizon:x(), 20, screen_w - 20),
+                horizon_y,
+                atlas_icons.hud_horizon_mid, col, roll)
+    end
     local angle_step_deg = 10
     local angle_step = angle_step_deg / 180 * math.pi
     local steps = math.floor(math.pi * 0.5 / angle_step)
@@ -4758,3 +4761,4 @@ function stable_tick(period_ticks, active_ticks)
     local window = tick % period_ticks
     return window < active_ticks
 end
+
