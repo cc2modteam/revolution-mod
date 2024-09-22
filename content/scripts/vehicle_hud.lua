@@ -1692,15 +1692,15 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
 
     -- show RADAR type
     if g_nearest_hostile_ew_radar ~= nil then
-        local rtype = g_nearest_hostile_ew_radar:get_definition_index()
-        local rinfo = ""
-        if get_is_vehicle_sea(rtype) or get_is_vehicle_land(rtype) then
-            rinfo = "S"
-        elseif get_is_vehicle_air(rtype)  then
-            rinfo = "A"
-        end
-        -- update_ui_text(x, y, txt, width, 2, col, 0)
-        update_ui_text(w + 10, n - 1, rinfo, 8, 2, red, 0)
+        --local rtype = g_nearest_hostile_ew_radar:get_definition_index()
+        --local rinfo = ""
+        --if get_is_vehicle_sea(rtype) or get_is_vehicle_land(rtype) then
+        --    rinfo = "S"
+        --elseif get_is_vehicle_air(rtype)  then
+        --    rinfo = "A"
+        --end
+        ---- update_ui_text(x, y, txt, width, 2, col, 0)
+        --update_ui_text(w + 10, n - 1, rinfo, 8, 2, red, 0)
     end
 end
 
