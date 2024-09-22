@@ -2763,28 +2763,28 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     forward_xz = vec3_normal(forward_xz)
     local projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y(), position:z() + forward_xz:z() * project_dist)
 
-    if p_fwd ~= nil then
-        local vdef = vehicle:get_definition_index()
-        if vdef == e_game_object_type.chassis_air_wing_light or vdef == e_game_object_type.chassis_air_wing_heavy then
-            -- find the horizon point relative to the velocity vector
-            local vector_horizon = vec3(
-                position:x() + velocity:x() * 1000,
-                position:y(),
-                position:z() + velocity:z() * 1000)
-
-            local v_s = update_world_to_screen(vector_horizon)
-            local f_s = update_world_to_screen(projected_forward)
-            offset_x = v_s:x() - f_s:x()
-            offset_y = v_s:y() - f_s:y()
-            if g_revolution_hud_debug ~= nil then
-                slow_print(string.format("%f %f (%f %f)", offset_x, offset_y, v_s:x(), v_s:y()))
-                --update_ui_image_rot(
-                --    clamp(v_s:x(), 20, screen_w - 20),
-                --    clamp(v_s:y(), 10, screen_h - 10) + 1,
-                --    atlas_icons.hud_horizon_mid, color_white, 0)
-            end
-        end
-    end
+    --if p_fwd ~= nil then
+    --    local vdef = vehicle:get_definition_index()
+    --    if vdef == e_game_object_type.chassis_air_wing_light or vdef == e_game_object_type.chassis_air_wing_heavy then
+    --        -- find the horizon point relative to the velocity vector
+    --        local vector_horizon = vec3(
+    --            position:x() + velocity:x() * 1000,
+    --            position:y(),
+    --            position:z() + velocity:z() * 1000)
+    --
+    --        local v_s = update_world_to_screen(vector_horizon)
+    --        local f_s = update_world_to_screen(projected_forward)
+    --        offset_x = v_s:x() - f_s:x()
+    --        offset_y = v_s:y() - f_s:y()
+    --        if g_revolution_hud_debug ~= nil then
+    --            slow_print(string.format("%f %f (%f %f)", offset_x, offset_y, v_s:x(), v_s:y()))
+    --            --update_ui_image_rot(
+    --            --    clamp(v_s:x(), 20, screen_w - 20),
+    --            --    clamp(v_s:y(), 10, screen_h - 10) + 1,
+    --            --    atlas_icons.hud_horizon_mid, color_white, 0)
+    --        end
+    --    end
+    --end
 
     local side_xz = vec3(-forward_xz:z(), 0, forward_xz:x())
     local roll_pos_a = update_world_to_screen(vec3(position:x() + (forward_xz:x() + side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() + side_xz:z()) * project_dist))
