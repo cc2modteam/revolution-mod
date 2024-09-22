@@ -3353,8 +3353,8 @@ function render_map_scale(screen_w, screen_h)
 
         update_ui_push_offset(screen_w - dx/2 - 15, screen_h - 20)
 
-        local w = update_ui_get_text_size(text, 32, 0)
-        update_ui_text(-w/2, -10, text, w, 1, color_grey_mid, 0)
+        local w = update_ui_get_text_size_mini(text)
+        update_ui_text_mini(-w/2, -8, text, w, 1, color_grey_mid, 0)
         
         if inbound then
             update_ui_rectangle(-dx/2, 0, 1, 4, color_grey_dark)
@@ -3378,12 +3378,12 @@ function render_cursor_info(screen_w, screen_h, world_pos_drag_start)
     local icon_col = color_grey_mid
     local text_col = color_grey_dark
 
-    update_ui_text(cx, cy, "X", 100, 0, icon_col, 0)
-    update_ui_text(cx + 15, cy, string.format("%.0f", world_x), 100, 0, text_col, 0)
-    cy = cy + 10
+    update_ui_mini_text(cx, cy, "X", icon_col)
+    update_ui_mini_text(cx + 9, cy, string.format("%.0f", world_x), text_col)
+    cy = cy + 6
 
-    update_ui_text(cx, cy, "Y", 100, 0, icon_col, 0)
-    update_ui_text(cx + 15, cy, string.format("%.0f", world_y), 100, 0, text_col, 0)
+    update_ui_mini_text(cx, cy, "Y", icon_col)
+    update_ui_mini_text(cx + 9, cy, string.format("%.0f", world_y), text_col)
     cy = cy + 10
 
     if world_pos_drag_start then
@@ -3394,7 +3394,7 @@ function render_cursor_info(screen_w, screen_h, world_pos_drag_start)
             update_ui_text(cx + 15, cy, string.format("%.0f ", dist) .. update_get_loc(e_loc.acronym_meters), 100, 0, text_col, 0)
         else
             update_ui_image(cx, cy, atlas_icons.column_distance, icon_col, 0)
-            update_ui_text(cx + 15, cy, string.format("%.2f ", dist / 1000) .. update_get_loc(e_loc.acronym_kilometers), 100, 0, text_col, 0)
+            update_ui_text_mini(cx + 15, cy, string.format("%.2f ", dist / 1000) .. update_get_loc(e_loc.acronym_kilometers), 100, 0, text_col, 0)
         end
 
         cy = cy + 10
