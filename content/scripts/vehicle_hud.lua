@@ -2759,6 +2759,9 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     end
 
     local forward = update_get_camera_forward()
+    local forward_xz = vec3(forward:x(), 0, forward:z())
+    forward_xz = vec3_normal(forward_xz)
+    local projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y(), position:z() + forward_xz:z() * project_dist)
 
     if p_fwd ~= nil then
         local vdef = vehicle:get_definition_index()
@@ -2770,28 +2773,26 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
                 position:z() + velocity:z() * 1000)
 
             local v_s = update_world_to_screen(vector_horizon)
+            local f_s = update_world_to_screen(projected_forward)
+            offset_x = v_s:x() - f_s:x()
+            offset_y = v_s:y() - f_s:y()
 
-            offset_x = v_s:x() - (screen_w / 2)
-            offset_y = v_s:y() - (screen_h / 2)
+            slow_print(string.format("%f %f (%f %f)", offset_x, offset_y, v_s:x(), v_s:y()))
 
-            update_ui_image_rot(
-                clamp(v_s:x(), 20, screen_w - 20),
-                clamp(v_s:y(), 10, screen_h - 10) + 1,
-                atlas_icons.hud_horizon_mid, color_white, 0)
+            --update_ui_image_rot(
+            --    clamp(v_s:x(), 20, screen_w - 20),
+            --    clamp(v_s:y(), 10, screen_h - 10) + 1,
+            --    atlas_icons.hud_horizon_mid, color_white, 0)
 
         end
     end
-
-    local forward_xz = vec3(forward:x(), 0, forward:z())
-    forward_xz = vec3_normal(forward_xz)
 
     local side_xz = vec3(-forward_xz:z(), 0, forward_xz:x())
     local roll_pos_a = update_world_to_screen(vec3(position:x() + (forward_xz:x() + side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() + side_xz:z()) * project_dist))
     local roll_pos_b = update_world_to_screen(vec3(position:x() + (forward_xz:x() - side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() - side_xz:z()) * project_dist))
     local roll_normal = vec2_normal(vec2(roll_pos_b:x() - roll_pos_a:x(), roll_pos_b:y() - roll_pos_a:y()))
     local roll = vec2_angle(roll_normal, vec2(1, 0))
-    
-    local projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y(), position:z() + forward_xz:z() * project_dist)
+
     local horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
     -- draw horizon
     update_ui_image_rot(
