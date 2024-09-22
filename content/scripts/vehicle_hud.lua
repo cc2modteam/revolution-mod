@@ -1101,7 +1101,7 @@ function render_attachment_info(info_pos, map_data, vehicle, attachment, alpha, 
 
     -- render nearest island name
     local nearest_island = get_nearest_island_name(vehicle)
-    update_ui_text(pos:x(), pos:y(), string.upper(nearest_island), 200, 0, colors.green, 0)
+    update_ui_text_mini(pos:x(), pos:y(), string.upper(nearest_island), 200, 0, colors.green, 0)
     pos:y(pos:y() + 10)
 
     -- render vehicle id
@@ -2822,11 +2822,11 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
                     atlas_icons.hud_horizon_high, col, roll)
             --update_ui_text(horizon:x()-angle_width/2, horizon:y()-5, math.floor(i*angle_step_deg), 20, 1, col, 0)
             local hoz_width = 38
-			update_ui_text(
+			update_ui_text_mini(
                     offset_x + horizon:x()-angle_width/2-math.floor(hoz_width*math.cos(roll)),
                     offset_y + horizon:y()-5-math.floor(hoz_width*math.sin(roll)),
                     math.floor(i*angle_step_deg), 20, 1, col, 0)
-			update_ui_text(
+			update_ui_text_mini(
                     offset_x + horizon:x()-angle_width/2+math.floor(hoz_width*math.cos(roll))+1,
                     offset_y + horizon:y()-5+math.floor(hoz_width*math.sin(roll)),
                     math.floor(i*angle_step_deg), 20, 1, col, 0)
@@ -2840,11 +2840,11 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
                 atlas_icons.hud_horizon_low, col, roll)
         --update_ui_text(horizon:x()-angle_width/2, horizon:y()-3, math.floor(-i*angle_step_deg), 20, 1, col, 0)
         local hoz_width = 41
-		update_ui_text(
+		update_ui_text_mini(
                 offset_x + horizon:x()-angle_width/2-math.floor(hoz_width*math.cos(roll)),
                 offset_y + horizon:y()-3-math.floor(hoz_width*math.sin(roll)),
                 math.floor(-i*angle_step_deg), 20, 1, col, 0)
-		update_ui_text(
+		update_ui_text_mini(
                 offset_x + horizon:x()-angle_width/2+math.floor(hoz_width*math.cos(roll))+1,
                 offset_y + horizon:y()-3+math.floor(hoz_width*math.sin(roll)),
                 math.floor(-i*angle_step_deg), 20, 1, col, 0)
@@ -4475,9 +4475,9 @@ Variometer = {
         local mins_remaining = fuel_count / fuel_per_min
 
         -- total %
-        update_ui_text(
-                pos:x() - 38,
-                pos:y() + 140,
+        update_ui_text_mini(
+                pos:x() - 37,
+                pos:y() + 158,
                 string.format("%2.1f %s", fuel_count * 100, "%"),
                 64, 0, fuel_number_col, 0)
 
@@ -4486,19 +4486,19 @@ Variometer = {
         local fuel_time_mins = "--- mins"
 
         if self.fuel.sample_size > 30 then
-            fuel_use_per_min = string.format("%2.1f %s/m", fuel_per_min * 100, "%")
+            fuel_use_per_min = string.format("%2.1f %s /m", fuel_per_min * 100, "%")
             fuel_time_mins = string.format("%3.0f mins", mins_remaining)
         end
         -- % / min
-        update_ui_text(
+        update_ui_text_mini(
                 pos:x() - 32,
-                pos:y() + 150,
+                pos:y() + 164,
                 fuel_use_per_min,
                 64, 0, col, 0)
         -- time
-        update_ui_text(
+        update_ui_text_mini(
                 pos:x() - 32,
-                pos:y() + 160,
+                pos:y() + 170,
                 fuel_time_mins,
                 200, 0, fuel_number_col, 0)
 
