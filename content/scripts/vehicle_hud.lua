@@ -2776,14 +2776,13 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
             local f_s = update_world_to_screen(projected_forward)
             offset_x = v_s:x() - f_s:x()
             offset_y = v_s:y() - f_s:y()
-
-            slow_print(string.format("%f %f (%f %f)", offset_x, offset_y, v_s:x(), v_s:y()))
-
-            --update_ui_image_rot(
-            --    clamp(v_s:x(), 20, screen_w - 20),
-            --    clamp(v_s:y(), 10, screen_h - 10) + 1,
-            --    atlas_icons.hud_horizon_mid, color_white, 0)
-
+            if g_revolution_hud_debug ~= nil then
+                slow_print(string.format("%f %f (%f %f)", offset_x, offset_y, v_s:x(), v_s:y()))
+                --update_ui_image_rot(
+                --    clamp(v_s:x(), 20, screen_w - 20),
+                --    clamp(v_s:y(), 10, screen_h - 10) + 1,
+                --    atlas_icons.hud_horizon_mid, color_white, 0)
+            end
         end
     end
 
