@@ -339,14 +339,13 @@ function update_interaction_ui()
                 if g_tab_map.dragged_id == 0 and g_tab_map.hovered_id ~= 0 then
                     if g_tab_map.hovered_type == g_node_types.tile then
                         local tile = update_get_tile_by_id(g_tab_map.hovered_id)
-    
-                        if tile:get() and tile:get_team_control() == update_get_screen_team_id() then
+                        if tile:get() and (tile:get_team_control() == update_get_screen_team_id() or get_is_spectator_mode()) then
                             update_add_ui_interaction(update_get_loc(e_loc.interaction_select), e_game_input.interact_a)
                         end
                     elseif g_tab_map.hovered_type == g_node_types.barge then
                         local barge = update_get_map_vehicle_by_id(g_tab_map.hovered_id)
 
-                        if barge:get() and barge:get_team() == update_get_screen_team_id() then
+                        if barge:get() and (barge:get_team() == update_get_screen_team_id() or get_is_spectator_mode()) then
                             update_add_ui_interaction(update_get_loc(e_loc.interaction_select), e_game_input.interact_a)
                         end
                     end
@@ -845,7 +844,7 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
     local vehicle_filter = function(v)
         local def = v:get_definition_index()
         local team = v:get_team()
-        return team == vehicle_team and (def == e_game_object_type.chassis_sea_barge or def == e_game_object_type.chassis_carrier)
+        return (team == vehicle_team or get_is_spectator_mode()) and (def == e_game_object_type.chassis_sea_barge or def == e_game_object_type.chassis_carrier)
     end
 
     local is_render_islands = (g_tab_map.camera_size < (64 * 1024))
@@ -1009,7 +1008,7 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
                 end
             end
 
-            if tile:get_team_control() == vehicle_team then
+            if tile:get_team_control() == vehicle_team or get_is_spectator_mode() then
                 local production_factor = tile:get_facility_production_factor()
                 local queue_count = tile:get_facility_production_queue_count()
 
@@ -1155,7 +1154,7 @@ function render_map_ui(screen_w, screen_h, x, y, w, h, screen_vehicle, is_tab_ac
         if g_tab_map.selected_barge_id ~= 0 then
             local selected_barge = update_get_map_vehicle_by_id(g_tab_map.selected_barge_id)
 
-            if selected_barge:get() and selected_barge:get_team() == screen_vehicle:get_team() then
+            if selected_barge:get() and (selected_barge:get_team() == screen_vehicle:get_team() or get_is_spectator_mode()) then
                 local display_id = g_tab_map.selected_barge_id
 
                 if g_tab_map.selected_barge_waypoint_mode == false then
@@ -1214,7 +1213,7 @@ function render_map_ui(screen_w, screen_h, x, y, w, h, screen_vehicle, is_tab_ac
 
             local facility_tile = update_get_tile_by_id(g_tab_map.selected_facility_id)
 
-            if facility_tile:get() and facility_tile:get_team_control() == screen_vehicle:get_team() then
+            if facility_tile:get() and (facility_tile:get_team_control() == screen_vehicle:get_team() or get_is_spectator_mode()) then
                 local category_data = g_item_categories[facility_tile:get_facility_category()]
                 
                 render_map_facility_ui(screen_w, screen_h, x, y, w, h, category_data, facility_tile, screen_vehicle, is_tab_active and g_tab_map.selected_facility_inventory == false)
@@ -1638,7 +1637,7 @@ function get_node_tooltip_h(tooltip_w, id, type)
         local category_data = g_item_categories[tile:get_facility_category()]
 
         if tile:get() then
-            local is_player_tile = tile:get_team_control() == update_get_screen_team_id()
+            local is_player_tile = tile:get_team_control() == update_get_screen_team_id() or get_is_spectator_mode()
 
             if is_player_tile == false then
                 local visible = fow_island_visible(id) or not g_revolution_hide_hostile_island_types
@@ -1714,7 +1713,7 @@ function render_node_tooltip(w, h, id, type)
         local category_data = g_item_categories[tile:get_facility_category()]
 
         if tile:get() then
-            local is_player_tile = tile:get_team_control() == update_get_screen_team_id()
+            local is_player_tile = tile:get_team_control() == update_get_screen_team_id() or get_is_spectator_mode()
 
             if is_player_tile then
                 local cy = 3
@@ -1899,7 +1898,7 @@ function update_map_hovered(screen_w, screen_h)
 
         local vehicle_filter = function(v)
             local def = v:get_definition_index()
-            return v:get_team() == update_get_screen_team_id() and (def == e_game_object_type.chassis_sea_barge or def == e_game_object_type.chassis_carrier)
+            return (get_is_spectator_mode() or v:get_team() == update_get_screen_team_id()) and (def == e_game_object_type.chassis_sea_barge or def == e_game_object_type.chassis_carrier)
         end
 
         -- vehicles
@@ -1962,7 +1961,7 @@ function tab_map_input_event(input, action)
                 if g_tab_map.hovered_type == g_node_types.tile then
                     local tile = update_get_tile_by_id(g_tab_map.hovered_id)
 
-                    if tile:get() and tile:get_team_control() == update_get_screen_team_id() then
+                    if tile:get() and (tile:get_team_control() == update_get_screen_team_id() or get_is_spectator_mode()) then
                         set_map_dragged(g_tab_map.hovered_id, g_tab_map.hovered_type, g_tab_map.hovered_waypoint_id)
                     end
                 else
@@ -2046,13 +2045,13 @@ function tab_map_input_event(input, action)
                         if g_tab_map.dragged_type == g_node_types.tile then
                             local tile = update_get_tile_by_id(g_tab_map.hovered_id)
                         
-                            if tile:get() and tile:get_team_control() == update_get_screen_team_id() then
+                            if tile:get() and (tile:get_team_control() == update_get_screen_team_id() or get_is_spectator_mode()) then
                                 g_tab_map.selected_facility_id = g_tab_map.hovered_id
                             end
                         elseif g_tab_map.dragged_type == g_node_types.barge then
                             local barge = update_get_map_vehicle_by_id(g_tab_map.hovered_id)
 
-                            if barge:get() and barge:get_team() == update_get_screen_team_id() then
+                            if barge:get() and (barge:get_team() == update_get_screen_team_id() or get_is_spectator_mode()) then
                                 g_tab_map.selected_barge_id = g_tab_map.hovered_id
                             end
                         end
@@ -2410,7 +2409,7 @@ end
 function get_barge_weight(vehicle)
     local vehicle_team = vehicle:get_team()
     local vehicle_filter = function(v)
-        return v:get_definition_index() == e_game_object_type.chassis_sea_barge and v:get_team() == vehicle_team
+        return v:get_definition_index() == e_game_object_type.chassis_sea_barge and (v:get_team() == vehicle_team or get_is_spectator_mode())
     end
 
     local barge_weight = 0.0
