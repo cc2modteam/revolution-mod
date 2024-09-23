@@ -1115,16 +1115,16 @@ function _update(screen_w, screen_h, ticks)
                 if self and self:get() then
                     if self:get_attached_parent_id() ~= 0 then
                         update_ui_text(32, 13, get_ship_name(update_get_screen_vehicle()) .. " DOCKED", 480, 0, color_white, 0)
-                        update_ui_text(32, 13 * 2, g_revolution_welcome, 480, 0, color_white, 0)
+                        update_ui_text_mini(32, 13 * 2, g_revolution_welcome, 480, 0, color_white, 0)
                     end
                 end
             end
 
             if get_is_spectator_mode() then
-                update_ui_text(screen_w / 9, screen_h - 24,
+                update_ui_text_mini(screen_w / 9, screen_h - 23,
                         "Revolution Spectator Studio TM", 400, 0, color_grey_mid, 0)
             else
-                update_ui_text(screen_w / 8, screen_h - 31,
+                update_ui_text_mini(screen_w / 8, screen_h - 29,
                         string.format("ACC %s",
                                 get_ship_name(update_get_screen_vehicle())), 400, 0, color_grey_mid, 0)
 
@@ -1238,34 +1238,36 @@ function _update(screen_w, screen_h, ticks)
                         g_markers_open = false
                     end
                     ui:spacer(5)
+                    if update_get_is_focus_local() then
+                        local st, err = pcall(function()
+                            for i = 1, 4, 1 do
+                                local mname = get_marker_name(i)
+                                local m = get_marker_waypoint(screen_team, i)
+                                if m == nil then
+                                    m = add_marker_waypoint(screen_team, i)
+                                end
+                                local value = get_marker_value(screen_team, i)
+                                local btn_enabled = g_setting_marker == 0
+                                if is_marker_value_pending(i) then
+                                    btn_enabled = false
+                                end
+                                if is_waypoint_value_enabled(value) then
+                                    if ui:button(string.format("Del %s", mname), btn_enabled, 1) then
+                                        unset_marker_waypoint(screen_team, i)
+                                        g_setting_marker = 0
+                                    end
+                                else
+                                    if ui:button(string.format("Set %s %d", mname, i), btn_enabled, 1) then
+                                        g_setting_marker = i
+                                    end
+                                end
+                            end
+                        end)
 
-                    local st, err = pcall(function()
-                        for i = 1, 4, 1 do
-                            local mname = get_marker_name(i)
-                            local m = get_marker_waypoint(screen_team, i)
-                            if m == nil then
-                                m = add_marker_waypoint(screen_team, i)
-                            end
-                            local value = get_marker_value(screen_team, i)
-                            local btn_enabled = g_setting_marker == 0
-                            if is_marker_value_pending(i) then
-                                btn_enabled = false
-                            end
-                            if is_waypoint_value_enabled(value) then
-                                if ui:button(string.format("Del %s", mname), btn_enabled, 1) then
-                                    unset_marker_waypoint(screen_team, i)
-                                    g_setting_marker = 0
-                                end
-                            else
-                                if ui:button(string.format("Set %s %d", mname, i), btn_enabled, 1) then
-                                    g_setting_marker = i
-                                end
-                            end
+                        if not st then
+                            print(string.format("err = %s", err))
                         end
-                    end)
 
-                    if not st then
-                        print(string.format("err = %s", err))
                     end
 
                 end
