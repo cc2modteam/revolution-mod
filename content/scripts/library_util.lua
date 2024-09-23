@@ -1,3 +1,7 @@
+local floor = math.floor
+local atan = math.atan
+local abs = math.abs
+
 color_white = color8(255, 255, 255, 255)
 color_black = color8(0, 0, 0, 255)
 color_grey_dark = color8(16, 16, 16, 255)
@@ -500,8 +504,6 @@ function begin_load()
     for k, v in pairs(atlas_icons) do
         atlas_icons[k] = begin_get_ui_region_index(k)
     end
-
-
 end
 
 function get_attachment_icons(definition_index)
@@ -1003,6 +1005,12 @@ function get_team_name(team_id)
     return string.format("Team %d", team_id)
 end
 
+function local_print(msg)
+    if update_get_is_focus_local() then
+        print(msg)
+    end
+end
+
 -- mini font,
 --
 -- a fixed width 4x5 font
@@ -1369,7 +1377,104 @@ mini_font = {
         "#    ",
         " ### ",
     },
+    ["~"] = {
+        " ## #",
+        "#  # ",
+        "     ",
+        "     ",
+        "     ",
+    },
+    ["#"] = {
+        " # # ",
+        "#####",
+        " # # ",
+        "#####",
+        " # # ",
+    },
+    ["|"] = {
+        "  #  ",
+        "  #  ",
+        "  #  ",
+        "  #  ",
+        "  #  ",
+    },
+    ["'"] = {
+        "  #  ",
+        "  #  ",
+        "     ",
+        "     ",
+        "     ",
+    },
+    ["\\"] = {
+        "#    ",
+        " #   ",
+        "  #  ",
+        "   # ",
+        "    #",
+    },
+    ["?"] = {
+        " ### ",
+        "    #",
+        "  #  ",
+        "     ",
+        "  #  ",
+    },
+    ["<"] = {
+        "   # ",
+        "  #  ",
+        " #   ",
+        "  #  ",
+        "   # ",
+    },
+    [">"] = {
+        " #   ",
+        "  #  ",
+        "   # ",
+        "  #  ",
+        " #   ",
+    },
+    [":"] = {
+        "     ",
+        "  #  ",
+        "     ",
+        "  #  ",
+        "     ",
+    },
+    [";"] = {
+        "     ",
+        "  #  ",
+        "     ",
+        "  #  ",
+        " #   ",
+    },
 }
+
+mini_font_bitmap = {}
+g_mini_font_compiled = false
+
+function mini_font_compile()
+    if g_mini_font_compiled == false then
+        g_mini_font_compiled = true
+        --local_print("compiling mini font..")
+        for ch, rows in pairs(mini_font) do
+            --local_print(ch)
+            mini_font_bitmap[ch] = {}
+            for i, row in ipairs(rows) do
+                local row_value = 0
+                for p in row:gmatch"." do
+                    if p ~= " " then
+                        row_value = row_value | 0xff
+                    end
+                    row_value = row_value << 8
+
+                end
+                -- local_print(string.format("%0.12x", row_value):gsub("00", "  "))
+                table.insert(mini_font_bitmap[ch], row_value)
+            end
+        end
+    end
+end
+
 
 
 function update_ui_get_text_size_mini(txt)
@@ -1386,7 +1491,7 @@ function update_ui_text_mini(x, y, txt, w, just, col)
             pad = w - wsize
             if just == 1 then
                 -- center
-                pad = math.floor(pad / 2)
+                pad = floor(pad / 2)
             elseif just == 0 then
                 -- left
                 pad = 0
@@ -1399,39 +1504,197 @@ function update_ui_text_mini(x, y, txt, w, just, col)
     end
 end
 
-function update_ui_mini_text(x, y, txt, col)
-    local st, err = pcall(function()
-        local rhs_col = color8(col:r(), col:g(), col:b(), math.floor(col:a() * 0.65))
-        txt = string.upper(txt)
-        for c in txt:gmatch"." do
-            local ch = mini_font[c]
-            if ch ~= nil then
-                local iy = y
-                -- print a dot at each pixel
-                for i, row in ipairs(ch) do
-                    local ix = x
-                    -- draw a row
-                    local ii = 0
-                    for p in row:gmatch"." do
-                        if p ~= " " then
-                            local pc = col
-                            if ii == 4 then
-                                pc = rhs_col
-                            end
-                            update_ui_rectangle(ix, iy, 1, 1, pc)
-                            ii = ii + 1
-                        end
-                        ix = ix + 1
-                    end
-                    iy = iy + 1
-                end
-            end
-            x = x + 5
-        end
-    end)
+if update_get_is_focus_local == nil then
+    update_get_is_focus_local = function() return g_is_hud end
+end
 
-    if not st then
-        print(err)
+g_last_is_local = 0
+
+function update_ui_mini_text(x, y, txt, col)
+    if update_get_is_focus_local() or g_last_is_local > 0 then
+        local ui_line = update_ui_line
+        if update_get_is_focus_local() then
+            g_last_is_local = math.min(g_last_is_local + 2, 255)
+        else
+            g_last_is_local = g_last_is_local - 1
+        end
+        local st, err = pcall(function()
+            col = color8(col:r(), col:g(), col:b(), math.min(g_last_is_local, col:a()))
+            mini_font_compile()
+            txt = string.upper(txt)
+            for c in txt:gmatch"." do
+                local ch = mini_font_bitmap[c]
+                if ch ~= nil then
+                    local iy = y
+                    -- print a dot at each pixel
+                    for i, row_value in ipairs(ch) do
+                        -- each row is a 5 byte bitmap
+                        for n=0, 5 do
+                            if (row_value >> ((5 - n) * 8)) & 0xff ~= 0 then
+                                ui_line(x + n, iy, x + n + 1, iy + 1, col)
+                                -- update_ui_rectangle(x + n, iy, 1, 1, col)
+                            end
+                        end
+                        iy = iy + 1
+                    end
+                end
+                x = x + 5
+            end
+        end)
+
+        if not st then
+            print(err)
+        end
+    end
+end
+
+g_once_calls = {}
+
+function once_per_sec(name, func)
+    once_per(name, func, 1)
+end
+
+function once_per(name, func, seconds)
+    local now = update_get_logic_tick()
+    local last = g_once_calls[name]
+    if last == nil then
+        g_once_calls[name] = 0
+        last = 0
+    end
+    local period = 30 * seconds
+    if last + period < now then
+        local st, err = pcall(func)
+        if not st then
+            print(err)
+        end
+        g_once_calls[name] = now
+    end
+end
+
+g_sent_unit_details = {}
+g_enable_unit_logging = false
+
+local function format_log_send_detail_number(flag, value)
+    if value < 0 then
+        return string.format("%s=-%x", flag, abs(floor(value)))
+    end
+    return string.format("%s=%x", flag, floor(value))
+end
+
+function log_send_tick()
+    if get_unit_logging_enabled() then
+        local tick = update_get_logic_tick()
+        print(format_log_send_detail_number("t", tick))
+    end
+end
+
+g_sent_unit_details = {}
+g_sent_unit_details_str = {}
+
+-- all log_send numbers are hex ints, no floating point
+function log_send_unit_details(vehicle)
+    -- inf:..
+    -- sent no more often than every 3 sec per unit
+    if vehicle and get_unit_logging_enabled() and vehicle:get() then
+        local v_id = vehicle:get_id()
+        local tick = update_get_logic_tick()
+        local last_seen = g_sent_unit_details[v_id]
+        if last_seen == nil or last_seen < tick - 90 then
+
+            local detail = string.format("inf:%s,%s,%s",
+                    format_log_send_detail_number("id", v_id),
+                    format_log_send_detail_number("tm", vehicle:get_team()),
+                    format_log_send_detail_number("hp", math.ceil(100 * get_vehicle_health_factor(vehicle)))
+            )
+            local last_str = g_sent_unit_details_str[v_id]
+            if last_str == nil or detail ~= last_str then
+                print(detail)
+                g_sent_unit_details_str[v_id] = detail
+            end
+            g_sent_unit_details[v_id] = tick
+        end
+    end
+end
+
+g_sent_unit_str = {}
+
+function get_unit_logging_enabled()
+    return g_enable_unit_logging == true
+end
+
+function log_send_unit(vehicle)
+    if get_unit_logging_enabled() and vehicle and vehicle:get() then
+        local v_id = vehicle:get_id()
+        log_send_unit_details(vehicle)
+        local pos = vehicle:get_position_xz()
+        local alt = clamp(get_unit_altitude(vehicle), 0, 8000)
+        local dir = vehicle:get_direction()
+        local hdg = 0
+        if dir:y() > 0 then
+            hdg = (360 + floor(atan(dir:x() / dir:y()) * 180 / math.pi)) % 360
+        else
+            hdg = ((360 + floor(atan(dir:x() / dir:y()) * 180 / math.pi)) % 360) - 180
+            if hdg < 0 then
+                hdg = hdg + 360
+            end
+        end
+        local details = string.format(
+                "con:%s,%s,%s,%s,%s",
+                format_log_send_detail_number("id", v_id),
+                format_log_send_detail_number("x", floor(pos:x())),
+                format_log_send_detail_number("y", floor(pos:y())),
+                format_log_send_detail_number("a", floor(alt)),
+                format_log_send_detail_number("h", floor(hdg))
+        )
+        local last_sent = g_sent_unit_str[v_id]
+        if last_sent == nil or last_sent ~= details then
+            print(details)
+            g_sent_unit_str[v_id] = details
+        end
+    end
+end
+
+local g_prof_counter = 0
+local g_prof_calls, g_prof_total, g_prof_this = {}, {}, {}
+function profiler_func(event)
+    if update_get_logic_tick == nil then return end
+    -- local now = update_get_logic_tick()
+    local clock = 0
+    g_prof_counter = g_prof_counter + 1
+    if update_get_time_since_epoch == nil then
+        clock = g_prof_counter
+    else
+        clock = update_get_time_since_epoch()
     end
 
+    local i = debug.getinfo(2, "Sln")
+    local func = i.name or (i.source..':'..i.linedefined)
+    if i.what ~= 'Lua' then return end
+    if event == 'call' then
+        g_prof_this[func] = clock
+    elseif g_prof_this[func] ~= nil then
+        local time = clock - g_prof_this[func]
+        g_prof_total[func] = (g_prof_total[func] or 0) + time
+        g_prof_calls[func] = (g_prof_calls[func] or 0) + 1
+    end
+    if g_prof_counter > 30000 then
+        debug.sethook()
+        dump_profile_stats()
+    end
 end
+
+function dump_profile_stats()
+    if update_get_is_focus_local() then
+        print("dumping")
+        for f, ctr in pairs(g_prof_total) do
+            print(("Function %s took %.3f seconds after %d calls"):format(f, ctr, g_prof_calls[f]))
+        end
+    end
+end
+
+--local st, err = pcall(function()
+--    debug.sethook(profiler_func, "cr")
+--end)
+--if not st then
+--    print(err)
+--end

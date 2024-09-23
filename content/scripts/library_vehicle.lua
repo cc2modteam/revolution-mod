@@ -410,6 +410,72 @@ function get_is_vehicle_air(definition_index)
         or definition_index == e_game_object_type.chassis_air_rotor_heavy
 end
 
+function get_is_vehicle_rotary(definition_index)
+    return definition_index == e_game_object_type.chassis_air_rotor_light
+        or definition_index == e_game_object_type.chassis_air_rotor_heavy
+end
+
+function get_can_autoland(definition_index)
+    return get_is_vehicle_rotary(definition_index)
+end
+
+function setup_autoland(vehicle, pos, start_pos)
+    if pos == nil then
+        pos = vehicle:get_position_xz()
+    end
+    vehicle:clear_waypoints()
+    local steps = 12
+    local gnd = 6
+    if start_pos == nil then
+        start_pos = vec3(pos:x() - 405, pos:y() - 405, 0)
+    end
+
+    -- set an approach waypoint 550m away
+    local glide_start_x = start_pos:x()
+    local glide_start_y = start_pos:y()
+    local glide_end_x = pos:x()
+    local glide_end_y = pos:y()
+    local step_x = (glide_end_x - glide_start_x) / steps
+    local step_y = (glide_end_y - glide_start_y) / steps
+    -- shift the hold point 2-3 steps onwards so that we actually land at the requested point
+    glide_end_x = glide_end_x + (step_x * 2.5)
+    glide_end_y = glide_end_y + (step_y * 2.5)
+    glide_start_x = glide_start_x + (step_x * 2.5)
+    glide_start_y = glide_start_y + (step_y * 2.5)
+
+    local nearest_gnd_unit = find_pos_nearest_vehicle_types(pos, {
+                        e_game_object_type.chassis_land_wheel_mule,
+                        e_game_object_type.chassis_land_wheel_heavy,
+                        e_game_object_type.chassis_land_wheel_medium,
+                        e_game_object_type.chassis_land_wheel_light,
+                    }, false, vehicle:get_team() )
+    if nearest_gnd_unit and nearest_gnd_unit:get() then
+        local ref_pos = nearest_gnd_unit:get_position_xz()
+        local ref_rng = vec2_dist(ref_pos, pos)
+        if ref_rng < 150 then
+            gnd = math.floor(get_unit_altitude(nearest_gnd_unit) - 5.5)
+        end
+    end
+
+    add_altitude_waypoint(vehicle,
+            vec3(glide_start_x, glide_start_y, 0),
+            115)
+
+    -- fly 430m west to a 110m alt,
+    -- descend to zero and hold
+    local approach_alt = 110
+
+    for descent_steps = steps, 0, -1 do
+        add_altitude_waypoint(vehicle,
+                vec3(
+                        glide_end_x - (descent_steps * step_x),
+                        glide_end_y - (descent_steps * step_y),
+                        0),
+                math.floor(gnd + approach_alt * descent_steps / steps))
+    end
+    add_altitude_waypoint(vehicle, vec3(glide_end_x, glide_end_y, 0), 0 + gnd, 3)
+end
+
 function get_has_modded_radar(vehicle)
     if vehicle:get() then
         local def = vehicle:get_definition_index()
@@ -440,6 +506,13 @@ function get_is_vehicle_land(definition_index)
         or definition_index == e_game_object_type.chassis_land_turret
         or definition_index == e_game_object_type.chassis_land_wheel_mule
         or definition_index == e_game_object_type.chassis_deployable_droid
+end
+
+function get_is_vehicle_land_vehicle(definition_index)
+    return definition_index == e_game_object_type.chassis_land_wheel_heavy
+        or definition_index == e_game_object_type.chassis_land_wheel_medium
+        or definition_index == e_game_object_type.chassis_land_wheel_light
+        or definition_index == e_game_object_type.chassis_land_wheel_mule
 end
 
 function get_is_vehicle_airliftable(definition_index)
@@ -648,7 +721,7 @@ function begin_load_inventory_data()
             MM_LOG("icon not found: "..icon_name)
         end
     end
-    
+
     for i = 0, update_get_resource_inventory_item_count() - 1 do
         local item_type, item_category, item_mass, item_production_cost, item_production_time, item_name, item_desc, icon_name, transfer_duration = update_get_resource_inventory_item_data(i)
 
@@ -664,6 +737,7 @@ function begin_load_inventory_data()
             icon = atlas_icons[icon_name],
             transfer_duration = transfer_duration,
         }
+        -- print(string.format("%d %s %s", item_object.index, item_object.mass, item_object.name))
         g_item_data[item_type] = item_object
         g_item_count = g_item_count + 1
         
@@ -1341,6 +1415,8 @@ function refresh_fow_islands()
         local island_count = update_get_tile_count()
         local vehicle_count = update_get_map_vehicle_count()
 
+        local fow_range_sq = g_fow_range * g_fow_range
+
         for i = 0, island_count - 1 do
             local island = update_get_tile_by_index(i)
             local island_id = island:get_id()
@@ -1352,11 +1428,11 @@ function refresh_fow_islands()
                 -- foreign island, find any of our units in range
                 for j = 0, vehicle_count - 1, 1 do
                     local vehicle = update_get_map_vehicle_by_index(j)
-                    if vehicle:get() then
-                        if vehicle:get_team() == our_team then
+                    if vehicle:get() and vehicle:get_team() == our_team then
+                        if not get_vehicle_docked(vehicle) then
                             local unit_pos = vehicle:get_position_xz()
-                            local dist = vec2_dist(unit_pos, pos)
-                            if dist < g_fow_range then
+                            local dist = vec2_dist_sq(unit_pos, pos)
+                            if dist < fow_range_sq then
                                 --print(string.format("%s visible at %d km (< %d km)", island:get_name(),
                                 --        math.floor(dist/1000),
                                 --        math.floor(g_fow_range/1000)
@@ -1757,11 +1833,17 @@ function get_vehicle_cargo_id(vehicle)
     return nil
 end
 
+function get_nearest_unit(team, pos, max_range)
 
-function get_nearest_friendly_airliftable_id(vehicle, max_range)
-    if vehicle ~= nil and vehicle_can_airlift(vehicle) then
+end
+
+function get_nearest_friendly_airliftable_id(vehicle, max_range, force)
+    if force == nil then
+        force = false
+    end
+    if vehicle ~= nil and (force or vehicle_can_airlift(vehicle)) then
         -- petrel
-        if not vehicle_has_cargo(vehicle) then
+        if force or not vehicle_has_cargo(vehicle) then
             local nearest = find_nearest_vehicle_types(vehicle,
                     {
                         e_game_object_type.chassis_land_wheel_mule,
@@ -2298,13 +2380,16 @@ end
 
 function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team)
     -- find the nearest unit of a particular type
-    local vehicle_count = update_get_map_vehicle_count()
-
-    local self_pos = get_pos_xz(vehicle)
+    local ref_pos = get_pos_xz(vehicle)
     if friendly_team == nil then
         friendly_team = get_unit_team(vehicle)
     end
+    return find_pos_nearest_vehicle_types(ref_pos, other_defs, hostile, friendly_team)
+end
 
+function find_pos_nearest_vehicle_types(ref_pos, other_defs, hostile, friendly_team)
+    -- find the nearest unit of a particular type
+    local vehicle_count = update_get_map_vehicle_count()
     local nearest = nil
     local distance_sq = 999999999
     for i = 0, vehicle_count - 1 do
@@ -2320,13 +2405,12 @@ function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team)
                 for di = 1, #other_defs do
                     local other_def = other_defs[di]
                     if other_def == -1 or unit_def == other_def then
-                        local dist = vec2_dist_sq(self_pos, get_pos_xz(unit))
+                        local dist = vec2_dist_sq(ref_pos, get_pos_xz(unit))
                         if dist < distance_sq then
                             distance_sq = dist
                             nearest = unit
                         end
                     end
-
                 end
             end
         end
@@ -2360,12 +2444,14 @@ function get_vehicle_scale(vehicle)
 end
 
 function get_vehicle_docked(vehicle)
-    if vehicle.get_is_docked ~= nil then
-        return vehicle:get_is_docked()
-    end
+    if vehicle then
+        if vehicle.get_is_docked ~= nil then
+            return vehicle:get_is_docked()
+        end
 
-    if vehicle.get_attached_parent_id ~= nil then
-        return vehicle:get_attached_parent_id() ~= 0
+        if vehicle.get_attached_parent_id ~= nil then
+            return vehicle:get_attached_parent_id() ~= 0
+        end
     end
 
     return false
@@ -2713,6 +2799,20 @@ local st, _v = pcall(function()
         e_game_object_type.attachment_hardpoint_torpedo_decoy,
         e_game_object_type.attachment_fuel_tank_plane
     }
+    _std_wing_weapons = {
+        e_game_object_type.attachment_turret_plane_chaingun,
+        e_game_object_type.attachment_turret_rocket_pod,
+        e_game_object_type.attachment_hardpoint_bomb_1,
+        e_game_object_type.attachment_hardpoint_bomb_2,
+        e_game_object_type.attachment_hardpoint_bomb_3,
+        e_game_object_type.attachment_hardpoint_missile_ir,
+        e_game_object_type.attachment_hardpoint_missile_laser,
+        e_game_object_type.attachment_hardpoint_missile_aa,
+        e_game_object_type.attachment_hardpoint_missile_tv,
+        e_game_object_type.attachment_hardpoint_torpedo,
+        e_game_object_type.attachment_hardpoint_torpedo_noisemaker,
+        e_game_object_type.attachment_hardpoint_torpedo_decoy,
+    }
     _std_wing_utils = {
         e_game_object_type.attachment_flare_launcher,
         e_game_object_type.attachment_sonic_pulse_generator,
@@ -2727,6 +2827,14 @@ local st, _v = pcall(function()
         e_game_object_type.attachment_turret_missile,
         e_game_object_type.attachment_radar_golfball,
         e_game_object_type.attachment_turret_robot_dog_capsule,
+    }
+
+    _std_land_utils = {
+        e_game_object_type.attachment_flare_launcher,
+        e_game_object_type.attachment_sonic_pulse_generator,
+        e_game_object_type.attachment_smoke_launcher_explosive,
+        e_game_object_type.attachment_smoke_launcher_stream,
+        e_game_object_type.attachment_camera,
     }
 
     local ret = {
@@ -2783,13 +2891,11 @@ local st, _v = pcall(function()
                     { i=1, x=0, y=-23 } -- front camera slot
                 },
                 {
-                    { i=2, x=-19, y=-2 }, -- left outer
-                    { i=3, x=19, y=-2 },  -- right outer
-                    { i=4, x=-11, y=-2 }, -- left inner
-                    { i=5, x=11, y=-2 },  -- right inner
-                    { i=6, x=0, y=1 },    -- AWACS
-                    { i=7, x=-28, y=-2 }, -- left wingtip
-                    { i=8, x=28, y=-2 },  -- right wingtip
+                    { i=2, x=-22, y=-4 }, -- left middle
+                    { i=3, x=22, y=-4 },  -- right middle
+                    { i=4, x=-13, y=-4 }, -- left inner
+                    { i=5, x=13, y=-4 },  -- right inner
+                    { i=6, x=0, y=0 },    -- AWACS
                 }
             } ,
             options = {
@@ -2799,20 +2905,13 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_turret_gimbal_30mm,
                 },
                 -- wings
-                [2] = _std_wing_attachments,
-                [3] = _std_wing_attachments,
+                [2] = _std_wing_weapons,
+                [3] = _std_wing_weapons,
                 [4] = _std_wing_attachments,
                 [5] = _std_wing_attachments,
-                -- middle
+                -- top
                 [6] = {
                     e_game_object_type.attachment_radar_awacs,
-                },
-                -- wingtips
-                [7] = {
-                    e_game_object_type.attachment_fuel_tank_plane
-                },
-                [8] = {
-                    e_game_object_type.attachment_fuel_tank_plane
                 },
             }
         },
@@ -2842,7 +2941,8 @@ local st, _v = pcall(function()
         -- walrus
         [e_game_object_type.chassis_land_wheel_medium] = {
             options = {
-                [1] = concat_lists(_std_land_turrets, {e_game_object_type.attachment_turret_heavy_cannon})
+                [1] = concat_lists(_std_land_turrets, {e_game_object_type.attachment_turret_heavy_cannon}),
+                [3] = concat_lists(_std_land_utils, {e_game_object_type.attachment_deployable_droid}),
             },
         },
         -- bear
@@ -3033,12 +3133,122 @@ function update_hover_data()
                     end
                     g_rotary_hover[vid] = data
                 end
-
             end
         end
-
     end)
     if not st then
         print(err)
     end
+end
+
+function add_altitude_waypoint(vehicle, pos, alt, hold_grp)
+    local wpt = vehicle:add_waypoint(pos:x(), pos:y())
+    vehicle:set_waypoint_altitude(wpt, math.floor(alt), 0)
+    if hold_grp ~= nil then
+        vehicle:set_waypoint_wait_group(wpt, hold_grp, true)
+    end
+    return wpt
+end
+
+get_internal_fuel_sizes = {
+    [e_game_object_type.chassis_air_wing_light] = 2000,
+    [e_game_object_type.chassis_air_rotor_light] = 400,
+    [e_game_object_type.chassis_air_wing_heavy] = 2000,
+    [e_game_object_type.chassis_air_rotor_heavy] = 2000,
+    [e_game_object_type.chassis_carrier] = 50000,
+    [e_game_object_type.chassis_land_wheel_heavy] = 1200,
+    [e_game_object_type.chassis_land_wheel_medium] = 1200,
+    [e_game_object_type.chassis_land_wheel_mule] = 1200,
+    [e_game_object_type.chassis_land_wheel_light] = 800,
+}
+
+function get_internal_fuel_size(vehicle_definition_index)
+    local value = get_internal_fuel_sizes[vehicle_definition_index]
+    if value == nil then
+        value = 0
+    end
+    return value
+end
+
+function iter_team_units(team, func)
+    local vehicle_count = update_get_map_vehicle_count()
+    for i = 0, vehicle_count - 1 do
+        local vehicle = update_get_map_vehicle_by_index(i)
+
+        if vehicle:get() then
+            local vehicle_team = vehicle:get_team()
+            if vehicle_team == team then
+                func(vehicle)
+            end
+        end
+    end
+end
+
+g_attachment_to_index = {
+    [e_game_object_type.attachment_camera_plane] = 20,
+    [e_game_object_type.attachment_turret_gimbal_30mm] = 60,
+    [e_game_object_type.attachment_flare_launcher] = 26,
+    [e_game_object_type.attachment_turret_plane_chaingun] = 10,
+    [e_game_object_type.attachment_hardpoint_bomb_1] = 14,
+    [e_game_object_type.attachment_hardpoint_bomb_2] = 15,
+    [e_game_object_type.attachment_hardpoint_bomb_3] = 16,
+    [e_game_object_type.attachment_hardpoint_missile_ir] = 17,
+    [e_game_object_type.attachment_hardpoint_missile_laser] = 18,
+    [e_game_object_type.attachment_hardpoint_missile_aa] = 19,
+    [e_game_object_type.attachment_hardpoint_torpedo] = 37,
+    [e_game_object_type.attachment_hardpoint_torpedo_decoy] = 40,
+    [e_game_object_type.attachment_hardpoint_torpedo_noisemaker] = 39,
+    [e_game_object_type.attachment_hardpoint_missile_tv] = 38,
+    [e_game_object_type.attachment_radar_awacs] = 24,
+    [e_game_object_type.attachment_turret_rocket_pod] = 11,
+    [e_game_object_type.attachment_fuel_tank_plane] = 36,
+}
+g_fuel_index = 36
+g_rocket_index = 30
+
+function get_definition_from_inventory_index(index)
+    local value = -1
+    for k, v in ipairs(g_attachment_to_index) do
+        if v == index then
+            return k
+        end
+    end
+
+    return value
+end
+
+function get_payload_weight(definition_index)
+    local index = g_attachment_to_index[definition_index]
+    local value = 0
+    if index ~= nil then
+        local data = g_item_data[index]
+        if data ~= nil then
+            value = data.mass
+            if definition_index == e_game_object_type.attachment_fuel_tank_plane then
+                -- tank plus content of 1 fuel unit
+                value = value + g_item_data[g_fuel_index].mass
+            elseif definition_index == e_game_object_type.attachment_turret_rocket_pod then
+                -- 19 rockets
+                value = value + (19 * g_item_data[g_rocket_index].mass)
+            end
+        end
+    end
+    return value
+end
+
+function get_aircraft_payload_weight(vehicle)
+    local value = 0
+    if vehicle and vehicle:get() then
+        local attachment_count = vehicle:get_attachment_count()
+        for i = 0, attachment_count - 1 do
+            local attachment = vehicle:get_attachment(i)
+            if attachment and attachment:get() then
+                local def = attachment:get_definition_index()
+                if def ~= -1 then
+                    value = value + get_payload_weight(attachment:get_definition_index())
+                end
+            end
+        end
+    end
+    return value
 end
