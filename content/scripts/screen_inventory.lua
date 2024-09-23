@@ -65,13 +65,26 @@ g_tab_barges = {
     scroll_pos = 0,
 }
 
+g_tab_fuel = {
+    tab_title = e_loc.upp_fuel,
+    render = nil,
+    input_event = nil,
+    input_pointer = nil,
+    input_scroll = nil,
+    fuel_records = {},
+    fuel_records_updated = 0,
+    fuel_records_interval = 60,
+}
+
 g_tabs = {
     [0] = g_tab_stock,
     [1] = g_tab_map,
     [2] = g_tab_barges,
+    [3] = g_tab_fuel,
     stock = 0,
     map = 1,
     barges = 2,
+    fuel = 3,
 }
 
 g_screens = {
@@ -173,6 +186,11 @@ function begin()
     g_tab_barges.input_pointer = tab_barges_input_pointer
     g_tab_barges.input_scroll = tab_barges_input_scroll
 
+    g_tab_fuel.render = tab_fuel_render
+    g_tab_fuel.input_event = tab_fuel_input_event
+    g_tab_fuel.input_pointer = tab_fuel_input_pointer
+    g_tab_fuel.input_scroll = tab_fuel_input_scroll
+
     local screen_name = begin_get_screen_name()
 
     if screen_name == "screen_inv_r_large" then
@@ -227,7 +245,16 @@ function update_barge_cap(ticks)
     end
 end
 
-function update(screen_w, screen_h, ticks) 
+function update(screen_w, screen_h, ticks)
+    local st, err = pcall(function()
+        _update(screen_w, screen_h, ticks)
+    end)
+    if not st then
+        print(err)
+    end
+end
+
+function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
     refresh_fow_islands()
@@ -251,7 +278,7 @@ function update(screen_w, screen_h, ticks)
 
     update_interaction_ui()
 
-    local is_hoverable = g_focused_screen == g_screens.menu or g_tabs[g_active_tab].is_overlay == false
+    local is_hoverable = g_focused_screen == g_screens.menu or g_tabs[g_active_tab].is_overlay == false or g_active_tab == g_tabs.fuel
     local is_clip_tab = true
 
     if g_active_tab == g_tabs.map and is_barge_waypoint_mode() then
@@ -309,7 +336,7 @@ end
 function set_active_tab(tab)
     if g_active_tab ~= tab then
         g_active_tab = tab
-        
+
         if g_tabs[tab] ~= nil and g_tabs[tab].begin ~= nil then
             g_tabs[tab].begin()
         end
@@ -339,14 +366,13 @@ function update_interaction_ui()
                 if g_tab_map.dragged_id == 0 and g_tab_map.hovered_id ~= 0 then
                     if g_tab_map.hovered_type == g_node_types.tile then
                         local tile = update_get_tile_by_id(g_tab_map.hovered_id)
-    
-                        if tile:get() and tile:get_team_control() == update_get_screen_team_id() then
+                        if tile:get() and (tile:get_team_control() == update_get_screen_team_id() or get_is_spectator_mode()) then
                             update_add_ui_interaction(update_get_loc(e_loc.interaction_select), e_game_input.interact_a)
                         end
                     elseif g_tab_map.hovered_type == g_node_types.barge then
                         local barge = update_get_map_vehicle_by_id(g_tab_map.hovered_id)
 
-                        if barge:get() and barge:get_team() == update_get_screen_team_id() then
+                        if barge:get() and (barge:get_team() == update_get_screen_team_id() or get_is_spectator_mode()) then
                             update_add_ui_interaction(update_get_loc(e_loc.interaction_select), e_game_input.interact_a)
                         end
                     end
@@ -845,7 +871,7 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
     local vehicle_filter = function(v)
         local def = v:get_definition_index()
         local team = v:get_team()
-        return team == vehicle_team and (def == e_game_object_type.chassis_sea_barge or def == e_game_object_type.chassis_carrier)
+        return (team == vehicle_team or get_is_spectator_mode()) and (def == e_game_object_type.chassis_sea_barge or def == e_game_object_type.chassis_carrier)
     end
 
     local is_render_islands = (g_tab_map.camera_size < (64 * 1024))
@@ -1009,7 +1035,7 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
                 end
             end
 
-            if tile:get_team_control() == vehicle_team then
+            if tile:get_team_control() == vehicle_team or get_is_spectator_mode() then
                 local production_factor = tile:get_facility_production_factor()
                 local queue_count = tile:get_facility_production_queue_count()
 
@@ -1155,7 +1181,7 @@ function render_map_ui(screen_w, screen_h, x, y, w, h, screen_vehicle, is_tab_ac
         if g_tab_map.selected_barge_id ~= 0 then
             local selected_barge = update_get_map_vehicle_by_id(g_tab_map.selected_barge_id)
 
-            if selected_barge:get() and selected_barge:get_team() == screen_vehicle:get_team() then
+            if selected_barge:get() and (selected_barge:get_team() == screen_vehicle:get_team() or get_is_spectator_mode()) then
                 local display_id = g_tab_map.selected_barge_id
 
                 if g_tab_map.selected_barge_waypoint_mode == false then
@@ -1214,7 +1240,7 @@ function render_map_ui(screen_w, screen_h, x, y, w, h, screen_vehicle, is_tab_ac
 
             local facility_tile = update_get_tile_by_id(g_tab_map.selected_facility_id)
 
-            if facility_tile:get() and facility_tile:get_team_control() == screen_vehicle:get_team() then
+            if facility_tile:get() and (facility_tile:get_team_control() == screen_vehicle:get_team() or get_is_spectator_mode()) then
                 local category_data = g_item_categories[facility_tile:get_facility_category()]
                 
                 render_map_facility_ui(screen_w, screen_h, x, y, w, h, category_data, facility_tile, screen_vehicle, is_tab_active and g_tab_map.selected_facility_inventory == false)
@@ -1638,7 +1664,7 @@ function get_node_tooltip_h(tooltip_w, id, type)
         local category_data = g_item_categories[tile:get_facility_category()]
 
         if tile:get() then
-            local is_player_tile = tile:get_team_control() == update_get_screen_team_id()
+            local is_player_tile = tile:get_team_control() == update_get_screen_team_id() or get_is_spectator_mode()
 
             if is_player_tile == false then
                 local visible = fow_island_visible(id) or not g_revolution_hide_hostile_island_types
@@ -1714,7 +1740,7 @@ function render_node_tooltip(w, h, id, type)
         local category_data = g_item_categories[tile:get_facility_category()]
 
         if tile:get() then
-            local is_player_tile = tile:get_team_control() == update_get_screen_team_id()
+            local is_player_tile = tile:get_team_control() == update_get_screen_team_id() or get_is_spectator_mode()
 
             if is_player_tile then
                 local cy = 3
@@ -1899,7 +1925,7 @@ function update_map_hovered(screen_w, screen_h)
 
         local vehicle_filter = function(v)
             local def = v:get_definition_index()
-            return v:get_team() == update_get_screen_team_id() and (def == e_game_object_type.chassis_sea_barge or def == e_game_object_type.chassis_carrier)
+            return (get_is_spectator_mode() or v:get_team() == update_get_screen_team_id()) and (def == e_game_object_type.chassis_sea_barge or def == e_game_object_type.chassis_carrier)
         end
 
         -- vehicles
@@ -1962,7 +1988,7 @@ function tab_map_input_event(input, action)
                 if g_tab_map.hovered_type == g_node_types.tile then
                     local tile = update_get_tile_by_id(g_tab_map.hovered_id)
 
-                    if tile:get() and tile:get_team_control() == update_get_screen_team_id() then
+                    if tile:get() and (tile:get_team_control() == update_get_screen_team_id() or get_is_spectator_mode()) then
                         set_map_dragged(g_tab_map.hovered_id, g_tab_map.hovered_type, g_tab_map.hovered_waypoint_id)
                     end
                 else
@@ -2046,13 +2072,13 @@ function tab_map_input_event(input, action)
                         if g_tab_map.dragged_type == g_node_types.tile then
                             local tile = update_get_tile_by_id(g_tab_map.hovered_id)
                         
-                            if tile:get() and tile:get_team_control() == update_get_screen_team_id() then
+                            if tile:get() and (tile:get_team_control() == update_get_screen_team_id() or get_is_spectator_mode()) then
                                 g_tab_map.selected_facility_id = g_tab_map.hovered_id
                             end
                         elseif g_tab_map.dragged_type == g_node_types.barge then
                             local barge = update_get_map_vehicle_by_id(g_tab_map.hovered_id)
 
-                            if barge:get() and barge:get_team() == update_get_screen_team_id() then
+                            if barge:get() and (barge:get_team() == update_get_screen_team_id() or get_is_spectator_mode()) then
                                 g_tab_map.selected_barge_id = g_tab_map.hovered_id
                             end
                         end
@@ -2410,7 +2436,7 @@ end
 function get_barge_weight(vehicle)
     local vehicle_team = vehicle:get_team()
     local vehicle_filter = function(v)
-        return v:get_definition_index() == e_game_object_type.chassis_sea_barge and v:get_team() == vehicle_team
+        return v:get_definition_index() == e_game_object_type.chassis_sea_barge and (v:get_team() == vehicle_team or get_is_spectator_mode())
     end
 
     local barge_weight = 0.0
@@ -2882,3 +2908,182 @@ end
 g_track_missile_callbacks = {
     impact = on_missile_impact
 }
+
+
+---
+-- fuel display
+---
+
+function tab_fuel_input_event(input, action)
+    if input == e_input.back then
+        return true
+    end
+    g_ui:input_event(input, action)
+    return false
+end
+
+function tab_fuel_input_pointer(is_hovered, x, y)
+    g_ui:input_pointer(is_hovered, x, y)
+end
+
+function tab_fuel_input_scroll(dy)
+    g_ui:input_scroll(dy)
+end
+
+function tab_fuel_render(screen_w, screen_h, x, y, w, h, is_tab_active, screen_vehicle)
+    local ui = g_ui
+    local screen_team = update_get_screen_team_id()
+    update_ui_push_offset(x, y)
+    local is_local = update_get_is_focus_local()
+    ui:begin_window("##fuel",
+            5,
+            0,
+            w - 10,
+            h,
+            atlas_icons.column_fuel,
+            true, 1, is_local)
+    local table_widths = {
+        w - (10 * 8), 5 * 8, 4 * 8
+    }
+    local table_cols = {
+        { w=table_widths[1], margin=5, value=update_get_loc(e_loc.upp_fuel) },
+        { w=table_widths[2], margin=2, value=atlas_icons.column_stock },
+        { w=table_widths[3], margin=2, value=atlas_icons.hud_warning },
+    }
+    imgui_table_header(g_ui, table_cols)
+
+    -- carrier fuel
+    local carriers = get_team_carriers(update_get_screen_team_id())
+    for _, carrier in pairs(carriers) do
+        local crr_fuel_stock = carrier:get_inventory_count_by_item_index(e_inventory_item.fuel_barrel)
+        crr_fuel_stock = crr_fuel_stock + (get_internal_fuel_size(e_game_object_type.chassis_carrier) * carrier:get_fuel_factor()/1000)
+        imgui_table_entry_grid(
+                g_ui,
+                {
+                    {
+                        w=table_widths[1], margin=5, value=update_get_loc(e_loc.upp_crr) .. " " .. get_ship_name(carrier),
+                    },
+                    {
+                        w=table_widths[2], margin=2, value=string.format("%5dt", math.floor(crr_fuel_stock)),
+                    },
+                    {
+                        w=table_widths[3], margin=2, value=string.format("%d%%", math.floor(100 * carrier:get_fuel_factor())),
+                    }
+                })
+    end
+
+    local land_fuel = 0
+    local land_fuel_max = 0
+    local air_fuel = 0
+    local air_fuel_max = 0
+    local barge_fuel = 0
+    local function sum_vehicle_fuel(v)
+        local v_def = v:get_definition_index()
+        if v_def == e_game_object_type.chassis_sea_barge then
+            barge_fuel = barge_fuel + v:get_inventory_count_by_item_index(e_inventory_item.fuel_barrel)
+        else
+            local v_internal_fuel_size = get_internal_fuel_size(v_def)
+            if v_internal_fuel_size > 0 then
+                -- total up extra tanks
+                local attachment_count = v:get_attachment_count()
+                local unit_extra_fuel_tank_capacity = 0
+                for i = 0, attachment_count - 1, 1 do
+                    local attachment = v:get_attachment(i)
+                    if attachment:get() and (attachment:get_fuel_capacity() > 0) then
+                        unit_extra_fuel_tank_capacity = unit_extra_fuel_tank_capacity + attachment:get_fuel_capacity()
+                    end
+                end
+                local unit_max_fuel = v_internal_fuel_size + unit_extra_fuel_tank_capacity
+                local unit_current_fuel = unit_max_fuel * v:get_fuel_factor()
+
+                if get_is_vehicle_air(v_def) then
+                    air_fuel = air_fuel + unit_current_fuel
+                    air_fuel_max = air_fuel_max + unit_max_fuel
+                elseif get_is_vehicle_land_vehicle(v_def) then
+                    land_fuel = land_fuel + unit_current_fuel
+                    land_fuel_max = land_fuel_max + unit_max_fuel
+                end
+
+            end
+        end
+    end
+    local air_fuel_pct = "--"
+    if air_fuel_max > 0 then
+        air_fuel_pct = string.format("%d%%", round_int(100 * air_fuel / air_fuel_max))
+    end
+    local land_fuel_pct = "--"
+    if land_fuel_max > 0 then
+        land_fuel_pct = string.format("%d%%", round_int(100 * land_fuel / land_fuel_max))
+    end
+
+    iter_team_units(screen_team, sum_vehicle_fuel)
+    imgui_table_entry_grid(
+        g_ui,
+        {
+            {
+                w=table_widths[1], margin=5, value="AIRCRAFT",
+            },
+            {
+                w=table_widths[2], margin=2, value=string.format("%5dt", math.floor(air_fuel/1000)),
+            },
+            {
+                w=table_widths[3], margin=2, value=air_fuel_pct,
+            }
+        })
+    imgui_table_entry_grid(
+        g_ui,
+        {
+            {
+                w=table_widths[1], margin=5, value=update_get_loc(e_loc.upp_vehicles),
+            },
+            {
+                w=table_widths[2], margin=2, value=string.format("%5dt", math.floor(land_fuel/1000)),
+            },
+            {
+                w=table_widths[3], margin=2, value=land_fuel_pct,
+            }
+        })
+    -- barge content
+    imgui_table_entry_grid(
+        g_ui,
+            {
+                {
+                    w=table_widths[1], margin=5, value=string.upper(update_get_loc(e_loc.upp_barges)),
+                },
+                {
+                    w=table_widths[2], margin=2, value=string.format("%5dt", math.floor(barge_fuel)),
+                },
+                {
+                    w=table_widths[3], margin=2, value="",
+                }
+            })
+
+    -- total up the fuel stored at islands
+    local island_count = update_get_tile_count()
+    local island_fuel = 0
+    for i = 0, island_count - 1 do
+        local island = update_get_tile_by_index(i)
+        if island:get() then
+            if island:get_team_control() == screen_team then
+                island_fuel = island_fuel + island:get_facility_inventory_count(e_inventory_item.fuel_barrel)
+            end
+        end
+    end
+
+    imgui_table_entry_grid(
+            g_ui,
+            {
+                {
+                    w=table_widths[1], margin=5, value=string.upper(update_get_loc(e_loc.island) .. " " .. update_get_loc(e_loc.upp_stock)),
+                },
+                {
+                    w=table_widths[2], margin=2, value=string.format("%5dt", math.floor(island_fuel)),
+                },
+                {
+                    w=table_widths[3], margin=2, value="",
+                }
+            })
+
+    ui:end_window()
+    update_ui_pop_offset()
+end

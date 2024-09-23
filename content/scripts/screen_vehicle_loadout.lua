@@ -8,8 +8,6 @@ g_no_stock_counter = 1000
 g_attachment_combo_scroll = -1
 g_chassis_combo_scroll = -1
 
-g_enable_ecm_decoys = false
-
 g_ui = nil
 
 g_screen_vehicle_id = 1
@@ -110,6 +108,7 @@ end
 
 function begin()
     begin_load()
+    begin_load_inventory_data()
     g_ui = lib_imgui:create_ui()
 end
 
@@ -253,9 +252,13 @@ function update(screen_w, screen_h, ticks)
                 update_ui_text(13, cy, armour, 64, 0, color_grey_dark, 0)
                 cy = cy + 10
 
-                update_ui_image(4, cy, atlas_icons.column_weight, color_grey_mid, 0)
-                update_ui_text(13, cy, mass .. update_get_loc(e_loc.upp_kg), 64, 0, color_grey_dark, 0)
-                cy = cy + 11
+                if get_is_vehicle_air(attached_vehicle:get_definition_index()) then
+                    local payload_mass = get_aircraft_payload_weight(attached_vehicle)
+                    update_ui_image(4, cy, atlas_icons.column_weight, color_grey_mid, 0)
+                    update_ui_text(13, cy, payload_mass .. update_get_loc(e_loc.upp_kg), 64, 0, color_grey_dark, 0)
+                    cy = cy + 11
+                end
+
 
                 update_ui_rectangle(0, cy, 63, 1, color_grey_dark)
                 cy = cy + 4
@@ -270,20 +273,6 @@ function update(screen_w, screen_h, ticks)
 
                 update_ui_image(4, cy, atlas_icons.icon_ammo, color_white, 0)
                 update_ui_text(13, cy, string.format("%.0f%%", attached_vehicle:get_ammo_factor() * 100), 64, 0, color_status_ok, 0)
-
-                if get_is_vehicle_air(vehicle_definition_index) and update_get_is_focus_local() and get_rcs_model_enabled() then
-                    -- show RCS
-                    cy = cy + 10
-                    local rcs = get_rcs(attached_vehicle)
-                    update_ui_image(4, cy, atlas_icons.column_controlling_peer, color_white, 0)
-                    update_ui_text(13, cy, string.format("%1.2fm", rcs), 64, 0, color_status_ok, 0)
-                    update_ui_text(43, cy-2, "2", 64, 0, color_status_ok, 0)
-
-                    cy = cy + 10
-                    local drange = get_rcs_detection_range(rcs)
-                    update_ui_image(3, cy, atlas_icons.column_distance, color_white, 0)
-                    update_ui_text(13, cy, string.format("%1.2fkm", drange), 64, 0, color_status_ok, 0)
-                end
 
                 local window = ui:begin_window("##vehicle", screen_w / 2, 14, screen_w / 2, screen_h - 14, nil, true, 1)
                     local region_w, region_h = ui:get_region()
@@ -540,9 +529,14 @@ function render_ui_attachment_definition_description(x, y, w, h, vehicle, index)
     if ammo_type ~= -1 then
         local ammo_count = vehicle:get_inventory_count_by_item_index(ammo_type)
         update_ui_image(0, cy, atlas_icons.icon_ammo, iff(is_in_stock, color_white, color_grey_dark), 0)
-        update_ui_text(10, cy, ammo_count, w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
+        cy = 2 + cy + update_ui_text(10, cy, ammo_count, w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
     end
 
+    local item_mass = get_payload_weight(index)
+    if item_mass then
+        update_ui_image(0, 40, atlas_icons.column_weight, iff(is_in_stock, color_white, color_grey_dark), 0)
+        update_ui_text(10, 40, item_mass .. update_get_loc(e_loc.upp_kg) , w - 10, 0, color_white, 0)
+    end
     update_ui_pop_offset()
 end
 
@@ -587,6 +581,12 @@ function render_screen_chooser(screen_w, screen_h, is_active)
                 local vehicle_definition_index = vehicle:get_definition_index()
                 if vehicle_definition_index == e_game_object_type.chassis_carrier then
                     label = get_ship_name(vehicle)
+                end
+
+                if vehicle_definition_index == e_game_object_type.chassis_air_rotor_heavy then
+                    if get_is_spectator_mode() then
+                        label = "PTR " .. vehicle:get_id()
+                    end
                 end
 
                 if vid == g_screen_vehicle_id then
