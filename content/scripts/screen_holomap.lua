@@ -564,6 +564,7 @@ function _update(screen_w, screen_h, ticks)
                 local island = update_get_tile_by_index(i)
 
                 if island ~= nil and island:get() then
+                    local island_name = island:get_name()
                     local visible = fow_island_visible(island:get_id())
                     local island_color = update_get_team_color(island:get_team_control())
                     if not visible then
@@ -572,6 +573,9 @@ function _update(screen_w, screen_h, ticks)
                     local island_pos = island:get_position_xz()
                     screen_pos_x, screen_pos_y = get_holomap_from_world(island_pos:x(), island_pos:y(), screen_w, screen_h)
                     screen_pos_y = screen_pos_y - 27
+                    if cur_map_zoom < 145000 then
+                        update_ui_text_mini(screen_pos_x - 64, screen_pos_y, island_name, 128, 1, island_color)
+                    end
 
                     local category_data = g_item_categories[island:get_facility_category()]
                     local icon = category_data.icon

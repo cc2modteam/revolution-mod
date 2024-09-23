@@ -1361,6 +1361,16 @@ function _update(screen_w, screen_h, ticks)
                     local island_capture_progress = island:get_team_capture_progress()
                     local team_color = get_island_team_color(island_capture)
 
+                    if update_get_is_focus_local() then
+                        local island_name = island:get_name()
+                        if g_camera_size < 101000 then
+                            local island_name_size = update_ui_get_text_size_mini(island_name)
+                            update_ui_text_mini(screen_pos_x - island_name_size / 2.1,
+                                    screen_pos_y - 10,
+                                    island_name, island_name_size, 1, team_color)
+                        end
+                    end
+
                     if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
                         local color = iff(g_blink_timer > 15, team_color, island_color)
                         update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, color, 0)
@@ -1434,7 +1444,11 @@ function _update(screen_w, screen_h, ticks)
                         local island_name = island:get_name()
                         local screen_pos_x, screen_pos_y = get_screen_from_world(island_position:x(), island_position:y() + 3000.0, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                        update_ui_text(screen_pos_x - 64, screen_pos_y - 9, island_name, 128, 1, island_color, 0)
+                        if g_camera_size < 27000 then
+                            update_ui_text(screen_pos_x - 64, screen_pos_y - 9, island_name, 128, 1, island_color, 0)
+                        else
+                            update_ui_text_mini(screen_pos_x - 64, screen_pos_y - 8, island_name, 128, 1, island_color, 0)
+                        end
 
                         if island:get_team_control() == update_get_screen_team_id() then
                             if is_placing_turret == false then
