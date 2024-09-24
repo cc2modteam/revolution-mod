@@ -1101,7 +1101,7 @@ function render_attachment_info(info_pos, map_data, vehicle, attachment, alpha, 
 
     -- render nearest island name
     local nearest_island = get_nearest_island_name(vehicle)
-    update_ui_text_mini(pos:x(), pos:y(), string.upper(nearest_island), 200, 0, colors.green, 0)
+    update_ui_text(pos:x(), pos:y(), string.upper(nearest_island), 200, 0, colors.green, 0)
     pos:y(pos:y() + 10)
 
     -- render vehicle id
@@ -1690,18 +1690,6 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     update_ui_rectangle(w + size, n + size, size - 4, size - 4, stbd)
     update_ui_rectangle(w, n + size + size, size - 4, size - 4, aft)
 
-    -- show RADAR type
-    if g_nearest_hostile_ew_radar ~= nil then
-        --local rtype = g_nearest_hostile_ew_radar:get_definition_index()
-        --local rinfo = ""
-        --if get_is_vehicle_sea(rtype) or get_is_vehicle_land(rtype) then
-        --    rinfo = "S"
-        --elseif get_is_vehicle_air(rtype)  then
-        --    rinfo = "A"
-        --end
-        ---- update_ui_text(x, y, txt, width, 2, col, 0)
-        --update_ui_text(w + 10, n - 1, rinfo, 8, 2, red, 0)
-    end
 end
 
 function render_attachment_hud_camera(screen_w, screen_h, map_data, vehicle, attachment)
@@ -2762,30 +2750,6 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     local forward_xz = vec3(forward:x(), 0, forward:z())
     forward_xz = vec3_normal(forward_xz)
     local projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y(), position:z() + forward_xz:z() * project_dist)
-
-    --if p_fwd ~= nil then
-    --    local vdef = vehicle:get_definition_index()
-    --    if vdef == e_game_object_type.chassis_air_wing_light or vdef == e_game_object_type.chassis_air_wing_heavy then
-    --        -- find the horizon point relative to the velocity vector
-    --        local vector_horizon = vec3(
-    --            position:x() + velocity:x() * 1000,
-    --            position:y(),
-    --            position:z() + velocity:z() * 1000)
-    --
-    --        local v_s = update_world_to_screen(vector_horizon)
-    --        local f_s = update_world_to_screen(projected_forward)
-    --        offset_x = v_s:x() - f_s:x()
-    --        offset_y = v_s:y() - f_s:y()
-    --        if g_revolution_hud_debug ~= nil then
-    --            slow_print(string.format("%f %f (%f %f)", offset_x, offset_y, v_s:x(), v_s:y()))
-    --            --update_ui_image_rot(
-    --            --    clamp(v_s:x(), 20, screen_w - 20),
-    --            --    clamp(v_s:y(), 10, screen_h - 10) + 1,
-    --            --    atlas_icons.hud_horizon_mid, color_white, 0)
-    --        end
-    --    end
-    --end
-
     local side_xz = vec3(-forward_xz:z(), 0, forward_xz:x())
     local roll_pos_a = update_world_to_screen(vec3(position:x() + (forward_xz:x() + side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() + side_xz:z()) * project_dist))
     local roll_pos_b = update_world_to_screen(vec3(position:x() + (forward_xz:x() - side_xz:x()) * project_dist, position:y(), position:z() + (forward_xz:z() - side_xz:z()) * project_dist))
@@ -2793,7 +2757,6 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     local roll = vec2_angle(roll_normal, vec2(1, 0))
 
     local horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
-     -- draw horizon
     local horizon_y = clamp(offset_y + horizon:y(), 2, screen_h - 2)
 
     if horizon_y == offset_y + horizon:y() then
@@ -2807,47 +2770,26 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     local steps = math.floor(math.pi * 0.5 / angle_step)
     local angle_width = 20
 
-    for i = 1, steps do
-        projected_forward = vec3(
-                position:x() + forward_xz:x() * project_dist,
-                position:y() + math.tan(i * angle_step) * project_dist,
-                position:z() + forward_xz:z() * project_dist)
 
+    for i = 1, steps do
+        projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y() + math.tan(i * angle_step) * project_dist, position:z() + forward_xz:z() * project_dist)
         horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
 
         if i ~= steps then
-            update_ui_image_rot(
-                    offset_x + horizon:x(),
-                    offset_y + horizon:y(),
-                    atlas_icons.hud_horizon_high, col, roll)
+            update_ui_image_rot(offset_x + horizon:x(), offset_y + horizon:y(), atlas_icons.hud_horizon_high, col, roll)
             --update_ui_text(horizon:x()-angle_width/2, horizon:y()-5, math.floor(i*angle_step_deg), 20, 1, col, 0)
             local hoz_width = 38
-			update_ui_text_mini(
-                    offset_x + horizon:x()-angle_width/2-math.floor(hoz_width*math.cos(roll)),
-                    offset_y + horizon:y()-5-math.floor(hoz_width*math.sin(roll)),
-                    math.floor(i*angle_step_deg), 20, 1, col, 0)
-			update_ui_text_mini(
-                    offset_x + horizon:x()-angle_width/2+math.floor(hoz_width*math.cos(roll))+1,
-                    offset_y + horizon:y()-5+math.floor(hoz_width*math.sin(roll)),
-                    math.floor(i*angle_step_deg), 20, 1, col, 0)
+			update_ui_text(offset_x + horizon:x()-angle_width/2-math.floor(hoz_width*math.cos(roll)), offset_y + horizon:y()-5-math.floor(hoz_width*math.sin(roll)), math.floor(i*angle_step_deg), 20, 1, col, 0)
+			update_ui_text(offset_x + horizon:x()-angle_width/2+math.floor(hoz_width*math.cos(roll))+1, offset_y + horizon:y()-5+math.floor(hoz_width*math.sin(roll)), math.floor(i*angle_step_deg), 20, 1, col, 0)
         end
 
         projected_forward = vec3(position:x() + forward_xz:x() * project_dist, position:y() - math.tan(i * angle_step) * project_dist, position:z() + forward_xz:z() * project_dist)
         horizon = artificial_horizon_to_screen(screen_w, screen_h, pos, scale, update_world_to_screen(projected_forward))
-        update_ui_image_rot(
-                offset_x + horizon:x(),
-                offset_y +  horizon:y(),
-                atlas_icons.hud_horizon_low, col, roll)
+        update_ui_image_rot(offset_x + horizon:x(), offset_y +  horizon:y(), atlas_icons.hud_horizon_low, col, roll)
         --update_ui_text(horizon:x()-angle_width/2, horizon:y()-3, math.floor(-i*angle_step_deg), 20, 1, col, 0)
         local hoz_width = 41
-		update_ui_text_mini(
-                offset_x + horizon:x()-angle_width/2-math.floor(hoz_width*math.cos(roll)),
-                offset_y + horizon:y()-3-math.floor(hoz_width*math.sin(roll)),
-                math.floor(-i*angle_step_deg), 20, 1, col, 0)
-		update_ui_text_mini(
-                offset_x + horizon:x()-angle_width/2+math.floor(hoz_width*math.cos(roll))+1,
-                offset_y + horizon:y()-3+math.floor(hoz_width*math.sin(roll)),
-                math.floor(-i*angle_step_deg), 20, 1, col, 0)
+		update_ui_text(offset_x + horizon:x()-angle_width/2-math.floor(hoz_width*math.cos(roll)), offset_y + horizon:y()-3-math.floor(hoz_width*math.sin(roll)), math.floor(-i*angle_step_deg), 20, 1, col, 0)
+		update_ui_text(offset_x + horizon:x()-angle_width/2+math.floor(hoz_width*math.cos(roll))+1, offset_y + horizon:y()-3+math.floor(hoz_width*math.sin(roll)), math.floor(-i*angle_step_deg), 20, 1, col, 0)
     end
 
     --update_ui_pop_clip()
@@ -4475,9 +4417,9 @@ Variometer = {
         local mins_remaining = fuel_count / fuel_per_min
 
         -- total %
-        update_ui_text_mini(
-                pos:x() - 37,
-                pos:y() + 158,
+        update_ui_text(
+                pos:x() - 38,
+                pos:y() + 140,
                 string.format("%2.1f %s", fuel_count * 100, "%"),
                 64, 0, fuel_number_col, 0)
 
@@ -4486,19 +4428,19 @@ Variometer = {
         local fuel_time_mins = "--- mins"
 
         if self.fuel.sample_size > 30 then
-            fuel_use_per_min = string.format("%2.1f %s /m", fuel_per_min * 100, "%")
+            fuel_use_per_min = string.format("%2.1f %s/m", fuel_per_min * 100, "%")
             fuel_time_mins = string.format("%3.0f mins", mins_remaining)
         end
         -- % / min
-        update_ui_text_mini(
+        update_ui_text(
                 pos:x() - 32,
-                pos:y() + 164,
+                pos:y() + 150,
                 fuel_use_per_min,
                 64, 0, col, 0)
         -- time
-        update_ui_text_mini(
+        update_ui_text(
                 pos:x() - 32,
-                pos:y() + 170,
+                pos:y() + 160,
                 fuel_time_mins,
                 200, 0, fuel_number_col, 0)
 

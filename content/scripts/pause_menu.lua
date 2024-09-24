@@ -581,10 +581,9 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
     end
 
     -- render ui
-    -- render ui
 
     update_ui_push_offset(x, y)
-    update_ui_text_mini(
+    update_ui_text(
             3, 2, "Revolution 1.3.10 2024-09-22", 220, 0, color_grey_dark, 0)
 
     if is_active then

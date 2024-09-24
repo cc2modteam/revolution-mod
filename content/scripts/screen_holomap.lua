@@ -564,7 +564,6 @@ function _update(screen_w, screen_h, ticks)
                 local island = update_get_tile_by_index(i)
 
                 if island ~= nil and island:get() then
-                    local island_name = island:get_name()
                     local visible = fow_island_visible(island:get_id())
                     local island_color = update_get_team_color(island:get_team_control())
                     if not visible then
@@ -573,9 +572,6 @@ function _update(screen_w, screen_h, ticks)
                     local island_pos = island:get_position_xz()
                     screen_pos_x, screen_pos_y = get_holomap_from_world(island_pos:x(), island_pos:y(), screen_w, screen_h)
                     screen_pos_y = screen_pos_y - 27
-                    if cur_map_zoom < 145000 then
-                        update_ui_text_mini(screen_pos_x - 64, screen_pos_y, island_name, 128, 1, island_color)
-                    end
 
                     local category_data = g_item_categories[island:get_facility_category()]
                     local icon = category_data.icon
@@ -1119,16 +1115,16 @@ function _update(screen_w, screen_h, ticks)
                 if self and self:get() then
                     if self:get_attached_parent_id() ~= 0 then
                         update_ui_text(32, 13, get_ship_name(update_get_screen_vehicle()) .. " DOCKED", 480, 0, color_white, 0)
-                        update_ui_text_mini(32, 13 * 2, g_revolution_welcome, 480, 0, color_white, 0)
+                        update_ui_text(32, 13 * 2, g_revolution_welcome, 480, 0, color_white, 0)
                     end
                 end
             end
 
             if get_is_spectator_mode() then
-                update_ui_text_mini(screen_w / 9, screen_h - 23,
+                update_ui_text(screen_w / 9, screen_h - 24,
                         "Revolution Spectator Studio TM", 400, 0, color_grey_mid, 0)
             else
-                update_ui_text_mini(screen_w / 8, screen_h - 29,
+                update_ui_text(screen_w / 8, screen_h - 31,
                         string.format("ACC %s",
                                 get_ship_name(update_get_screen_vehicle())), 400, 0, color_grey_mid, 0)
 

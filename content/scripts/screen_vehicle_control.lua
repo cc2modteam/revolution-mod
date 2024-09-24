@@ -1361,16 +1361,6 @@ function _update(screen_w, screen_h, ticks)
                     local island_capture_progress = island:get_team_capture_progress()
                     local team_color = get_island_team_color(island_capture)
 
-                    if update_get_is_focus_local() then
-                        local island_name = island:get_name()
-                        if g_camera_size < 101000 then
-                            local island_name_size = update_ui_get_text_size_mini(island_name)
-                            update_ui_text_mini(screen_pos_x - island_name_size / 2.1,
-                                    screen_pos_y - 10,
-                                    island_name, island_name_size, 1, team_color)
-                        end
-                    end
-
                     if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
                         local color = iff(g_blink_timer > 15, team_color, island_color)
                         update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, color, 0)
@@ -1444,11 +1434,7 @@ function _update(screen_w, screen_h, ticks)
                         local island_name = island:get_name()
                         local screen_pos_x, screen_pos_y = get_screen_from_world(island_position:x(), island_position:y() + 3000.0, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                        if g_camera_size < 27000 then
-                            update_ui_text(screen_pos_x - 64, screen_pos_y - 9, island_name, 128, 1, island_color, 0)
-                        else
-                            update_ui_text_mini(screen_pos_x - 64, screen_pos_y - 8, island_name, 128, 1, island_color, 0)
-                        end
+                        update_ui_text(screen_pos_x - 64, screen_pos_y - 9, island_name, 128, 1, island_color, 0)
 
                         if island:get_team_control() == update_get_screen_team_id() then
                             if is_placing_turret == false then
@@ -3367,8 +3353,8 @@ function render_map_scale(screen_w, screen_h)
 
         update_ui_push_offset(screen_w - dx/2 - 15, screen_h - 20)
 
-        local w = update_ui_get_text_size_mini(text)
-        update_ui_text_mini(-w/2, -8, text, w, 1, color_grey_mid, 0)
+        local w = update_ui_get_text_size(text, 32, 0)
+        update_ui_text(-w/2, -10, text, w, 1, color_grey_mid, 0)
         
         if inbound then
             update_ui_rectangle(-dx/2, 0, 1, 4, color_grey_dark)
@@ -3392,12 +3378,12 @@ function render_cursor_info(screen_w, screen_h, world_pos_drag_start)
     local icon_col = color_grey_mid
     local text_col = color_grey_dark
 
-    update_ui_mini_text(cx, cy, "X", icon_col)
-    update_ui_mini_text(cx + 9, cy, string.format("%.0f", world_x), text_col)
-    cy = cy + 6
+    update_ui_text(cx, cy, "X", 100, 0, icon_col, 0)
+    update_ui_text(cx + 15, cy, string.format("%.0f", world_x), 100, 0, text_col, 0)
+    cy = cy + 10
 
-    update_ui_mini_text(cx, cy, "Y", icon_col)
-    update_ui_mini_text(cx + 9, cy, string.format("%.0f", world_y), text_col)
+    update_ui_text(cx, cy, "Y", 100, 0, icon_col, 0)
+    update_ui_text(cx + 15, cy, string.format("%.0f", world_y), 100, 0, text_col, 0)
     cy = cy + 10
 
     if world_pos_drag_start then
@@ -3408,7 +3394,7 @@ function render_cursor_info(screen_w, screen_h, world_pos_drag_start)
             update_ui_text(cx + 15, cy, string.format("%.0f ", dist) .. update_get_loc(e_loc.acronym_meters), 100, 0, text_col, 0)
         else
             update_ui_image(cx, cy, atlas_icons.column_distance, icon_col, 0)
-            update_ui_text_mini(cx + 15, cy, string.format("%.2f ", dist / 1000) .. update_get_loc(e_loc.acronym_kilometers), 100, 0, text_col, 0)
+            update_ui_text(cx + 15, cy, string.format("%.2f ", dist / 1000) .. update_get_loc(e_loc.acronym_kilometers), 100, 0, text_col, 0)
         end
 
         cy = cy + 10
