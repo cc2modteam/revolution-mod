@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data display_name_loc="0" bounding_radius="4.50000000e+02" lod_scale="2.00000000e+00" ai_type="0">
+	<bodies>
+		<body mass="1.00000000e+00" name="body" is_static="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
+			<meshes>
+				<mesh file="meshes/aircraft_carrier/carrier_shipyard_physics.cphys"/>
+				<mesh file="meshes/aircraft_carrier/carrier_shipyard_shuttle_physics.cphys"/>
+			</meshes>
+			<boxes>
+				<box>
+					<size x="9.00000000e+00" y="3.00000000e+00" z="1.00000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.72000008e+01" ty="1.87999992e+01" tz="1.83399994e+02"/>
+				</box>
+			</boxes>
+			<spheres/>
+		</body>
+		<body mass="1.00000000e+03" name="lift_body" is_static="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.73021049e+01" ty="1.81870003e+01" tz="1.79055862e+02"/>
+			<meshes/>
+			<boxes>
+				<box>
+					<size x="8.00000000e+00" y="2.00000003e-01" z="8.00000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
+				</box>
+				<box>
+					<size x="6.99999988e-01" y="1.00000000e+00" z="7.75000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="3.50000000e+00" ty="8.00000012e-01" tz="-3.00000012e-01"/>
+				</box>
+				<box>
+					<size x="6.99999988e-01" y="1.00000000e+00" z="7.75000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-3.79999995e+00" ty="8.00000012e-01" tz="-3.00000012e-01"/>
+				</box>
+			</boxes>
+			<spheres/>
+		</body>
+	</bodies>
+	<constraints>
+		<constraint name="lift_constraint" type="4" body_0="0" body_1="1" is_limits="true" limit_min="0.00000000e+00" limit_max="5.00000000e+01" drive_stiffness="1.00000000e+04" drive_damping="2.00000000e+04" drive_max_delta_position="5.00000007e-02" drive_max_delta_velocity="1.00000000e+00">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.71096821e+01" ty="2.70403214e+01" tz="1.80155075e+02"/>
+		</constraint>
+	</constraints>
+	<meshes>
+		<mesh file="meshes/aircraft_carrier/carrier_shipyard/shipyard.mesh" name="main body" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/carrier_shipyard/freight_elevator.mesh" name="lift_mesh" lod="0" body="1" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.38795182e-01" ty="8.80526161e+00" tz="1.17608202e+00"/>
+		</mesh>
+	</meshes>
+	<wheels/>
+	<attachments/>
+	<force_emitters/>
+	<control_surfaces/>
+	<projectile_emitters/>
+	<cameras/>
+	<buoyancys/>
+	<vehicle_attachments>
+		<vehicle_attachment name="carrier_attachment" type="4">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.96194720e-01" m12="8.71557444e-02" m20="0.00000000e+00" m21="-8.71557444e-02" m22="9.96194720e-01" tx="0.00000000e+00" ty="7.15000000e+01" tz="2.77500000e+02"/>
+		</vehicle_attachment>
+	</vehicle_attachments>
+	<lights>
+		<light name="light_0" body_index="0" scale="3.00000000e+01" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-5.39659615e+01" ty="1.78394566e+01" tz="4.18332397e+02"/>
+			<color x="1.00000000e+00" y="1.00000000e+00" z="1.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light_1" body_index="0" scale="3.00000000e+01" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.56379852e+01" ty="1.78394566e+01" tz="4.18332397e+02"/>
+			<color x="1.00000000e+00" y="1.00000000e+00" z="1.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light_2" body_index="0" scale="3.00000000e+01" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-5.10358238e+01" ty="1.04376656e+02" tz="3.71732025e+02"/>
+			<color x="1.00000000e+00" y="1.00000000e+00" z="1.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light_3" body_index="0" scale="3.00000000e+01" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="4.98023071e+01" ty="1.04376656e+02" tz="3.71732025e+02"/>
+			<color x="1.00000000e+00" y="1.00000000e+00" z="1.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+	</lights>
+	<seats>
+		<seat name="shuttle_seat" display_name_loc="0" type="5" help_tag="">
+			<transform m00="-1.00000000e+00" m01="4.29478497e-08" m02="-5.18457313e-08" m10="-4.29478497e-08" m11="1.86092079e-01" m12="9.82532263e-01" m20="5.18457313e-08" m21="9.82532263e-01" m22="-1.86092079e-01" tx="8.14364929e+01" ty="1.82037678e+01" tz="2.32252304e+02"/>
+		</seat>
+	</seats>
+	<button_panels>
+		<button_panel name="Elevator Panel" body_index="1" texture="">
+			<transform m00="1.91068547e-15" m01="4.37113883e-08" m02="1.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="4.37113883e-08" m21="1.00000000e+00" m22="-4.37113883e-08" tx="-3.31200719e+00" ty="1.15795982e+00" tz="-2.95488179e-01"/>
+			<size x="5.00000000e-01" y="1.00000001e-01" z="5.00000000e-01"/>
+		</button_panel>
+	</button_panels>
+	<buttons>
+		<button name="lift_tower_1" display_name_loc="0" button_panel_index="0" button_cover_index="4294967295" type="0" help_tag="">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
+		</button>
+		<button name="lift_tower_2" display_name_loc="0" button_panel_index="0" button_cover_index="4294967295" type="0" help_tag="">
+			<transform m00="1.00000000e+00" m01="-3.12240687e-39" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="-3.44998599e-32" m22="1.00000000e+00" tx="7.73621878e-09" ty="-7.73620989e-09" tz="1.76983848e-01"/>
+		</button>
+	</buttons>
+	<indicators/>
+	<achievements/>
+	<dials/>
+	<screens/>
+	<doors>
+		<door name="door_escape" display_name_loc="437" type="8" sliding_time="0" body_index="0">
+			<transform m00="-2.22018361e-01" m01="-9.75042462e-01" m02="9.61278803e-15" m10="-9.75042462e-01" m11="2.22018361e-01" m12="-8.74227766e-08" m20="8.52409201e-08" m21="-1.94094714e-08" m22="-1.00000000e+00" tx="8.06323090e+01" ty="1.97399998e+01" tz="2.33171280e+02"/>
+			<sliding_distance x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</door>
+		<door name="lift_door_phys_1" display_name_loc="644" type="9" sliding_time="60" body_index="1">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="-3.67642617e+00" ty="9.69008446e-01" tz="-4.02176523e+00"/>
+			<sliding_distance x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</door>
+		<door name="lift_door_phys_2" display_name_loc="644" type="10" sliding_time="60" body_index="1">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="4.48204851e-08" m12="1.00000000e+00" m20="0.00000000e+00" m21="-1.00000000e+00" m22="4.48204851e-08" tx="3.43646574e+00" ty="9.59904552e-01" tz="-4.02089500e+00"/>
+			<sliding_distance x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</door>
+		<door name="lift_door_phys_3" display_name_loc="644" type="9" sliding_time="60" body_index="1">
+			<transform m00="-1.00000000e+00" m01="0.00000000e+00" m02="8.74227766e-08" m10="8.74227766e-08" m11="-4.37113883e-08" m12="1.00000000e+00" m20="3.82137093e-15" m21="1.00000000e+00" m22="4.37113883e-08" tx="3.41483855e+00" ty="6.74314857e-01" tz="3.41189837e+00"/>
+			<sliding_distance x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</door>
+		<door name="lift_door_phys_4" display_name_loc="644" type="10" sliding_time="60" body_index="1">
+			<transform m00="-1.00000000e+00" m01="0.00000000e+00" m02="-8.74227766e-08" m10="8.74227766e-08" m11="4.48204851e-08" m12="-1.00000000e+00" m20="3.91833122e-15" m21="-1.00000000e+00" m22="-4.48204851e-08" tx="-3.70607042e+00" ty="6.62207842e-01" tz="3.41135693e+00"/>
+			<sliding_distance x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</door>
+	</doors>
+	<graph_nodes>
+		<graph_node name="carrier_start" id="1">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.96194720e-01" m12="8.71557444e-02" m20="0.00000000e+00" m21="-8.71557444e-02" m22="9.96194720e-01" tx="0.00000000e+00" ty="3.15000000e+01" tz="2.77500000e+02"/>
+		</graph_node>
+		<graph_node name="carrier_end" id="2">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.96194720e-01" m12="8.71557444e-02" m20="0.00000000e+00" m21="-8.71557444e-02" m22="9.96194720e-01" tx="0.00000000e+00" ty="1.60573730e+01" tz="4.53289551e+02"/>
+		</graph_node>
+	</graph_nodes>
+	<graph_links/>
+	<foam_emitters/>
+	<particle_emitters/>
+	<sensors/>
+	<splash_emitters/>
+	<holomaps/>
+	<damage_zones/>
+	<audio_zones/>
+	<nav_meshes>
+		<nav_mesh file="meshes/aircraft_carrier/navigation_meshes/navigation_shipyard.mesh" name="mesh" body_index="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="9.45564806e-02" ty="3.51497650e-01" tz="-7.46803284e-02"/>
+		</nav_mesh>
+		<nav_mesh file="meshes/aircraft_carrier/navigation_meshes/navigation_shipyard_lift_top.mesh" name="mesh" body_index="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="9.45564806e-02" ty="3.51497650e-01" tz="-7.46803284e-02"/>
+		</nav_mesh>
+		<nav_mesh file="meshes/aircraft_carrier/navigation_meshes/navigation_shipyard_elevator.mesh" name="mesh" body_index="1">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
+		</nav_mesh>
+	</nav_meshes>
+</data>
+
