@@ -1135,7 +1135,7 @@ function _update(screen_w, screen_h, ticks)
                 update_ui_text_mini(screen_w / 9, screen_h - 23,
                         "Revolution Spectator Studio TM", 400, 0, color_grey_mid, 0)
             else
-                update_ui_text_mini(screen_w / 8, screen_h - 29,
+                update_ui_text_mini(screen_w / 3, screen_h - 29,
                         string.format("ACC %s",
                                 get_ship_name(update_get_screen_vehicle())), 400, 0, color_grey_mid, 0)
 
