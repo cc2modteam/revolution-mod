@@ -2020,8 +2020,8 @@ function get_marker_value(team_id, marker_id)
     return 0
 end
 
-function set_marker_waypoint(team_id, marker_id, x, y)
-    if update_get_is_focus_local() then
+function set_marker_waypoint(team_id, marker_id, x, y, force)
+    if update_get_is_focus_local() or force then
         if is_marker_value_pending(marker_id) then
             return
         end
