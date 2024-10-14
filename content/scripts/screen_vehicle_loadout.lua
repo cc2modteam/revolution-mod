@@ -288,6 +288,18 @@ function update(screen_w, screen_h, ticks)
                         g_screen_index = 2
                     end
                 ui:end_window()
+
+                if g_hovered_attachment > -1 then
+                    local attachment = attached_vehicle:get_attachment(g_hovered_attachment)
+
+                    if attachment:get() then
+                        local attachment_definition_index = attachment:get_definition_index()
+                        if attachment_definition_index > 0 then
+                            local attachment_data = get_attachment_data_by_definition_index(attachment_definition_index)
+                            update_ui_text(4, 93, g_hovered_attachment .. " " .. attachment_data.name_short, 96, 0, color_grey_mid, 0)
+                        end
+                    end
+                end
                 
                 is_show_attachment_selector = window.selected_index_y > 0
 
@@ -490,7 +502,6 @@ function render_screen_chassis(screen_w, screen_h, this_vehicle, is_active)
             local inventory_item_type = update_get_resource_item_for_definition(definition_index)
 
             if g_selected_option_index == 0 or this_vehicle:get_definition_index() == e_game_object_type.drydock then
-                print("set " .. definition_index)
                 this_vehicle:set_attached_vehicle_chassis(g_selected_bay_index, selection_options[g_selected_option_index + 1].type)
                 g_screen_index = 1
             elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 then
@@ -574,7 +585,7 @@ function render_screen_chooser(screen_w, screen_h, is_active)
         local vehicle = update_get_map_vehicle_by_index(i)
         if vehicle:get() then
             local vehicle_team = vehicle:get_team()
-            if vehicle_team == screen_team then
+            if vehicle_team == screen_team or get_is_spectator_mode() then
                 local label = ""
                 local vid = vehicle:get_id()
 
@@ -583,9 +594,13 @@ function render_screen_chooser(screen_w, screen_h, is_active)
                     label = get_ship_name(vehicle)
                 end
 
-                if vehicle_definition_index == e_game_object_type.chassis_air_rotor_heavy then
-                    if get_is_spectator_mode() then
+                if get_is_spectator_mode() then
+                    if vehicle_definition_index == e_game_object_type.chassis_air_rotor_heavy then
                         label = "PTR " .. vehicle:get_id()
+                    end
+
+                    if vehicle_definition_index == e_game_object_type.drydock then
+                        label = "TEAM " .. vehicle:get_team() .. " DRYDOCK"
                     end
                 end
 

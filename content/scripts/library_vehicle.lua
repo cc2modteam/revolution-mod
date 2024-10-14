@@ -2968,6 +2968,53 @@ local st, _v = pcall(function()
                     -- e_game_object_type.attachment_radar_golfball,   -- disables airlift ability when added
                 },
             },
+        },
+
+        -- carrier
+        [e_game_object_type.chassis_carrier] = {
+            options = {
+                [1] = {
+                    e_game_object_type.attachment_turret_carrier_ciws,
+                    e_game_object_type.attachment_turret_droid,
+                },
+                [2] = {
+                    e_game_object_type.attachment_turret_carrier_ciws,
+                    e_game_object_type.attachment_turret_droid,
+                },
+                [3] = {
+                    e_game_object_type.attachment_turret_carrier_ciws,
+                    e_game_object_type.attachment_turret_droid,
+                },
+                [3] = {
+                    e_game_object_type.attachment_turret_carrier_ciws,
+                    e_game_object_type.attachment_turret_droid,
+                },
+                [5] = {
+                    e_game_object_type.attachment_turret_carrier_missile,
+                    e_game_object_type.attachment_turret_droid,
+                },
+                [6] = {
+                    e_game_object_type.attachment_turret_carrier_missile,
+                    e_game_object_type.attachment_hardpoint_missile_laser,
+                },
+                [7] = {
+                    e_game_object_type.attachment_turret_carrier_main_gun,
+                    e_game_object_type.attachment_hardpoint_missile_laser,
+                    e_game_object_type.attachment_turret_15mm,
+                },
+                [8] = {
+                    e_game_object_type.attachment_turret_carrier_missile_silo,
+                },
+                [9] = {
+                    e_game_object_type.attachment_turret_carrier_flare_launcher,
+                },
+                [11] = {
+                    e_game_object_type.attachment_turret_carrier_torpedo,
+                },
+                [12] = {
+                    e_game_object_type.attachment_turret_carrier_torpedo,
+                },
+            }
         }
 
     }

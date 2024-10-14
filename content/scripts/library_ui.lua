@@ -2922,10 +2922,57 @@ function get_ui_vehicle_chassis_attachments(vehicle)
                 { i=1, x=0, y=0 }
             }
         }
+    elseif vehicle_definition_index == e_game_object_type.chassis_carrier then
+      vehicle_attachment_rows = {
+          -- ciws
+            {
+                { i=1, x=-9, y=-23 }
+            },
+            {
+                { i=2, x=9, y=-23 }
+            },
+            {
+                { i=3, x=-9, y=23 }
+            },
+            {
+                { i=4, x=9, y=23 }
+            },
+
+          --
+            {
+                { i=5, x=23, y=-8 }
+            },
+            {
+                { i=6, x=23, y=8 }
+            },
+
+            {
+                { i=9, x=-23, y=9 }
+            },
+          --
+            {
+                { i=7, x=-23, y=-16 }
+            },
+            {
+                { i=8, x=-23, y=-4 }
+            },
+
+            {
+                { i=11, x=23, y=23 }
+            },
+
+            {
+                { i=12, x=-23, y=23 }
+            }
+
+
+        }
     end
 
     return vehicle_attachment_rows
 end
+
+g_hovered_attachment = -1
 
 function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
     local window = ui:get_window()
@@ -2935,7 +2982,7 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
     local is_active = window.is_active
     local selected_attachment_index = -1
     local hovered_attachment_index = -1
-
+    g_hovered_attachment = hovered_attachment_index
     cx = cx + (w - 64) / 2
 
     if vehicle == nil or vehicle:get() == false then
@@ -3046,6 +3093,7 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
 
             if is_hovered then
                 hovered_attachment_index = render_data.i
+                g_hovered_attachment = hovered_attachment_index
             end
         end
 
