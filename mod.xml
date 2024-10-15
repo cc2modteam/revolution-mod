@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Revolution Beta 1.3.10" author="Thumblegudget, Bredroll, QuantX" description="
-v1.3.10 Beta Release
-
+<data name="Revolution 1.3.10" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Xuptio" description="
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other enhancements.
 
@@ -18,7 +16,7 @@ v1.3.10 changes:
 * slightly reworked HUD horizon rendering
 * mini font text in some areas to reduce clutter
 
-Added basic support for a spectator mode extension mod
+Added support for a spectator mode extension mod
 
 * Fog of war
 * Needlefish rebalance (reduced simulated Radar range)
