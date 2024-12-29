@@ -1497,7 +1497,7 @@ function update_ui_text_mini(x, y, txt, w, just, col)
             pad = w - wsize
             if just == 1 then
                 -- center
-                pad = floor(pad / 2)
+                pad = math.floor(pad / 2)
             elseif just == 0 then
                 -- left
                 pad = 0
