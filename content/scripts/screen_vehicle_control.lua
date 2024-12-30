@@ -241,6 +241,9 @@ g_tut_undocking_vehicle_id = 0
 g_tut_selected_vehicle_id = 0
 g_tut_selected_waypoint_id = 0
 
+-- screen saver control
+g_last_input_tick = 0
+
 -- petrel tactical drop/lift
 g_tactical_vid = 0
 
@@ -1143,17 +1146,51 @@ function parse()
     g_selected_bay_index = parse_s32("", g_selected_bay_index)
 end
 
+g_is_big_display = false
+g_screen_name = nil
+
 function begin()
     begin_load()
     begin_load_inventory_data()
     g_ui = lib_imgui:create_ui()
+    local screen_name = begin_get_screen_name()
+    g_screen_name = screen_name
+    g_is_big_display = screen_name == "holomap_screen_2"
 end
 
 function update(screen_w, screen_h, ticks)
+    if update_get_is_focus_local() then
+        g_last_input_tick = update_get_logic_tick()
+    end
+
+    if do_screensaver(screen_w, screen_h, e_loc.upp_vehicle_control) then
+        return
+    end
+
     local st, err = pcall(_update, screen_w, screen_h, ticks)
     if not st then
         print(err)
     end
+
+    if g_is_big_display then
+        big_display_update(screen_w, screen_h, ticks)
+    end
+end
+
+function big_display_update(screen_w, screen_h, ticks)
+
+    ---- little log window
+    --local logwindow = g_ui:begin_window(update_get_loc(e_log.upp_ship_log), 32, 240, 200, 200, atlas_icons.column_message, true, 2)
+    --local log_count = update_get_notification_log_count()
+    --for i = log_count - 1, 10, -1 do
+    --    local log = update_get_notification_log(i)
+    --    if log:get() then
+    --        g_ui:text_basic()
+    --        imgui_notification_log(ui, log, column_widths, column_margins, i < g_last_read_index)
+    --    end
+    --end
+    --
+    --g_ui:end_window()
 end
 
 function _update(screen_w, screen_h, ticks)
@@ -3159,6 +3196,7 @@ function input_zoom_camera(factor, screen_w, screen_h, zoom_x, zoom_y)
 end
 
 function input_event(event, action)
+    g_last_input_tick = update_get_logic_tick()
     if event == e_input.pointer_1 then
         g_is_pointer_pressed = action == e_input_action.press
     end

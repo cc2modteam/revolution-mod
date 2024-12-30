@@ -3466,3 +3466,51 @@ function iter_vehicle_histories(hist_tab, func)
         end
     end
 end
+
+function do_screensaver(screen_w, screen_h, screen_enum)
+
+    if string.find(g_screen_name, "holomap") then
+        -- dont do this for the huge tacops screen
+        return false
+    end
+
+    if string.find(g_screen_name, "screen_veh_") then
+        -- dont sleep the bridge screens
+        return false
+    end
+
+    local now = update_get_logic_tick()
+    local elapsed = now - g_last_input_tick
+    local seconds = elapsed / 30
+    if seconds > 300 then
+        update_set_screen_background_type(0)
+        local y = screen_h / 4
+        update_ui_text(
+                50, y,
+                "ACC " .. get_ship_name(update_get_screen_vehicle()),
+                100, 1, color_grey_mid, 0)
+        update_ui_line(
+                50, y + 11,
+                200, y + 11,
+                color_grey_dark
+        )
+
+        update_ui_text(
+                58, y + 13,
+                update_get_loc(screen_enum),
+                100, 1, color_grey_mid, 0)
+
+        if now % 30 < 15 then
+           update_ui_text(
+                50, y + 13,
+                ">",
+                12, 1, color_grey_mid, 0)
+
+        end
+
+        update_ui_text(50, screen_h - 24, format_time(update_get_logic_tick() / 30), screen_w, 1, color_grey_mid, 0)
+
+        return true
+    end
+    return false
+end
