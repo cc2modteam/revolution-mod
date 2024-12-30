@@ -242,7 +242,7 @@ g_tut_selected_vehicle_id = 0
 g_tut_selected_waypoint_id = 0
 
 -- screen saver control
-g_last_input_tick = 0
+g_last_input_tick = -600
 
 -- petrel tactical drop/lift
 g_tactical_vid = 0

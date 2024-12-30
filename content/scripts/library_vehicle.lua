@@ -3482,6 +3482,7 @@ function do_screensaver(screen_w, screen_h, screen_enum)
     local now = update_get_logic_tick()
     local elapsed = now - g_last_input_tick
     local seconds = elapsed / 30
+
     if seconds > 300 then
         update_set_screen_background_type(0)
         local y = screen_h / 4
