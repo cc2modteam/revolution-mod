@@ -3225,14 +3225,14 @@ function add_altitude_waypoint(vehicle, pos, alt, hold_grp)
 end
 
 get_internal_fuel_sizes = {
-    [e_game_object_type.chassis_air_wing_light] = 2000,
+    [e_game_object_type.chassis_air_wing_light] = 800,
     [e_game_object_type.chassis_air_rotor_light] = 400,
-    [e_game_object_type.chassis_air_wing_heavy] = 2000,
+    [e_game_object_type.chassis_air_wing_heavy] = 1200,
     [e_game_object_type.chassis_air_rotor_heavy] = 2000,
     [e_game_object_type.chassis_carrier] = 50000,
-    [e_game_object_type.chassis_land_wheel_heavy] = 1200,
+    [e_game_object_type.chassis_land_wheel_heavy] = 1600,
     [e_game_object_type.chassis_land_wheel_medium] = 1200,
-    [e_game_object_type.chassis_land_wheel_mule] = 1200,
+    [e_game_object_type.chassis_land_wheel_mule] = 2000,
     [e_game_object_type.chassis_land_wheel_light] = 800,
 }
 
@@ -3289,10 +3289,10 @@ g_attachment_to_index = {
     [e_game_object_type.attachment_hardpoint_missile_tv] = 38,
     [e_game_object_type.attachment_radar_awacs] = 24,
     [e_game_object_type.attachment_turret_rocket_pod] = 11,
-    [e_game_object_type.attachment_fuel_tank_plane] = 36,
+    [e_game_object_type.attachment_fuel_tank_plane] = 25,
+    [e_game_object_type.attachment_deployable_droid] = e_inventory_item.deployable_droid,
+    [e_game_object_type.attachment_radar_golfball] = e_inventory_item.attachment_radar_golfball,
 }
-g_fuel_index = 36
-g_rocket_index = 30
 
 function get_definition_from_inventory_index(index)
     local value = -1
@@ -3314,10 +3314,10 @@ function get_payload_weight(definition_index)
             value = data.mass
             if definition_index == e_game_object_type.attachment_fuel_tank_plane then
                 -- tank plus content of 1 fuel unit
-                value = value + g_item_data[g_fuel_index].mass
+                value = value + g_item_data[e_inventory_item.fuel_barrel].mass
             elseif definition_index == e_game_object_type.attachment_turret_rocket_pod then
                 -- 19 rockets
-                value = value + (19 * g_item_data[g_rocket_index].mass)
+                value = value + (19 * g_item_data[e_inventory_item.ammo_rocket].mass)
             end
         end
     end
