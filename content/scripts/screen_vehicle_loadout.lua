@@ -28,7 +28,7 @@ function get_selected_chassis_options(bay_index)
     local is_ground = g_selected_bay_index < 8
 
     if is_ground then
-        return {
+        selection_options = {
             { region=atlas_icons.icon_attachment_16_none, type=-1 },
             { region=atlas_icons.icon_chassis_16_wheel_small, type=e_game_object_type.chassis_land_wheel_light },
             { region=atlas_icons.icon_chassis_16_wheel_medium, type=e_game_object_type.chassis_land_wheel_medium },
@@ -36,7 +36,7 @@ function get_selected_chassis_options(bay_index)
             { region=atlas_icons.icon_chassis_16_wheel_mule, type=e_game_object_type.chassis_land_wheel_mule },
         }
     else
-        return {
+        selection_options = {
             { region=atlas_icons.icon_attachment_16_none, type=-1 },
             { region=atlas_icons.icon_chassis_16_wing_small, type=e_game_object_type.chassis_air_wing_light },
             { region=atlas_icons.icon_chassis_16_wing_large, type=e_game_object_type.chassis_air_wing_heavy },
@@ -45,7 +45,7 @@ function get_selected_chassis_options(bay_index)
         }
     end
 
-    return {}
+    return selection_options
 end
 
 function get_selected_vehicle_attachment_extra_options(vehicle, attachment_index)
