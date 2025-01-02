@@ -9,6 +9,7 @@ v1.4:
 [*] Carrier and Surface RADAR can now indicate the direction of the nearest hostile RADAR source on the holomap.
 [*] Carrier and other units carrying RADAR show a map symbol on holomap, control and nav screens.
   If carrier radar is offline the symbol is red or damaged the symbol flashes red/grey.
+[*] Added support for the Resupply+ extension mod.
 [/list]
 v1.3:
 [list]
