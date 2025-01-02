@@ -195,9 +195,12 @@ function parse()
     g_tab_barges.scroll_pos = parse_f32("", g_tab_barges.scroll_pos)
 end
 
+g_screen_name = nil
+
 function begin()
     begin_load()
     begin_load_inventory_data()
+    g_screen_name = begin_get_screen_name()
     g_ui = lib_imgui:create_ui()
 
     g_tab_map.render = tab_map_render
@@ -276,12 +279,15 @@ end
 
 function update(screen_w, screen_h, ticks)
     local st, err = pcall(function()
-        _update(screen_w, screen_h, ticks)
+        if not call_custom_inventory_update(screen_w, screen_h, ticks) then
+            _update(screen_w, screen_h, ticks)
+        end
     end)
     if not st then
         print(err)
     end
 end
+
 
 function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
@@ -798,6 +804,7 @@ function get_destination_data(destination_id, destination_type)
                 local special_id = vehicle:get_special_id()
 
                 if special_id ~= 0 then
+                    vehicle_name = update_get_loc(e_loc.upp_crr)
                     vehicle_name = vehicle_name .. " (" .. special_id .. ")"
                 end
                 

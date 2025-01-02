@@ -4131,6 +4131,13 @@ function call_custom_vehicle_input_event(event, action)
     end
 end
 
+function call_custom_inventory_update(screen_w, screen_h, ticks)
+    if custom_inventory_update ~= nil then
+        return custom_inventory_update(screen_w, screen_h, ticks)
+    end
+    return false
+end
+
 function call_custom_vehicle_loadout_update(screen_w, screen_h, ticks)
     if custom_vehicle_loadout_update ~= nil then
         local st, v = pcall(custom_vehicle_loadout_update, screen_w, screen_h, ticks)
