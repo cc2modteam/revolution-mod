@@ -57,6 +57,7 @@ function begin()
 
         local screen_name = begin_get_screen_name()
         g_screen_name = screen_name
+        g_camera_size = (64 * 1024)
         if screen_name == "screen_nav_l" then
             g_map_render_mode = 2
             g_camera_size = (4 * 1024)
@@ -66,6 +67,9 @@ function begin()
         elseif screen_name == "screen_nav_r" then
             g_map_render_mode = 4
             g_camera_size = (64 * 1024)
+        elseif screen_name == "screen_nav_top_m" then
+            g_map_render_mode = 0
+            g_alt_mode = "helm"
         end
     end
 
