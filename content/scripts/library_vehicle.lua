@@ -3076,7 +3076,7 @@ function get_is_lead_team_peer()
     for i = 0, peer_count - 1 do
         table.insert(names, update_get_peer_name(i))
     end
-    table.sort(names, function(a, b) return a.lower() < b.lower() end)
+    table.sort(names, function(a, b) return string.lower(a) < string.lower(b) end)
     for _, name in ipairs(names) do
         return name == self_name
     end
