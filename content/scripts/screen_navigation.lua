@@ -28,6 +28,8 @@ g_is_follow_carrier = true
 g_screen_w = 128
 g_screen_h = 128
 
+g_screen_name = nil
+
 function parse()
     g_is_camera_pos_initialised = parse_bool("is_map_init", g_is_camera_pos_initialised)
     g_camera_pos_x = parse_f32("map_x", g_camera_pos_x)
@@ -53,7 +55,7 @@ function begin()
         g_is_camera_pos_initialised = true
 
         local screen_name = begin_get_screen_name()
-
+        g_screen_name = screen_name
         if screen_name == "screen_nav_l" then
             g_map_render_mode = 2
             g_camera_size = (4 * 1024)
@@ -69,10 +71,60 @@ function begin()
     g_ui = lib_imgui:create_ui()
 end
 
+function update_torpedo_info(screen_w, screen_h)
+    local vehicle = update_get_screen_vehicle()
+
+    local cy = 8
+    cy = update_ui_text(6, cy, update_get_loc(e_loc.upp_inventory), screen_h - 5, 0, color_status_dark_yellow, 0)
+    update_ui_rectangle_outline(4, 4, screen_h - 8, screen_w - 8, color_grey_mid)
+
+    local torp = vehicle:get_inventory_count_by_item_index(e_inventory_item.hardpoint_torpedo)
+    local torp_color = color_white
+    if torp < 4 then
+        torp_color = color_enemy
+    end
+    cy = cy + 16
+    update_ui_text(8, cy,
+            update_get_loc(e_loc.upp_torpedo), screen_w - 16, 0, color_white, 0)
+    update_ui_text(screen_w - 20, cy,
+            torp, 4, 0, torp_color, 0)
+
+    local noise = vehicle:get_inventory_count_by_item_index(e_inventory_item.hardpoint_torpedo_noisemaker)
+    local noise_color = color_white
+    if noise < 4 then
+        noise_color = color_enemy
+    end
+
+    cy = cy + 22
+    update_ui_text(8, cy,
+            update_get_loc(e_loc.upp_torpedo_noisemaker), screen_w - 16, 0, color_white, 0)
+    update_ui_text(screen_w - 20, cy,
+            noise, 4, 0, noise_color, 0)
+
+    local decoy = vehicle:get_inventory_count_by_item_index(e_inventory_item.hardpoint_torpedo_decoy)
+    local decoy_color = color_white
+    if decoy < 4 then
+        decoy_color = color_enemy
+    end
+
+    cy = cy + 22
+    update_ui_text(8, cy,
+            update_get_loc(e_loc.upp_torpedo_decoy), screen_w - 16, 0, color_white, 0)
+    update_ui_text(screen_w - 20, cy,
+            decoy, 4, 0, decoy_color, 0)
+
+
+end
+
 function update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
     g_animation_time = g_animation_time + ticks
+
+    if g_screen_name == "screen_bridge_torps" then
+        update_torpedo_info(screen_w, screen_h)
+        return
+    end
 
     refresh_fow_islands()
 
@@ -81,7 +133,6 @@ function update(screen_w, screen_h, ticks)
         g_pointer_pos_x = math.floor(screen_w / 2)
         g_pointer_pos_y = math.floor(screen_h / 2)
     end
-
 
     local this_vehicle = update_get_screen_vehicle()
     local screen_team = update_get_local_team_id()
