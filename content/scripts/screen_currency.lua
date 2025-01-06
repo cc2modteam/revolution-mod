@@ -285,7 +285,7 @@ function get_tile_name(id)
     local tile = update_get_tile_by_id(id)
 
     if tile:get() then
-        return tile:get_name()
+        return get_island_name(tile)
     end
 
     return id

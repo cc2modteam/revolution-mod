@@ -1459,7 +1459,7 @@ function _update(screen_w, screen_h, ticks)
                     end
 
                     if update_get_is_focus_local() then
-                        local island_name = island:get_name()
+                        local island_name = get_island_name(island)
                         -- <  66000 full alpha
                         -- > 120000 0 alpha
                         if g_camera_size < 120000 then
@@ -1542,7 +1542,7 @@ function _update(screen_w, screen_h, ticks)
                         end
 
                         local island_position = island:get_position_xz()
-                        local island_name = island:get_name()
+                        local island_name = get_island_name(island)
                         local screen_pos_x, screen_pos_y = get_screen_from_world(island_position:x(), island_position:y() + 3000.0, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
                         update_ui_text(screen_pos_x - 64, screen_pos_y - 9, island_name, 128, 1, island_color, 0)
@@ -3083,7 +3083,7 @@ function render_vehicle_info_panel(x, y, vehicle)
         end
     else
         -- render island name
-        update_ui_text(x, y + 9, nearest_island:get_name():sub(1, 18), w - icon_w - 7, 0, color_grey_mid, 0)
+        update_ui_text(x, y + 9, get_island_name(nearest_island):sub(1, 18), w - icon_w - 7, 0, color_grey_mid, 0)
     end
 
     return h + 1, clicked

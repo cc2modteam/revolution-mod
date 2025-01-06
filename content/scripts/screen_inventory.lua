@@ -793,7 +793,7 @@ function get_destination_data(destination_id, destination_type)
 
         if tile:get() then
             local category_data = g_item_categories[tile:get_facility_category()]
-            return tile:get_name(), g_map_colors.factory, category_data.icon
+            return get_island_name(tile), g_map_colors.factory, category_data.icon
         end
     elseif destination_type == e_barge_destination_type.vehicle then
         local vehicle = update_get_map_vehicle_by_id(destination_id)
@@ -1053,7 +1053,7 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
             if is_collapse_icons then
                 update_ui_rectangle(screen_pos_x - 1, screen_pos_y - 1, 2, 2, tile_col)
             else
-                local name = tile:get_name()
+                local name = get_island_name(tile)
                 local name_factor = clamp(invlerp(g_tab_map.camera_size,  g_tab_map.camera_size_min, g_tab_map.camera_size_max * 0.35), 0, 1)
                 local tile_size = tile:get_size()
                 local visible = fow_island_visible(tile:get_id())
@@ -2882,8 +2882,6 @@ function on_missile_impact(impact)
         local pos = vec2(impact.x, impact.z)
         local island = get_nearest_island_tile(impact.x, impact.z)
         if island:get() and fow_island_visible(island:get_id()) then
-            local name = island:get_name()
-
             if island:get() then
                 local command_center_pos_xz = get_command_center_position(island:get_id())
                 if command_center_pos_xz == nil then

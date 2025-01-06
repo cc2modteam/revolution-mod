@@ -222,7 +222,7 @@ function update(screen_w, screen_h, ticks)
                         elseif g_is_island_names then
                             local screen_pos_x, screen_pos_y = get_screen_from_world(island_position:x(), island_position:y() + 3000.0, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                            update_ui_text(screen_pos_x - math.floor(screen_w / 2), screen_pos_y - 9, island:get_name(), 128, 1, island_color, 0)
+                            update_ui_text(screen_pos_x - math.floor(screen_w / 2), screen_pos_y - 9, get_island_name(island), 128, 1, island_color, 0)
 
                             if (not g_revolution_hide_island_difficulty) and island:get_team_control() ~= update_get_screen_team_id() then
                                 local difficulty_level = island:get_difficulty_level()

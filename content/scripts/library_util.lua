@@ -1745,3 +1745,11 @@ g_rev_patch = 1
 g_rev_mods = {
 
 }
+
+
+function get_island_name(tile)
+    if g_override_get_tile_name ~= nil then
+        return g_override_get_tile_name(tile:get_id())
+    end
+    return tile:get_name()
+end

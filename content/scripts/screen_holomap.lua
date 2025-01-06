@@ -527,7 +527,7 @@ function _update(screen_w, screen_h, ticks)
                             update_ui_rectangle(screen_pos_x - 12, screen_pos_y - 5, 24 * island_capture_progress, 3, team_color)
                         end
 
-                        update_ui_text(screen_pos_x - 64, screen_pos_y, island:get_name(), 128, 1, island_color, 0)
+                        update_ui_text(screen_pos_x - 64, screen_pos_y, get_island_name(island), 128, 1, island_color, 0)
 
                         local category_data = g_item_categories[island:get_facility_category()]
                         if (not g_revolution_hide_island_difficulty) and island:get_team_control() ~= screen_team then
@@ -571,7 +571,7 @@ function _update(screen_w, screen_h, ticks)
                 local island = update_get_tile_by_index(i)
 
                 if island ~= nil and island:get() then
-                    local island_name = island:get_name()
+                    local island_name = get_island_name(island)
                     local visible = fow_island_visible(island:get_id())
                     local island_color = update_get_team_color(island:get_team_control())
                     if not visible then
@@ -1641,7 +1641,7 @@ function render_notification_tile(screen_w, screen_h, label, text_col, tile)
         -- update_ui_rectangle_outline((screen_w - tile_rect_size) / 2, (screen_h - tile_rect_size) / 2, tile_rect_size, tile_rect_size, text_col)
 
         cy = (screen_h + tile_rect_size) / 2 - 10
-        cy = cy + update_ui_text(0, cy, tile:get_name(), screen_w, 1, text_col, 0)
+        cy = cy + update_ui_text(0, cy, get_island_name(tile), screen_w, 1, text_col, 0)
 
         local difficulty_level = tile:get_difficulty_level()
         local icon_w = 6

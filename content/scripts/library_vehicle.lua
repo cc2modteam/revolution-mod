@@ -1449,10 +1449,6 @@ function refresh_fow_islands()
                             local unit_pos = vehicle:get_position_xz()
                             local dist = vec2_dist_sq(unit_pos, pos)
                             if dist < fow_range_sq then
-                                --print(string.format("%s visible at %d km (< %d km)", island:get_name(),
-                                --        math.floor(dist/1000),
-                                --        math.floor(g_fow_range/1000)
-                                --))
                                 g_fow_visible[island_id] = true
                                 visible = visible + 1
                                 break
