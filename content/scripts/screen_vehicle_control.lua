@@ -1151,6 +1151,11 @@ g_screen_name = nil
 
 function begin()
     begin_load()
+
+    if call_func_override("screen_vehicle_control__begin_after") then
+        return
+    end
+
     begin_load_inventory_data()
     g_ui = lib_imgui:create_ui()
     local screen_name = begin_get_screen_name()
@@ -1161,6 +1166,10 @@ end
 function update(screen_w, screen_h, ticks)
     if update_get_is_focus_local() then
         g_last_input_tick = update_get_logic_tick()
+    end
+
+    if call_func_override("screen_vehicle_control__update", screen_w, screen_h, ticks) then
+        return
     end
 
     if do_screensaver(screen_w, screen_h, e_loc.upp_vehicle_control) then
@@ -3195,6 +3204,11 @@ end
 
 function input_event(event, action)
     g_last_input_tick = update_get_logic_tick()
+
+    if call_func_override("screen_vehicle_control__input_event", event, action) then
+        return
+    end
+
     if event == e_input.pointer_1 then
         g_is_pointer_pressed = action == e_input_action.press
     end
@@ -3465,6 +3479,10 @@ function input_event(event, action)
 end
 
 function input_axis(x, y, z, w)
+    if call_func_override("screen_vehicle_control__input_axis", x, y, z, w) then
+        return
+    end
+
     g_input_x = x
     g_input_y = y
     g_input_z = z
@@ -3472,6 +3490,11 @@ function input_axis(x, y, z, w)
 end
 
 function input_scroll(dy)
+
+    if call_func_override("screen_vehicle_control__input_scroll", dy) then
+        return
+    end
+
     if g_is_pointer_hovered then
         input_zoom_camera(1 - dy * 0.15, g_screen_w, g_screen_h)
     end
@@ -3482,6 +3505,11 @@ function input_scroll(dy)
 end
 
 function input_pointer(is_hovered, x, y)
+
+    if call_func_override("screen_vehicle_control__input_pointer", is_hovered, x, y) then
+        return
+    end
+
     g_is_pointer_hovered = is_hovered
 
     g_pointer_pos_x = x

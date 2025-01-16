@@ -4155,3 +4155,27 @@ function call_custom_ui_vehicle_loadout_chassis(ui, vehicle)
         custom_ui_vehicle_loadout_chassis(ui, vehicle)
     end
 end
+
+g_rev_func_overrides = {}
+
+function set_func_override(name, func)
+    g_rev_func_overrides[name] = func
+end
+
+function call_func_override(name, ...)
+    local arg = {...}
+    local st, val = pcall(function()
+        local func = g_rev_func_overrides[name]
+        if func then
+            if arg ~= nil then
+                return func(table.unpack(arg))
+            end
+            return func()
+        end
+        return nil
+    end)
+    if not st then
+        print(val)
+    end
+    return val
+end
