@@ -1438,6 +1438,7 @@ function refresh_fow_islands()
             local island_id = island:get_id()
             if island:get_team_control() == our_team then
                 g_fow_visible[island_id] = true
+                rev_set_fow_island_scouted(island_id)
                 visible = visible + 1
             else
                 local pos = island:get_position_xz()
@@ -1450,6 +1451,7 @@ function refresh_fow_islands()
                             local dist = vec2_dist_sq(unit_pos, pos)
                             if dist < fow_range_sq then
                                 g_fow_visible[island_id] = true
+                                rev_set_fow_island_scouted(island_id)
                                 visible = visible + 1
                                 break
                             end
@@ -1764,6 +1766,8 @@ F_DRYDOCK_WPTX_CURSOR   = 0x01
 F_DRYDOCK_WPTX_MARKER   = 0x02
 F_DRYDOCK_WPTX_SETTING  = 0x04
 F_DRYDOCK_WPTX_FACTORY_DAMAGED = 0x08
+
+F_DRYDOCK_WPTX_SCOUTED  = 0x10
 
 -- y() values for settings waypoints
 WPT_SETTING_RADAR_X1   = 1  -- no multiplier

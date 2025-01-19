@@ -485,10 +485,12 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
                 tile_color = g_island_color_unknown
             end
 
-            local position_xz = tile:get_position_xz()
-            local island_name = get_island_name(tile)
-            local label_x, label_y = world_to_screen(position_xz:x(), position_xz:y() + 3000)
-            update_ui_text(label_x - 64, label_y - 9, island_name, 128, 1, tile_color, 0)
+            if not g_revolution_full_fow then
+                local position_xz = tile:get_position_xz()
+                local island_name = get_island_name(tile)
+                local label_x, label_y = world_to_screen(position_xz:x(), position_xz:y() + 3000)
+                update_ui_text(label_x - 64, label_y - 9, island_name, 128, 1, tile_color, 0)
+            end
         end
     else
         for _, tile in iter_tiles() do

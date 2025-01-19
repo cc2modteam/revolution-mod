@@ -1011,9 +1011,9 @@ function get_team_name(team_id)
     return string.format("Team %d", team_id)
 end
 
-function local_print(msg)
+function local_print(...)
     if update_get_is_focus_local() then
-        print(msg)
+        print(...)
     end
 end
 

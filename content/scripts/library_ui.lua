@@ -4104,6 +4104,172 @@ function render_barge_cargo_tooltip(vehicle, cx, cy, color)
     return cy
 end
 
+g_rev_island_points = {}
+
+function rev_get_island_outline_points(island)
+    if island:get() and island:get_command_center_count() > 0 then
+        local island_id = island:get_id()
+        if g_rev_island_points[island_id] ~= nil then
+            -- simple memoize
+            return g_rev_island_points[island_id]
+        end
+
+        local points = {}
+        local turret_spawn_count = island:get_turret_spawn_count()
+        local ip = island:get_position_xz()
+        table.insert(points, {x = ip:x(), z = ip:y()})
+        local cc = island:get_command_center_position(0)
+        table.insert(points, {x = cc:x(), z = cc:y()})
+
+        if turret_spawn_count > 0 then
+            -- for big complex islands use some of the turret spots,
+            local last_x = -1000
+            local last_z = -1000
+            local max_dist_sq = 800 * 800
+            for i = 0, turret_spawn_count - 1, math.ceil(turret_spawn_count / 7) do
+                local marker_index, is_valid = island:get_turret_spawn(i)
+                local turret_spawn_xz = island:get_marker_position(marker_index)
+                local tx = turret_spawn_xz:x()
+                local tz = turret_spawn_xz:y()
+                local dx = math.abs(tx - last_x)
+                local dz = math.abs(tz - last_z)
+                local ds = dx * dx + dz * dz
+                if ds > max_dist_sq then
+                    last_x = tx
+                    last_z = tz
+                    -- project the point 15% _away_ from the command center
+                    local ccdx = (tx - cc:x()) * 0.15
+                    local ccdz = (tz - cc:y()) * 0.15
+
+                    table.insert(points,
+                            {x = tx + ccdx, z = tz + ccdz})
+                end
+            end
+
+        end
+        g_rev_island_points[island:get_id()] = points
+        return points
+    end
+    return nil
+end
+
+function rev_render_island(island, cam_x, cam_y, cam_size, screen_w, screen_h)
+    if island:get() then
+        local circ_steps = 6
+        if cam_size > 100000 then
+            circ_steps = 4
+            if cam_size > 150000 then
+                circ_steps = 3
+            end
+        end
+        local points = rev_get_island_outline_points(island)
+        if points then
+            local terrain_color = color8(5, 10, 18, 255)
+            local p_1 = nil
+            for i, p in ipairs(points) do
+                local tx = p.x
+                local tz = p.z
+
+                local screen_pos_x, screen_pos_y = get_screen_from_world(tx, tz, cam_x, cam_y, cam_size, screen_w, screen_h)
+                local pp = vec2(screen_pos_x, screen_pos_y)
+                if p_1 then
+                    local p_d = vec2_dist(pp, p_1) * 0.6
+                    update_ui_circle(screen_pos_x, screen_pos_y, p_d, circ_steps, terrain_color)
+                end
+                p_1 = pp
+            end
+        end
+    end
+end
+
+function rev_get_fow_island_scouted(island_id)
+    if g_revolution_full_fow then
+        if g_scouted[island_id] ~= nil then
+            return true
+        else
+            local team = update_get_screen_team_id()
+            local scouted = get_special_waypoint(team, F_DRYDOCK_WPTX_SCOUTED, island_id)
+            if scouted ~= nil then
+                g_scouted[island_id] = true
+                return true
+            end
+        end
+        return false
+    end
+    return true
+end
+
+g_scouted = {}
+function rev_set_fow_island_scouted(island_id)
+    if g_revolution_full_fow and g_scouted[island_id] == nil then
+        if g_screen_name == "screen_veh_m" and get_is_lead_team_peer() then
+            local team = update_get_screen_team_id()
+            local w_id = add_special_waypoint(team, F_DRYDOCK_WPTX_SCOUTED, island_id)
+            print("add special", w_id)
+        end
+        g_scouted[island_id] = true
+    end
+end
+
+function rev_show_island_icon(island_id)
+    if g_revolution_full_fow then
+        return fow_island_visible(island_id) or rev_get_fow_island_scouted(island_id)
+    end
+    return true
+end
+
+function rev_show_island_name(island_id)
+    if g_revolution_full_fow then
+        return fow_island_visible(island_id) or rev_get_fow_island_scouted(island_id)
+    end
+    return true
+end
+
+function rev_is_island_on_screen(island, cam_x, cam_y, cam_size)
+    if island and island:get() then
+        cam_size = cam_size * 0.6
+        local island_xz = island:get_position_xz()
+        local dx = math.abs(cam_x - island_xz:x())
+
+        if dx < cam_size then
+            return math.abs(cam_y - island_xz:y())
+        end
+    end
+    return false
+end
+
+g_terrain_render_size = 14000
+
+function rev_render_islands(cam_x, cam_y, cam_size, screen_w, screen_h)
+    -- replace drawing the raster/3d images of islands
+    if g_revolution_full_fow then
+        update_set_screen_background_is_render_islands(true)
+
+        if g_revolution_full_fow_island_blobs then
+            -- disabled by default
+            local show_terrain = cam_size < g_terrain_render_size
+            update_set_screen_background_is_render_islands(false)
+            local island_count = update_get_tile_count()
+            for i = 0, island_count - 1, 1 do
+                local island = update_get_tile_by_index(i)
+
+                if rev_is_island_on_screen(island, cam_x, cam_y, cam_size) then
+                    local island_id = island:get_id()
+                    if rev_get_fow_island_scouted(island_id) then
+                        if not show_terrain then
+                            rev_render_island(island, cam_x, cam_y, cam_size, screen_w, screen_h)
+                        end
+                    end
+                    update_set_screen_background_is_render_islands(show_terrain)
+                    if not show_terrain then
+                        rev_render_island(island, cam_x, cam_y, cam_size, screen_w, screen_h)
+                    end
+                end
+            end
+        end
+    end
+end
+
 
 function rev_custom_button(ui, label, x, y, w, h, enabled, func)
     local window = ui:begin_window("", x, y, w, h, nil, enabled, 1)

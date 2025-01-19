@@ -216,15 +216,16 @@ function update(screen_w, screen_h, ticks)
                         end
                         local island_position = island:get_position_xz()
 
-                        if is_render_islands == false then
+                        if is_render_islands == false and rev_show_island_icon(island:get_id()) then
                             local screen_pos_x, screen_pos_y = get_screen_from_world(island_position:x(), island_position:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                             update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, island_color, 0)
                         elseif g_is_island_names then
                             local screen_pos_x, screen_pos_y = get_screen_from_world(island_position:x(), island_position:y() + 3000.0, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                            if rev_show_island_name(island:get_id()) then
+                                update_ui_text(screen_pos_x - math.floor(screen_w / 2), screen_pos_y - 9, get_island_name(island), 128, 1, island_color, 0)
+                            end
 
-                            update_ui_text(screen_pos_x - math.floor(screen_w / 2), screen_pos_y - 9, get_island_name(island), 128, 1, island_color, 0)
-
-                            if (not g_revolution_hide_island_difficulty) and island:get_team_control() ~= update_get_screen_team_id() then
+                            if (not g_revolution_hide_island_difficulty) and rev_show_island_icon(island:get_id()) and island:get_team_control() ~= update_get_screen_team_id() then
                                 local difficulty_level = island:get_difficulty_level()
                                 local icon_w = 6
                                 local icon_spacing = 2

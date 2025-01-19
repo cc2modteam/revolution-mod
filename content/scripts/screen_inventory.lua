@@ -8,7 +8,7 @@ g_tab_map = {
 
     camera_pos_x = 81438,
     camera_pos_y = 91753,
-    camera_size = 256 * 1024,
+    camera_size = 150 * 1024,
     camera_size_max = 256 * 1024,
     camera_size_min = 1024,
     cursor_pos_x = 0,
@@ -914,9 +914,9 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
         return (team == vehicle_team or get_is_spectator_mode()) and (def == e_game_object_type.chassis_sea_barge or def == e_game_object_type.chassis_carrier)
     end
 
-    local is_render_islands = (g_tab_map.camera_size < (64 * 1024))
+    local is_render_islands = (g_tab_map.camera_size < (160 * 1024))
     update_set_screen_background_type(1)
-    update_set_screen_background_is_render_islands(is_render_islands)
+    update_set_screen_background_is_render_islands(is_render_islands or g_revolution_full_fow)
 
     local is_collapse_icons = g_tab_map.camera_size > g_tab_map.camera_size_max * 0.4
     local team_color = update_get_team_color(vehicle_team)
@@ -1051,7 +1051,9 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
             local tile_col = iff(is_tile_hovered(tile), color_white, tile_icon_color)
 
             if is_collapse_icons then
-                update_ui_rectangle(screen_pos_x - 1, screen_pos_y - 1, 2, 2, tile_col)
+                if rev_show_island_icon(tile:get_id()) then
+                    update_ui_rectangle(screen_pos_x - 1, screen_pos_y - 1, 2, 2, tile_col)
+                end
             else
                 local name = get_island_name(tile)
                 local name_factor = clamp(invlerp(g_tab_map.camera_size,  g_tab_map.camera_size_min, g_tab_map.camera_size_max * 0.35), 0, 1)
@@ -1063,15 +1065,16 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
                         icon = atlas_icons.map_icon_damage_indicator
                     end
                 end
+                if rev_show_island_icon(tile:get_id()) then
+                    local name_pos_x, name_pos_y = get_screen_from_world(tile_position:x(), tile_position:y() + tile_size:y() / 2, g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
 
-                local name_pos_x, name_pos_y = get_screen_from_world(tile_position:x(), tile_position:y() + tile_size:y() / 2, g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
+                    update_ui_text(name_pos_x - 100, math.min(screen_pos_y - 14, name_pos_y), name, 200, 1, color8_lerp(color8(0, 255, 255, 10), color_empty, name_factor), 0)
 
-                update_ui_text(name_pos_x - 100, math.min(screen_pos_y - 14, name_pos_y), name, 200, 1, color8_lerp(color8(0, 255, 255, 10), color_empty, name_factor), 0)
-
-                update_ui_rectangle(screen_pos_x - 5, screen_pos_y - 4, 10, 8, tile_icon_bg)
-                update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 5, 8, 10, tile_icon_bg)
-                if icon then
-                    update_ui_image(screen_pos_x - 4, screen_pos_y - 4, icon, tile_col, 0)
+                    update_ui_rectangle(screen_pos_x - 5, screen_pos_y - 4, 10, 8, tile_icon_bg)
+                    update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 5, 8, 10, tile_icon_bg)
+                    if icon then
+                        update_ui_image(screen_pos_x - 4, screen_pos_y - 4, icon, tile_col, 0)
+                    end
                 end
             end
 
@@ -1950,7 +1953,7 @@ function update_map_hovered(screen_w, screen_h)
         end
 
         for _, tile in iter_tiles(tile_filter) do
-            if is_tile_hoverable(tile) then
+            if is_tile_hoverable(tile) and rev_show_island_icon(tile:get_id()) then
                 local tile_pos_xz = get_command_center_position(tile:get_id())
                 if tile_pos_xz then
                     local screen_x, screen_y = get_screen_from_world(tile_pos_xz:x(), tile_pos_xz:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)

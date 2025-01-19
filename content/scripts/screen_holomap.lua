@@ -526,8 +526,9 @@ function _update(screen_w, screen_h, ticks)
                             update_ui_rectangle_outline(screen_pos_x - 13, screen_pos_y - 6, 26, 5, team_color)
                             update_ui_rectangle(screen_pos_x - 12, screen_pos_y - 5, 24 * island_capture_progress, 3, team_color)
                         end
-
-                        update_ui_text(screen_pos_x - 64, screen_pos_y, get_island_name(island), 128, 1, island_color, 0)
+                        if rev_show_island_name(island:get_id()) then
+                            update_ui_text(screen_pos_x - 64, screen_pos_y, get_island_name(island), 128, 1, island_color, 0)
+                        end
 
                         local category_data = g_item_categories[island:get_facility_category()]
                         if (not g_revolution_hide_island_difficulty) and island:get_team_control() ~= screen_team then
@@ -580,21 +581,25 @@ function _update(screen_w, screen_h, ticks)
                     local island_pos = island:get_position_xz()
                     screen_pos_x, screen_pos_y = get_holomap_from_world(island_pos:x(), island_pos:y(), screen_w, screen_h)
                     screen_pos_y = screen_pos_y - 27
-                    if cur_map_zoom < 145000 then
 
-                        local scaled_alpha = math.ceil(255 * (145000 - cur_map_zoom) / (145000 - 66000))
-                        local island_name_color = color8(island_color:r(), island_color:g(), island_color:b(), math.min(scaled_alpha, island_color:a()))
-                        update_ui_text_mini(screen_pos_x - 64, screen_pos_y, island_name, 128, 1, island_name_color)
-                    end
-
-                    local category_data = g_item_categories[island:get_facility_category()]
-                    local icon = category_data.icon
-                    if not visible then
-                        if g_revolution_hide_hostile_island_types then
-                            icon = atlas_icons.map_icon_island
+                    if rev_show_island_name(island:get_id()) then
+                        if cur_map_zoom < 145000 then
+                            local scaled_alpha = math.ceil(255 * (145000 - cur_map_zoom) / (145000 - 66000))
+                            local island_name_color = color8(island_color:r(), island_color:g(), island_color:b(), math.min(scaled_alpha, island_color:a()))
+                            update_ui_text_mini(screen_pos_x - 64, screen_pos_y, island_name, 128, 1, island_name_color)
                         end
                     end
-                    update_ui_image(screen_pos_x - 4, screen_pos_y + 10, icon, island_color, 0)
+
+                    if rev_show_island_icon(island:get_id()) then
+                        local category_data = g_item_categories[island:get_facility_category()]
+                        local icon = category_data.icon
+                        if not visible then
+                            if g_revolution_hide_hostile_island_types then
+                                icon = atlas_icons.map_icon_island
+                            end
+                        end
+                        update_ui_image(screen_pos_x - 4, screen_pos_y + 10, icon, island_color, 0)
+                    end
                 end
 
             end

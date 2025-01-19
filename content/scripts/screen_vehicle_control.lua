@@ -1283,6 +1283,7 @@ function _update(screen_w, screen_h, ticks)
 
     if g_screen_index == 0 then
         -- main map view
+        rev_render_islands(g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
         if get_is_map_movement_allowed() then
             g_camera_pos_x = g_camera_pos_x + (g_input_x * g_camera_size * 0.01)
@@ -1310,8 +1311,9 @@ function _update(screen_w, screen_h, ticks)
 
         update_set_screen_background_type(g_map_render_mode)
         update_set_screen_map_position_scale(g_camera_pos_x, g_camera_pos_y, g_camera_size)
-
-        update_set_screen_background_is_render_islands(get_is_collapse_islands() == false)
+        if not g_revolution_full_fow then
+            update_set_screen_background_is_render_islands(get_is_collapse_islands() == false)
+        end
 
         local is_placing_turret = get_is_placing_turret()
 
@@ -1349,7 +1351,7 @@ function _update(screen_w, screen_h, ticks)
                     for i = 0, island_count - 1 do
                         local island = update_get_tile_by_index(i)
 
-                        if island:get() then
+                        if island:get() and rev_show_island_icon(island:get_id()) then
                             local command_center_count = island:get_command_center_count()
 
                             for j = 0, command_center_count - 1 do
@@ -1447,7 +1449,7 @@ function _update(screen_w, screen_h, ticks)
             for i = 0, island_count - 1, 1 do
                 local island = update_get_tile_by_index(i)
 
-                if island:get() then
+                if island:get() and rev_show_island_icon(island:get_id()) then
                     local island_position = island:get_position_xz()
                     local island_color = get_island_team_color(island:get_team_control())
                     local visible = fow_island_visible(island:get_id())
@@ -1465,7 +1467,7 @@ function _update(screen_w, screen_h, ticks)
                         team_color = g_island_color_unknown
                     end
 
-                    if update_get_is_focus_local() then
+                    if update_get_is_focus_local() and rev_show_island_name(island:get_id()) then
                         local island_name = get_island_name(island)
                         -- <  66000 full alpha
                         -- > 120000 0 alpha
@@ -1479,11 +1481,13 @@ function _update(screen_w, screen_h, ticks)
                         end
                     end
 
-                    if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
-                        local color = iff(g_blink_timer > 15, team_color, island_color)
-                        update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, color, 0)
-                    else
-                        update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, island_color, 0)
+                    if rev_show_island_icon(island:get_id()) then
+                        if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
+                            local color = iff(g_blink_timer > 15, team_color, island_color)
+                            update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, color, 0)
+                        else
+                            update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, island_color, 0)
+                        end
                     end
                 end
             end
@@ -1493,7 +1497,7 @@ function _update(screen_w, screen_h, ticks)
             for i = 0, island_count - 1, 1 do
                 local island = update_get_tile_by_index(i)
 
-                if island:get() then
+                if island:get() and rev_show_island_icon(island:get_id()) then
                     local island_id = island:get_id()
 
                     if is_placing_turret == false or g_selection.command_center_id == island_id then
