@@ -4205,7 +4205,7 @@ function rev_set_fow_island_scouted(island_id)
         if g_screen_name == "screen_veh_m" and get_is_lead_team_peer() then
             local team = update_get_screen_team_id()
             local w_id = add_special_waypoint(team, F_DRYDOCK_WPTX_SCOUTED, island_id)
-            print("add special", w_id)
+
         end
         g_scouted[island_id] = true
     end
