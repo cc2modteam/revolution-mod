@@ -916,7 +916,7 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
 
     local is_render_islands = (g_tab_map.camera_size < (160 * 1024))
     update_set_screen_background_type(1)
-    update_set_screen_background_is_render_islands(is_render_islands or g_revolution_full_fow)
+    update_set_screen_background_is_render_islands(is_render_islands or g_revolution_full_fow == true)
 
     local is_collapse_icons = g_tab_map.camera_size > g_tab_map.camera_size_max * 0.4
     local team_color = update_get_team_color(vehicle_team)
