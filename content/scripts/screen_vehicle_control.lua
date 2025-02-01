@@ -2278,6 +2278,53 @@ function _update(screen_w, screen_h, ticks)
                                     local screen_icon_y = screen_pos_y - icon_offset
 
                                     update_ui_line(screen_pos_x, screen_pos_y, screen_pos_x + (vehicle_dir:x() * 20), screen_pos_y + (vehicle_dir:y() * -20), color_white)
+
+                                    -- draw ship outline
+                                    if g_camera_size < 1000 then
+                                        -- ship is 200m long, 60m wide
+                                        local pix_per_m = screen_w / g_camera_size
+                                        local crr_half_len = 100 * pix_per_m
+                                        local outline_col = color8(16, 16, 16, 32)
+                                        local crr_ber = (math.atan(vehicle_dir:y(), vehicle_dir:x()) / math.pi * 180) + 90
+                                        local fl = (crr_ber - 20) * (math.pi / 180)
+                                        local fr = (crr_ber + 20) * (math.pi / 180)
+
+                                        local fl_x = math.sin(fl) * crr_half_len;
+                                        local fl_y = math.cos(fl) * crr_half_len;
+                                        local fr_x = math.sin(fr) * crr_half_len
+                                        local fr_y = math.cos(fr) * crr_half_len
+
+                                        update_ui_line(
+                                                screen_pos_x - fr_x,
+                                                screen_pos_y - fr_y,
+                                                screen_pos_x - fl_x,
+                                                screen_pos_y - fl_y,
+                                                outline_col
+                                        )
+                                        update_ui_line(
+                                                screen_pos_x - fr_x,
+                                                screen_pos_y - fr_y,
+                                                screen_pos_x + fl_x,
+                                                screen_pos_y + fl_y,
+                                                outline_col
+                                        )
+                                        update_ui_line(
+                                                screen_pos_x + fr_x,
+                                                screen_pos_y + fr_y,
+                                                screen_pos_x + fl_x,
+                                                screen_pos_y + fl_y,
+                                                outline_col
+                                        )
+                                        update_ui_line(
+                                                screen_pos_x + fr_x,
+                                                screen_pos_y + fr_y,
+                                                screen_pos_x - fl_x,
+                                                screen_pos_y - fl_y,
+                                                outline_col
+                                        )
+
+
+                                    end
                                 end
                                 draw_map_radar_state_indicator(vehicle, screen_pos_x, screen_pos_y, g_animation_time)
 
