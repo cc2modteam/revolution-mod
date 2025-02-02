@@ -92,6 +92,36 @@
 		<mesh file="meshes/aircraft_carrier/terminal.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.42611275e+01" ty="1.71907921e+01" tz="2.15115524e+02"/>
 		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.71567993e+01" ty="1.81769009e+01" tz="2.10037064e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/largehelicopter/largehelicopter_bar.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.71567993e+01" ty="1.81769009e+01" tz="2.10037064e+02"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/bridge_attachments/captains_seat.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-1.00000000e+00" m01="0.00000000e+00" m02="8.74227837e-08" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-8.74227837e-08" m21="0.00000000e+00" m22="-1.00000000e+00" tx="5.70779762e+01" ty="1.72493420e+01" tz="2.11089859e+02"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/bridge_attachments/captains_seat.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="-3.67517813e-15" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="3.67517813e-15" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.70779762e+01" ty="1.72292290e+01" tz="2.08839859e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/shipping_containers/shipping_container_open.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="8.66025388e-01" m01="0.00000000e+00" m02="-5.00000000e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="5.00000000e-01" m21="0.00000000e+00" m22="8.66025388e-01" tx="6.53279724e+01" ty="1.86243420e+01" tz="2.08674637e+02"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/bridge_attachments/door_panel.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.99999970e-01" m01="0.00000000e+00" m02="8.66025388e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-8.66025388e-01" m21="0.00000000e+00" m22="4.99999970e-01" tx="6.41539459e+01" ty="1.79993420e+01" tz="2.08674637e+02"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/bridge_attachments/door_panel.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.99999970e-01" m01="0.00000000e+00" m02="8.66025388e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-8.66025388e-01" m21="0.00000000e+00" m22="4.99999970e-01" tx="6.45289459e+01" ty="1.79993420e+01" tz="2.09324158e+02"/>
+		</mesh>
+		<mesh file="meshes/spaceship/spaceship/spaceship_items_box.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.38539467e+01" ty="1.80253105e+01" tz="2.09112869e+02"/>
+		</mesh>
+		<mesh file="meshes/character/tablet.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="9.93787527e-01" m01="-1.10804059e-01" m02="-1.04307560e-02" m10="1.11160606e-01" m11="9.83641386e-01" m12="1.41749933e-01" m20="-5.44634461e-03" m21="-1.42028794e-01" m22="9.89847541e-01" tx="6.35731125e+01" ty="1.80624752e+01" tz="2.09247665e+02"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_shell/aircraft_carrier_vent_fan.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="8.66025388e-01" m01="0.00000000e+00" m02="-5.00000000e-01" m10="-4.37113883e-08" m11="-1.00000000e+00" m12="-7.57103464e-08" m20="-5.00000000e-01" m21="8.74227766e-08" m22="-8.66025388e-01" tx="6.41987762e+01" ty="1.80397663e+01" tz="2.10041992e+02"/>
+		</mesh>
 	</meshes>
 	<wheels/>
 	<attachments/>
@@ -146,6 +176,12 @@
 		</seat>
 		<seat name="dock-screen" display_name_loc="0" type="0" help_tag="">
 			<transform m00="1.31134172e-07" m01="0.00000000e+00" m02="-1.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="1.00000000e+00" m21="0.00000000e+00" m22="1.31134172e-07" tx="5.30779762e+01" ty="1.72493420e+01" tz="2.13839859e+02"/>
+		</seat>
+		<seat name="seat" display_name_loc="0" type="0" help_tag="">
+			<transform m00="9.99975979e-01" m01="0.00000000e+00" m02="-6.92906138e-03" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="6.92906138e-03" m21="0.00000000e+00" m22="9.99975979e-01" tx="5.70779762e+01" ty="1.72493420e+01" tz="2.08839859e+02"/>
+		</seat>
+		<seat name="seat" display_name_loc="0" type="0" help_tag="">
+			<transform m00="-1.00000000e+00" m01="0.00000000e+00" m02="-8.74227766e-08" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="8.74227766e-08" m21="0.00000000e+00" m22="-1.00000000e+00" tx="5.70779762e+01" ty="1.72493420e+01" tz="2.11214859e+02"/>
 		</seat>
 	</seats>
 	<button_panels>
@@ -202,7 +238,11 @@
 	</graph_nodes>
 	<graph_links/>
 	<foam_emitters/>
-	<particle_emitters/>
+	<particle_emitters>
+		<particle_emitter name="bbq fire" body_index="0" life="50" velocity="5.00000000e-01" magnitude="1.00000001e-01" rise="3.00000000e+00" color="6B6262FF">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.41987762e+01" ty="1.80041256e+01" tz="2.10041992e+02"/>
+		</particle_emitter>
+	</particle_emitters>
 	<sensors/>
 	<splash_emitters/>
 	<holomaps/>
