@@ -1685,7 +1685,9 @@ function render_map_facility_queue(x, y, w, h, tile)
         update_ui_text(26, cy + 3, item_count, 30, 0, iff(is_selected, color_highlight, color_status_ok), 0)
     else
         if damage_remaining > 0 then
-            update_ui_text(0, cy + 3, update_get_loc(e_loc.upp_damaged), w, 0, color_status_dark_red, 0)
+            update_ui_text(17, cy + 3, update_get_loc(e_loc.upp_damaged), w, 0, color_status_dark_red, 0)
+
+            update_ui_text(0, cy + 3, string.format("%2d", math.floor(damage_remaining / 60)), w, 0, color_status_dark_red, 0)
         else
             update_ui_text(0, cy + 3, update_get_loc(e_loc.upp_idle), w, 0, color_grey_dark, 0)
         end
@@ -2902,9 +2904,11 @@ function on_missile_impact(impact)
                         -- (also, missile data sample rate is reduced to 1/s when you are in the HUD)
                         -- a value of 50 means you need to drop at least 300m above the target
                         local missile_age = update_get_logic_tick() - impact.first
+                        --print(missile_age)
                         if missile_age > 50 and get_is_lead_team_peer() then
                             if island:get_team_control() == update_get_screen_team_id() then
                                 -- close to command center, cancel production
+                                --print("impact", "cancel")
                                 cancel_island_production(island)
                             end
 

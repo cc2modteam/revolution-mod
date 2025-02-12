@@ -3074,10 +3074,14 @@ function get_is_lead_team_peer()
     local self_name = update_get_peer_name(self_idx)
     local peer_count = update_get_peer_count()
     for i = 0, peer_count - 1 do
-        table.insert(names, update_get_peer_name(i))
+        local peer_team = update_get_peer_team(i)
+        if peer_team == update_get_screen_team_id() then
+            table.insert(names, update_get_peer_name(i))
+        end
     end
     table.sort(names, function(a, b) return string.lower(a) < string.lower(b) end)
     for _, name in ipairs(names) do
+        -- print(name, self_name, name == self_name)
         return name == self_name
     end
 
