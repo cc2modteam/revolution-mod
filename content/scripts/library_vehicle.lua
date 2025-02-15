@@ -949,8 +949,7 @@ function get_modded_radar_range(vehicle)
         end
 
         -- don't override the carrier radar range
-        local parent_id = vehicle:get_attached_parent_id()
-        if parent_id ~= 0 then
+        if get_vehicle_docked(vehicle) then
             -- don't compute radars for docked units
             return 0
         end

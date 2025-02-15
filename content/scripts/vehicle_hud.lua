@@ -1625,7 +1625,6 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     local show_nails = false
     local spike_color = red
     local rinfo = nil
-    local rinfo_is_large = true -- ndl/swd have cut down radars
 
     if get_vehicle_health_factor(vehicle) < 0.5 then
         red = color8(255, 0, 0, 210)
@@ -1641,9 +1640,6 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
         local rtype = g_nearest_hostile_ew_radar:get_definition_index()
         if get_is_vehicle_sea(rtype) or get_is_vehicle_land(rtype) then
             rinfo = "S"
-            if rtype == e_game_object_type.chassis_sea_ship_light or rtype == e_game_object_type.chassis_sea_ship_heavy then
-                rinfo_is_large = false
-            end
         elseif get_is_vehicle_air(rtype)  then
             rinfo = "A"
         end
@@ -1651,7 +1647,8 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
         if g_nearest_hostile_ew_radar_range < 10000 then
             show_spike = true
             show_alert = true
-            if rinfo_is_large or g_nearest_hostile_ew_radar_range < 5000 or rinfo == "A" then
+            local mrr = get_modded_radar_range(g_nearest_hostile_ew_radar)
+            if g_nearest_hostile_ew_radar_range < mrr or rinfo == "A" then
                 show_nails = true
             end
         end
