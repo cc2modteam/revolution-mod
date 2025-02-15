@@ -1622,7 +1622,10 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     -- visible by a radar
     local show_spike = false
     local show_alert = false
+    local show_nails = false
     local spike_color = red
+    local rinfo = nil
+    local rinfo_is_large = true -- ndl/swd have cut down radars
 
     if get_vehicle_health_factor(vehicle) < 0.5 then
         red = color8(255, 0, 0, 210)
@@ -1633,16 +1636,29 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
         aft = red
         stbd = red
     end
+
     if g_nearest_hostile_ew_radar ~= nil then
+        local rtype = g_nearest_hostile_ew_radar:get_definition_index()
+        if get_is_vehicle_sea(rtype) or get_is_vehicle_land(rtype) then
+            rinfo = "S"
+            if rtype == e_game_object_type.chassis_sea_ship_light or rtype == e_game_object_type.chassis_sea_ship_heavy then
+                rinfo_is_large = false
+            end
+        elseif get_is_vehicle_air(rtype)  then
+            rinfo = "A"
+        end
+
         if g_nearest_hostile_ew_radar_range < 10000 then
             show_spike = true
             show_alert = true
+            if rinfo_is_large or g_nearest_hostile_ew_radar_range < 5000 or rinfo == "A" then
+                show_nails = true
+            end
         end
     end
 
-
     if tick % 30 < 15 then
-        if show_spike then
+        if show_nails then
             update_ui_image_rot(w - 6, n + 24, atlas_icons.column_ammo, red, 0)
             show_alert = true
         end
@@ -1693,14 +1709,7 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     update_ui_rectangle(w, n + size + size, size - 4, size - 4, aft)
 
     -- show RADAR type
-    if g_nearest_hostile_ew_radar ~= nil then
-        local rtype = g_nearest_hostile_ew_radar:get_definition_index()
-        local rinfo = ""
-        if get_is_vehicle_sea(rtype) or get_is_vehicle_land(rtype) then
-            rinfo = "S"
-        elseif get_is_vehicle_air(rtype)  then
-            rinfo = "A"
-        end
+    if rinfo then
         --update_ui_text(x, y, txt, width, 2, col, 0)
         update_ui_text(w + 10, n - 1, rinfo, 8, 2, red, 0)
     end
