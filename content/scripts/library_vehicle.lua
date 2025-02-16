@@ -3042,9 +3042,7 @@ local st, _v = pcall(function()
                 },
             }
         }
-
     }
-
 
     return ret
 
@@ -3053,6 +3051,50 @@ if not st then
     print(_v)
 else
     g_revolution_attachment_defaults = _v
+end
+
+function insert_sea_mule_options(vehicle)
+    if vehicle and vehicle:get() then
+
+        --if g_revolution_attachment_defaults[e_game_object_type.chassis_land_wheel_mule] == nil then
+            if vehicle:get_definition_index() == e_game_object_type.chassis_land_wheel_mule then
+                local ac = vehicle:get_attachment_count()
+                if ac == 8 then
+                    -- insert
+                    local mule = {
+                        rows = {
+                            {
+                                { i=7, x=0, y=-23 },
+                                { i=1, x=-9, y=-10 },
+                                { i=2, x=9, y=-10},
+                                { i=3, x=-9, y=7 },
+                                { i=4, x=9, y=7},
+                                { i=5, x=-9, y=24 },
+                                { i=6, x=9, y=24},
+                            }
+                        },
+                        options = {
+                            [7] = {
+                                e_game_object_type.attachment_turret_30mm,
+                                e_game_object_type.attachment_turret_40mm,
+                            },
+                            [1] = {
+                                e_game_object_type.attachment_turret_robot_dog_capsule,
+                                e_game_object_type.attachment_smoke_launcher_explosive,
+                            },
+                            [2] = {
+                                e_game_object_type.attachment_turret_robot_dog_capsule,
+                                e_game_object_type.attachment_camera,
+                            },
+                        }
+                    }
+                    g_revolution_attachment_defaults[e_game_object_type.chassis_land_wheel_mule] = mule
+
+                end
+            end
+        --end
+
+    end
 end
 
 

@@ -2733,6 +2733,9 @@ end
 function get_override_vehicle_loadout_rows(vehicle, current_rows)
     local vehicle_definition_index = vehicle:get_definition_index()
     local replaced_rows = nil
+
+    insert_sea_mule_options(vehicle)
+
     if g_revolution_override_attachment_options ~= nil then
         -- overrides available
         local ov_type = g_revolution_override_attachment_options[vehicle_definition_index]
