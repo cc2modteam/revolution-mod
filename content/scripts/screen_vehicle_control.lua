@@ -3037,8 +3037,9 @@ function _update(screen_w, screen_h, ticks)
         ui:end_window()
 
     end
-
-    g_ui:end_ui()
+    if g_ui ~= nil then
+        g_ui:end_ui()
+    end
 
     g_pointer_pos_x_prev = g_pointer_pos_x
     g_pointer_pos_y_prev = g_pointer_pos_y
