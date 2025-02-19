@@ -3077,6 +3077,7 @@ function insert_sea_mule_options(vehicle)
                             [7] = {
                                 e_game_object_type.attachment_turret_30mm,
                                 e_game_object_type.attachment_turret_40mm,
+                                e_game_object_type.attachment_turret_ciws,
                             },
                             [1] = {
                                 e_game_object_type.attachment_turret_robot_dog_capsule,
