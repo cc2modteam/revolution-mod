@@ -1114,6 +1114,10 @@ function tab_multiplayer_render(screen_w, screen_h, x, y, w, h, delta_time, is_a
             local id = update_get_peer_id(i)
             local team_col = update_get_team_color(team)
             local is_admin = update_get_peer_is_admin(i)
+            local is_leader = get_team_lead(team) == name
+            if is_leader then
+                name = name .. "*"
+            end
 
             local columns = { 
                 { w=column_widths[1], margin=column_margins[1], value=tostring(id) },

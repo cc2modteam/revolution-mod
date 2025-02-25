@@ -3101,6 +3101,21 @@ end
 
 -- script leader utils
 
+function get_team_lead(team_id)
+    local names = {}
+    local peer_count = update_get_peer_count()
+    for i = 0, peer_count - 1 do
+        local peer_team = update_get_peer_team(i)
+        local peer_name = update_get_peer_name(i)
+        if peer_team == team_id then
+            table.insert(names, peer_name)
+        end
+    end
+    table.sort(names, function(a, b) return string.lower(a) < string.lower(b) end)
+
+    return names[1]
+end
+
 -- return True if this game client is the "lead" client for scripting
 -- this is used where you want to limit a chunk of code to happening
 -- for only one player per team
@@ -3110,24 +3125,12 @@ function get_is_lead_team_peer()
         return true
     end
 
-    local names = {}
     local self_id = update_get_local_peer_id()
     local self_idx = update_get_peer_index_by_id(self_id)
     local self_name = update_get_peer_name(self_idx)
-    local peer_count = update_get_peer_count()
-    for i = 0, peer_count - 1 do
-        local peer_team = update_get_peer_team(i)
-        if peer_team == update_get_screen_team_id() then
-            table.insert(names, update_get_peer_name(i))
-        end
-    end
-    table.sort(names, function(a, b) return string.lower(a) < string.lower(b) end)
-    for _, name in ipairs(names) do
-        -- print(name, self_name, name == self_name)
-        return name == self_name
-    end
+    local self_team = update_get_peer_team(self_idx)
 
-    return false
+    return get_team_lead(self_team) == self_name
 end
 
 -- if an island factory is damaged, return the number of ticks until it is repaired
