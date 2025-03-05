@@ -2326,7 +2326,17 @@ function _update(screen_w, screen_h, ticks)
 
                                     end
                                 end
-                                draw_map_radar_state_indicator(vehicle, screen_pos_x, screen_pos_y, g_animation_time)
+                                local radar_state = draw_map_radar_state_indicator(vehicle, screen_pos_x, screen_pos_y, g_animation_time)
+                                if radar_state == "on" then
+                                    if g_highlighted.vehicle_id == vehicle:get_id() then
+                                        iter_radars(function(radar)
+                                            local radar_team = radar:get_team()
+                                            if radar_team ~= team and get_vehicle_radar_state(radar) == "on" then
+                                                rev_render_radar_spokes(vehicle, radar, g_screen_w, g_screen_h, control_screen_from_world)
+                                            end
+                                        end)
+                                    end
+                                end
 
                                 local damage_indicator_factor = vehicle:get_damage_indicator_factor()
                                 local damage_factor = clamp(vehicle:get_hitpoints() / vehicle:get_total_hitpoints(), 0, 1)
@@ -4191,6 +4201,10 @@ function tactical_hover_check(vehicle)
             end
         end
     end
+end
+
+function control_screen_from_world(wx, wy, sw, sh)
+    return get_screen_from_world(wx, wy, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
 end
 
 function update_world_line(x1, y1, x2, y2, col)

@@ -2661,75 +2661,11 @@ function draw_surface_radar_circle(vehicle, anim_time)
                     g_screen_w, g_screen_h, nil, color, 32, false)
         end
 
-        -- max range this unit can detect other radars
-        local detect_range_sq = 1.6 * radar_range * 1.6 * radar_range
-        -- range where nearby radars are 100% visible
-        local min_range_sq = 0.9 * radar_range * 0.9 * radar_range
-
-        local v_screen_x, v_screen_y = get_holomap_from_world(pos:x(), pos:y(), g_screen_w, g_screen_h)
-
         -- draw radar spokes to near-ish radars
         iter_radars(function(radar)
             local radar_team = radar:get_team()
             if radar_team ~= team and get_vehicle_radar_state(radar) == "on" then
-                local radar_pos = radar:get_position_xz()
-                -- distance to this radar
-                local radar_dist_sq = vec2_dist_sq(pos, radar_pos)
-                local radar_max_dist_sq = detect_range_sq
-
-                if radar_dist_sq < radar_max_dist_sq and get_vehicle_radar_state(radar) == "on" then
-                    local radar_alt = get_unit_altitude(radar)
-                    local radar_sym = "S"
-                    local radar_class = _get_radar_attachment(radar)
-                    local radar_sight_range = _get_radar_detection_range(radar_class)
-                    if radar_sight_range < 10000 then
-                        -- if the radar is weak, do not show it
-                        local radar_dist = math.sqrt(radar_dist_sq)
-                        if radar_dist > 1.25 * radar_sight_range then
-                            return
-                        end
-                    end
-
-                    if radar_alt > 200 then
-                        radar_sym = "A"
-                    end
-
-                    local color = color8(64, 8, 0, 32 )
-                    local x, y
-                    if radar_dist_sq > min_range_sq  then
-                        -- target is out of our radar range
-                        if radar_alt < 350 then
-                            -- make distant low awacs seem like ground radar
-                            radar_sym = "S"
-                        end
-                        local outer_pos = world_clamp_to_direction(pos, radar_pos, 12000)
-                        local inner_pos = world_clamp_to_direction(pos, radar_pos, 10000)
-                        local x1, y1 = get_holomap_from_world(inner_pos:x(), inner_pos:y(), g_screen_w, g_screen_h)
-                        x, y = get_holomap_from_world(outer_pos:x(), outer_pos:y(), g_screen_w, g_screen_h)
-                        -- target spoke
-
-                        -- update_ui_circle(x1, y1, 4, 4, color8(64, 8, 0, 32))
-                        -- update_ui_line(x1, y1, x, y, color)
-                        draw_faded_line(v_screen_x, v_screen_y, x, y, color, 10)
-                        --update_ui_circle(x, y, 4, 4, color8(64, 8, 0, 32))
-
-                    else
-                        x, y = get_holomap_from_world(radar_pos:x(), radar_pos:y(), g_screen_w, g_screen_h)
-
-                        update_ui_line(v_screen_x, v_screen_y, x, y, color)
-
-                        --  diamond
-                        update_ui_line(x - 4, y, x, y - 4, color)
-                        update_ui_line(x, y -4, x + 4, y, color)
-                        update_ui_line(x + 4, y, x, y + 4, color)
-                        update_ui_line(x, y + 4, x - 4, y, color)
-
-                        y = y + 12
-                        x = x - 2
-                    end
-                    update_ui_text(x, y, radar_sym, 2, 0, color, 0)
-                    update_ui_rectangle_outline(x - 2, y - 1, 9, 11, color)
-                end
+                rev_render_radar_spokes(vehicle, radar, g_screen_w, g_screen_h, get_holomap_from_world)
             end
         end)
     end

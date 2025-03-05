@@ -1020,6 +1020,7 @@ function get_vehicle_radar_state(vehicle)
 end
 
 function draw_map_radar_state_indicator(vehicle, x, y, anim)
+    local radar_state = nil
     if not get_vehicle_docked(vehicle) then
        if not get_is_spectator_mode() then
             if vehicle:get_team() ~= update_get_screen_team_id() then
@@ -1029,7 +1030,7 @@ function draw_map_radar_state_indicator(vehicle, x, y, anim)
         local radar_radius = 0
         local x_offset = 4
         local y_offset = 2
-        local radar_state = get_vehicle_radar_state(vehicle)
+        radar_state = get_vehicle_radar_state(vehicle)
         if radar_state ~= nil then
             if vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
                 x_offset = 1
@@ -1052,8 +1053,8 @@ function draw_map_radar_state_indicator(vehicle, x, y, anim)
                     atlas_icons.column_power, radar_icon_color, 0
             )
         end
-
     end
+    return radar_state
 end
 
 function get_awacs_radar_enabled(vehicle)
