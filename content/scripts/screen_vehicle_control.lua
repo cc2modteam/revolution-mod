@@ -1084,6 +1084,7 @@ function render_selection(screen_w, screen_h)
 end
 
 function input_selection(event, action)
+
     if action == e_input_action.press and event == e_input.back then
         if g_command_center_ui.is_place_turret then
             g_command_center_ui.is_place_turret = false
@@ -1201,6 +1202,8 @@ function big_display_update(screen_w, screen_h, ticks)
     --
     --g_ui:end_window()
 end
+
+g_hostile_v_histories = {}
 
 function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
@@ -2331,7 +2334,7 @@ function _update(screen_w, screen_h, ticks)
                                     if g_highlighted.vehicle_id == vehicle:get_id() then
                                         iter_radars(function(radar)
                                             local radar_team = radar:get_team()
-                                            if radar_team ~= team and get_vehicle_radar_state(radar) == "on" then
+                                            if radar_team ~= screen_team and get_vehicle_radar_state(radar) == "on" then
                                                 rev_render_radar_spokes(vehicle, radar, g_screen_w, g_screen_h, control_screen_from_world)
                                             end
                                         end)
@@ -3508,7 +3511,7 @@ function input_event(event, action)
 
                                         if get_is_vehicle_waypoint_available(drag_vehicle) then
                                             local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
-                
+
                                             drag_vehicle:clear_waypoints()
                                             drag_vehicle:clear_attack_target()
                                             drag_vehicle:add_waypoint(world_x, world_y)

@@ -4124,7 +4124,7 @@ function rev_render_radar_spokes(vehicle, radar, screen_w, screen_h, screen_from
     local radar_dist_sq = vec2_dist_sq(pos, radar_pos)
     local radar_max_dist_sq = detect_range_sq
 
-    if radar_dist_sq < radar_max_dist_sq and get_vehicle_radar_state(radar) == "on" then
+    if radar_dist_sq > 500 and radar_dist_sq < radar_max_dist_sq and get_vehicle_radar_state(radar) == "on" then
         local radar_alt = get_unit_altitude(radar)
         local radar_sym = "S"
         local radar_class = _get_radar_attachment(radar)

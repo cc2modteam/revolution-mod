@@ -1226,15 +1226,20 @@ end
 function update_modded_radar_data()
     -- find all radars
     local current_tick = update_get_logic_tick()
-    local next_air_scan = g_radar_last_air_scan + 15
-    local next_sea_scan = g_radar_last_sea_scan + 32
+    local next_air_scan = g_radar_last_air_scan + 31
+    local next_sea_scan = g_radar_last_sea_scan + 83
     local user_connected = true
-    local script_id = string.format("%s", _G)
+    local script_id = nil
+    if g_radar_debug then
+        script_id = string.format("%s", _G)
+    end
     if not update_get_is_focus_local() then
         local disconnected_delay_base = 250
         if g_is_holomap then
             disconnected_delay_base = 60
-            script_id = script_id .. " holomap"
+            if g_radar_debug then
+                script_id = script_id .. " holomap"
+            end
         end
         -- not connected, reduce the frequency to once every 5-7 seconds
         next_air_scan = g_radar_last_air_scan + disconnected_delay_base + math.floor(math.random(30, 90))
@@ -1264,7 +1269,7 @@ function update_modded_radar_data()
     end
 
     if g_radar_debug then
-        -- print(string.format("update %s air=%s sea=%s local=%s", script_id, update_air, update_sea, user_connected))
+        local_print(string.format("update %s air=%s sea=%s local=%s", script_id, update_air, update_sea, user_connected))
     end
 
     if update_sea then
@@ -3300,9 +3305,11 @@ function iter_hostile_units(team, func)
         local vehicle = update_get_map_vehicle_by_index(i)
 
         if vehicle:get() then
-            local vehicle_team = vehicle:get_team()
-            if vehicle_team ~= team then
-                func(vehicle)
+            if not get_vehicle_docked(vehicle) then
+                local vehicle_team = vehicle:get_team()
+                if vehicle_team ~= team then
+                    func(vehicle)
+                end
             end
         end
     end
@@ -3492,9 +3499,9 @@ end
 function update_vehicle_histories(history_tab, base_pos, max_range)
     local range_sq = max_range * max_range
     local function per_vehicle(vehicle)
-        -- only record sea units for now
+
         local v_def = vehicle:get_definition_index()
-        if get_is_vehicle_sea(v_def) then
+        if get_is_vehicle_sea(v_def) or get_is_vehicle_air(v_def) then
             local v_id = vehicle:get_id()
             -- is it near the base_vehicle and is visible
 
