@@ -1158,21 +1158,6 @@ function get_radar_power(vid)
 end
 
 function get_is_masked_by_stealth(vehicle)
-    if get_rcs_model_enabled() then
-        if vehicle and vehicle:get() then
-            if get_vehicle_team_id(vehicle) ~= update_get_screen_team_id() then
-                local vdef = vehicle:get_definition_index()
-                if get_is_vehicle_air(vdef) then
-                    local pwr = get_radar_power(vehicle:get_id())
-                    if pwr > 0 then
-                        if pwr < g_radar_min_return_power then
-                            return true
-                        end
-                    end
-                end
-            end
-        end
-    end
     return false
 end
 
@@ -1399,17 +1384,9 @@ function _get_is_seen_by_friendly_modded_radar(vehicle)
             return get_is_vehicle_land(vdef) or get_is_vehicle_air(vdef) or get_is_vehicle_sea(vdef)
         end
 
-        if get_is_vehicle_air(vdef) and get_rcs_model_enabled() then
-            local radar, pwr = get_nearest_friendly_aew_radar(vid)
-            if radar ~= nil then
-                local seen = pwr > g_radar_min_return_power
-                return seen
-            end
-        else
-            local exists = g_seen_by_friendly_radars[vid]
-            if exists ~= nil then
-                return true
-            end
+        local exists = g_seen_by_friendly_radars[vid]
+        if exists ~= nil then
+            return true
         end
     end
     return false
@@ -1585,123 +1562,20 @@ g_attachment_rcs[e_game_object_type.attachment_hardpoint_missile_aa] = 0.25
 g_attachment_rcs[e_game_object_type.attachment_hardpoint_missile_tv] = 0.12
 g_attachment_rcs[e_game_object_type.attachment_flare_launcher] = 0.1
 
-g_rcs_cache = {}
-
 function get_rcs(vehicle)
     local rcs = nil
 
     if vehicle and vehicle:get() then
         local vdef = vehicle:get_definition_index()
         if get_is_vehicle_air(vdef) then
-            if not get_rcs_model_enabled() then
-                return 2.3 -- yields 10km range for a 10km radar
-            end
-            local is_manta = vdef == e_game_object_type.chassis_air_wing_heavy
-            rcs = g_vehicle_rcs[vdef]
-            if rcs ~= nil then
-                for ai = 0, vehicle:get_attachment_count() - 1 do
-                    -- manta has internal gun, exclude from RCS
-                    local attachment = vehicle:get_attachment(ai)
-                    if attachment:get() then
-                        local a_def = attachment:get_definition_index()
-                        local a_rcs = g_attachment_rcs[a_def]
-
-                        if is_manta and ai == 9 then
-                            -- manta internal gun
-                            a_rcs = 0
-                        end
-
-                        if a_def == e_game_object_type.attachment_fuel_tank_plane then
-                            -- cant figure out how to know if a tank has been dropped, but lets say if it is empty
-                            -- we halve the RCS of the pod
-                            a_rcs = (a_rcs / 2) + a_rcs * attachment:get_fuel_factor() * 0.5
-                        else
-                            -- for missiles, bombs, torps etc reduce rcs to 0 if the ammo is zero
-                            if a_def ~= e_game_object_type.attachment_turret_plane_chaingun and
-                                    a_def ~= e_game_object_type.attachment_turret_gimbal_30mm and
-                                    a_def ~= e_game_object_type.attachment_turret_droid and
-                                    a_def ~= e_game_object_type.attachment_flare_launcher and
-                                    a_def ~= e_game_object_type.attachment_turret_rocket_pod and
-                                    a_def ~= e_game_object_type.attachment_radar_awacs
-                            then
-                                if attachment then
-                                    local ammo = 0
-                                    if attachment.get_ammo_factor ~= nil then
-                                        ammo = attachment:get_ammo_factor()
-                                    end
-                                    if attachment.get_ammo_remaining ~= nil then
-                                        ammo = attachment:get_ammo_remaining()
-                                    end
-                                    if ammo == 0 then
-                                        a_rcs = 0
-                                    end
-                                end
-                            end
-                        end
-
-                        if a_rcs ~= nil and a_rcs > 0 then
-                            rcs = rcs + a_rcs
-                        end
-
-                    end
-                end
-
-                if rcs and rcs > 0 then
-                    if vdef == e_game_object_type.chassis_air_rotor_heavy then
-                        if vehicle_has_cargo(vehicle) then
-                            rcs = rcs * 1.3
-                        end
-                    else
-                        if get_vehicle_health_factor(vehicle) < 0.9 then
-                            -- damaged units have higher RCS
-                            rcs = rcs * 1.3
-                            if rcs < 1.5 then
-                                rcs = 1.5
-                            end
-                        end
-                    end
-
-                    if rcs > 2.5 then
-                        rcs = 2.5
-                    elseif rcs < 1.7 then
-                        rcs = 1.7
-                    end
-                end
-            end
+            return 2.3 -- yields 10km range for a 10km radar
         end
     end
     return rcs
 end
 
 function get_rcs_cached(vehicle)
-    local rcs = nil
-    local cached_ticks = 120
-    if vehicle and vehicle:get() then
-        local vid = vehicle:get_id()
-        local cached = g_rcs_cache[vid]
-        local now = update_get_logic_tick()
-
-        if cached ~= nil then
-            if now > cached.expire then
-                cached = nil
-            end
-        end
-        if cached == nil then
-            local v_rcs = get_rcs(vehicle)
-            if v_rcs ~= nil then
-                g_rcs_cache[vid] = {
-                    expire = now + cached_ticks,
-                    rcs = v_rcs
-                }
-                cached = g_rcs_cache[vid]
-            end
-        end
-
-        if cached ~= nil then
-            rcs = cached.rcs
-        end
-    end
-    return rcs
+    return get_rcs(vehicle)
 end
 
 function get_radar_return_power(target, radar, radar_range)
@@ -2648,9 +2522,6 @@ end
 -- get customisable settings
 
 function get_rcs_model_enabled()
-    if g_revolution_enable_rcs ~= nil then
-        return g_revolution_enable_rcs
-    end
     return false
 end
 
@@ -3185,6 +3056,7 @@ function get_factory_damage_enabled()
     return g_revolution_enable_factory_damage
 end
 
+
 -- rotary hover load/drop/landing detection
 g_rotary_hover = {}
 g_rotary_hover_last_tick = 0
@@ -3425,11 +3297,13 @@ end
 
 function VehicleHistory:record_data(vehicle)
     local now = update_get_logic_tick()
-    local pos = vehicle:get_position_xz()
+    if now - self.updated > self.update_interval then
+        local pos = vehicle:get_position_xz()
 
-    table_append_max(self.position, pos, self.max_history)
-    --table_append_max(self.fuel, vehicle:get_fuel_factor(), self.max_history)
-    self.updated = now
+        table_append_max(self.position, pos, self.max_history)
+        --table_append_max(self.fuel, vehicle:get_fuel_factor(), self.max_history)
+        self.updated = now
+    end
 end
 
 --function VehicleHistory:get_fuel_rate()
@@ -3496,12 +3370,18 @@ function save_vehicle_history(history_tab, vehicle)
     end
 end
 
+function remove_vehicle_history(history_tab, v_id)
+    if history_tab[v_id] ~= nil then
+        history_tab[v_id] = nil
+    end
+end
+
 function update_vehicle_histories(history_tab, base_pos, max_range)
     local range_sq = max_range * max_range
     local function per_vehicle(vehicle)
 
         local v_def = vehicle:get_definition_index()
-        if get_is_vehicle_sea(v_def) or get_is_vehicle_air(v_def) then
+        if get_is_vehicle_sea(v_def) then
             local v_id = vehicle:get_id()
             -- is it near the base_vehicle and is visible
 

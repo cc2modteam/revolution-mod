@@ -1203,7 +1203,7 @@ function big_display_update(screen_w, screen_h, ticks)
     --g_ui:end_window()
 end
 
-g_hostile_v_histories = {}
+g_hostile_air_histories = {}
 
 function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
@@ -1866,7 +1866,7 @@ function _update(screen_w, screen_h, ticks)
 
         if is_placing_turret == false then
             local vehicle_count = update_get_map_vehicle_count()
-
+            local now = update_get_logic_tick()
             for i = 0, vehicle_count - 1, 1 do
                 local vehicle = update_get_map_vehicle_by_index(i)
 
@@ -1926,27 +1926,38 @@ function _update(screen_w, screen_h, ticks)
                         end
 
                         if vehicle_team ~= screen_team then
-                            -- hide/show hostile vehicle if RCS is enabled
-                            if is_air and get_rcs_model_enabled() then
-                                local radar_pwr = get_radar_power(vehicle_id)
-                                if is_visible then
-                                    if radar_pwr < g_radar_min_return_power then
-                                        -- concealed by its RCS
-                                        is_revealed = false
-                                        is_visible = false
-                                        is_sealthed = true
-                                        is_render_vehicle_icon = false
-                                    end
-                                else
-                                    -- not visible by camera
-                                    if radar_pwr > g_radar_min_return_power then
-                                        is_render_vehicle_icon = true
-                                        is_sealthed = false
-                                        is_revealed = true
-                                        is_visible = true
-                                    end
-                                end
-                            end
+                            -- hostile units
+                            -- aircraft traces
+                            --if is_air then
+                            --    local v_alt = get_unit_altitude(vehicle)
+                            --    local hist = g_hostile_air_histories[vehicle:get_id()]
+                            --    if is_visible and v_alt > 55 then
+                            --        save_vehicle_history(g_hostile_air_histories, vehicle)
+                            --
+                            --        -- now plot it's past path
+                            --        if hist then
+                            --            hist.max_history = 30
+                            --        end
+                            --        if hist and hist.updated - now < 120 then
+                            --            local positions = hist.position
+                            --            local last_p = nil
+                            --            for n, vp in pairs(positions) do
+                            --                if last_p ~= nil then
+                            --                    -- line
+                            --                    local p1x, p1y = control_screen_from_world(last_p:x(), last_p:y(), screen_w, screen_h)
+                            --                    local p2x, p2y = control_screen_from_world(vp:x(), vp:y(), screen_w, screen_h)
+                            --                    update_ui_line(p1x, p1y, p2x, p2y, color_grey_dark)
+                            --                end
+                            --                last_p = vp
+                            --            end
+                            --        end
+                            --    else
+                            --        if hist and hist.updated - now > 120 then
+                            --            remove_vehicle_history(g_hostile_air_histories, vehicle:get_id())
+                            --        end
+                            --    end
+                            --end
+
                         end
 
                         if is_visible and is_revealed then
@@ -2485,19 +2496,6 @@ function _update(screen_w, screen_h, ticks)
                                     color, 0)
 
                             if get_is_vehicle_air(vehicle:get_definition_index()) then
-                                if get_rcs_model_enabled() then
-                                    local rcs = get_rcs_cached(vehicle)
-                                    if rcs ~= nil then
-                                        local is_visible = vehicle:get_is_visible()
-                                        local is_revealed = vehicle:get_is_observation_revealed()
-
-                                        update_ui_text(
-                                                screen_pos_x - icon_offset + 12,
-                                                screen_pos_y - icon_offset,
-                                                string.format("%1.2f v=%s r=%s", rcs, is_visible, is_revealed), 228, 0, color_white, 0)
-                                    end
-                                end
-
                                 -- draw line to nearest hostile radar that can see us
                                 local vid = vehicle:get_id()
                                 local nearest_hostile_radar = get_nearest_hostile_aew_radar(vid)
@@ -4142,6 +4140,7 @@ g_tactical_lifting = false
 function tactical_hover_check(vehicle)
     local tick = update_get_logic_tick()
     if tick - g_last_hover_check > 60 then
+
         -- handle early lift/drop
         if g_tactical_vid > 0 and (g_tactical_dropping or g_tactical_lifting) then
             if vehicle_has_cargo(vehicle) then
