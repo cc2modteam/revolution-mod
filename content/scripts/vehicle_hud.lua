@@ -151,7 +151,10 @@ end
 --
 --------------------------------------------------------------------------------
 function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
-    real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
+    local st, err = pcall(real_update, screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
+    if not st then
+        print(err)
+    end
     if vehicle and vehicle:get() then
         g_last_vid = vehicle:get_id()
     end
@@ -1383,8 +1386,52 @@ function render_attachment_info(info_pos, map_data, vehicle, attachment, alpha, 
         
                     if consuming_missile:get() then
                         local hit_pos = attachment:get_hitscan_position()
-                        local dist = vec3_dist(hit_pos, consuming_missile:get_position())
-                        
+                        local msl_pos = consuming_missile:get_position()
+                        local dist = vec3_dist(hit_pos, msl_pos)
+
+                        if dist < 2500 and hit_pos:y() < 500 then
+                            local _, behind = update_world_to_screen(hit_pos)
+                            if not behind then
+                                local col_scale = 255 / 2500
+                                local alpha = 255 - math.floor(dist * col_scale)
+                                -- draw a diamond around the target that shrinks as the dist falls
+                                local north = vec3(hit_pos:x(), hit_pos:y(), hit_pos:z() - dist / 2)
+                                local south = vec3(hit_pos:x(), hit_pos:y(), hit_pos:z() + dist / 2)
+                                local east = vec3(hit_pos:x() + dist / 2, hit_pos:y(), hit_pos:z())
+                                local west = vec3(hit_pos:x() - dist / 2, hit_pos:y(), hit_pos:z())
+
+                                local sn, behind1 = update_world_to_screen(north)
+                                local ss, behind2 = update_world_to_screen(south)
+                                local se, behind3 = update_world_to_screen(east)
+                                local sw, behind4 = update_world_to_screen(west)
+
+                                if not behind1 and not behind4 then
+
+                                    update_ui_line(
+                                            sn:x(), sn:y(),
+                                            se:x(), se:y(),
+                                            color8(0, 255, 0, alpha)
+                                    )
+                                    update_ui_line(
+                                            se:x(), se:y(),
+                                            ss:x(), ss:y(),
+                                            color8(0, 255, 0, alpha)
+                                    )
+                                    update_ui_line(
+                                            ss:x(), ss:y(),
+                                            sw:x(), sw:y(),
+                                            color8(0, 255, 0, alpha)
+                                    )
+                                    update_ui_line(
+                                            sw:x(), sw:y(),
+                                            sn:x(), sn:y(),
+                                            color8(0, 255, 0, alpha)
+                                    )
+
+                                end
+                            end
+                        end
+
                         update_ui_image(pos:x(), pos:y(), atlas_icons.column_laser, colors.green, 0)
                         update_ui_text(pos:x() + 12, pos:y(), string.format("%.0f", dist) .. update_get_loc(e_loc.acronym_meters), 200, 0, state_colors[target_state], 0)
                         pos:y(pos:y() + 10)
@@ -3606,19 +3653,6 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
             data.is_observed = true
 
             table.insert(target_data, data)
-
-            -- render the position on the surface the missile is over
-            local msl_pos = missile_target:get_position()
-            local msl_surface = vec3(msl_pos:x(), 0, msl_pos:z())
-            local msl_surface_pos, is_clamped = world_to_screen_clamped(msl_surface, safe_zone_min, safe_zone_max)
-            if not is_clamped then
-                local dist = vec3_dist(msl_pos, msl_surface)
-                if dist < 1500 then
-                    local col_scale = 255 / 1500
-                    local hue = 255 - math.floor(dist * col_scale)
-                    update_ui_image_rot(msl_surface_pos:x(), msl_surface_pos:y(), atlas_icons.hud_impact_marker, color8(hue, 255 - hue, 0, 255), 0)
-                end
-            end
         end
     end
 
