@@ -1164,6 +1164,10 @@ function begin()
     g_is_big_display = screen_name == "holomap_screen_2"
 end
 
+function err_handler(arg)
+    print(debug.traceback())
+end
+
 function update(screen_w, screen_h, ticks)
     if update_get_is_focus_local() then
         g_last_input_tick = update_get_logic_tick()
@@ -1177,7 +1181,7 @@ function update(screen_w, screen_h, ticks)
         return
     end
 
-    local st, err = pcall(_update, screen_w, screen_h, ticks)
+    local st, err = xpcall(_update, err_handler, screen_w, screen_h, ticks)
     if not st then
         print(err)
     end
@@ -2081,7 +2085,6 @@ function _update(screen_w, screen_h, ticks)
                                 else
                                     local waypoint_path = vehicle:get_waypoint_path()
                                     local waypoint_start_index = 0
-
                                     if #waypoint_path > 0 then
                                         waypoint_start_index = 1
 
@@ -3272,6 +3275,8 @@ function input_event(event, action)
         return
     end
 
+    print(event, action)
+
     if event == e_input.pointer_1 then
         g_is_pointer_pressed = action == e_input_action.press
     end
@@ -3553,11 +3558,9 @@ function input_axis(x, y, z, w)
 end
 
 function input_scroll(dy)
-
     if call_func_override("screen_vehicle_control__input_scroll", dy) then
         return
     end
-
     if g_is_pointer_hovered then
         input_zoom_camera(1 - dy * 0.15, g_screen_w, g_screen_h)
     end
@@ -3572,7 +3575,6 @@ function input_pointer(is_hovered, x, y)
     if call_func_override("screen_vehicle_control__input_pointer", is_hovered, x, y) then
         return
     end
-
     g_is_pointer_hovered = is_hovered
 
     g_pointer_pos_x = x

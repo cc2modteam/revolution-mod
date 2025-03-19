@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <data display_name_loc="0" bounding_radius="4.50000000e+02" lod_scale="2.00000000e+00" ai_type="0">
+	<bounding_box>
+		<min x="-4.30000000e+01" y="-2.30000000e+01" z="-9.50000000e+01"/>
+		<max x="4.30000000e+01" y="4.90000000e+01" z="1.20000000e+02"/>
+	</bounding_box>
 	<bodies>
 		<body mass="1.00000000e+00" name="body" is_static="true">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
@@ -122,6 +126,24 @@
 		<mesh file="meshes/aircraft_carrier/aircraft_carrier_shell/aircraft_carrier_vent_fan.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="8.66025388e-01" m01="0.00000000e+00" m02="-5.00000000e-01" m10="-4.37113883e-08" m11="-1.00000000e+00" m12="-7.57103464e-08" m20="-5.00000000e-01" m21="8.74227766e-08" m22="-8.66025388e-01" tx="6.41987762e+01" ty="1.80397663e+01" tz="2.10041992e+02"/>
 		</mesh>
+		<mesh file="meshes/map/buildings_wireframe/biome_building_c_map.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="4.37113883e-08" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="1.00000000e+00" m21="-4.37113883e-08" m22="1.91068547e-15" tx="5.03905945e+01" ty="1.92299175e+01" tz="2.21448700e+02"/>
+		</mesh>
+		<mesh file="meshes/map/buildings_wireframe/biome_building_c_map.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="4.37113883e-08" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="1.00000000e+00" m21="-4.37113883e-08" m22="1.91068547e-15" tx="5.03905945e+01" ty="1.89381485e+01" tz="2.21448700e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/largehelicopter/largehelicopter_bar.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.04701347e+01" ty="1.71405201e+01" tz="2.20820938e+02"/>
+		</mesh>
+		<mesh file="meshes/map/buildings_wireframe/biome_building_c_map.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="4.37113883e-08" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="1.00000000e+00" m21="-4.37113883e-08" m22="1.91068547e-15" tx="5.09298096e+01" ty="1.92299175e+01" tz="2.21448700e+02"/>
+		</mesh>
+		<mesh file="meshes/map/buildings_wireframe/biome_building_c_map.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="4.37113883e-08" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="1.00000000e+00" m21="-4.37113883e-08" m22="1.91068547e-15" tx="5.09298096e+01" ty="1.89383392e+01" tz="2.21448700e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/lifeboat/lifeboat.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="8.60704243e-01" m01="0.00000000e+00" m02="5.09105265e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-5.09105265e-01" m21="0.00000000e+00" m22="8.60704243e-01" tx="6.52873154e+01" ty="1.83131390e+01" tz="2.21448700e+02"/>
+		</mesh>
 	</meshes>
 	<wheels/>
 	<attachments/>
@@ -183,6 +205,12 @@
 		<seat name="seat" display_name_loc="0" type="0" help_tag="">
 			<transform m00="-1.00000000e+00" m01="0.00000000e+00" m02="-8.74227766e-08" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="8.74227766e-08" m21="0.00000000e+00" m22="-1.00000000e+00" tx="5.70779762e+01" ty="1.72493420e+01" tz="2.11214859e+02"/>
 		</seat>
+		<seat name="seat" display_name_loc="0" type="0" help_tag="">
+			<transform m00="8.71329129e-01" m01="0.00000000e+00" m02="4.90699083e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-4.90699083e-01" m21="0.00000000e+00" m22="8.71329129e-01" tx="6.42029037e+01" ty="1.77934170e+01" tz="2.22279190e+02"/>
+		</seat>
+		<seat name="seat" display_name_loc="0" type="4" help_tag="">
+			<transform m00="8.71329129e-01" m01="0.00000000e+00" m02="4.90699083e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-4.90699083e-01" m21="0.00000000e+00" m22="8.71329129e-01" tx="6.50259933e+01" ty="1.77934170e+01" tz="2.22742722e+02"/>
+		</seat>
 	</seats>
 	<button_panels>
 		<button_panel name="Elevator Panel" body_index="1" texture="">
@@ -204,6 +232,9 @@
 	<screens>
 		<screen name="screen" display_name_loc="0" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="4" type="3" refresh_interval="1.00000000e+00" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="6.40186727e-01" m12="-7.68219352e-01" m20="0.00000000e+00" m21="7.68219352e-01" m22="6.40186727e-01" tx="5.42871056e+01" ty="1.83646049e+01" tz="2.15037720e+02"/>
+		</screen>
+		<screen name="screen" display_name_loc="0" script_file_name="scripts/screen_vehicle_control.lua" body_index="4294967295" seat_index="5" type="2" refresh_interval="1.00000000e+00" help_tag="">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.04701347e+01" ty="1.88267841e+01" tz="2.20409302e+02"/>
 		</screen>
 	</screens>
 	<doors>
