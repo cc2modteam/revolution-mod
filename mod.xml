@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Revolution 1.4" author="Thumblegudget, Bredroll, QuantX, NexusQuille + Others" description="
+<data name="Revolution 1.5" author="Thumblegudget, Bredroll, QuantX, NexusQuille + Others" description="
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other features.
+
+v1.5:
+[list]
+[*] HUD assistance for guided/cruise missile operation
+[/list]
 
 v1.4:
 [list]
@@ -11,21 +16,6 @@ v1.4:
   If carrier radar is offline the symbol is red or damaged the symbol flashes red/grey.
 [*] Added support for the Resupply+ extension mod.
 [/list]
-v1.3:
-[list]
-[*] when used with Tactical Operations Centre the carrier is equipped with a 4x laser missile VLS
-[*] walrus now able to mount a combat droid on the back utility slot
-[*] albatross restored to 4x wing hardpoints (plus AWACS)
-[*] added visual HUD waypoint/guide for nearest friendly carrier
-[*] added surface mark hints for aircraft flying low
-[*] added 'land here' guided waypoint tool for landing rotorcraft on islands
-[*] added fuel tab to inventory to monitor fuel use and stocks
-[*] added controlled unit HUD telemetry output (g_enable_unit_logging disabled by default)
-[*] improved spectator mode options
-[*] slightly reworked HUD horizon rendering
-[*] mini font text in some areas to reduce clutter
-[/list]
-Added support for a spectator mode extension mod
 
 [list]
 [*] Fog of war

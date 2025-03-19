@@ -3606,6 +3606,19 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
             data.is_observed = true
 
             table.insert(target_data, data)
+
+            -- render the position on the surface the missile is over
+            local msl_pos = missile_target:get_position()
+            local msl_surface = vec3(msl_pos:x(), 0, msl_pos:z())
+            local msl_surface_pos, is_clamped = world_to_screen_clamped(msl_surface, safe_zone_min, safe_zone_max)
+            if not is_clamped then
+                local dist = vec3_dist(msl_pos, msl_surface)
+                if dist < 1500 then
+                    local col_scale = 255 / 1500
+                    local hue = 255 - math.floor(dist * col_scale)
+                    update_ui_image_rot(msl_surface_pos:x(), msl_surface_pos:y(), atlas_icons.hud_impact_marker, color8(hue, 255 - hue, 0, 255), 0)
+                end
+            end
         end
     end
 
