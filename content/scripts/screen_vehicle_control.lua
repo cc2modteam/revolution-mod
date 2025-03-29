@@ -3275,8 +3275,6 @@ function input_event(event, action)
         return
     end
 
-    print(event, action)
-
     if event == e_input.pointer_1 then
         g_is_pointer_pressed = action == e_input_action.press
     end
