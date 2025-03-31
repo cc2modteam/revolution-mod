@@ -2912,7 +2912,6 @@ function _update(screen_w, screen_h, ticks)
         end
     elseif g_screen_index == 1 then
         -- viewing vehicle camera
-        once_per_sec("controlling_unit", log_send_viewing_unit)
         update_set_screen_background_type(0)
         local viewing_vehicle = update_get_map_vehicle_by_id(g_viewing_vehicle_id)
 
@@ -4223,33 +4222,4 @@ function update_world_triangle(ax, ay, bx, by, cx, cy, col)
 
     update_ui_add_triangle(vec2(ax, ay), vec2(bx, by), vec2(cx, cy), col)
     update_ui_end_triangles()
-end
-
-function log_send_viewing_unit()
-    if g_viewing_vehicle_id and get_unit_logging_enabled() then
-        log_send_tick()
-        local vehicle = update_get_map_vehicle_by_id(g_viewing_vehicle_id)
-        if vehicle then
-            local here = vehicle:get_position_xz()
-            log_send_unit(vehicle)
-            -- find everything not docked, that is within 12km of this unit and send it
-            local vehicle_count = update_get_map_vehicle_count()
-            local max_dist = 10000 * 10000
-            local v_team = vehicle:get_team()
-            for j = 0, vehicle_count - 1, 1 do
-                local v2 = update_get_map_vehicle_by_index(j)
-                if v2:get() then
-                    if not get_vehicle_docked() then
-                        if v_team == v2:get_team() or get_is_spectator_mode() or v2:get_is_visible() then
-                            local pos = v2:get_position_xz()
-                            local dist = vec2_dist_sq(here, pos)
-                            if dist < max_dist then
-                                log_send_unit(v2)
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
 end
