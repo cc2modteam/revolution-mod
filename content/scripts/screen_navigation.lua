@@ -129,6 +129,9 @@ function update(screen_w, screen_h, ticks)
     if g_screen_name == "screen_bridge_torps" then
         update_torpedo_info(screen_w, screen_h)
         return
+    elseif g_screen_name == "screen_helm_hud" then
+        helm_hud_update(screen_w, screen_h, ticks)
+        return
     end
 
     refresh_fow_islands()
@@ -722,4 +725,126 @@ function compass_update(screen_w, screen_h, ticks)
     update_ui_line(11, 27, 41, 27, color8(205, 8, 246, 255))
     update_ui_line(87, 27, 117, 27, color8(205, 8, 246, 255))
     update_ui_image(26, 42, atlas_icons.screen_compass_dial_overlay, color_white, 0)
+end
+
+function helm_hud_pos_to_screen(hdg, pos, pos_b, frust_len)
+    local delta_pos_x = pos_b:x() - pos:x()
+    local delta_pos_y = pos_b:y() - pos:y()
+    local waypoint_angle = (math.pi / 2) - math.atan(delta_pos_y, delta_pos_x)
+    local waypoint_rel = waypoint_angle - hdg
+    if math.abs(waypoint_rel) < math.pi / 2 then
+        local h_offset = math.tan(waypoint_rel) * frust_len
+        return h_offset
+    end
+    return nil
+end
+
+function helm_hud_update(screen_w, screen_h, ticks)
+    local eyeball_dist_px = 300
+    local now = update_get_logic_tick()
+    local day_len = 54000 -- 30 minutes in ticks
+    local time = now - 8100 -- Time since midnight on the first day
+    local day_time = time % day_len
+    local alpha = 24
+    if day_time > (day_len * 0.7) or day_time < (day_len * 0.3) then
+        alpha = 128
+    end
+
+    local hud_green = color8(0, 255, 0, math.floor(alpha) % 255)
+    local this_vehicle = update_get_screen_vehicle()
+
+    if this_vehicle:get() then
+        local pos = this_vehicle:get_position_xz()
+        local nearest_tile = get_nearest_island_tile(pos:x(), pos:y())
+
+        local this_vehicle_bearing = this_vehicle:get_rotation_y();
+        local this_vehicle_pitch = this_vehicle:get_rotation_x();
+        local this_vehicle_roll = this_vehicle:get_rotation_z();
+
+        if(this_vehicle_bearing < 0.0) then
+            this_vehicle_bearing = this_vehicle_bearing + (math.pi * 2.0)
+        end
+        update_ui_text(
+                (screen_w / 2) - 6,
+                screen_h - 55,
+                string.format("%03.0f", math.floor(math.deg( this_vehicle_bearing )) % 360),
+                12,
+                1,
+                hud_green,
+                0
+        )
+
+        -- draw the horizon
+
+        local h = math.tan(this_vehicle_pitch) * eyeball_dist_px
+        local h0 = h + (screen_h / 2) + 24  -- horizon level
+        local left = math.tan(-this_vehicle_roll) * screen_w / 2
+        local right = math.tan(this_vehicle_roll) * screen_w / 2
+
+        update_ui_line(0, h0 + left, screen_w + right, h0, hud_green)
+        -- pitch angle
+        local pitch = math.floor(math.deg( this_vehicle_pitch )) % 360
+        if pitch > 30 then
+            pitch = pitch - 360
+        end
+        -- pitch angle
+        update_ui_text(
+                4,
+                h0 - 12 + left,
+                string.format("%04.0f", pitch),
+                18,
+                1,
+                hud_green,
+                0)
+        -- draw nearest tile
+
+        local nearest_tile_pos = nearest_tile:get_position_xz()
+        local tile_x_off = helm_hud_pos_to_screen(this_vehicle_bearing, pos, nearest_tile_pos, eyeball_dist_px)
+        if tile_x_off ~= nil then
+            local nearest_tile_dist = vec2_dist(nearest_tile_pos, pos)
+            local nearest_tile_name = get_island_name(nearest_tile)
+            local x = tile_x_off + screen_w / 2
+            update_ui_line(x, h0 - 10, x, h0 + 10, hud_green)
+            update_ui_text(x, h0 - 24,
+                    string.format("%3.1fkm", nearest_tile_dist / 1000),
+                    48, 16, hud_green, 0)
+            update_ui_text(x, h0 - 35,
+                    nearest_tile_name,
+                    48, 16, hud_green, 0)
+        end
+
+        -- draw the next waypoint
+        local waypoint_count = this_vehicle:get_waypoint_count()
+        if waypoint_count > 0 then
+            local waypoint = this_vehicle:get_waypoint(0)
+            local waypoint_pos = waypoint:get_position_xz()
+            local delta_pos_x = waypoint_pos:x() - pos:x()
+            local delta_pos_y = waypoint_pos:y() - pos:y()
+            local waypoint_angle = (math.pi / 2) - math.atan(delta_pos_y, delta_pos_x)
+            if waypoint_angle < 0 then waypoint_angle = waypoint_angle + (math.pi * 2.0) end
+
+            local dist = vec2_dist(pos, waypoint_pos)
+            local x_off = helm_hud_pos_to_screen(this_vehicle_bearing, pos, waypoint_pos, eyeball_dist_px)
+            if x_off ~= nil then
+                local x = x_off + screen_w / 2
+                update_ui_rectangle_outline(x - 3, h0, 5, 5, hud_green)
+                update_ui_line(x, h0 - 10, x, h0 + 10, hud_green)
+                update_ui_text(x - 12, h0 + 14,
+                        string.format("WPT %3.1fkm", dist / 1000),
+                        64, 16, hud_green, 0)
+                update_ui_text(x - 12, h0 + 24,
+                        string.format("%03d", math.floor(math.deg(waypoint_angle))),
+                        48, 16, hud_green, 0)
+            end
+        end
+
+
+
+    -- find islands within 20km,
+    -- show the island (name) on screen in line with the islands we can see out of the bridge
+    -- show distance to each
+
+
+    end
+
 end
