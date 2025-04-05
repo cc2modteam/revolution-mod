@@ -99,7 +99,7 @@ function render_attachment_info(x, y, w, h, attachment, vehicle, team, name, ite
         if item_index == e_inventory_item.hardpoint_missile_laser then
             control_mode = "on"
             ammo_remaining = 0
-            ammo_capacity = -1
+            ammo_capacity = 0
             -- total up all attachments with lasers
             for ai = 0, vehicle:get_attachment_count() - 1 do
                 local at = vehicle:get_attachment(ai)
