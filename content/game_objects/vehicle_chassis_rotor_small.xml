@@ -74,15 +74,21 @@
 		<mesh file="meshes/vehicles/vehicle_lods/smallhelicopter_base001.mesh" name="lod 1" lod="1" body="0" is_paint_dirt="true">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="-1.20000005e+00"/>
 		</mesh>
+		<mesh file="meshes/aircraft_carrier/bridge_attachments/bridge_light.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.41004932e-01" m12="3.38392854e-01" m20="0.00000000e+00" m21="-3.38392854e-01" m22="9.41004932e-01" tx="0.00000000e+00" ty="-3.14636767e-01" tz="7.65701056e-01"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/bridge_attachments/bridge_light.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-1.00000000e+00" m01="8.22652666e-08" m02="2.95832443e-08" m10="-8.74227837e-08" m11="-9.41004932e-01" m12="-3.38392854e-01" m20="0.00000000e+00" m21="-3.38392854e-01" m22="9.41004932e-01" tx="-6.85112056e-09" ty="-3.88381153e-01" tz="7.39181995e-01"/>
+		</mesh>
 	</meshes>
 	<wheels>
-		<wheel steerable="true" stiffness="1.00000000e+01" damping="3.20000000e+01" suspension_length="2.50000000e-01" relax_rate="5.00000007e-02" grip="2.00000000e+02" radius="4.00000006e-01" name="wheel_front" acceleration="2.00000003e-01">
+		<wheel steerable="true" steering_magnitude="1.00000000e+00" stiffness="1.00000000e+01" damping="3.20000000e+01" suspension_length="2.50000000e-01" relax_rate="5.00000007e-02" grip="2.00000000e+02" radius="4.00000006e-01" name="wheel_front" acceleration="2.00000003e-01">
 			<pos x="0.00000000e+00" y="-3.00000012e-01" z="1.00000000e+00"/>
 		</wheel>
-		<wheel steerable="false" stiffness="6.00000000e+00" damping="1.60000000e+01" suspension_length="2.50000000e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="4.00000006e-01" name="wheel_left" acceleration="2.00000003e-01">
+		<wheel steerable="false" steering_magnitude="1.00000000e+00" stiffness="6.00000000e+00" damping="1.60000000e+01" suspension_length="2.50000000e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="4.00000006e-01" name="wheel_left" acceleration="2.00000003e-01">
 			<pos x="-8.00000012e-01" y="-3.00000012e-01" z="-1.45000005e+00"/>
 		</wheel>
-		<wheel steerable="false" stiffness="6.00000000e+00" damping="1.60000000e+01" suspension_length="2.50000000e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="4.00000006e-01" name="wheel_right" acceleration="2.00000003e-01">
+		<wheel steerable="false" steering_magnitude="1.00000000e+00" stiffness="6.00000000e+00" damping="1.60000000e+01" suspension_length="2.50000000e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="4.00000006e-01" name="wheel_right" acceleration="2.00000003e-01">
 			<pos x="8.00000012e-01" y="-3.00000012e-01" z="-1.44992518e+00"/>
 		</wheel>
 	</wheels>
@@ -103,10 +109,10 @@
 			<transform m00="9.99999940e-01" m01="-1.61376039e-14" m02="8.74227624e-08" m10="-1.14641115e-14" m11="-9.99999821e-01" m12="8.74227695e-08" m20="8.74227624e-08" m21="-8.74227766e-08" m22="-9.99999940e-01" tx="8.85999978e-01" ty="-1.75863206e-01" tz="8.32036138e-03"/>
 		</attachment>
 		<attachment name="chin_gun" type="0">
-			<transform m00="1.000" m01="0.000" m02="0.000"
-					   m10="0.000" m11="0.940" m12="0.342"
-					   m20="0.000" m21="-0.342" m22="0.940"
-					   tx="0.00000000e+00" ty="-0.7" tz="1.2"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.39999998e-01" m12="3.42000008e-01" m20="0.00000000e+00" m21="-3.42000008e-01" m22="9.39999998e-01" tx="0.00000000e+00" ty="-6.99999988e-01" tz="1.20000005e+00"/>
+		</attachment>
+		<attachment name="attachment_centre" type="3">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="-3.66124153e-01" tz="-6.70578718e-01"/>
 		</attachment>
 	</attachments>
 	<force_emitters>

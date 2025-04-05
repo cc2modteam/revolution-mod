@@ -2822,16 +2822,17 @@ local st, _v = pcall(function()
         [e_game_object_type.chassis_air_rotor_light] = {
             rows = {
                 {
-                    { i=5, x=0, y=-7},
+                    { i=5, x=0, y=-15 },
                     { i=1, x=-26, y=0 },
                     { i=3, x=-14, y=0 },
                     { i=4, x=14, y=0 },
-                    { i=2, x=26, y=0 }
+                    { i=2, x=26, y=0 },
+                    { i=6, x=0, y=8 },
                 }
             },
             options = {
-                [1] = _std_wing_attachments,
-                [2] = _std_wing_attachments,
+                [1] = _std_wing_weapons,
+                [2] = _std_wing_weapons,
                 [3] = _std_wing_utils,
                 [4] = _std_wing_utils,
                 [5] = {
@@ -2839,6 +2840,9 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_flare_launcher,
                     e_game_object_type.attachment_sonic_pulse_generator,
                 },
+                [6] = {
+                    e_game_object_type.attachment_fuel_tank_plane,
+                }
             }
         },
         -- walrus
