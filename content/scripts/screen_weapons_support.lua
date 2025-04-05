@@ -261,7 +261,7 @@ function render_attachment_info(x, y, w, h, attachment, vehicle, team, name, ite
 
         update_ui_rectangle(0, y - 1, w, 1, col)
         if definition_index == e_game_object_type.attachment_turret_carrier_missile_silo or definition_index == e_game_object_type.attachment_hardpoint_missile_laser then
-            for i = 0, ammo_capacity do
+            for i = 0, ammo_capacity - 1 do
                 render_missile(1 + i * 9, y, ammo_remaining > i, ammo_remaining == i + 1 and target_id ~= 0)
             end
         else
