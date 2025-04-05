@@ -126,6 +126,11 @@ function update(screen_w, screen_h, ticks)
     g_screen_h = screen_h
     g_animation_time = g_animation_time + ticks
 
+    if g_screen_name == "screen_helm_hud" then
+        update_set_screen_background_type(0)
+        return
+    end
+
     if g_screen_name == "screen_bridge_torps" then
         update_torpedo_info(screen_w, screen_h)
         return
