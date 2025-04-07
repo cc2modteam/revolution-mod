@@ -35,6 +35,7 @@ end
 
 function begin()
     begin_load()
+    g_screen_name = begin_get_screen_name()
     g_ui = lib_imgui:create_ui()
 end
 
@@ -230,8 +231,96 @@ function render_team_units(team_id, y_offset)
     find_destroyed_units(team_id)
 end
 
+g_advert = math.random(1, 3)
+g_last_advert_roll = 0
+
+color_skyblue = color8(64, 72, 120, 128)
+
+function do_advertising_update(screen_w, screen_h)
+    local now = math.floor(update_get_logic_tick() / 30)  -- seconds since game start
+    if now - g_last_advert_roll > 10 then
+        -- new ad every 30 sec
+        g_last_advert_roll = now
+        math.randomseed(update_get_logic_tick())
+        g_advert = math.random(1, 3)
+    end
+
+    local clock = now % 6
+    if g_advert == 1 then
+        -- Dockyard Bar advert
+        update_ui_rectangle(0, 0, screen_w, screen_h / 2, color_skyblue)
+        update_ui_rectangle(0, 0, screen_w, screen_h / 4, color_skyblue)
+        update_ui_rectangle(0, 0, screen_w, screen_h / 8, color_skyblue)
+        update_ui_rectangle(0, screen_h / 2, screen_w, screen_h / 2, color_grey_dark)
+
+        -- parasol
+        update_ui_rectangle(
+                screen_w * 0.67, screen_h * 0.4,
+                2, 55,
+                color_black)
+        update_ui_rectangle(
+                screen_w * 0.6, screen_h * 0.4,
+                screen_w * 0.15, 4,
+                color_black)
+        update_ui_rectangle(
+                screen_w * 0.56, screen_h * 0.42,
+                screen_w * 0.23, 8,
+                color_black)
+        update_ui_rectangle(
+                screen_w * 0.65, screen_h * 0.4,
+                screen_w * 0.05, 8,
+                color_white)
+        if now % 5 > 1 then
+            update_ui_text_scale(15, 2, "Happy Hour!", screen_w, 1, color_enemy, 0, 6)
+        else
+            update_ui_text_scale(8, 8, "Drydock!", screen_w, 0, color_white, 0, 3)
+            update_ui_text_scale(0, screen_h - 22, "Bar & Grill", screen_w - 12, 2, color_white, 0, 2)
+        end
+    elseif g_advert == 2 then
+        -- no more nails
+
+        local left = screen_w / 3
+        update_ui_rectangle(left, 0, screen_w / 3, screen_h, color_grey_dark)
+        update_ui_rectangle(left, 0, screen_w / 3, screen_h / 5, color_white)
+        update_ui_rectangle(left, screen_h * 0.8, screen_w / 3, screen_h / 2, color_enemy)
+        update_ui_rectangle(left, 1 + (screen_h * 0.8), screen_w / 3, 1, color_status_dark_yellow)
+        update_ui_rectangle(left, 2 + (screen_h * 0.8), screen_w / 3, 1, color_status_dark_red)
+        update_ui_text(3 + left, 8, "GRNO!", math.floor(screen_w / 3), 1, color_enemy, 0)
+
+
+        if clock > 0 then
+            update_ui_text_scale(left, math.floor(screen_h / 5) - 3, "NO", math.floor(screen_w / 3), 1, color_status_dark_yellow, 0, 5)
+        end
+        if clock > 1  then
+            update_ui_text_scale(left, 40 + math.floor(screen_h / 5), "MORE", math.floor(screen_w / 3), 1, color_status_dark_yellow, 0, 2)
+        end
+        if clock > 2  then
+            update_ui_text_scale(left, 60 + math.floor(screen_h / 5), "NAILS", math.floor(screen_w / 3), 1, color_white, 0, 2)
+        end
+
+    elseif g_advert == 3 then
+        -- trickys
+        local left = math.floor(12)
+        update_ui_text_scale(left, 2, "T", 16, 0, color_skyblue, 0, 8)
+        update_ui_text_scale(left + 28, 2 + 16, "S", 16, 0, color_skyblue, 0, 6)
+
+        if clock % 2 == 0 then
+            update_ui_text_scale(screen_w / 3, 2 + 13, "The only game in town!", screen_w / 2, 2, color_white, 0, 2)
+        end
+        update_ui_text(left, screen_h - 16 * 2, "    www: trickys.gg", screen_w, 0, color_status_dark_green, 0)
+        -- https://discord.com/invite/trickys
+        update_ui_text(left, screen_h - 18, "discord: discord.com/invite/trickys", screen_w, 0, color_status_dark_green, 0)
+    end
+
+end
+
 
 function update(screen_w, screen_h, ticks)
+    if g_screen_name == "screen_advert" then
+        do_advertising_update(screen_w, screen_h)
+        return
+    end
+
     g_animation_time = g_animation_time + ticks
     if get_is_spectator_mode() then
         local st, err = pcall( function()
