@@ -731,9 +731,9 @@ function helm_hud_pos_to_screen(hdg, pos, pos_b, frust_len)
     local delta_pos_x = pos_b:x() - pos:x()
     local delta_pos_y = pos_b:y() - pos:y()
     local waypoint_angle = (math.pi / 2) - math.atan(delta_pos_y, delta_pos_x)
-    local waypoint_rel = waypoint_angle - hdg
-    if math.abs(waypoint_rel) < math.pi / 2 then
-        local h_offset = math.tan(waypoint_rel) * frust_len
+    local waypoint_rel_d = math.abs((math.deg(waypoint_angle - hdg) + 180) % 360 - 180 )
+    if waypoint_rel_d < 45 then
+        local h_offset = math.tan(waypoint_angle - hdg) * frust_len
         return h_offset
     end
     return nil
@@ -774,14 +774,19 @@ function helm_hud_update(screen_w, screen_h, ticks)
                 0
         )
 
-        -- draw the horizon
+        -- draw the horizon edges
 
         local h = math.tan(this_vehicle_pitch) * eyeball_dist_px
         local h0 = h + (screen_h / 2) + 24  -- horizon level
-        local left = math.tan(-this_vehicle_roll) * screen_w / 2
-        local right = math.tan(this_vehicle_roll) * screen_w / 2
-
-        update_ui_line(0, h0 + left, screen_w + right, h0, hud_green)
+        local left_y = math.tan(-this_vehicle_roll) * screen_w / 2
+        --local right_y = math.tan(this_vehicle_roll) * screen_w / 2
+        local horizon_green = color8(0, 255, 0, 24)
+        update_ui_line(
+                0, h0 + left_y,
+                48, h0 + left_y * 0.9, horizon_green)
+        --update_ui_line(
+        --        screen_w - 48, h0 + right_y * 0.9,
+        --        screen_w, h0 + right_y, horizon_green)
         -- pitch angle
         local pitch = math.floor(math.deg( this_vehicle_pitch )) % 360
         if pitch > 30 then
@@ -790,28 +795,31 @@ function helm_hud_update(screen_w, screen_h, ticks)
         -- pitch angle
         update_ui_text(
                 4,
-                h0 - 12 + left,
+                h0 - 12 + left_y,
                 string.format("%04.0f", pitch),
                 18,
                 1,
                 hud_green,
                 0)
-        -- draw nearest tile
-
+        -- draw nearest tile(s)
         local nearest_tile_pos = nearest_tile:get_position_xz()
-        local tile_x_off = helm_hud_pos_to_screen(this_vehicle_bearing, pos, nearest_tile_pos, eyeball_dist_px)
-        if tile_x_off ~= nil then
-            local nearest_tile_dist = vec2_dist(nearest_tile_pos, pos)
-            local nearest_tile_name = get_island_name(nearest_tile)
-            local x = tile_x_off + screen_w / 2
-            update_ui_line(x, h0 - 10, x, h0 + 10, hud_green)
-            update_ui_text(x, h0 - 24,
-                    string.format("%3.1fkm", nearest_tile_dist / 1000),
-                    48, 16, hud_green, 0)
-            update_ui_text(x, h0 - 35,
-                    nearest_tile_name,
-                    48, 16, hud_green, 0)
+
+        function draw_nearest_tile_mark(mark_tile, mark_pos)
+            local tile_x_off = helm_hud_pos_to_screen(this_vehicle_bearing, pos, mark_pos, eyeball_dist_px)
+            if tile_x_off ~= nil then
+                local nearest_tile_dist = vec2_dist(mark_pos, pos)
+                local nearest_tile_name = get_island_name(mark_tile)
+                local x = tile_x_off + screen_w / 2
+                update_ui_line(x, h0 - 10, x, h0 + 10, hud_green)
+                update_ui_text(x, h0 - 24,
+                        string.format("%3.1fkm", nearest_tile_dist / 1000),
+                        48, 16, hud_green, 0)
+                update_ui_text(x, h0 - 35,
+                        nearest_tile_name,
+                        48, 16, hud_green, 0)
+            end
         end
+        draw_nearest_tile_mark(nearest_tile, nearest_tile_pos)
 
         -- draw the next waypoint
         local waypoint_count = this_vehicle:get_waypoint_count()
