@@ -231,7 +231,8 @@ function render_team_units(team_id, y_offset)
     find_destroyed_units(team_id)
 end
 
-g_advert = 4 -- math.random(1, 3)
+g_advert_max = 4
+g_advert = math.random(1, g_advert_max)
 g_last_advert_roll = 0
 
 color_skyblue = color8(64, 72, 120, 128)
@@ -242,7 +243,7 @@ function do_advertising_update(screen_w, screen_h)
         -- new ad every 30 sec
         g_last_advert_roll = now
         math.randomseed(update_get_logic_tick())
-        -- g_advert = math.random(1, 4)
+        g_advert = math.random(1, g_advert_max)
     end
 
     local clock = now % 8
