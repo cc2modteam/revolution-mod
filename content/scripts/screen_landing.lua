@@ -231,7 +231,7 @@ function render_team_units(team_id, y_offset)
     find_destroyed_units(team_id)
 end
 
-g_advert = math.random(1, 3)
+g_advert = 4 -- math.random(1, 3)
 g_last_advert_roll = 0
 
 color_skyblue = color8(64, 72, 120, 128)
@@ -242,10 +242,10 @@ function do_advertising_update(screen_w, screen_h)
         -- new ad every 30 sec
         g_last_advert_roll = now
         math.randomseed(update_get_logic_tick())
-        g_advert = math.random(1, 3)
+        -- g_advert = math.random(1, 4)
     end
 
-    local clock = now % 6
+    local clock = now % 8
     if g_advert == 1 then
         -- Dockyard Bar advert
         update_ui_rectangle(0, 0, screen_w, screen_h / 2, color_skyblue)
@@ -310,8 +310,106 @@ function do_advertising_update(screen_w, screen_h)
         update_ui_text(left, screen_h - 16 * 2, "    www: trickys.gg", screen_w, 0, color_status_dark_green, 0)
         -- https://discord.com/invite/trickys
         update_ui_text(left, screen_h - 18, "discord: discord.com/invite/trickys", screen_w, 0, color_status_dark_green, 0)
-    end
+    elseif g_advert == 4 then
+        update_ui_rectangle(0, 0, screen_w, screen_h, color_grey_dark)
+        -- draw the delta triangle
+        local triangle_x = 64
+        local triangle_y = 10
+        local triangle_f = 0.7
+        local triangle_h = 64
 
+        -- triangle
+        for i=0, triangle_h do
+            local w = math.floor(i * triangle_f)
+            local c = color8(i, i * 2, triangle_h - i, 255)
+            update_ui_line( triangle_x - w, triangle_y + i, triangle_x + w, triangle_y + i, c)
+        end
+        update_ui_line(
+                triangle_x, triangle_y,
+                triangle_x - math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        update_ui_line(
+                triangle_x, triangle_y,
+                triangle_x + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        update_ui_line(
+                triangle_x + 1, triangle_y,
+                triangle_x + 1 + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        update_ui_line(
+                triangle_x + 2, triangle_y,
+                triangle_x + 2 + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        update_ui_line(
+                triangle_x - 1, triangle_y,
+                triangle_x - 1 + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+                update_ui_line(
+                triangle_x - 2, triangle_y,
+                triangle_x - 2 + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        update_ui_line(
+                triangle_x - math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                triangle_x + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        -- alb
+        update_ui_rectangle(
+                triangle_x - 6, triangle_y + 19,
+                4, 7,
+                color_black
+        )
+        update_ui_rectangle(
+                triangle_x - 12, triangle_y + 21,
+                17, 2,
+                color_black
+        )
+        -- island
+        update_ui_text(triangle_x - 25, triangle_y + 52, "*", 1, 0, color_black, 0)
+        update_ui_text(triangle_x - 18, triangle_y + 53, "*", 1, 0, color_black, 0)
+        update_ui_rectangle(
+                triangle_x - 22, triangle_y + 59,
+                19, 3,
+                color_black
+        )
+        update_ui_rectangle(
+                triangle_x - 31, triangle_y + 62,
+                34, 2,
+                color_black
+        )
+        -- mnt
+        update_ui_rectangle(
+                triangle_x - 5, triangle_y + 45,
+                31, 2,
+                color_black
+        )
+        update_ui_rectangle(
+                triangle_x - 12, triangle_y + 44,
+                20, 1,
+                color_black
+        )
+        update_ui_rectangle(
+                triangle_x - 14, triangle_y + 43,
+                13, 1,
+                color_black
+        )
+        update_ui_rectangle(
+                triangle_x - 1, triangle_y + 46,
+                8, 4,
+                color_black
+        )
+        --- text
+        if clock % 5 > 0 or clock > 5 then
+            update_ui_text_scale(-10, 10, "Got Questions?", screen_w, 2, color_status_dark_yellow, 0, 2)
+        end
+        if clock % 5 > 1 or clock > 5 then
+            update_ui_text_scale(-10, 30, "Need Help?", screen_w, 2, color_friendly, 0, 2)
+        end
+        if clock % 5 > 2 or clock > 5 then
+            update_ui_text_scale(0, 77, "Call Delta Fleet!", screen_w, 1, color_white, 0, 2)
+            update_ui_text_scale(2, 105, "1-800-SAGE-ADVICE", screen_w, 1, color_black, 0, 2)
+            update_ui_text_scale(0, 102, "1-800-SAGE-ADVICE", screen_w, 1, color_white, 0, 2)
+        end
+    end
 end
 
 
