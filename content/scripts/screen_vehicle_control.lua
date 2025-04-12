@@ -1404,10 +1404,10 @@ function _update(screen_w, screen_h, ticks)
                             local vehicle_team = vehicle:get_team()
                             local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                             local revealed = vehicle:get_is_observation_revealed()
-                            local visible = vehicle:get_is_visible()
+                            local visible = vehicle:get_is_visible() or get_is_spectator_mode()
 
                             if not revealed then
-                                revealed = get_is_visible_by_modded_radar(vehicle)
+                                revealed = get_is_visible_by_modded_radar(vehicle) or get_is_spectator_mode()
                             end
 
                             if vehicle_attached_parent_id == 0 and ( visible and revealed ) then
@@ -2725,7 +2725,7 @@ function _update(screen_w, screen_h, ticks)
                     end
                 else
                     -- render vehicle tooltip
-                    local peers = iff( highlighted_vehicle:get_team() == update_get_screen_team_id(), get_vehicle_controlling_peers(highlighted_vehicle), {} )
+                    local peers = iff( highlighted_vehicle:get_team() == update_get_screen_team_id() or get_is_spectator_mode(), get_vehicle_controlling_peers(highlighted_vehicle), {} )
                     local tool_height = 21 + (#peers * 10)
                     if get_is_vehicle_air(highlighted_vehicle:get_definition_index()) then
                         tool_height = tool_height + 10
