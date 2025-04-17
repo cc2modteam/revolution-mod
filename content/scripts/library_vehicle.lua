@@ -1294,10 +1294,12 @@ function do_radar_scan(update_air, update_sea)
     local vehicle_count = update_get_map_vehicle_count()
     local screen_team = update_get_screen_team_id()
 
+    local all_radars = g_all_radars
     local nearest_friendly_radar = g_nearest_friendly_radar
     local seen_by_friendly_radars = g_seen_by_friendly_radars
     local nearest_hostile_radar = g_nearest_hostile_radar
     local seen_by_hostile_radars = g_seen_by_hostile_radars
+    local fdsq = fast_dist_sq
 
     for i = 0, vehicle_count - 1 do
         local vehicle = update_get_map_vehicle_by_index(i)
@@ -1308,11 +1310,14 @@ function do_radar_scan(update_air, update_sea)
             if get_is_vehicle_land(vdef) then
                 -- ignore land units
             else
-                if get_vehicle_docked(vehicle) or (get_is_vehicle_air(vdef) and get_unit_altitude(vehicle) < get_low_level_radar_altitude(vehicle)) then
+                local target_is_air = get_is_vehicle_air(vdef)
+                if get_vehicle_docked(vehicle) or (target_is_air and get_unit_altitude(vehicle) < get_low_level_radar_altitude(vehicle)) then
                     -- ignore docked or landed
                 else
-                    local target_is_air = get_is_vehicle_air(vdef)
-                    local target_is_sea = get_is_vehicle_sea(vdef)
+                    local target_is_sea = false
+                    if not target_is_air then
+                        target_is_sea = get_is_vehicle_sea(vdef)
+                    end
 
                     if update_sea and target_is_sea or update_air and target_is_air then
                         seen_by_friendly_radars[vid] = nil
@@ -1320,12 +1325,13 @@ function do_radar_scan(update_air, update_sea)
                         seen_by_hostile_radars[vid] = nil
 
                         local radar_return_power = 0
+                        local radar_team = nil
                         local nearest_hostile_radar_dist_sq = 999999
-                        for _, radar in pairs(g_all_radars) do
+                        for _, radar in pairs(all_radars) do
                             local radar_id = radar.id
                             local radar_vehicle = update_get_map_vehicle_by_id(radar_id)
                             if radar_vehicle and radar_vehicle:get() then
-                                local radar_team = get_vehicle_team_id(radar_vehicle)
+                                radar_team = get_vehicle_team_id(radar_vehicle)
                                 -- dont scan the same team as the radar
                                 -- and dont give needlefish "nails" from AI units
                                 if radar_team ~= vteam and get_team_has_humans(radar_team) then
@@ -1333,7 +1339,7 @@ function do_radar_scan(update_air, update_sea)
                                     local radar_range_sq = radar_range * radar_range
                                     if update_sea and target_is_sea then
                                         -- target is a ship
-                                        local target_dist_sq = fast_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 25000)
+                                        local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 25000)
                                         --local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
                                         if target_dist_sq < radar_range_sq then
                                             -- ship seen
@@ -1352,7 +1358,7 @@ function do_radar_scan(update_air, update_sea)
                                         if screen_team ~= radar_team then
                                             -- update our nails
                                             -- we can hear a hostile radar
-                                            local target_dist_sq = fast_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 24000)
+                                            local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 24000)
                                             --local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
                                             if target_dist_sq < radar_range_sq then
                                                 if target_dist_sq < nearest_hostile_radar_dist_sq then
@@ -1392,15 +1398,16 @@ function do_radar_scan(update_air, update_sea)
 end
 
 function fast_dist_sq(a, b, lim)
-    local mabs = math.abs
     -- compute a low fidelity distance for things far away,
-    local dx = mabs(a:x() - b:x())
-    if dx < lim then
-        return vec2_dist_sq(a, b)
+    local dx = a:x() - b:x()
+    local dxsq = dx * dx
+    if dxsq < lim * lim then
+        -- x is within lim km, compute the rest of the distance_sq
+        local dy = a:y() - b:y()
+        return dxsq + dy * dy
     end
     -- far away, just give a lowfi distance
-    local dy = mabs(a:y() - b:y())
-    return (dx * dx) + (dy * dy)
+    return dxsq
 end
 
 function get_is_radar(vehicle_id)
