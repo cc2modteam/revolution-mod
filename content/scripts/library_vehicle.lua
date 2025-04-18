@@ -1505,12 +1505,33 @@ function fow_island_visible(island_id)
     return g_fow_visible[island_id] == true or get_is_spectator_mode()
 end
 
+function get_nearest_tiles(x, y, range)
+    local found = {}
+    local index = 0
+    local pos = vec2(x, y)
+    local range_sq = range * range
+    local tile_count = update_get_tile_count()
+    while index < tile_count do
+        local tile = update_get_tile_by_index(index)
+        if tile:get() then
+            index = index + 1
+            local tile_pos = tile:get_position_xz()
+            local tile_dist_sq = fast_dist_sq(pos, tile_pos, range)
+
+            if tile_dist_sq < range_sq then
+                table.insert(found, tile)
+            end
+        end
+    end
+
+    return found
+end
 
 function get_nearest_island_tile(x, y)
     local tile_count = update_get_tile_count()
     local index = 0
     local nearest = nil
-    local dist = 99999
+    local dist = 90000 * 90000
 
     local pos = vec2(x, y)
 
@@ -1519,10 +1540,10 @@ function get_nearest_island_tile(x, y)
         if tile:get() then
             index = index + 1
             local tile_pos = tile:get_position_xz()
-            local tile_dist = vec2_dist(pos, tile_pos)
+            local tile_dist_sq = fast_dist_sq(pos, tile_pos, 50000)
 
-            if tile_dist < dist then
-                dist = tile_dist
+            if tile_dist_sq < dist then
+                dist = tile_dist_sq
                 nearest = tile
             end
         end
