@@ -2027,10 +2027,18 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
     local target_locked = false
     render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
 
-    local funnel_mode = false
+    local funnel_mode = true
     local gun_funnel_side_dist = 2
     local gun_funnel_forward_dist = 18
-    update_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist)
+    --update_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist)
+
+    --local project_hit = project_bullet_future(update_get_logic_tick(), vehicle, tick_fraction)
+    --if project_hit then
+    --    local project_hit_screen, behind = update_world_to_screen(project_hit)
+    --    if not behind then
+    --        update_ui_image_rot(project_hit_screen:x(), project_hit_screen:y(), atlas_icons.crosshair, col, 0)
+    --    end
+    --end
 
     if g_selected_target_type == 1 and g_selected_target_id ~= 0 then
         local selected_target = update_get_map_vehicle_by_id(g_selected_target_id)
@@ -2050,20 +2058,21 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
                 end
             end
         end
-        if target_locked then
-            if get_is_vehicle_air(selected_target:get_definition_index()) then
-                -- funnel_mode = true
-            end
-        end
     end
 
-
-    if not funnel_mode then
-        update_ui_image_rot(hud_pos:x() + 1, hud_pos:y() + 1, atlas_icons.hud_gun_crosshair, col, 0)
-    else
-        render_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist, color8(0, 255, 0, 200))
-    end
+    render_gun_crosshair(hud_pos:x(), hud_pos:y(), col, 24)
+    --render_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist, color8(0, 255, 0, 200))
     return false
+end
+
+function render_gun_crosshair(x, y, col, radius)
+    local c = color8(col:r(), col:g(), col:b(), math.floor(col:a() * 0.8))
+    update_ui_line(x, y, x + 1, y, c)
+    -- render_circle(vec2(x, y), radius, 16, c)
+    update_ui_line(x + 1, y - radius - 2, x + 1, y - radius + 5, c)
+    update_ui_line(x + 1, y + radius - 5, x + 1, y + radius + 2, c)
+    update_ui_line(x - radius - 2, y, x - radius + 14, y, c)
+    update_ui_line(x + radius - 12, y, x + radius + 4, y, c)
 end
 
 function render_attachment_hud_ciws(screen_w, screen_h, map_data, vehicle, attachment)
@@ -4933,3 +4942,40 @@ function render_compass_waypoint(x, y, w, mark, col, size)
     end
 
 end
+
+-- bullet projection
+-- based on gun funnel code
+function project_bullet_future(tick, vehicle, tick_fraction)
+    local projectile_speed = 20
+    local forward_dist = 1.5
+    local projectile_gravity = 9.81 / 10
+    local side_dist = 0
+    local forward = vehicle:get_forward()
+    local velocity = vehicle:get_linear_velocity()
+
+    local forward_x = forward:x()
+    local forward_y = forward:y()
+    local forward_z = forward:z()
+    local side = vehicle:get_side()
+    local vehicle_pos = vehicle:get_position()
+
+    -- s = u*t + 0.5*a*t^2
+    -- calc time to hit ground
+    -- 0 = 0.5at^2 + ut - s
+    -- t = (-u + sqrt( u^2 - 4x0.5ax(-s)) / 2 (0.5a)
+    -- t = (-u + sqrt ( u^2 - 2a(-s) ) / a
+    local alt = vehicle_pos:y()
+    local uy = velocity:y() + forward_y * projectile_speed
+    local drop_time = (-uy + math.sqrt( (uy*uy) - (2 * projectile_gravity * -alt ) )) / projectile_gravity
+    local dx = velocity:x() + (forward_x * projectile_speed) * drop_time
+    local dz = velocity:z() + (forward_z * projectile_speed) * drop_time
+
+    local p = vec3(dx + vehicle_pos:x(), 0, dz + vehicle_pos:z())
+    local s = vec3_dist(p, vehicle_pos)
+    if s > 2000 then
+        -- does not hit ground within 2km, calibrate for air target 500m ahead
+        return nil
+    end
+    return p
+end
+
