@@ -1,3 +1,14 @@
+local math_pi = math.pi
+local math_2pi = 2 * math_pi
+local math_pi_2 = math_pi / 2
+local math_pi_4 = math_pi / 4
+local math_cos = math.cos
+local math_sin = math.sin
+local math_max = math.max
+local math_min = math.min
+local math_abs = math.abs
+
+
 g_is_connected = false
 g_selected_attachment_index = -1
 g_selected_target_id = -1
@@ -8,6 +19,7 @@ g_is_input_cycle_target_next = false
 g_is_input_cycle_target_prev = false
 g_is_map_overlay = false
 g_render_rwr = false
+g_hide_horizon_ladder = false
 g_active_attachment_time = 0
 g_is_hud = true
 g_nearest_hostile_ew_radar = nil
@@ -148,13 +160,24 @@ end
 -- UPDATE
 --
 --------------------------------------------------------------------------------
+
+local is_debug = false
+
 function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
-    local st, err = pcall(real_update, screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
-    if not st then
-        print(err)
+    if is_debug then
+        local st, err = pcall(real_update, screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
+        if not st then
+            print(err)
+        end
+    else
+        real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
     end
     if vehicle and vehicle:get() then
-        g_last_vid = vehicle:get_id()
+        local current_vid = vehicle:get_id()
+        if current_vid ~= g_last_vid then
+            g_last_vid = vehicle:get_id()
+            g_render_ladder = true
+        end
     end
 end
 
@@ -179,9 +202,17 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
     if g_map_toggle then
         -- detect double taps
         local now = update_get_logic_tick()
-        local diff = now - g_camera_toggle_last_tick
-        g_camera_toggle_last_tick = now
+        local diff = now - g_toggle_map_last_tick
+        g_toggle_map_last_tick = now
         if diff < 10 then
+            -- rapid tap
+            if g_hide_horizon_ladder then
+                g_hide_horizon_ladder = false
+            else
+                g_hide_horizon_ladder = true
+            end
+
+            -- stuff for spectato       r mode camera control
             g_camera_clear = not g_camera_clear
             update_set_screen_background_type(0)
         end
@@ -443,7 +474,7 @@ g_radar_mode = 0
 g_camera_mode = 0
 
 g_camera_clear = false
-g_camera_toggle_last_tick = 0
+g_toggle_map_last_tick = 0
 
 g_last_map_overlay = false
 g_map_toggle = false
@@ -475,9 +506,11 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local radar_name = ""
 
     if attachment:get() then
+        local adef = attachment:get_definition_index()
         attachment:get_is_viewing_sub_camera()
-        is_awacs = attachment:get_definition_index() == e_game_object_type.attachment_radar_awacs
-        is_golfball = attachment:get_definition_index() == e_game_object_type.attachment_radar_golfball
+        is_chaingun = adef == e_game_object_type.attachment_turret_plane_chaingun
+        is_awacs = adef == e_game_object_type.attachment_radar_awacs
+        is_golfball = adef == e_game_object_type.attachment_radar_golfball
         awacs_mode = is_golfball or is_awacs
 
         if awacs_mode then
@@ -489,6 +522,8 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             if g_map_toggle then
                 g_radar_mode = (g_radar_mode + 1) % radar_modes.count
             end
+        elseif is_chaingun then
+
         end
     end
 
@@ -2035,6 +2070,7 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
 
         if selected_target:get() then
             target_locked = true
+            local target_def = selected_target:get_definition_index()
             local lead_position = attachment:get_gun_lead_position(selected_target:get_position(), selected_target:get_linear_velocity())
             local lead_position_screen, is_clamped = update_world_to_screen(lead_position)
 
@@ -2043,8 +2079,41 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
 
                 if is_target_clamped == false then
                     local lead_col = color8(255, 0, 0, 200)
+
                     update_ui_line(target_pos_screen:x(), target_pos_screen:y(), lead_position_screen:x(), lead_position_screen:y(), lead_col)
-                    update_ui_image_rot(lead_position_screen:x(), lead_position_screen:y(), atlas_icons.crosshair, lead_col, 0)
+                    if get_is_vehicle_air(target_def) then
+                        local dist = vec3_dist(lead_position, vehicle:get_position())
+                        local smx = screen_w / 2
+
+                        local lead_dx = lead_position_screen:x() - target_pos_screen:x()
+                        if math_abs(lead_dx) < smx then
+                            local lead_dy = lead_position_screen:y() - target_pos_screen:y()
+
+                            local label_x = lead_dx * 2
+                            local label_y = lead_dy * 2
+
+                            if label_x > 0 then
+                                label_x = math_max(40, math_min(60, label_x))
+                            elseif label_x < 1 then
+                                label_x = math_min(-40, math_max(-60, label_x))
+                            end
+                            if label_y > 60 then
+                                label_y = 60
+                            elseif label_y < -60 then
+                                label_y = -60
+                            end
+
+                            update_ui_text(lead_position_screen:x() + label_x - 20, lead_position_screen:y() + label_y,
+                                    string.format("%dm", math.floor(dist)), 42, 1, col, 0)
+
+                            update_ui_line(lead_position_screen:x() - 19, lead_position_screen:y(), lead_position_screen:x() - 24, lead_position_screen:y(), lead_col)
+                            update_ui_line(lead_position_screen:x(), lead_position_screen:y() + 19, lead_position_screen:x(), lead_position_screen:y() + 24, lead_col)
+                            render_circle(lead_position_screen, 20, 8, lead_col)
+                        end
+
+                    else
+                        update_ui_image_rot(lead_position_screen:x(), lead_position_screen:y(), atlas_icons.crosshair, lead_col, 0)
+                    end
                 end
             end
         end
@@ -2059,10 +2128,10 @@ function render_gun_crosshair(x, y, col, radius)
     local c = color8(col:r(), col:g(), col:b(), math.floor(col:a() * 0.8))
     update_ui_line(x, y, x + 1, y, c)
     -- render_circle(vec2(x, y), radius, 16, c)
-    update_ui_line(x + 1, y - radius - 2, x + 1, y - radius + 5, c)
-    update_ui_line(x + 1, y + radius - 5, x + 1, y + radius + 2, c)
-    update_ui_line(x - radius - 2, y, x - radius + 14, y, c)
-    update_ui_line(x + radius - 12, y, x + radius + 4, y, c)
+    update_ui_line(x + 1, y - radius - 2, x + 1, y - radius + 5, col)
+    update_ui_line(x + 1, y + radius - 5, x + 1, y + radius + 2, col)
+    update_ui_line(x - radius - 2, y, x - radius + 14, y, col)
+    update_ui_line(x + radius - 12, y, x + radius + 4, y, col)
 end
 
 function render_attachment_hud_ciws(screen_w, screen_h, map_data, vehicle, attachment)
@@ -2958,6 +3027,9 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     local horizon_y = clamp(offset_y + horizon:y(), 2, screen_h - 2)
 
     if horizon_y == offset_y + horizon:y() then
+        if g_hide_horizon_ladder then
+            col = color8(col:r(), col:g(), col:b(), math_max(col:a() * 0.8), 0.3)
+        end
         update_ui_image_rot(
                 clamp(offset_x + horizon:x(), 20, screen_w - 20),
                 horizon_y,
@@ -2967,6 +3039,10 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     local angle_step = angle_step_deg / 180 * math.pi
     local steps = math.floor(math.pi * 0.5 / angle_step)
     local angle_width = 20
+
+    if g_hide_horizon_ladder then
+        return
+    end
 
     for i = 1, steps do
         projected_forward = vec3(
@@ -3669,6 +3745,8 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
     local function render_target_vehicle_info(pos, data, col)
         if data.is_laser_target then
             -- don't render info
+        elseif g_selected_target_id then
+            -- target is selected
         else
             local def = data.vehicle:get_definition_index()
 
@@ -3955,7 +4033,7 @@ end
 
 -- toggle between no target and a specific target
 function toggle_vision_target(nearest_target, vehicle_team)
-    if g_selected_target_id == 0 and nearest_target and nearest_target.is_observed and nearest_target.team ~= vehicle_team then
+    if g_selected_target_id == 0 and nearest_target and nearest_target.is_observed then -- and nearest_target.team ~= vehicle_team then
         if g_is_input_cycle_target_next or g_is_input_cycle_target_prev then
             g_selected_target_id = nearest_target.id
             g_selected_target_type = 1
@@ -4087,17 +4165,23 @@ function render_gauge_classic(pos, factor, col, back_col)
     update_ui_rectangle(pos:x() + 7, t, 5, b - t, col)
 end
 
-function render_circle(pos, radius, steps, col)
-    local step = math.pi * 2 / steps
+function render_circle(pos, radius, steps, col, frac)
+    if frac == nil then
+        frac = 1.0
+    end
+    local arc = math_2pi * frac
+    local step = (arc / steps)
     
     for i = 0, steps - 1 do
-        local angle = i * step
+        local angle = i * step - math_pi_2
         local angle_next = angle + step
+        local px = pos:x()
+        local py = pos:y()
         update_ui_line(
-            math.ceil(pos:x() + math.cos(angle) * radius), 
-            math.ceil(pos:y() + math.sin(angle) * radius), 
-            math.ceil(pos:x() + math.cos(angle_next) * radius),
-            math.ceil(pos:y() + math.sin(angle_next) * radius),
+            math.ceil(px + math_cos(angle) * radius),
+            math.ceil(py + math_sin(angle) * radius),
+            math.ceil(px + math_cos(angle_next) * radius),
+            math.ceil(py + math_sin(angle_next) * radius),
             col
         )
     end
