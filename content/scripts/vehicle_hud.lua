@@ -28,8 +28,6 @@ g_attachment_slot_size = vec2(18, 19)
 
 g_gun_funnel_history = {}
 g_gun_funnel_sample_time = 0
-g_gun_funnel_last_x = 0
-g_gun_funnel_last_y = 0
 
 g_is_render_speed = true
 g_is_render_altitude = true
@@ -2027,18 +2025,10 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
     local target_locked = false
     render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
 
-    local funnel_mode = true
-    local gun_funnel_side_dist = 2
-    local gun_funnel_forward_dist = 18
+    local gun_funnel_side_dist = 5
+    local gun_funnel_forward_dist = 30
     --update_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist)
-
-    --local project_hit = project_bullet_future(update_get_logic_tick(), vehicle, tick_fraction)
-    --if project_hit then
-    --    local project_hit_screen, behind = update_world_to_screen(project_hit)
-    --    if not behind then
-    --        update_ui_image_rot(project_hit_screen:x(), project_hit_screen:y(), atlas_icons.crosshair, col, 0)
-    --    end
-    --end
+    -- render_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist, color8(0, 255, 0, 255))
 
     if g_selected_target_type == 1 and g_selected_target_id ~= 0 then
         local selected_target = update_get_map_vehicle_by_id(g_selected_target_id)
@@ -2061,7 +2051,7 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
     end
 
     render_gun_crosshair(hud_pos:x(), hud_pos:y(), col, 24)
-    --render_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist, color8(0, 255, 0, 200))
+
     return false
 end
 
@@ -3260,9 +3250,9 @@ end
 
 function update_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist)
     local sample_interval_ticks = 1
-    local sample_history_ticks = 16
+    local sample_history_ticks = 30
 
-    local projectile_speed = 20
+    local projectile_speed = 10
 
     local tick = update_get_logic_tick()
 
@@ -3301,7 +3291,7 @@ function update_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist)
 end
 
 function render_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist, col)
-    local projectile_gravity = 0 --0.2 / 30
+    local projectile_gravity = 0.2 / 30
 
     local get_bullet_pos = function(time, start_pos, start_vel, gravity)
         local t_sq = time * time
@@ -3334,16 +3324,13 @@ function render_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist, col)
     local render_line = function(a, b, col)
         update_ui_line(
             math.floor(a:x()), 
-            math.floor(a:y() + 5),
+            math.floor(a:y()),
             math.floor(b:x()), 
-            math.floor(b:y() + 5),
+            math.floor(b:y()),
             col
         )
     end
 
-    local last_left = nil
-    local last_right = nil
-    
     for _, next in iter_sorted(g_gun_funnel_history, sort_func) do
         if prev then
             local time_prev = tick - prev.time
@@ -3366,39 +3353,9 @@ function render_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist, col)
             if is_behind_right_next == false then
                 render_line(screen_prev_right, screen_next_right, col)
             end
-            last_left = pos_prev_left
-            last_right = pos_prev_right
         end
 
         prev = next
-    end
-
-    if last_left and last_right then
-        local _left, _ = update_world_to_screen(last_left)
-        local _right, _ = update_world_to_screen(last_right)
-
-        local x = math.ceil((_left:x() + _right:x()) / 2)
-        if g_gun_funnel_last_x > 0 then
-            x = math.ceil((x + g_gun_funnel_last_x) / 2)
-        end
-
-        local y = math.ceil((_left:y() + _right:y()) / 2)
-
-        if g_gun_funnel_last_y > 0 then
-            y = math.ceil((y + g_gun_funnel_last_y) / 2)
-        end
-
-        g_gun_funnel_last_x = x
-        g_gun_funnel_last_y = y
-
-        local dist = vec3_dist(vehicle:get_position(), last_left)
-        local pip_col = col
-        if dist < 10 then
-            pip_col = color8(255, 0, 0, 255)
-        end
-        -- update_ui_image_rot(x - 1, y + 1, atlas_icons.hud_gun_crosshair, pip_col, 0)
-        -- render_circle(vec2(x - 2, y), 5, 61, pip_col)
-        update_ui_image_rot(x - 2, y, atlas_icons.hud_horizon_cursor, pip_col, 0)
     end
 end
 
