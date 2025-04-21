@@ -2102,13 +2102,17 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
                             elseif label_y < -60 then
                                 label_y = -60
                             end
+                            local lead_radius = 16
+                            local dist_col = col
+                            if dist < 400 then
+                                dist_col = color_status_dark_yellow
+                            end
+                            update_ui_text(lead_position_screen:x() + label_x - lead_radius, lead_position_screen:y() + label_y,
+                                    string.format("%dm", math.floor(dist)), 42, 1, dist_col, 0)
 
-                            update_ui_text(lead_position_screen:x() + label_x - 20, lead_position_screen:y() + label_y,
-                                    string.format("%dm", math.floor(dist)), 42, 1, col, 0)
-
-                            update_ui_line(lead_position_screen:x() - 19, lead_position_screen:y(), lead_position_screen:x() - 24, lead_position_screen:y(), lead_col)
-                            update_ui_line(lead_position_screen:x(), lead_position_screen:y() + 19, lead_position_screen:x(), lead_position_screen:y() + 24, lead_col)
-                            render_circle(lead_position_screen, 20, 8, lead_col)
+                            update_ui_line(lead_position_screen:x() - lead_radius + 3, lead_position_screen:y(), lead_position_screen:x() - lead_radius - 3, lead_position_screen:y(), lead_col)
+                            update_ui_line(lead_position_screen:x() + 2, lead_position_screen:y() + lead_radius - 1, lead_position_screen:x() + 2, lead_position_screen:y() + lead_radius + 4, lead_col)
+                            render_circle(lead_position_screen, lead_radius, 8, lead_col)
                         end
 
                     else
@@ -2119,7 +2123,7 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
         end
     end
 
-    render_gun_crosshair(hud_pos:x(), hud_pos:y(), col, 24)
+    render_gun_crosshair(hud_pos:x(), hud_pos:y(), col, 20)
 
     return false
 end
@@ -2127,7 +2131,6 @@ end
 function render_gun_crosshair(x, y, col, radius)
     local c = color8(col:r(), col:g(), col:b(), math.floor(col:a() * 0.8))
     update_ui_line(x, y, x + 1, y, c)
-    -- render_circle(vec2(x, y), radius, 16, c)
     update_ui_line(x + 1, y - radius - 2, x + 1, y - radius + 5, col)
     update_ui_line(x + 1, y + radius - 5, x + 1, y + radius + 2, col)
     update_ui_line(x - radius - 2, y, x - radius + 14, y, col)
