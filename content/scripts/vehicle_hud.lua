@@ -7,6 +7,7 @@ local math_sin = math.sin
 local math_max = math.max
 local math_min = math.min
 local math_abs = math.abs
+local math_floor = math.floor
 
 
 g_is_connected = false
@@ -82,7 +83,7 @@ g_notification = {
 
     update = function(self, delta_time, vehicle)
         self.time = self.time + delta_time
-        g_laser_active = false
+
         if vehicle:get() and g_is_connected then
             local vehicle_id = vehicle:get_id()
             local vehicle_control_mode = vehicle:get_control_mode()
@@ -206,13 +207,7 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
         g_toggle_map_last_tick = now
         if diff < 10 then
             -- rapid tap
-            if g_hide_horizon_ladder then
-                g_hide_horizon_ladder = false
-            else
-                g_hide_horizon_ladder = true
-            end
-
-            -- stuff for spectato       r mode camera control
+            g_hide_horizon_ladder = not g_hide_horizon_ladder
             g_camera_clear = not g_camera_clear
             update_set_screen_background_type(0)
         end
@@ -508,7 +503,6 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     if attachment:get() then
         local adef = attachment:get_definition_index()
         attachment:get_is_viewing_sub_camera()
-        is_chaingun = adef == e_game_object_type.attachment_turret_plane_chaingun
         is_awacs = adef == e_game_object_type.attachment_radar_awacs
         is_golfball = adef == e_game_object_type.attachment_radar_golfball
         awacs_mode = is_golfball or is_awacs
@@ -522,8 +516,6 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             if g_map_toggle then
                 g_radar_mode = (g_radar_mode + 1) % radar_modes.count
             end
-        elseif is_chaingun then
-
         end
     end
 
@@ -1426,12 +1418,17 @@ function render_attachment_info(info_pos, map_data, vehicle, attachment, alpha, 
                             local _, behind = update_world_to_screen(hit_pos)
                             if not behind then
                                 local col_scale = 255 / 2500
+                                local hp_x = hit_pos:x()
+                                local hp_y = hit_pos:y()
+                                local hp_z = hit_pos:z()
+                                local dist_2 = dist /2
                                 local alpha = 255 - math.floor(dist * col_scale)
+                                local cross_col = color8(0, 255, 0, alpha)
                                 -- draw a diamond around the target that shrinks as the dist falls
-                                local north = vec3(hit_pos:x(), hit_pos:y(), hit_pos:z() - dist / 2)
-                                local south = vec3(hit_pos:x(), hit_pos:y(), hit_pos:z() + dist / 2)
-                                local east = vec3(hit_pos:x() + dist / 2, hit_pos:y(), hit_pos:z())
-                                local west = vec3(hit_pos:x() - dist / 2, hit_pos:y(), hit_pos:z())
+                                local north = vec3(hp_x, hp_y, hp_z - dist_2)
+                                local south = vec3(hp_x, hp_y, hp_z + dist_2)
+                                local east = vec3(hp_x + dist_2, hp_y, hp_z)
+                                local west = vec3(hp_x - dist_2, hp_y, hp_z)
 
                                 local sn, behind1 = update_world_to_screen(north)
                                 local ss, behind2 = update_world_to_screen(south)
@@ -1439,35 +1436,35 @@ function render_attachment_info(info_pos, map_data, vehicle, attachment, alpha, 
                                 local sw, behind4 = update_world_to_screen(west)
 
                                 if not behind1 and not behind4 then
-
                                     update_ui_line(
                                             sn:x(), sn:y(),
                                             se:x(), se:y(),
-                                            color8(0, 255, 0, alpha)
+                                            cross_col
                                     )
                                     update_ui_line(
                                             se:x(), se:y(),
                                             ss:x(), ss:y(),
-                                            color8(0, 255, 0, alpha)
+                                            cross_col
                                     )
                                     update_ui_line(
                                             ss:x(), ss:y(),
                                             sw:x(), sw:y(),
-                                            color8(0, 255, 0, alpha)
+                                            cross_col
                                     )
                                     update_ui_line(
                                             sw:x(), sw:y(),
                                             sn:x(), sn:y(),
-                                            color8(0, 255, 0, alpha)
+                                            cross_col
                                     )
 
                                 end
                             end
                         end
-
-                        update_ui_image(pos:x(), pos:y(), atlas_icons.column_laser, colors.green, 0)
-                        update_ui_text(pos:x() + 12, pos:y(), string.format("%.0f", dist) .. update_get_loc(e_loc.acronym_meters), 200, 0, state_colors[target_state], 0)
-                        pos:y(pos:y() + 10)
+                        local p_x = pos:x()
+                        local p_y = pos:y()
+                        update_ui_image(p_x, p_y, atlas_icons.column_laser, colors.green, 0)
+                        update_ui_text(p_x + 12, p_y, string.format("%.0f", dist) .. update_get_loc(e_loc.acronym_meters), 200, 0, state_colors[target_state], 0)
+                        pos:y(p_y + 10)
                     end
                 end
             end
@@ -3748,7 +3745,7 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
     local function render_target_vehicle_info(pos, data, col)
         if data.is_laser_target then
             -- don't render info
-        elseif g_selected_target_id then
+        elseif g_selected_target_id ~= nil and g_selected_target_id > 0 then
             -- target is selected
         else
             local def = data.vehicle:get_definition_index()
