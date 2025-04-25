@@ -62,11 +62,7 @@
 			<pos x="0.00000000e+00" y="2.51381874e+00" z="0.00000000e+00"/>
 		</buoyancy>
 	</buoyancys>
-	<vehicle_attachments>
-		<vehicle_attachment name="vehicle_attachment" type="0">
-			<transform m00="4.15053487e-01" m01="0.00000000e+00" m02="-9.09797013e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="9.09797013e-01" m21="0.00000000e+00" m22="4.15053487e-01" tx="9.77039337e-04" ty="1.38812089e+00" tz="-9.03134537e+00"/>
-		</vehicle_attachment>
-	</vehicle_attachments>
+	<vehicle_attachments/>
 	<lights/>
 	<seats/>
 	<button_panels/>
