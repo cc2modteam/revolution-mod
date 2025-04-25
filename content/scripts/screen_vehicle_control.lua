@@ -1421,7 +1421,7 @@ function _update(screen_w, screen_h, ticks)
                                 end
                             end
 
-                            if vehicle_team == screen_team and vehicle_definition_index ~= e_game_object_type.chassis_sea_barge then
+                            if vehicle_team == screen_team then
                                 local waypoint_count = vehicle:get_waypoint_count()
 
                                 if g_drag.vehicle_id == 0 or g_drag.vehicle_id == vehicle:get_id() then
@@ -1995,14 +1995,16 @@ function _update(screen_w, screen_h, ticks)
                             local waypoint_pos_y_prev = screen_pos_y
 
                             local show_waypoints = true
+                            local waypoint_color = g_color_waypoint
                             if vehicle:get_definition_index() == e_game_object_type.chassis_sea_barge then
-                                show_waypoints = false
+                                waypoint_color = color_status_dark_green
                             elseif vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
                                 show_waypoints = g_is_carrier_waypoint
+                            elseif vehicle:get_definition_index() == e_game_object_type.chassis_land_turret then
+                                show_waypoints = false
                             end
 
                             if (vehicle_team == screen_team or get_is_spectator_mode()) and show_waypoints then
-                                local waypoint_color = g_color_waypoint
 
                                 if g_highlighted.vehicle_id == vehicle:get_id() and g_highlighted.waypoint_id == 0 then
                                     waypoint_color = color8(255, 255, 255, 255)
