@@ -7,7 +7,10 @@ v1.5:
 [list]
 [*] HUD assistance for guided/cruise missile operation
 [*] Helm gets a basic HUD showing nearby islands and compass course
-[*] Razrobill now able to carry a centre mounted fuel tank
+[*] Razorbill now able to carry a centre mounted fuel tank
+[*] Turrets can now be moved around by ground vehicles pushing.
+[*] Carrier can now deploy floating turrets equipped with a RADAR or camera.
+[*] Various CPU usage improvements
 [/list]
 
 v1.4:
