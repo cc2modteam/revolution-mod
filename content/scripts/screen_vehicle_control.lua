@@ -1181,9 +1181,14 @@ function update(screen_w, screen_h, ticks)
         return
     end
 
-    local st, err = xpcall(_update, err_handler, screen_w, screen_h, ticks)
-    if not st then
-        print(err)
+    if not g_debug_enabled then
+        _update(screen_w, screen_h, ticks)
+    else
+        local st, err = xpcall(_update, err_handler, screen_w, screen_h, ticks)
+        if not st then
+            print(err)
+        end
+
     end
 
     if g_is_big_display then
