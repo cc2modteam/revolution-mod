@@ -1,4 +1,5 @@
 g_is_holomap = false
+g_last_update_interval = 1
 
 function get_carrier_bay_name(index)
     bay_name = update_get_loc(e_loc.upp_acronym_surface).."1";
@@ -2827,6 +2828,10 @@ local st, _v = pcall(function()
         e_game_object_type.attachment_camera,
     }
 
+    --
+    -- revolution vehicle attachment option choices
+    --
+
     local ret = {
         -- manta
         [e_game_object_type.chassis_air_wing_heavy] = {
@@ -2959,6 +2964,7 @@ local st, _v = pcall(function()
                 [1] = {
                     e_game_object_type.attachment_camera_plane,
                     e_game_object_type.attachment_turret_gimbal_30mm,
+                    e_game_object_type.attachment_turret_carrier_flare_launcher,
                     -- e_game_object_type.attachment_radar_golfball,   -- disables airlift ability when added
                 },
             },
@@ -3522,13 +3528,27 @@ function do_screensaver(screen_w, screen_h, screen_enum)
     local now = update_get_logic_tick()
     local elapsed = now - g_last_input_tick
     local seconds = elapsed / 30
+    local expired = seconds > 300
+    if g_last_update_interval ~= nil and g_last_update_interval > 60 then
+        -- no player near screen for 2 seconds
+        if not update_get_is_focus_local() then
+            expired = true
+        end
+    end
 
-    if seconds > 300 then
+    local abbr = "ACC"
+    local screen_vehicle = update_get_screen_vehicle()
+    if screen_vehicle and screen_vehicle:get() then
+        local v_name, v_icon, v_abbr, v_desc = get_chassis_data_by_definition_index(screen_vehicle:get_definition_index())
+        abbr = v_abbr
+    end
+
+    if expired then
         update_set_screen_background_type(0)
         local y = screen_h / 4
         update_ui_text(
                 50, y,
-                "ACC " .. get_ship_name(update_get_screen_vehicle()),
+                abbr .. get_ship_name(screen_vehicle),
                 100, 1, color_grey_mid, 0)
         update_ui_line(
                 50, y + 11,

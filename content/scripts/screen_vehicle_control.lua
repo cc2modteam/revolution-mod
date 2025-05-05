@@ -1217,6 +1217,7 @@ g_hostile_air_histories = {}
 function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
+    g_last_update_interval = ticks
 
     g_is_mouse_mode = g_is_pointer_hovered and update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
@@ -1248,6 +1249,7 @@ function _update(screen_w, screen_h, ticks)
 
     local screen_vehicle = update_get_screen_vehicle()
     local screen_team = update_get_screen_team_id()
+
     g_screen_vehicle_pos = screen_vehicle:get_position_xz()
 
     if g_is_camera_pos_initialised == false and screen_vehicle:get() then

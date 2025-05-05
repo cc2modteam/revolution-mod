@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data display_name_loc="0" bounding_radius="1.00000000e+01" lod_scale="1.00000000e+00" ai_type="0">
+	<bodies/>
+	<constraints/>
+	<meshes>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/carrier_flare_launcher_base.mesh" name="base" lod="0" body="4294967295" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="2.16546953e-01" tz="0.00000000e+00"/>
+			<variants>
+				<v file="meshes/vehicles/attachments_broken_fixed/carrier_flare_launcher_base_broken_fixed.mesh"/>
+			</variants>
+		</mesh>
+		<mesh file="meshes/vehicles/attachments/ir_detector.mesh" name="pitch" lod="0" body="4294967295" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="8.15606862e-02" ty="5.49245477e-01" tz="7.84673810e-01"/>
+			<variants>
+				<v file="meshes/vehicles/attachments/ir_detector.mesh"/>
+			</variants>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/carrier_flare_launcher.mesh" name="pivot" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.82311356e-01" tz="0.00000000e+00"/>
+			<variants>
+				<v file="meshes/vehicles/attachments_broken_fixed/carrier_flare_launcher_broken_fixed.mesh"/>
+			</variants>
+		</mesh>
+		<mesh file="meshes/vehicles/attachment_lods/carrier_flare_launcher_low.mesh" name="lod 1" lod="1" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="2.16999993e-01" tz="0.00000000e+00"/>
+		</mesh>
+	</meshes>
+	<wheels/>
+	<attachments/>
+	<force_emitters/>
+	<control_surfaces/>
+	<projectile_emitters>
+		<projectile_emitter name="muzzle" fov="0.00000000e+00">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="8.60917568e-03" ty="7.67508268e-01" tz="1.58852875e+00"/>
+		</projectile_emitter>
+	</projectile_emitters>
+	<cameras>
+		<camera name="camera">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="2.05163956e-02" ty="1.24493003e+00" tz="1.25279021e+00"/>
+		</camera>
+	</cameras>
+	<buoyancys/>
+	<vehicle_attachments/>
+	<lights/>
+	<seats/>
+	<button_panels/>
+	<buttons/>
+	<indicators/>
+	<achievements/>
+	<dials/>
+	<screens/>
+	<doors/>
+	<graph_nodes/>
+	<graph_links/>
+	<foam_emitters/>
+	<particle_emitters>
+		<particle_emitter name="damage" body_index="4294967295" life="60" velocity="2.00000000e+00" magnitude="1.00000000e+00" rise="1.00000000e+01" color="30303FF">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="7.83521056e-01" tz="0.00000000e+00"/>
+		</particle_emitter>
+	</particle_emitters>
+	<sensors/>
+	<splash_emitters/>
+	<holomaps/>
+	<damage_zones/>
+	<audio_zones/>
+	<nav_meshes/>
+</data>
+
