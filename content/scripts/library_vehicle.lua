@@ -192,9 +192,9 @@ function get_attachment_data_by_definition_index(index)
             name_short = "CRUISE MSL",
         },
         [e_game_object_type.attachment_turret_carrier_flare_launcher] = {
-            name = update_get_loc(e_loc.upp_naval_flare_launcher),
-            icon16 = atlas_icons.icon_attachment_16_small_flare,
-            name_short = "FLARE",
+            name = "ELECTRONIC COUNTERMEASURE",
+            icon16 = atlas_icons.column_power,
+            name_short = "EW",
         },
         [e_game_object_type.attachment_turret_carrier_camera] = {
             name = update_get_loc(e_loc.upp_naval_camera),

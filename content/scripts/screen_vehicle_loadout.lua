@@ -457,9 +457,19 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
 
             local function render_attachment_option(item, is_active, is_selected)
                 render_button_bg(1, 0, button_w, 25, iff(is_active, iff(is_selected, color_highlight, color_button_bg), color_button_bg_inactive), 1)
-                
-                local icon_w = update_ui_get_image_size(item.region)
-                update_ui_image((button_w - icon_w) / 2 + 1, 0, item.region, iff(is_active, iff(is_selected, color_white, color_black), color_black), 0)
+
+                local txt = nil
+                local icon = item.region
+                if item.type == e_game_object_type.attachment_turret_carrier_flare_launcher then
+                    icon = atlas_icons.column_power
+                    txt = "E"
+                end
+
+                local icon_w = update_ui_get_image_size(icon)
+                update_ui_image((button_w - icon_w) / 2 + 1, 0, icon, iff(is_active, iff(is_selected, color_white, color_black), color_black), 0)
+                if txt ~= nil then
+                    update_ui_text(8, 6, txt, 12, 0, color_black, 0)
+                end
 
                 if item ~= selection_options[1] then
                     if update_get_resource_item_for_definition(item.type) ~= -1 then
@@ -490,6 +500,18 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
                 if is_pressed then  
                     local definition_index = selection_options[g_selected_option_index + 1].type
                     local inventory_item_type = update_get_resource_item_for_definition(definition_index)
+                    local current_attachment = attached_vehicle:get_attachment(g_selected_attachment_index)
+                    local current_attachment_def = nil
+                    if current_attachment and current_attachment:get() then
+                        current_attachment_def = current_attachment:get_definition_index()
+                    end
+
+                    -- handle special case when adding "flare" EW attachment to units
+                    -- if someone de-selects "carrier flare" then we need to destroy 10 flares from the inventory
+                    -- we should probably do this for cruise missile, aa and torps but nobody puts those on
+                    if current_attachment_def == e_game_object_type.attachment_turret_carrier_flare_launcher then
+                        this_vehicle:set_inventory_order(e_inventory_item.ammo_flare, 10, e_carrier_order_operation.delete)
+                    end
 
                     if g_selected_option_index == 0 then
                         this_vehicle:set_attached_vehicle_attachment(g_selected_bay_index, g_selected_attachment_index, -1)
