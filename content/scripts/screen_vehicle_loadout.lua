@@ -460,9 +460,11 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
 
                 local txt = nil
                 local icon = item.region
+                local ammo_type = update_get_attachment_ammo_item_type(item.type)
                 if item.type == e_game_object_type.attachment_turret_carrier_flare_launcher then
                     icon = atlas_icons.column_power
                     txt = "E"
+                    ammo_type = e_inventory_item.virus_module
                 end
 
                 local icon_w = update_ui_get_image_size(icon)
@@ -475,8 +477,6 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
                     if update_get_resource_item_for_definition(item.type) ~= -1 then
                         update_ui_text(1, 16, this_vehicle:get_inventory_count_by_definition_index(item.type), button_w, 1, color_black, 0)
                     else
-                        local ammo_type = update_get_attachment_ammo_item_type(item.type)
-
                         if ammo_type ~= -1 then
                             update_ui_text(1, 16, format_ammo_quantity(math.min(this_vehicle:get_inventory_count_by_item_index(ammo_type), 99000)), button_w, 1, color_black, 0)
                         end
@@ -500,27 +500,24 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
                 if is_pressed then  
                     local definition_index = selection_options[g_selected_option_index + 1].type
                     local inventory_item_type = update_get_resource_item_for_definition(definition_index)
+
                     local current_attachment = attached_vehicle:get_attachment(g_selected_attachment_index)
-                    local current_attachment_def = nil
+                    local new_attachment_type = selection_options[g_selected_option_index + 1].type
+                    local current_attachment_type = -1
                     if current_attachment and current_attachment:get() then
-                        current_attachment_def = current_attachment:get_definition_index()
+                        current_attachment_type = current_attachment:get_definition_index()
                     end
 
-                    -- handle special case when adding "flare" EW attachment to units
-                    -- if someone de-selects "carrier flare" then we need to destroy 10 flares from the inventory
-                    -- we should probably do this for cruise missile, aa and torps but nobody puts those on
-                    if current_attachment_def == e_game_object_type.attachment_turret_carrier_flare_launcher then
-                        this_vehicle:set_inventory_order(e_inventory_item.ammo_flare, 10, e_carrier_order_operation.delete)
-                    end
-
-                    if g_selected_option_index == 0 then
-                        this_vehicle:set_attached_vehicle_attachment(g_selected_bay_index, g_selected_attachment_index, -1)
-                        g_screen_index = 1
-                    elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 then
-                        this_vehicle:set_attached_vehicle_attachment(g_selected_bay_index, g_selected_attachment_index, selection_options[g_selected_option_index + 1].type)
-                        g_screen_index = 1
-                    else
-                        g_no_stock_counter = 0
+                    if rev_before_add_attachment(this_vehicle, g_selected_bay_index, g_selected_attachment_index, new_attachment_type) then
+                        if g_selected_option_index == 0 then
+                            this_vehicle:set_attached_vehicle_attachment(g_selected_bay_index, g_selected_attachment_index, -1)
+                            g_screen_index = 1
+                        elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 then
+                            this_vehicle:set_attached_vehicle_attachment(g_selected_bay_index, g_selected_attachment_index, new_attachment_type)
+                            g_screen_index = 1
+                        else
+                            g_no_stock_counter = 0
+                        end
                     end
                 end
             ui:end_window()
@@ -596,11 +593,22 @@ function render_ui_attachment_definition_description(x, y, w, h, vehicle, index)
     end
 
     local ammo_type = update_get_attachment_ammo_item_type(index)
+    local ammo_icon = atlas_icons.icon_ammo
+    --  if this is the EW flare launcher, show virus bots as ammo count
+    if index == e_game_object_type.attachment_turret_carrier_flare_launcher then
+        ammo_type = update_get_attachment_ammo_item_type(e_game_object_type.attachment_turret_robot_dog_capsule)
+        ammo_icon = atlas_icons.column_repair
+    end
 
     if ammo_type ~= -1 then
         local ammo_count = vehicle:get_inventory_count_by_item_index(ammo_type)
-        update_ui_image(0, cy, atlas_icons.icon_ammo, iff(is_in_stock, color_white, color_grey_dark), 0)
+        update_ui_image(0, cy, ammo_icon, iff(is_in_stock, color_white, color_grey_dark), 0)
         cy = 2 + cy + update_ui_text(10, cy, ammo_count, w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
+
+        if index == e_game_object_type.attachment_turret_carrier_flare_launcher then
+             cy = cy + update_ui_text(10, cy - 3, string.upper(update_get_loc(e_loc.virus_module)), w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
+        end
+
     end
 
     local item_mass = get_payload_weight(index)

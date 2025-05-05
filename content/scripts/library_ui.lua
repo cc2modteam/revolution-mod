@@ -4314,6 +4314,54 @@ function rev_is_island_on_screen(island, cam_x, cam_y, cam_size)
     return false
 end
 
+function rev_before_add_attachment(
+        carrier_vehicle,
+        bay_index,
+        attachment_index,
+        new_attachment_type
+)
+    if carrier_vehicle and carrier_vehicle:get() then
+        local attached_vehicle_id = carrier_vehicle:get_attached_vehicle_id(bay_index)
+        local attached_vehicle = nil
+        if attached_vehicle_id then
+            attached_vehicle = update_get_map_vehicle_by_id(attached_vehicle_id)
+        end
+
+        if attached_vehicle and attached_vehicle:get() then
+            local attachment = attached_vehicle:get_attachment(attachment_index)
+            if attachment and attachment:get() then
+                local current_attachment_def = attachment:get_definition_index()
+                if current_attachment_def == new_attachment_type then
+                    -- do nothing
+                    g_screen_index = 0
+                    return false
+                else
+                    -- if we are making a change
+
+                    -- handle special case when adding "flare" EW attachment to units
+                    if new_attachment_type == e_game_object_type.attachment_turret_carrier_flare_launcher then
+                        local bots = carrier_vehicle:get_inventory_count_by_item_index(e_inventory_item.virus_module)
+                        if bots < 1 then
+                            -- disallow, run out of bots
+                            g_no_stock_counter = 0
+                            return false
+                        end
+                        -- discard one virus module
+                        carrier_vehicle:set_inventory_order(e_inventory_item.virus_module, 1, e_carrier_order_operation.delete)
+                    end
+
+                    -- if someone de-selects "carrier flare" then we need to destroy 10 flares from the inventory
+                    if current_attachment_def == e_game_object_type.attachment_turret_carrier_flare_launcher then
+                        -- we should probably do this for cruise missile, aa and torps but nobody puts those on
+                        carrier_vehicle:set_inventory_order(e_inventory_item.ammo_flare, 10, e_carrier_order_operation.delete)
+                    end
+                end
+            end
+        end
+    end
+    return true
+end
+
 g_terrain_render_size = 14000
 
 function rev_render_islands(cam_x, cam_y, cam_size, screen_w, screen_h)
