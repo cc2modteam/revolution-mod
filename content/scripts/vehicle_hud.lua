@@ -186,7 +186,6 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
     g_screen_w = screen_w
     g_screen_h = screen_h
     update_animations(delta_time, vehicle)
-    -- update_hover_data()
     g_notification:update(delta_time, vehicle)
 
     g_is_attachment_linked = false
