@@ -780,7 +780,9 @@ function get_vehicle_capability(vehicle)
         if attachment:get() then
             local attachment_def = attachment:get_definition_index()
 
-            if attachment_def ~= e_game_object_type.attachment_camera_vehicle_control then
+            if attachment_def ~= e_game_object_type.attachment_camera_vehicle_control
+                and attachment_def ~= e_game_object_type.attachment_turret_carrier_flare_launcher
+            then
                capabilities[attachment_def] = get_attachment_data_by_definition_index(attachment_def)
                capabilities[attachment_def].definition = attachment_def
             end

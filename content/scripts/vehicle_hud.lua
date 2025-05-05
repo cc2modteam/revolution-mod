@@ -1040,10 +1040,14 @@ function render_bay_outline(pos, size, col, factor)
 end
 
 function render_attachment_icon(pos, vehicle, attachment, col)
-    if attachment:get_definition_index() == e_game_object_type.attachment_camera_vehicle_control and get_is_vehicle_controllable(vehicle) then
+    local adef = attachment:get_definition_index()
+    if adef == e_game_object_type.attachment_camera_vehicle_control and get_is_vehicle_controllable(vehicle) then
         update_ui_image_rot(pos:x(), pos:y(), atlas_icons.hud_manual_control, col, 0)
+    elseif adef == e_game_object_type.attachment_turret_carrier_flare_launcher then
+        update_ui_image_rot(pos:x() - 1, pos:y() - 1, atlas_icons.column_power, col, 0)
+        update_ui_text(pos:x() + 1, pos:y() + 1, "E", 16, 0, col, 0)
     else
-        local icon_region_l, icon_region_s = get_attachment_icons(attachment:get_definition_index())
+        local icon_region_l, icon_region_s = get_attachment_icons(adef)
     
         if icon_region_s ~= -1 then
             if attachment:get_ammo_capacity() > 0 and attachment:get_ammo_remaining() == 0 then
@@ -4439,6 +4443,8 @@ function get_attachment_display_name(vehicle, attachment)
        return update_get_loc(e_loc.upp_empty) 
     elseif definition_index == e_game_object_type.attachment_camera_vehicle_control and get_is_vehicle_controllable(vehicle) then
         return update_get_loc(e_loc.upp_vehicle_control)
+    elseif definition_index == e_game_object_type.attachment_turret_carrier_flare_launcher then
+        return "EW SYSTEM"
     end
 
     local attachment_data = get_attachment_data_by_definition_index(definition_index)
