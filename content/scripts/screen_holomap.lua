@@ -2499,22 +2499,25 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
             update_ui_rectangle(18, 0, 1, region_h, color_grey_dark)
 
             for _, attachment in ipairs(attachments) do
-                local attachment_data = get_attachment_data_by_definition_index(attachment:get_definition_index())
-                update_ui_image(1, cy + 1, attachment_data.icon16, color_white, 0)
+                local adef = attachment:get_definition_index()
+                if adef ~= e_game_object_type.attachment_turret_carrier_flare_launcher then
+                    local attachment_data = get_attachment_data_by_definition_index(attachment:get_definition_index())
+                    update_ui_image(1, cy + 1, attachment_data.icon16, color_white, 0)
 
-                local ammo_capacity = attachment:get_ammo_capacity()
-                local fuel_capacity = attachment:get_fuel_capacity()
+                    local ammo_capacity = attachment:get_ammo_capacity()
+                    local fuel_capacity = attachment:get_fuel_capacity()
 
-                if ammo_capacity > 0 then
-                    local ammo_remaining = attachment:get_ammo_remaining()
-                    update_ui_text(21, cy + 4, ammo_remaining .. "/" .. ammo_capacity, 100, 0, iff(ammo_remaining == 0, color_status_bad, color_status_ok), 0)
-                elseif fuel_capacity > 0 then
-                    local fuel_remaining = attachment:get_fuel_remaining()
-                    update_ui_text(21, cy + 4, fuel_remaining  .. "/" .. fuel_capacity, 100, 0, iff(fuel_remaining == 0, color_status_bad, color_status_ok), 0)
+                    if ammo_capacity > 0 then
+                        local ammo_remaining = attachment:get_ammo_remaining()
+                        update_ui_text(21, cy + 4, ammo_remaining .. "/" .. ammo_capacity, 100, 0, iff(ammo_remaining == 0, color_status_bad, color_status_ok), 0)
+                    elseif fuel_capacity > 0 then
+                        local fuel_remaining = attachment:get_fuel_remaining()
+                        update_ui_text(21, cy + 4, fuel_remaining  .. "/" .. fuel_capacity, 100, 0, iff(fuel_remaining == 0, color_status_bad, color_status_ok), 0)
+                    end
+
+                    cy = cy + 17
+                    update_ui_rectangle(0, cy, region_w, 1, color8(255, 255, 255, 2))
                 end
-
-                cy = cy + 17
-                update_ui_rectangle(0, cy, region_w, 1, color8(255, 255, 255, 2))
             end
 
             window.cy = cy + 1
