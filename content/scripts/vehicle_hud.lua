@@ -162,7 +162,7 @@ end
 --
 --------------------------------------------------------------------------------
 
-local is_debug = false
+local is_debug = true
 
 function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
     if is_debug then
@@ -225,6 +225,7 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
 
     if vehicle:get() then
         if g_is_connected then
+            update_nearby()
             g_nearest_hostile_ew_radar = nil
             g_nearest_hostile_ew_radar_range = 0
             local v_def = vehicle:get_definition_index()
@@ -248,8 +249,6 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
             else
                 g_render_rwr = false
             end
-
-
 
             if do_comms_error(vehicle, screen_w, screen_h) then
                 return

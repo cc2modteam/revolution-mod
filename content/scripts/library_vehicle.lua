@@ -3523,3 +3523,139 @@ function do_screensaver(screen_w, screen_h, screen_enum)
     end
     return false
 end
+
+
+-- efficiently find nearby units
+g_nearby = {}
+g_nearby_hostile = {}
+g_nearby_friendly = {}
+g_nearby_max = 12000
+
+g_nearby_ensure_count = 0
+
+function ensure_nearby_xz(xbox, zbox)
+    g_nearby_ensure_count = g_nearby_ensure_count + 1
+    local nearby = g_nearby
+    if nearby[xbox] == nil then
+        nearby[xbox] = {}
+    end
+    if nearby[xbox][zbox] == nil then
+        nearby[xbox][zbox] = {}
+    end
+    return nearby[xbox][zbox]
+end
+
+function get_nearby_xz(mx, mz)
+    local near = nil
+    local nx = g_nearby[mx]
+    if nx then
+        near = nx[mz]
+    end
+    if near == nil then
+        return {}
+    end
+    return near
+end
+
+function get_nearby(vehicle)
+    local math_floor = math.floor
+    local x
+    local z
+    local nearby_max = g_nearby_max
+    local self_id = vehicle:get_id()
+    if g_is_hud then
+        local pos = vehicle:get_position()
+        x = pos:x()
+        z = pos:z()
+    else
+        local pos = vehicle:get_position_xz()
+        x = pos:x()
+        z = pos:y()
+    end
+
+    local mx = x / nearby_max
+    local mz = z / nearby_max
+    local xbox = math_floor( mx )
+    local zbox = math_floor( mz )
+    local near = get_nearby_xz(xbox, zbox)
+    local ret = {}
+    for vid, friendly in pairs(near) do
+        if vid ~= self_id then
+            ret[vid] = friendly
+        end
+    end
+    return ret
+end
+
+function round_int(value)
+    return math.floor(value + 0.5)
+end
+
+function update_nearby()
+    local math_floor = math.floor
+    local vehicle_count = update_get_map_vehicle_count()
+    local is_hud = g_is_hud
+    local is_docked = nil
+    local nearby_max = g_nearby_max
+    local math_round = round_int
+    local team = update_get_screen_team_id()
+    g_nearby_ensure_count = 0
+    g_nearby = {}
+    local nearby = g_nearby
+    local get_team = get_vehicle_team_id
+
+    if is_hud then
+        is_docked = function(vehicle)
+            return vehicle:get_is_docked()
+        end
+    else
+        is_docked = function(vehicle)
+             return vehicle:get_attached_parent_id() ~= 0
+        end
+    end
+
+    for i = 0, vehicle_count - 1 do
+        local vehicle = update_get_map_vehicle_by_index(i)
+        if vehicle and vehicle:get() and not is_docked(vehicle) then
+            -- unit exists
+            local v_def = vehicle:get_definition_index()
+            if v_def ~= e_game_object_type.drydock then
+                -- compute nearby
+                local x
+                local z
+                local vid = vehicle:get_id()
+                local friendly = get_team(vehicle) == team
+                if is_hud then
+                    local pos = vehicle:get_position()
+                    x = pos:x()
+                    z = pos:z()
+                else
+                    local pos = vehicle:get_position_xz()
+                    x = pos:x()
+                    z = pos:y()
+                end
+
+                local mx = x / nearby_max
+                local mz = z / nearby_max
+
+                local xbox = math_floor( mx )
+                local zbox = math_floor( mz )
+
+                -- current box
+                ensure_nearby_xz(xbox, zbox)[vid] = friendly
+                -- add to east boxes
+                ensure_nearby_xz(xbox +1, zbox -1)[vid] = friendly
+                ensure_nearby_xz(xbox +1, zbox)[vid] = friendly
+                ensure_nearby_xz(xbox +1, zbox +1)[vid] = friendly
+                -- add to west boxes
+                ensure_nearby_xz(xbox -1, zbox -1)[vid] = friendly
+                ensure_nearby_xz(xbox -1, zbox)[vid] = friendly
+                ensure_nearby_xz(xbox -1, zbox +1)[vid] = friendly
+                -- add to north box
+                ensure_nearby_xz(xbox, zbox +1)[vid] = friendly
+                -- add to south box
+                ensure_nearby_xz(xbox, zbox -1)[vid] = friendly
+            end
+        end
+    end
+end
