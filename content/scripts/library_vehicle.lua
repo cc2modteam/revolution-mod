@@ -1369,54 +1369,56 @@ function do_radar_scan(update_air, update_sea)
                     local nearest_hostile_radar_dist_sq = 999999
                     for _, radar in pairs(all_radars) do
                         local radar_id = radar.id
-                        local radar_vehicle = update_get_map_vehicle_by_id(radar_id)
-                        if radar_vehicle and radar_vehicle:get() then
-                            radar_team = get_vehicle_team_id(radar_vehicle)
-                            -- dont scan the same team as the radar
-                            -- and dont give needlefish "nails" from AI units
-                            if radar_team ~= vteam and get_team_has_humans(radar_team) then
-                                local radar_range = get_modded_radar_range(radar_vehicle)
-                                local radar_range_sq = radar_range * radar_range
-                                if update_sea and target_is_sea then
-                                    -- target is a ship
-                                    local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 25000)
-                                    --local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
-                                    if target_dist_sq < radar_range_sq then
-                                        -- ship seen
-                                        if radar_team == screen_team then
-                                            seen_by_friendly_radars[vid] = true
-                                        else
-                                            if target_dist_sq < nearest_hostile_radar_dist_sq then
-                                                nearest_hostile_radar_dist_sq = target_dist_sq
-                                                nearest_hostile_radar[vid] = radar_id
-                                            end
-                                            seen_by_hostile_radars[vid] = true
-                                        end
-                                    end
-                                else
-                                    -- update air
-                                    if screen_team ~= radar_team then
-                                        -- update our nails
-                                        -- we can hear a hostile radar
-                                        local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 24000)
+                        if get_is_close_id2(vehicle, radar_id) then
+                            local radar_vehicle = update_get_map_vehicle_by_id(radar_id)
+                            if radar_vehicle and radar_vehicle:get() then
+                                radar_team = get_vehicle_team_id(radar_vehicle)
+                                -- dont scan the same team as the radar
+                                -- and dont give needlefish "nails" from AI units
+                                if radar_team ~= vteam and get_team_has_humans(radar_team) then
+                                    local radar_range = get_modded_radar_range(radar_vehicle)
+                                    local radar_range_sq = radar_range * radar_range
+                                    if update_sea and target_is_sea then
+                                        -- target is a ship
+                                        local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 25000)
                                         --local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
                                         if target_dist_sq < radar_range_sq then
-                                            if target_dist_sq < nearest_hostile_radar_dist_sq then
-                                                nearest_hostile_radar_dist_sq = target_dist_sq
-                                                nearest_hostile_radar[vid] = radar_id
+                                            -- ship seen
+                                            if radar_team == screen_team then
+                                                seen_by_friendly_radars[vid] = true
+                                            else
+                                                if target_dist_sq < nearest_hostile_radar_dist_sq then
+                                                    nearest_hostile_radar_dist_sq = target_dist_sq
+                                                    nearest_hostile_radar[vid] = radar_id
+                                                end
+                                                seen_by_hostile_radars[vid] = true
                                             end
-                                            seen_by_hostile_radars[vid] = true
                                         end
                                     else
-                                        -- did any of our radars see this target?
-                                        local power = get_radar_return_power(vehicle, radar_vehicle, radar_range)
-                                        if power > radar_return_power then
-                                            radar_return_power = power
-                                            if power > 0.00002 then
-                                                nearest_friendly_radar[vid] = {
-                                                    id = radar_id,
-                                                    power = power,
-                                                }
+                                        -- update air
+                                        if screen_team ~= radar_team then
+                                            -- update our nails
+                                            -- we can hear a hostile radar
+                                            local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 24000)
+                                            --local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
+                                            if target_dist_sq < radar_range_sq then
+                                                if target_dist_sq < nearest_hostile_radar_dist_sq then
+                                                    nearest_hostile_radar_dist_sq = target_dist_sq
+                                                    nearest_hostile_radar[vid] = radar_id
+                                                end
+                                                seen_by_hostile_radars[vid] = true
+                                            end
+                                        else
+                                            -- did any of our radars see this target?
+                                            local power = get_radar_return_power(vehicle, radar_vehicle, radar_range)
+                                            if power > radar_return_power then
+                                                radar_return_power = power
+                                                if power > 0.00002 then
+                                                    nearest_friendly_radar[vid] = {
+                                                        id = radar_id,
+                                                        power = power,
+                                                    }
+                                                end
                                             end
                                         end
                                     end
@@ -3527,8 +3529,6 @@ end
 
 -- efficiently find nearby units
 g_nearby = {}
-g_nearby_hostile = {}
-g_nearby_friendly = {}
 g_nearby_max = 12000
 
 g_nearby_ensure_count = 0
@@ -3587,6 +3587,23 @@ function get_nearby(vehicle)
     return ret
 end
 
+function get_is_close(v1, v2)
+    -- Return true if v1 is 'near' v2
+    if v2 and v2:get() then
+        return get_is_close_id2(v1, v2:get_id())
+    end
+    return false
+end
+
+function get_is_close_id2(v1, v2_id)
+    -- Return True if v1 is 'near' v2
+    if v1 and v1:get()then
+        local near_v1 = get_nearby(v1)
+        return near_v1[v2_id] ~= nil
+    end
+    return false
+end
+
 function round_int(value)
     return math.floor(value + 0.5)
 end
@@ -3596,21 +3613,25 @@ function update_nearby()
     local vehicle_count = update_get_map_vehicle_count()
     local is_hud = g_is_hud
     local is_docked = nil
+    local get_team = nil
     local nearby_max = g_nearby_max
-    local math_round = round_int
     local team = update_get_screen_team_id()
     g_nearby_ensure_count = 0
     g_nearby = {}
-    local nearby = g_nearby
-    local get_team = get_vehicle_team_id
 
     if is_hud then
         is_docked = function(vehicle)
             return vehicle:get_is_docked()
         end
+        get_team = function(vehicle)
+            return vehicle:get_team_id()
+        end
     else
         is_docked = function(vehicle)
              return vehicle:get_attached_parent_id() ~= 0
+        end
+        get_team = function(vehicle)
+            return vehicle:get_team()
         end
     end
 
