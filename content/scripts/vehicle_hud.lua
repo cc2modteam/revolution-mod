@@ -1677,9 +1677,13 @@ function render_attachment_hud(screen_w, screen_h, map_data, tick_fraction, vehi
 end
 
 function render_hud_rwr(screen_w, screen_h, vehicle)
-    local st, err = pcall(_render_hud_rwr, screen_w, screen_h, vehicle)
-    if not st then
-        print(err)
+    if not g_debug_enabled then
+        _render_hud_rwr(screen_w, screen_h, vehicle)
+    else
+        local st, err = pcall(_render_hud_rwr, screen_w, screen_h, vehicle)
+        if not st then
+            print(err)
+        end
     end
 end
 
