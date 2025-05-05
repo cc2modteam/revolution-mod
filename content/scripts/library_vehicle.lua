@@ -819,6 +819,7 @@ end
 g_all_radars = {}
 g_radar_seen_by_ours = {}
 g_radar_seen_by_hostile = {}
+g_all_ew = {}
 
 -- every unit in detection range of a radar (of any team)
 g_seen_by_hostile_radars = {}
@@ -898,31 +899,54 @@ function _get_awacs_radar_attachment_position(vehicle)
     return -1
 end
 
-function _get_radar_attachment(vehicle)
-    if vehicle and vehicle:get() then
-        if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
-            return e_game_object_type.attachment_radar_awacs
-        end
-
-        local attachment_count = vehicle:get_attachment_count()
-        for i = 0, attachment_count - 1 do
-            local attachment = vehicle:get_attachment(i)
-            if attachment and attachment:get() then
-                local definition_index = attachment:get_definition_index()
-                if ( false
-                        or (definition_index == e_game_object_type.attachment_radar_golfball)
-                        or (definition_index == e_game_object_type.attachment_radar_awacs)
-                        or (definition_index == e_game_object_type.attachment_turret_carrier_ciws)
-                        or (definition_index == e_game_object_type.attachment_turret_carrier_torpedo)
-                        or (definition_index == e_game_object_type.attachment_turret_carrier_missile_silo)
-                        or (definition_index == e_game_object_type.attachment_turret_carrier_main_gun)
-                ) then
-                    return definition_index
-                end
+function has_attachment(vehicle, a_defs)
+    local attachment_count = vehicle:get_attachment_count()
+    for i = 0, attachment_count - 1 do
+        local attachment = vehicle:get_attachment(i)
+        if attachment and attachment:get() then
+            local definition_index = attachment:get_definition_index()
+            if a_defs[definition_index] ~= nil then
+                return definition_index
             end
         end
     end
     return nil
+end
+
+local ew_attachment_defs = {
+    [e_game_object_type.attachment_turret_carrier_flare_launcher] = true
+}
+
+function _get_ew_attachment(vehicle)
+    local d = nil
+    if vehicle and vehicle:get() then
+        if vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
+            d = has_attachment(vehicle, ew_attachment_defs)
+        end
+    end
+    return d
+end
+
+
+local radar_attachment_defs = {
+    [e_game_object_type.attachment_radar_golfball] = true,
+    [e_game_object_type.attachment_radar_awacs] = true,
+    [e_game_object_type.attachment_turret_carrier_ciws] = true,
+    [e_game_object_type.attachment_turret_carrier_torpedo] = true,
+    [e_game_object_type.attachment_turret_carrier_missile_silo] = true,
+    [e_game_object_type.attachment_turret_carrier_main_gun] = true,
+}
+
+function _get_radar_attachment(vehicle)
+    local d = nil
+    if vehicle and vehicle:get() then
+        if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+            d = e_game_object_type.attachment_radar_awacs
+        else
+            d = has_attachment(vehicle, radar_attachment_defs)
+        end
+    end
+    return d
 end
 
 function get_vehicle_radar(vehicle)
@@ -1170,6 +1194,7 @@ function get_is_masked_by_stealth(vehicle)
 end
 
 function update_modded_radar_list(hostile_only)
+    --    -- update the list of known radars & faked-radars
     local screen_team = update_get_screen_team_id()
     local vehicle_count = update_get_map_vehicle_count()
     local seen_by_friendly_radars = g_seen_by_friendly_radars
@@ -1260,6 +1285,7 @@ function update_modded_radar_data()
     end
 
     g_all_radars = {}
+    g_all_ew = {}
     g_nearest_hostile_radar = {}
 
     update_modded_radar_list(false)
