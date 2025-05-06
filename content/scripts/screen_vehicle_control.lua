@@ -1171,7 +1171,7 @@ function err_handler(arg)
     print(debug.traceback())
 end
 
-g_debug_enabled = false
+g_debug_enabled = true
 
 function update(screen_w, screen_h, ticks)
     if update_get_is_focus_local() then

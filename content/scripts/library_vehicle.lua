@@ -1296,6 +1296,27 @@ function update_modded_radar_data()
 
     update_modded_radar_list(false)
 
+
+    if g_screen_name == "screen_veh_m" then
+        if g_timed > 0 then
+            g_timed = g_timed - 1
+        end
+    end
+
+    if true and g_screen_name == "screen_veh_m" and g_timed == 0 then
+        g_timed = 120
+        local start = update_get_time_since_epoch()
+        print("starting timed run", start)
+        local stop = start + 10
+        local count = 0
+        -- run for 10 seconds, count how many updates we can do for all
+        while stop > update_get_time_since_epoch() do
+            do_radar_scan(false, true)
+            count = count + 1
+        end
+        print("done", count)
+    end
+
     if not update_air and not update_sea then
         return
     end
@@ -1325,6 +1346,8 @@ function update_modded_radar_data()
 
     do_radar_scan(update_air, update_sea)
 end
+
+g_timed = 120
 
 function do_radar_scan(update_air, update_sea)
     local vehicle_count = update_get_map_vehicle_count()
