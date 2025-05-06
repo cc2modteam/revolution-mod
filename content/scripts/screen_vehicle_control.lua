@@ -2745,9 +2745,6 @@ function _update(screen_w, screen_h, ticks)
                     if get_is_vehicle_air(highlighted_vehicle:get_definition_index()) then
                         tool_height = tool_height + 10
                     end
-                    if g_debug_enabled then
-                        debug_nearby(highlighted_vehicle)
-                    end
                     render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, 140, tool_height, 10, function(w, h) render_vehicle_tooltip(w, h, highlighted_vehicle, peers) end, color8(0, 0, 0, 190))
                 end
             end
@@ -4239,39 +4236,4 @@ function update_world_triangle(ax, ay, bx, by, cx, cy, col)
 
     update_ui_add_triangle(vec2(ax, ay), vec2(bx, by), vec2(cx, cy), col)
     update_ui_end_triangles()
-end
-
-function debug_nearby(origin)
-    local math_floor = math.floor
-    local nearby = get_nearby(origin)
-
-    local bh = g_nearby_max * g_screen_w / g_camera_size
-
-
-
-    for nvid, friendly in pairs(nearby) do
-        local vehicle = update_get_map_vehicle_by_id(nvid)
-        if vehicle:get() then
-            local pos = vehicle:get_position_xz()
-            local v_x = pos:x()
-            local v_z = pos:y()
-
-            local bx = math_floor(v_x / g_nearby_max) * g_nearby_max
-            local bz = math_floor(v_z / g_nearby_max) * g_nearby_max
-            local bsx, bsy = get_screen_from_world(bx, bz, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
-            update_ui_rectangle_outline(
-                bsx, bsy - bh, bh, bh, color_white
-            )
-            update_ui_rectangle_outline(
-                bsx-1, bsy-1, 2, 2, color_enemy
-            )
-            local col = color_friendly
-            if not friendly then
-                col = color_enemy
-            end
-
-            local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_z, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
-            update_ui_rectangle_outline(screen_pos_x - 5, screen_pos_y - 5, 10, 10, col)
-        end
-    end
 end
