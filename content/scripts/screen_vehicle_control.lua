@@ -1302,7 +1302,6 @@ function _update(screen_w, screen_h, ticks)
 
     if g_screen_index == 0 then
         -- main map view
-        update_nearby()
         rev_render_islands(g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
         if get_is_map_movement_allowed() then
