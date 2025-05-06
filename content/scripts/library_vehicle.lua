@@ -1,3 +1,7 @@
+local math_pi = math.pi
+local math_random = math.random
+local math_floor = math.floor
+
 g_is_holomap = false
 g_last_update_interval = 1
 
@@ -1194,7 +1198,7 @@ function get_is_masked_by_stealth(vehicle)
 end
 
 function update_modded_radar_list(hostile_only)
-    --    -- update the list of known radars & faked-radars
+    -- update the list of known radars & faked-radars
     local screen_team = update_get_screen_team_id()
     local vehicle_count = update_get_map_vehicle_count()
     local seen_by_friendly_radars = g_seen_by_friendly_radars
@@ -1217,11 +1221,13 @@ function update_modded_radar_list(hostile_only)
                     end
                 end
                 if radar_type ~= nil then
+
                     local vid = vehicle:get_id()
                     all_radars[vid] = {
                         id = vid,
                         type = radar_type
                     }
+
                 end
             end
         end
@@ -1246,8 +1252,8 @@ function update_modded_radar_data()
     -- find all radars
     local current_tick = update_get_logic_tick()
     -- jitter the updates so we avoid doing too much at the same time
-    local next_air_scan = g_radar_last_air_scan + math.floor(math.random(30, 95))
-    local next_sea_scan = g_radar_last_sea_scan + math.floor(math.random(40, 120))
+    local next_air_scan = g_radar_last_air_scan + math_floor(math_random(30, 95))
+    local next_sea_scan = g_radar_last_sea_scan + math_floor(math_random(40, 120))
     local user_connected = true
     local script_id = nil
     if g_radar_debug then
@@ -1262,8 +1268,8 @@ function update_modded_radar_data()
             end
         end
         -- not connected, reduce the frequency to once every 5-7 seconds
-        next_air_scan = g_radar_last_air_scan + disconnected_delay_base + math.floor(math.random(30, 90))
-        next_sea_scan = g_radar_last_sea_scan + disconnected_delay_base + math.floor(math.random(40, 150))
+        next_air_scan = g_radar_last_air_scan + disconnected_delay_base + math_floor(math_random(30, 90))
+        next_sea_scan = g_radar_last_sea_scan + disconnected_delay_base + math_floor(math_random(40, 150))
         user_connected = false
     end
 
@@ -1380,8 +1386,7 @@ function do_radar_scan(update_air, update_sea)
                                     local radar_range_sq = radar_range * radar_range
                                     if update_sea and target_is_sea then
                                         -- target is a ship
-                                        local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 25000)
-                                        --local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
+                                        local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 20000)
                                         if target_dist_sq < radar_range_sq then
                                             -- ship seen
                                             if radar_team == screen_team then
@@ -1612,7 +1617,7 @@ function render_team_holomap_cursor(team_id)
         g_holomap_last[team_id][3] = g_animation_time
     end
 
-    local fade = math.max( 255 - math.floor(g_animation_time - g_holomap_last[team_id][3]), 0 )
+    local fade = math.max( 255 - math_floor(g_animation_time - g_holomap_last[team_id][3]), 0 )
     if fade > 0 then
         local cursor_x = 0
         local cursor_y = 0
@@ -1621,7 +1626,7 @@ function render_team_holomap_cursor(team_id)
         else
             cursor_x, cursor_y = get_screen_from_world( holomap_x, holomap_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
         end
-        update_ui_image_rot(cursor_x, cursor_y, atlas_icons.map_icon_crosshair, color8(255, 255, 255, fade), math.pi / 4)
+        update_ui_image_rot(cursor_x, cursor_y, atlas_icons.map_icon_crosshair, color8(255, 255, 255, fade), math_pi / 4)
         if get_is_spectator_mode() then
             local team_name = get_team_name(team_id)
             update_ui_text(cursor_x + 10, cursor_y + 10, team_name, 64, 0, color8(255, 255, 255, fade), 0)
@@ -1702,7 +1707,7 @@ function get_radar_return_power(target, radar, radar_range)
         if rcs ~= nil and rcs > 0 then
             local radar_power = radar_range * 10
             local dist_sq = vec2_dist_sq(target:get_position_xz(), radar:get_position_xz())
-            local intensity = radar_power / (4 * math.pi * dist_sq)
+            local intensity = radar_power / (4 * math_pi * dist_sq)
             -- i = e/rcs
             -- e = i * rcs
             local reflection = rcs * intensity
@@ -1719,7 +1724,7 @@ function get_rcs_detection_range(rcs)
         while pwr < g_radar_min_return_power do
             dist = dist - 250
             local radar_power = 10000 * 10
-            local intensity = radar_power / (4 * math.pi * dist * dist)
+            local intensity = radar_power / (4 * math_pi * dist * dist)
             pwr = rcs * intensity
         end
         return (dist/1000)
@@ -1878,7 +1883,7 @@ end
 
 function waypoint_flag_isset(waypoint, flag)
     local position = waypoint:get_position_xz()
-    if math.floor(position:x()) & flag ~= 0 then
+    if math_floor(position:x()) & flag ~= 0 then
         return true
     end
     return false
@@ -1893,8 +1898,8 @@ end
 
 function unpack_alt_xy(altitude)
     if altitude > 0 then
-        local shifted_x = math.floor((altitude / 0x10000)) & 0xffff
-        local shifted_y = math.floor(altitude) & 0xffff
+        local shifted_x = math_floor((altitude / 0x10000)) & 0xffff
+        local shifted_y = math_floor(altitude) & 0xffff
         local cursor_x = (16 * shifted_x) - MARKER_WPT_OFFSET
         local cursor_y = (16 * shifted_y) - MARKER_WPT_OFFSET
         return cursor_x, cursor_y
@@ -1903,8 +1908,8 @@ function unpack_alt_xy(altitude)
 end
 
 function pack_alt_xy(x, y)
-    local shifted_x = math.floor((x + MARKER_WPT_OFFSET) / 16)
-    local shifted_y = math.floor((y + MARKER_WPT_OFFSET) / 16)
+    local shifted_x = math_floor((x + MARKER_WPT_OFFSET) / 16)
+    local shifted_y = math_floor((y + MARKER_WPT_OFFSET) / 16)
 
     if shifted_x <= 0xFFFF and shifted_y <= 0xFFFF then
         -- store it in altitude
@@ -1954,7 +1959,7 @@ function get_special_waypoint(team_id, flag, special_id)
             if waypoint ~= nil then
                 if waypoint_flag_isset(waypoint, flag) then
                     local pos = waypoint:get_position_xz()
-                    if math.floor(pos:y()) == special_id then
+                    if math_floor(pos:y()) == special_id then
                         return waypoint
                     end
                 end
@@ -2244,8 +2249,8 @@ g_ship_names_choices = {
 
 function set_ship_names()
     if g_ship_name_pseudo == 0 then
-        g_ship_name_pseudo = math.floor(update_get_tile_by_index(1):get_position_xz():x()) % 500
-        g_ship_name_pseudo2 = math.floor(update_get_tile_by_index(1):get_position_xz():y()) % 1000
+        g_ship_name_pseudo = math_floor(update_get_tile_by_index(1):get_position_xz():x()) % 500
+        g_ship_name_pseudo2 = math_floor(update_get_tile_by_index(1):get_position_xz():y()) % 1000
     end
 end
 
@@ -2313,11 +2318,11 @@ function get_team_carriers(team)
 end
 
 function left_shift(x, bits)
-    return math.floor(x * (2^bits))
+    return math_floor(x * (2^bits))
 end
 
 function right_shift(x, bits)
-    return math.floor(x / (2^bits))
+    return math_floor(x / (2^bits))
 end
 
 g_carrier_lifeboat_bay_index = 16
@@ -3178,7 +3183,7 @@ function set_island_factory_damage(island_id, tick_when_fixed)
     if wpt ~= nil then
         local drydock = find_team_drydock(team)
         if drydock and drydock:get() then
-            local value = math.floor(math.min(tick_when_fixed, update_get_logic_tick() + g_island_factory_damage_ticks_max))
+            local value = math_floor(math.min(tick_when_fixed, update_get_logic_tick() + g_island_factory_damage_ticks_max))
             if g_missile_debug then
                 print("factory " .. island_id .. " dmg=" .. value)
             end
@@ -3203,7 +3208,7 @@ g_hover_callback = nil
 
 function add_altitude_waypoint(vehicle, pos, alt, hold_grp)
     local wpt = vehicle:add_waypoint(pos:x(), pos:y())
-    vehicle:set_waypoint_altitude(wpt, math.floor(alt), 0)
+    vehicle:set_waypoint_altitude(wpt, math_floor(alt), 0)
     if hold_grp ~= nil then
         vehicle:set_waypoint_wait_group(wpt, hold_grp, true)
     end
@@ -3558,7 +3563,6 @@ function get_nearby_xz(mx, mz)
 end
 
 function get_nearby(vehicle)
-    local math_floor = math.floor
     local x
     local z
     local nearby_max = g_nearby_max
@@ -3605,11 +3609,10 @@ function get_is_close_id2(v1, v2_id)
 end
 
 function round_int(value)
-    return math.floor(value + 0.5)
+    return math_floor(value + 0.5)
 end
 
 function update_nearby()
-    local math_floor = math.floor
     local vehicle_count = update_get_map_vehicle_count()
     local is_hud = g_is_hud
     local is_docked = nil
