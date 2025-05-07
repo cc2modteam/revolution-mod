@@ -1186,6 +1186,8 @@ function update(screen_w, screen_h, ticks)
         return
     end
 
+    --dev_call_timer("screen_veh_m", 10, 90, function() _update(screen_w, screen_h, ticks)  end)
+
     if not g_debug_enabled then
         _update(screen_w, screen_h, ticks)
     else

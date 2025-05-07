@@ -1681,3 +1681,32 @@ function get_island_name(tile)
     end
     return tile:get_name()
 end
+
+
+function dev_call_timer(screen_name, maxtime, delay, func)
+    if screen_name ~= g_screen_name then
+        return
+    end
+
+    if g_timer_delay == nil then
+        g_timer_delay = delay
+    end
+
+    g_timer_delay = g_timer_delay - 1
+
+    if g_timer_delay == 0 then
+        local started = update_get_time_since_epoch()
+        print("start timer", started)
+        local stop = started + maxtime
+        local count = 0
+        while update_get_time_since_epoch() < stop do
+            func()
+            count = count +1
+        end
+        print("done timer", update_get_time_since_epoch())
+        local rate = count / maxtime
+        print("calls", count)
+        print("calls/sec", rate)
+        g_timer_delay = nil
+    end
+end
