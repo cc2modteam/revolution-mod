@@ -2984,6 +2984,7 @@ local st, _v = pcall(function()
                 [1] = {
                     e_game_object_type.attachment_camera_plane,
                     e_game_object_type.attachment_turret_gimbal_30mm,
+                    e_game_object_type.attachment_turret_carrier_flare_launcher,
                 },
                 -- wings
                 [2] = _std_wing_weapons,
