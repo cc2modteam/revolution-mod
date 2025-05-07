@@ -2279,6 +2279,9 @@ function _update(screen_w, screen_h, ticks)
 
                             if is_render_vehicle_icon then
                                 -- render vehicle icon
+                                if vehicle_team ~= screen_team then
+                                    vehicle_definition_index = ew_fuzz_unit_def(vehicle_definition_index, vehicle:get_id())
+                                end
 
                                 local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
 
@@ -3674,8 +3677,14 @@ end
 
 function render_vehicle_tooltip(w, h, vehicle, peers)
     local screen_vehicle = update_get_screen_vehicle()
+    local screen_team = update_get_screen_team_id()
     local vehicle_pos_xz = vehicle:get_position_xz()
     local vehicle_definition_index = vehicle:get_definition_index()
+    local vehicle_team = vehicle:get_team()
+    if vehicle_team ~= screen_team then
+        vehicle_definition_index = ew_fuzz_unit_def(vehicle_definition_index, vehicle:get_id())
+    end
+
     local vehicle_definition_name, vehicle_definition_region = get_chassis_data_by_definition_index(vehicle_definition_index)
     local vehicle_name = vehicle_definition_name
 
