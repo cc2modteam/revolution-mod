@@ -823,11 +823,14 @@ end
 g_all_radars = {}
 g_radar_seen_by_ours = {}
 g_radar_seen_by_hostile = {}
-g_all_ew = {}
+g_all_hostile_ew = {}
+g_ew_range_sq = 10000 * 10000
 
 -- every unit in detection range of a radar (of any team)
 g_seen_by_hostile_radars = {}
 g_seen_by_friendly_radars = {}
+-- every unit in range of a hostile EW
+g_fuzzed_by_hostile_ew = {}
 
 -- the id of the nearest enemy unit that can see our aircraft
 g_nearest_hostile_radar = {}
@@ -1134,6 +1137,33 @@ function iter_radars(func)
     end
 end
 
+function get_close_hostile_ew(vid)
+    -- if there is an EW unit close by this unit, return true
+    local vself = update_get_map_vehicle_by_id(vid)
+    if vself and vself:get() then
+        local vpos = get_pos_xz(vself)
+        local max_sq = g_ew_range_sq
+        for _, ewid in pairs(g_all_hostile_ew) do
+            if ewid ~= vid then
+                local ew = update_get_map_vehicle_by_id(ewid)
+                if ew and ew:get() then
+                    local ew_pos = get_pos_xz(ew)
+                    return fast_dist_sq2(ew_pos, vpos, max_sq) < max_sq
+                end
+            end
+        end
+    end
+    return false
+end
+
+function get_close_hostile_ew_cached(vid)
+    local result = g_fuzzed_by_hostile_ew[vid]
+    if result == nil then
+        result = get_close_hostile_ew(vid)
+    end
+    return result
+end
+
 function get_nearest_hostile_radar(vid)
     -- used by HUD RWR
     local rwr_vehicle = update_get_map_vehicle_by_id(vid)
@@ -1204,15 +1234,23 @@ function update_modded_radar_list(hostile_only)
     local seen_by_friendly_radars = g_seen_by_friendly_radars
     local seen_by_hostile_radars = g_seen_by_hostile_radars
     local all_radars = g_all_radars
+    local all_hostile_ew = g_all_hostile_ew
 
     for i = 0, vehicle_count - 1 do
         local vehicle = update_get_map_vehicle_by_index(i)
         if vehicle:get() and not get_vehicle_docked(vehicle) then
             local vehicle_team = get_vehicle_team_id(vehicle)
+
+            -- find hostile EWs
+            if screen_team ~= vehicle_team then
+                if _get_ew_attachment(vehicle) then
+                    -- hostile unit has an EW capability
+                    table.insert(all_hostile_ew, vehicle:get_id())
+                end
+            end
+
             if vehicle_team ~= screen_team or not hostile_only then
-
                 local radar_type = _get_radar_attachment(vehicle)
-
                 if radar_type ~= nil then
                     if radar_type == e_game_object_type.attachment_radar_awacs then
                         if not get_awacs_radar_enabled(vehicle) then
@@ -1291,7 +1329,7 @@ function update_modded_radar_data()
     end
 
     g_all_radars = {}
-    g_all_ew = {}
+    g_all_hostile_ew = {}
     g_nearest_hostile_radar = {}
 
     update_modded_radar_list(false)
@@ -1335,12 +1373,14 @@ function do_radar_scan(update_air, update_sea)
     local seen_by_friendly_radars = g_seen_by_friendly_radars
     local nearest_hostile_radar = g_nearest_hostile_radar
     local seen_by_hostile_radars = g_seen_by_hostile_radars
+    local fuzzed_by_hostile_ew = {}
     local fdsq = fast_dist_sq
 
     for i = 0, vehicle_count - 1 do
         local vehicle = update_get_map_vehicle_by_index(i)
         if vehicle:get() then
             local vteam = get_vehicle_team_id(vehicle)
+            local friendly = vteam == screen_team
             local vdef = vehicle:get_definition_index()
             local vid = vehicle:get_id()
             local target_is_air = get_is_vehicle_air(vdef)
@@ -1370,6 +1410,14 @@ function do_radar_scan(update_air, update_sea)
                     nearest_hostile_radar[vid] = nil
                     seen_by_hostile_radars[vid] = nil
 
+                    -- do EW
+                    if not friendly then
+                        if fuzzed_by_hostile_ew[vid] == nil then
+                           fuzzed_by_hostile_ew[vid] = get_close_hostile_ew(vid)
+                        end
+                    end
+
+                    -- do radars
                     local radar_return_power = 0
                     local radar_team = nil
                     local nearest_hostile_radar_dist_sq = 999999
@@ -1439,19 +1487,24 @@ function do_radar_scan(update_air, update_sea)
             end
         end
     end
+    g_fuzzed_by_hostile_ew = fuzzed_by_hostile_ew
 end
 
-function fast_dist_sq(a, b, lim)
+function fast_dist_sq2(a, b, limsq)
     -- compute a low fidelity distance for things far away,
     local dx = a:x() - b:x()
     local dxsq = dx * dx
-    if dxsq < lim * lim then
+    if dxsq < limsq then
         -- x is within lim km, compute the rest of the distance_sq
         local dy = a:y() - b:y()
         return dxsq + dy * dy
     end
     -- far away, just give a lowfi distance
     return dxsq
+end
+
+function fast_dist_sq(a, b, lim)
+    return fast_dist_sq2(a, b, lim * lim)
 end
 
 function get_is_radar(vehicle_id)
@@ -3531,4 +3584,22 @@ end
 
 function round_int(value)
     return math_floor(value + 0.5)
+end
+
+g_ew_def_downgrade = {
+    [e_game_object_type.chassis_carrier] = e_game_object_type.chassis_sea_barge,
+    [e_game_object_type.chassis_sea_barge] = e_game_object_type.chassis_sea_ship_light,
+    [e_game_object_type.chassis_sea_ship_heavy] = e_game_object_type.chassis_sea_ship_light,
+    [e_game_object_type.chassis_air_wing_heavy] = e_game_object_type.chassis_air_wing_light,
+    [e_game_object_type.chassis_air_rotor_heavy] = e_game_object_type.chassis_air_rotor_light,
+}
+
+function ew_fuzz_unit_def(def, vid)
+    local downgrade = g_ew_def_downgrade[def]
+    if downgrade ~= nil then
+        if get_close_hostile_ew_cached(vid) then
+            return downgrade
+        end
+    end
+    return def
 end

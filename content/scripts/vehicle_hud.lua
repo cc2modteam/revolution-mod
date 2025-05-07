@@ -225,26 +225,20 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
 
     if vehicle:get() then
         if g_is_connected then
-            --update_nearby()
             g_nearest_hostile_ew_radar = nil
             g_nearest_hostile_ew_radar_range = 0
             local v_def = vehicle:get_definition_index()
             if get_is_vehicle_air(v_def) then
                 g_render_rwr = get_has_rwr(vehicle)
-                local st, err = pcall(function()
-                    update_modded_radar_list(true)
-                    local nearest_radar, radar_dist = get_nearest_hostile_radar(vehicle:get_id())
-                    if nearest_radar ~= nil then
-                        if radar_dist > get_rwr_range() then
-                            nearest_radar = nil
-                            radar_dist = 0
-                        end
-                        g_nearest_hostile_ew_radar_range = radar_dist
-                        g_nearest_hostile_ew_radar = nearest_radar
+                update_modded_radar_list(true)
+                local nearest_radar, radar_dist = get_nearest_hostile_radar(vehicle:get_id())
+                if nearest_radar ~= nil then
+                    if radar_dist > get_rwr_range() then
+                        nearest_radar = nil
+                        radar_dist = 0
                     end
-                end)
-                if not st then
-                    print(err)
+                    g_nearest_hostile_ew_radar_range = radar_dist
+                    g_nearest_hostile_ew_radar = nearest_radar
                 end
             else
                 g_render_rwr = false
@@ -865,19 +859,22 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             end
         end
     end
-
+    local screen_team = update_get_screen_team_id()
     for _, vehicle in iter_vehicles(filter_vehicles) do
-        local icon_region, icon_offset = get_icon_data_by_definition_index(vehicle:get_definition_index())
+        local v_def = vehicle:get_definition_index()
+        local vehicle_team = vehicle:get_team_id()
+        local friendly = vehicle_team == screen_team
+        if not friendly then
+            v_def = ew_fuzz_unit_def(v_def, vehicle:get_id())
+        end
+        local icon_region, icon_offset = get_icon_data_by_definition_index(v_def)
         local position_xz = vehicle:get_position()
         local screen_x, screen_y = world_to_screen(position_xz:x(), position_xz:z())
-        local vehicle_team = vehicle:get_team_id()
 
         local element_color = color8(16, 16, 16, 255)
 
-        local friendly = false
-        if vehicle_team == update_get_screen_team_id() then
+        if friendly then
             element_color = color_friendly
-            friendly = true
         else
             element_color = color_enemy
             if awacs_mode then
@@ -888,13 +885,12 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
         if vehicle:get_is_visible() then
             update_ui_image(screen_x - icon_offset, screen_y - icon_offset, icon_region, element_color, 0)
             if awacs_mode and vehicle:get_id() ~= screen_vehicle:get_id() then
-                local v_def = vehicle:get_definition_index()
                 local v_spd = vehicle:get_linear_speed()
                 local v_alt = vehicle:get_altitude()
+
                 if get_is_vehicle_air(v_def) then
                     local screen_x, screen_y = world_to_screen(vehicle:get_position():x(), vehicle:get_position():z())
                     local name, icon, handle = get_chassis_data_by_definition_index(v_def)
-
 
                     if g_radar_mode == radar_modes.air_labels or g_radar_mode == radar_modes.air_threats then
                         if friendly and g_radar_mode == radar_modes.air_labels then
@@ -3779,6 +3775,9 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
 
                 update_ui_text(pos:x() + 9, cursor_y, capability_name, 64, 0, col, 0)
             else
+                -- hostile targets
+                def = ew_fuzz_unit_def(def, data.id)
+
                 if data.vehicle:get_is_observation_type_revealed() then
                     local name, icon, handle = get_chassis_data_by_definition_index(def)
                     update_ui_text(pos:x() + 9, cursor_y, handle, 200, 0, col, 0)
