@@ -1181,6 +1181,8 @@ function update(screen_w, screen_h, ticks)
         return
     end
 
+    -- dev_call_timer("screen_veh_m", 10, 90, function() _update(screen_w, screen_h, ticks)  end)
+
     local st, err = xpcall(_update, err_handler, screen_w, screen_h, ticks)
     if not st then
         print(err)
