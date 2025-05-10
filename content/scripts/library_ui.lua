@@ -4314,6 +4314,8 @@ function rev_is_island_on_screen(island, cam_x, cam_y, cam_size)
     return false
 end
 
+
+
 function rev_before_add_attachment(
         carrier_vehicle,
         bay_index,
@@ -4339,19 +4341,19 @@ function rev_before_add_attachment(
                     -- if we are making a change
 
                     -- handle special case when adding "flare" EW attachment to units
-                    if new_attachment_type == e_game_object_type.attachment_turret_carrier_flare_launcher then
-                        local bots = carrier_vehicle:get_inventory_count_by_item_index(e_inventory_item.virus_module)
-                        if bots < 1 then
+                    if new_attachment_type == g_ew_attachment_type then
+                        local cost = carrier_vehicle:get_inventory_count_by_item_index(g_ew_discard_type)
+                        if cost < g_ew_discard_count then
                             -- disallow, run out of bots
                             g_no_stock_counter = 0
                             return false
                         end
-                        -- discard one virus module
-                        carrier_vehicle:set_inventory_order(e_inventory_item.virus_module, 1, e_carrier_order_operation.delete)
+                        -- discard the cost
+                        carrier_vehicle:set_inventory_order(g_ew_discard_type, g_ew_discard_count, e_carrier_order_operation.delete)
                     end
 
                     -- if someone de-selects "carrier flare" then we need to destroy 10 flares from the inventory
-                    if current_attachment_def == e_game_object_type.attachment_turret_carrier_flare_launcher then
+                    if current_attachment_def == g_ew_attachment_type then
                         -- we should probably do this for cruise missile, aa and torps but nobody puts those on
                         carrier_vehicle:set_inventory_order(e_inventory_item.ammo_flare, 10, e_carrier_order_operation.delete)
                     end

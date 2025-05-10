@@ -1034,7 +1034,7 @@ function render_attachment_icon(pos, vehicle, attachment, col)
     local adef = attachment:get_definition_index()
     if adef == e_game_object_type.attachment_camera_vehicle_control and get_is_vehicle_controllable(vehicle) then
         update_ui_image_rot(pos:x(), pos:y(), atlas_icons.hud_manual_control, col, 0)
-    elseif adef == e_game_object_type.attachment_turret_carrier_flare_launcher then
+    elseif adef == g_ew_attachment_type then
         update_ui_image_rot(pos:x() - 1, pos:y() - 1, atlas_icons.column_power, col, 0)
         update_ui_text(pos:x() + 1, pos:y() + 1, "E", 16, 0, col, 0)
     else
@@ -4439,7 +4439,7 @@ function get_attachment_display_name(vehicle, attachment)
        return update_get_loc(e_loc.upp_empty) 
     elseif definition_index == e_game_object_type.attachment_camera_vehicle_control and get_is_vehicle_controllable(vehicle) then
         return update_get_loc(e_loc.upp_vehicle_control)
-    elseif definition_index == e_game_object_type.attachment_turret_carrier_flare_launcher then
+    elseif definition_index == g_ew_attachment_type then
         return "EW SYSTEM"
     end
 

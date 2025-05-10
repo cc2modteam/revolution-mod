@@ -543,7 +543,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
 
                 for _, attachment in ipairs(attachments) do
                     local adef = attachment:get_definition_index()
-                    if adef ~= e_game_object_type.attachment_turret_carrier_flare_launcher then
+                    if adef ~= g_ew_attachment_type then
                         local attachment_data = get_attachment_data_by_definition_index(adef)
                         update_ui_image(1, cy + 1, attachment_data.icon16, color_white, 0)
 

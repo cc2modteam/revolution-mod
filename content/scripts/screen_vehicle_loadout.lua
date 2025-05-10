@@ -461,10 +461,12 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
                 local txt = nil
                 local icon = item.region
                 local ammo_type = update_get_attachment_ammo_item_type(item.type)
-                if item.type == e_game_object_type.attachment_turret_carrier_flare_launcher then
+                local ammo_divide = 1
+                if item.type == g_ew_attachment_type then
                     icon = atlas_icons.column_power
                     txt = "E"
                     ammo_type = e_inventory_item.virus_module
+                    ammo_divide = g_ew_discard_count
                 end
 
                 local icon_w = update_ui_get_image_size(icon)
@@ -478,7 +480,7 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
                         update_ui_text(1, 16, this_vehicle:get_inventory_count_by_definition_index(item.type), button_w, 1, color_black, 0)
                     else
                         if ammo_type ~= -1 then
-                            update_ui_text(1, 16, format_ammo_quantity(math.min(this_vehicle:get_inventory_count_by_item_index(ammo_type), 99000)), button_w, 1, color_black, 0)
+                            update_ui_text(1, 16, format_ammo_quantity(math.min(this_vehicle:get_inventory_count_by_item_index(ammo_type) / ammo_divide, 99000)), button_w, 1, color_black, 0)
                         end
                     end
                 end
@@ -595,8 +597,8 @@ function render_ui_attachment_definition_description(x, y, w, h, vehicle, index)
     local ammo_type = update_get_attachment_ammo_item_type(index)
     local ammo_icon = atlas_icons.icon_ammo
     --  if this is the EW flare launcher, show virus bots as ammo count
-    if index == e_game_object_type.attachment_turret_carrier_flare_launcher then
-        ammo_type = update_get_attachment_ammo_item_type(e_game_object_type.attachment_turret_robot_dog_capsule)
+    if index == g_ew_attachment_type then
+        ammo_type = update_get_attachment_ammo_item_type(g_ew_attachment_discard_type)
         ammo_icon = atlas_icons.column_repair
     end
 
@@ -605,16 +607,21 @@ function render_ui_attachment_definition_description(x, y, w, h, vehicle, index)
         update_ui_image(0, cy, ammo_icon, iff(is_in_stock, color_white, color_grey_dark), 0)
         cy = 2 + cy + update_ui_text(10, cy, ammo_count, w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
 
-        if index == e_game_object_type.attachment_turret_carrier_flare_launcher then
-             cy = cy + update_ui_text(10, cy - 3, string.upper(update_get_loc(e_loc.virus_module)), w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
+        if index == g_ew_attachment_type then
+             cy = cy + update_ui_text(10, cy - 3, string.upper("destroy"), w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_dark_yellow, color_status_bad), color_grey_dark), 0)
+             cy = cy + update_ui_text(10, cy - 3,
+                     string.format("%s x%d",
+                             string.upper(update_get_loc(g_ew_discard_loc)),
+                             g_ew_discard_count
+                     ), w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
         end
 
     end
 
     local item_mass = get_payload_weight(index)
     if item_mass then
-        update_ui_image(0, 40, atlas_icons.column_weight, iff(is_in_stock, color_white, color_grey_dark), 0)
-        update_ui_text(10, 40, item_mass .. update_get_loc(e_loc.upp_kg) , w - 10, 0, color_white, 0)
+        update_ui_image(0, cy, atlas_icons.column_weight, iff(is_in_stock, color_white, color_grey_dark), 0)
+        update_ui_text(10, cy, item_mass .. update_get_loc(e_loc.upp_kg) , w - 10, 0, color_white, 0)
     end
     update_ui_pop_offset()
 end

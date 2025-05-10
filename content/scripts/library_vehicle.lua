@@ -112,6 +112,12 @@ function get_chassis_data_by_definition_index_orig(index)
     return update_get_loc(e_loc.upp_unknown), atlas_icons.icon_chassis_16_wheel_small, "---", ""
 end
 
+g_ew_attachment_type = e_game_object_type.attachment_turret_carrier_flare_launcher
+g_ew_discard_type = e_inventory_item.virus_module
+g_ew_attachment_discard_type = e_game_object_type.attachment_turret_robot_dog_capsule
+g_ew_discard_loc = e_loc.virus_module
+g_ew_discard_count = 3
+
 function get_attachment_data_by_definition_index(index)
     local attachment_data = {
         [-1] = { 
@@ -195,7 +201,7 @@ function get_attachment_data_by_definition_index(index)
             icon16 = atlas_icons.icon_attachment_16_turret_missile,
             name_short = "CRUISE MSL",
         },
-        [e_game_object_type.attachment_turret_carrier_flare_launcher] = {
+        [g_ew_attachment_type] = {
             name = "ELECTRONIC COUNTERMEASURE",
             icon16 = atlas_icons.column_power,
             name_short = "EW",
@@ -785,7 +791,7 @@ function get_vehicle_capability(vehicle)
             local attachment_def = attachment:get_definition_index()
 
             if attachment_def ~= e_game_object_type.attachment_camera_vehicle_control
-                and attachment_def ~= e_game_object_type.attachment_turret_carrier_flare_launcher
+                and attachment_def ~= g_ew_attachment_type
             then
                capabilities[attachment_def] = get_attachment_data_by_definition_index(attachment_def)
                capabilities[attachment_def].definition = attachment_def
@@ -2984,7 +2990,7 @@ local st, _v = pcall(function()
                 [1] = {
                     e_game_object_type.attachment_camera_plane,
                     e_game_object_type.attachment_turret_gimbal_30mm,
-                    e_game_object_type.attachment_turret_carrier_flare_launcher,
+                    g_ew_attachment_type,
                 },
                 -- wings
                 [2] = _std_wing_weapons,
@@ -3051,7 +3057,7 @@ local st, _v = pcall(function()
                 [1] = {
                     e_game_object_type.attachment_camera_plane,
                     e_game_object_type.attachment_turret_gimbal_30mm,
-                    e_game_object_type.attachment_turret_carrier_flare_launcher,
+                    g_ew_attachment_type,
                     -- e_game_object_type.attachment_radar_golfball,   -- disables airlift ability when added
                 },
             },
@@ -3105,7 +3111,7 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_turret_carrier_missile_silo,
                 },
                 [9] = {
-                    e_game_object_type.attachment_turret_carrier_flare_launcher,
+                     g_ew_attachment_type,
                 },
                 [11] = {
                     e_game_object_type.attachment_turret_carrier_torpedo,
