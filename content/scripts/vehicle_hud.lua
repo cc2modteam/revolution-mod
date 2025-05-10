@@ -161,11 +161,8 @@ end
 -- UPDATE
 --
 --------------------------------------------------------------------------------
-
-local is_debug = true
-
 function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
-    if is_debug then
+    if g_debug_enabled then
         local st, err = pcall(real_update, screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
         if not st then
             print(err)
@@ -887,10 +884,10 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             if awacs_mode and vehicle:get_id() ~= screen_vehicle:get_id() then
                 local v_spd = vehicle:get_linear_speed()
                 local v_alt = vehicle:get_altitude()
-
                 if get_is_vehicle_air(v_def) then
                     local screen_x, screen_y = world_to_screen(vehicle:get_position():x(), vehicle:get_position():z())
                     local name, icon, handle = get_chassis_data_by_definition_index(v_def)
+
 
                     if g_radar_mode == radar_modes.air_labels or g_radar_mode == radar_modes.air_threats then
                         if friendly and g_radar_mode == radar_modes.air_labels then
@@ -2059,11 +2056,6 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
     local target_locked = false
     render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
 
-    local gun_funnel_side_dist = 5
-    local gun_funnel_forward_dist = 30
-    --update_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist)
-    -- render_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist, color8(0, 255, 0, 255))
-
     if g_selected_target_type == 1 and g_selected_target_id ~= 0 then
         local selected_target = update_get_map_vehicle_by_id(g_selected_target_id)
 
@@ -2078,7 +2070,6 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
 
                 if is_target_clamped == false then
                     local lead_col = color8(255, 0, 0, 200)
-
                     update_ui_line(target_pos_screen:x(), target_pos_screen:y(), lead_position_screen:x(), lead_position_screen:y(), lead_col)
                     if get_is_vehicle_air(target_def) then
                         local dist = vec3_dist(lead_position, vehicle:get_position())
@@ -2128,12 +2119,16 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
 end
 
 function render_gun_crosshair(x, y, col, radius)
-    local c = color8(col:r(), col:g(), col:b(), math.floor(col:a() * 0.8))
-    update_ui_line(x, y, x + 1, y, c)
-    update_ui_line(x + 1, y - radius - 2, x + 1, y - radius + 5, col)
-    update_ui_line(x + 1, y + radius - 5, x + 1, y + radius + 2, col)
-    update_ui_line(x - radius - 2, y, x - radius + 14, y, col)
-    update_ui_line(x + radius - 12, y, x + radius + 4, y, col)
+    if g_hide_horizon_ladder then
+        local c = color8(col:r(), col:g(), col:b(), math.floor(col:a() * 0.8))
+        update_ui_line(x, y, x + 1, y, c)
+        update_ui_line(x + 1, y - radius - 2, x + 1, y - radius + 5, col)
+        update_ui_line(x + 1, y + radius - 5, x + 1, y + radius + 2, col)
+        update_ui_line(x - radius - 2, y, x - radius + 14, y, col)
+        update_ui_line(x + radius - 12, y, x + radius + 4, y, col)
+    else
+        update_ui_image_rot(x, y, atlas_icons.hud_gun_crosshair, col, 0)
+    end
 end
 
 function render_attachment_hud_ciws(screen_w, screen_h, map_data, vehicle, attachment)

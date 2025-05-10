@@ -8,7 +8,7 @@ v1.5:
 [*] EW - Electronic Warfare target fuzzing
 [*] HUD assistance for guided/cruise missile operation
 [*] HUD horizon ladder can now be togged off/on by double tapping the map
-[*] HUD 20mm gun-sight less cluttered
+[*] HUD 20mm gun-sight less cluttered when horizon ladder hidden
 [*] Helm gets a basic HUD showing nearby islands and compass course
 [*] Razorbill now able to carry a centre mounted fuel tank
 [*] Turrets can now be moved around by ground vehicles pushing.
