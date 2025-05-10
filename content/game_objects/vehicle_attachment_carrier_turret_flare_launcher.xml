@@ -15,10 +15,10 @@
 				<v file="meshes/vehicles/attachments/ir_detector.mesh"/>
 			</variants>
 		</mesh>
-		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/carrier_flare_launcher.mesh" name="pivot" lod="0" body="0" is_paint_dirt="false">
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/spotlight.mesh" name="pivot" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.82311356e-01" tz="0.00000000e+00"/>
 			<variants>
-				<v file="meshes/vehicles/attachments_broken_fixed/carrier_flare_launcher_broken_fixed.mesh"/>
+				<v file="meshes/aircraft_carrier/aircraft_carrier_attachments/spotlight.mesh"/>
 			</variants>
 		</mesh>
 		<mesh file="meshes/vehicles/attachment_lods/carrier_flare_launcher_low.mesh" name="lod 1" lod="1" body="0" is_paint_dirt="false">
