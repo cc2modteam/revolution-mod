@@ -67,7 +67,7 @@ function begin()
         elseif screen_name == "screen_nav_r" then
             g_map_render_mode = 4
             g_camera_size = (64 * 1024)
-        elseif screen_name == "screen_nav_top_m" then
+        elseif screen_name == "screen_nav_top_m" or screen_name == "mule-dash-tablet" then
             g_map_render_mode = 0
             g_alt_mode = "helm"
         end
@@ -682,9 +682,13 @@ function compass_update(screen_w, screen_h, ticks)
     update_ui_rectangle(50, 28, 28, 12, color_white)
     update_ui_rectangle(51, 29, 26, 10, color_black)
 
+    update_ui_line(11, 27, 41, 27, color8(205, 8, 246, 255))
+    update_ui_line(87, 27, 117, 27, color8(205, 8, 246, 255))
+
     local this_vehicle = update_get_screen_vehicle()
 
     if this_vehicle:get() then
+        local vdef = this_vehicle:get_definition_index()
         local this_vehicle_bearing = this_vehicle:get_rotation_y();
         local this_vehicle_roll = this_vehicle:get_rotation_z();
         local this_vehicle_pitch = this_vehicle:get_rotation_x();
@@ -695,10 +699,11 @@ function compass_update(screen_w, screen_h, ticks)
 
         update_ui_image_rot(26 + 38, 42 + 38, atlas_icons.screen_compass_dial_pivot, color_white, -this_vehicle_bearing)
 
-        update_ui_image_rot(26, 26, atlas_icons.screen_compass_tilt_side_pivot, color_white, -this_vehicle_roll)
+        if vdef == e_game_object_type.chassis_carrier then
+            update_ui_image_rot(26, 26, atlas_icons.screen_compass_tilt_side_pivot, color_white, -this_vehicle_roll)
 
-        update_ui_image_rot(102, 26, atlas_icons.screen_compass_tilt_front_pivot, color_white, -this_vehicle_pitch)
-
+            update_ui_image_rot(102, 26, atlas_icons.screen_compass_tilt_front_pivot, color_white, -this_vehicle_pitch)
+        end
         update_ui_text(0, 30, string.format("%.0f", math.floor(math.deg( this_vehicle_bearing )) % 360), 128, 1, color_white, 0)
 
         local waypoint_count = this_vehicle:get_waypoint_count()
@@ -726,11 +731,44 @@ function compass_update(screen_w, screen_h, ticks)
 
             update_ui_line(26 + 38, 42 + 38, 26 + 38 + dir_x, 42 + 38 + dir_y, g_color_waypoint)
         end
+        if get_is_vehicle_land(vdef) and screen_w > 128 then
+            local health = this_vehicle:get_hitpoints()
+            local full_health = this_vehicle:get_total_hitpoints()
+            local health_factor = health / full_health
+            update_ui_text(128, 10, string.format("%d/%d", health, full_health),
+                    64, 1, color_white, 0, 0
+            )
+            update_ui_rectangle(128, 22,
+                    math.floor(100 * health_factor),
+                    24, color_friendly)
+            update_ui_rectangle_outline(128, 22,
+            100, 24, color_white)
+
+            -- fuel
+            local fuel = this_vehicle:get_fuel_factor()
+
+            update_ui_text(128, 60, string.format("FUEL: %d%%", round_int(fuel * 100)),
+                    64, 1, color_white, 0, 0
+            )
+            update_ui_rectangle(128, 74,
+                    math.floor(100 * fuel),
+                    24, color_friendly)
+            update_ui_rectangle_outline(128, 74,
+            100, 24, color_white)
+        end
+
+        update_ui_rectangle(
+                0, 0, 47, 47, color_black
+        )
+        update_ui_rectangle(
+                82, 1, 41, 41, color_black
+        )
     end
 
-    update_ui_line(11, 27, 41, 27, color8(205, 8, 246, 255))
-    update_ui_line(87, 27, 117, 27, color8(205, 8, 246, 255))
+
     update_ui_image(26, 42, atlas_icons.screen_compass_dial_overlay, color_white, 0)
+
+
 end
 
 local m_pi = math.pi
