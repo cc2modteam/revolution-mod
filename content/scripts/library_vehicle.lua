@@ -2990,11 +2990,10 @@ local st, _v = pcall(function()
                 [1] = {
                     e_game_object_type.attachment_camera_plane,
                     e_game_object_type.attachment_turret_gimbal_30mm,
-                    g_ew_attachment_type,
                 },
                 -- wings
                 [2] = _std_wing_weapons,
-                [3] = _std_wing_weapons,
+                [3] = concat_lists(_std_wing_weapons, { g_ew_attachment_type }),
                 [4] = _std_wing_attachments,
                 [5] = _std_wing_attachments,
                 -- top
@@ -3057,9 +3056,9 @@ local st, _v = pcall(function()
                 [1] = {
                     e_game_object_type.attachment_camera_plane,
                     e_game_object_type.attachment_turret_gimbal_30mm,
-                    g_ew_attachment_type,
                     -- e_game_object_type.attachment_radar_golfball,   -- disables airlift ability when added
                 },
+                [2] = concat_lists(_std_wing_weapons, { g_ew_attachment_type })
             },
         },
         -- turret
@@ -3111,7 +3110,7 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_turret_carrier_missile_silo,
                 },
                 [9] = {
-                     g_ew_attachment_type,
+                    e_game_object_type.attachment_turret_carrier_flare_launcher,
                 },
                 [11] = {
                     e_game_object_type.attachment_turret_carrier_torpedo,
@@ -3133,6 +3132,7 @@ else
 end
 
 function insert_sea_mule_options(vehicle)
+    -- also mk2 mule
     if vehicle and vehicle:get() then
 
         --if g_revolution_attachment_defaults[e_game_object_type.chassis_land_wheel_mule] == nil then
@@ -3156,7 +3156,6 @@ function insert_sea_mule_options(vehicle)
                             [7] = {
                                 e_game_object_type.attachment_turret_30mm,
                                 e_game_object_type.attachment_turret_40mm,
-                                e_game_object_type.attachment_turret_ciws,
                             },
                             [1] = {
                                 e_game_object_type.attachment_turret_robot_dog_capsule,
