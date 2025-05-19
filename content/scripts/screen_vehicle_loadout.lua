@@ -34,8 +34,14 @@ function get_selected_chassis_options(bay_index)
             { region=atlas_icons.icon_chassis_16_wheel_medium, type=e_game_object_type.chassis_land_wheel_medium },
             { region=atlas_icons.icon_chassis_16_wheel_large, type=e_game_object_type.chassis_land_wheel_heavy },
             { region=atlas_icons.icon_chassis_16_wheel_mule, type=e_game_object_type.chassis_land_wheel_mule },
-            { region=atlas_icons.icon_chassis_16_land_turret, type=e_game_object_type.chassis_land_turret },
         }
+
+        if g_rev_allow_carrier_land_turrets then
+            table.insert(
+                    selection_options,
+                    { region=atlas_icons.icon_chassis_16_land_turret, type=e_game_object_type.chassis_land_turret })
+        end
+
     else
         selection_options = {
             { region=atlas_icons.icon_attachment_16_none, type=-1 },
