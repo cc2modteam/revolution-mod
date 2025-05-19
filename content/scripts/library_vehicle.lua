@@ -969,6 +969,12 @@ end
 function get_is_vehicle_masked(vehicle)
     if vehicle and vehicle:get() then
         if get_is_vehicle_air(vehicle:get_definition_index()) then
+
+            if _get_radar_attachment(vehicle) ~= nil then
+                -- do not mask RADAR equipped air units
+                return false
+            end
+
             local pos = vehicle:get_position_xz()
             local waves = update_get_ocean_depth_factor(pos:x(), pos:y())
             local clutter_base = 40 + (90 * waves)
@@ -1243,9 +1249,6 @@ function get_radar_power(vid)
     return 0
 end
 
-function get_is_masked_by_stealth(vehicle)
-    return false
-end
 
 function update_modded_radar_list(hostile_only)
     -- update the list of known radars & faked-radars
