@@ -966,14 +966,23 @@ function get_vehicle_radar(vehicle)
     return _get_radar_attachment(vehicle)
 end
 
-function get_is_vehicle_masked_by_groundclutter(vehicle)
+function get_is_vehicle_masked(vehicle)
     if vehicle and vehicle:get() then
         if get_is_vehicle_air(vehicle:get_definition_index()) then
             local pos = vehicle:get_position_xz()
             local waves = update_get_ocean_depth_factor(pos:x(), pos:y())
             local clutter_base = 40 + (90 * waves)
             local alt = get_unit_altitude(vehicle)
-            return alt < clutter_base
+
+            local masked = alt < clutter_base
+            -- if under 100 and covered by an EW unit
+            if not masked then
+                if alt < 100 then
+                    masked = get_close_hostile_ew_cached(vehicle:get_id()) ~= nil
+                end
+            end
+
+            return masked
         end
     end
     return false
@@ -1143,21 +1152,26 @@ function iter_radars(func)
     end
 end
 
+function get_close_hostile_ew_vehicle(vself)
+    local vpos = get_pos_xz(vself)
+    local max_sq = g_ew_range_sq
+    for _, ewid in pairs(g_all_hostile_ew) do
+        if ewid ~= vid then
+            local ew = update_get_map_vehicle_by_id(ewid)
+            if ew and ew:get() then
+                local ew_pos = get_pos_xz(ew)
+                return fast_dist_sq2(ew_pos, vpos, max_sq) < max_sq
+            end
+        end
+    end
+    return nil
+end
+
 function get_close_hostile_ew(vid)
     -- if there is an EW unit close by this unit, return true
     local vself = update_get_map_vehicle_by_id(vid)
     if vself and vself:get() then
-        local vpos = get_pos_xz(vself)
-        local max_sq = g_ew_range_sq
-        for _, ewid in pairs(g_all_hostile_ew) do
-            if ewid ~= vid then
-                local ew = update_get_map_vehicle_by_id(ewid)
-                if ew and ew:get() then
-                    local ew_pos = get_pos_xz(ew)
-                    return fast_dist_sq2(ew_pos, vpos, max_sq) < max_sq
-                end
-            end
-        end
+        return get_close_hostile_ew_vehicle(vself)
     end
     return false
 end

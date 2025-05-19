@@ -206,6 +206,7 @@ g_go_code_time = 100000
 g_color_attack_order = color_status_dark_red
 g_color_airlift_order = color_status_ok
 g_color_waypoint = color8(0, 255, 255, 8)
+g_color_waypoint_dark = color8(0, 128, 128, 4)
 g_color_resupply = color8(0, 255, 128, 32)
 
 g_is_mouse_mode = false
@@ -1986,7 +1987,7 @@ function _update(screen_w, screen_h, ticks)
 
                             if is_air and not get_is_spectator_mode() then
                                 -- hide low level aircraft
-                                if is_render_vehicle_icon and get_is_vehicle_masked_by_groundclutter(vehicle) then
+                                if is_render_vehicle_icon and get_is_vehicle_masked(vehicle) then
                                     if vehicle:get_team() ~= update_get_screen_team_id() then
                                         is_revealed = false
                                         is_visible = false
@@ -2012,7 +2013,7 @@ function _update(screen_w, screen_h, ticks)
                             local show_waypoints = true
                             local waypoint_color = g_color_waypoint
                             if vehicle:get_definition_index() == e_game_object_type.chassis_sea_barge then
-                                waypoint_color = color_status_dark_green
+                                waypoint_color = g_color_waypoint_dark
                             elseif vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
                                 show_waypoints = g_is_carrier_waypoint
                             elseif vehicle:get_definition_index() == e_game_object_type.chassis_land_turret then
@@ -2730,7 +2731,7 @@ function _update(screen_w, screen_h, ticks)
 
             local highlighted_vehicle = update_get_map_vehicle_by_id(g_highlighted.vehicle_id)
 
-            if highlighted_vehicle:get() and not get_is_masked_by_stealth(highlighted_vehicle) then
+            if highlighted_vehicle:get() then
                 local vehicle_definition_index = highlighted_vehicle:get_definition_index()
 
                 if g_highlighted.waypoint_id > 0 then

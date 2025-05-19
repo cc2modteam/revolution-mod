@@ -7,6 +7,7 @@ g_camera_size_min = 4 * 1024
 g_screen_index = 2
 g_map_render_mode = 1
 g_ui = nil
+g_is_carrier = true
 g_is_pointer_pressed = false
 g_is_pointer_hovered = false
 g_pointer_pos_x = 0
@@ -70,6 +71,9 @@ function begin()
         elseif screen_name == "screen_nav_top_m" or screen_name == "mule-dash-tablet" then
             g_map_render_mode = 0
             g_alt_mode = "helm"
+            if screen_name == "mule-dash-tablet" then
+                g_is_carrier = false
+            end
         end
     end
 
@@ -310,18 +314,7 @@ function update(screen_w, screen_h, ticks)
                                 local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
                                 local element_color = get_vehicle_team_color(vehicle_team)
 
-                                local show_target = true
-
-                                if screen_team ~= vehicle_team then
-                                    -- hostile
-                                    if get_is_masked_by_stealth(vehicle) then
-                                        show_target = false
-                                    end
-                                end
-
-                                if show_target then
-                                    update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
-                                end
+                                update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
 
                                 if screen_team == vehicle_team then
                                     if update_get_screen_vehicle():get_id() == vehicle:get_id() then
@@ -757,12 +750,14 @@ function compass_update(screen_w, screen_h, ticks)
             100, 24, color_white)
         end
 
-        update_ui_rectangle(
-                0, 0, 47, 47, color_black
-        )
-        update_ui_rectangle(
-                82, 1, 41, 41, color_black
-        )
+        if not g_is_carrier then
+            update_ui_rectangle(
+                    0, 0, 47, 47, color_black
+            )
+            update_ui_rectangle(
+                    82, 1, 41, 41, color_black
+            )
+        end
     end
 
 

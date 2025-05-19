@@ -622,10 +622,6 @@ function _update(screen_w, screen_h, ticks)
                         local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                         local detected = get_is_spectator_mode() or (vehicle:get_is_observation_revealed() and vehicle:get_is_visible())
 
-                        if detected and get_is_masked_by_stealth(vehicle) then
-                            detected = false
-                        end
-
                         if vehicle_attached_parent_id == 0 and detected then
                             local vehicle_pos_xz = vehicle:get_position_xz()
                             local screen_pos_x, screen_pos_y = get_holomap_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), screen_w, screen_h)
