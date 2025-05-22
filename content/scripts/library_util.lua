@@ -1682,6 +1682,12 @@ function get_island_name(tile)
     return tile:get_name()
 end
 
+function _wait_until_next_second()
+    local now = update_get_time_since_epoch()
+    while now == update_get_time_since_epoch() do
+        string.len("x")
+    end
+end
 
 function dev_call_timer(screen_name, maxtime, delay, func)
     if screen_name ~= g_screen_name then
@@ -1695,6 +1701,7 @@ function dev_call_timer(screen_name, maxtime, delay, func)
     g_timer_delay = g_timer_delay - 1
 
     if g_timer_delay == 0 then
+        _wait_until_next_second()
         local started = update_get_time_since_epoch()
         print("start timer", started)
         local stop = started + maxtime
