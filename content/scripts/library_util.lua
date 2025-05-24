@@ -1693,8 +1693,9 @@ function _wait_until_next_second()
     end
 end
 
--- g_dev_options = true
+g_dev_options = false
 g_count_calls = false
+g_force_radar_scan = false
 g_trigger_call_timer = false
 
 function dev_call_timer(screen_name, maxtime, delay, func)

@@ -1209,7 +1209,12 @@ function update(screen_w, screen_h, ticks)
         dev_call_timer("screen_veh_m",
                 20,  -- seconds to time
                 90, -- ticks
-                function() _update(screen_w, screen_h, ticks)  end
+                function()
+                    g_fow_last_tick = 0
+                    g_force_radar_scan = true
+                    _update(screen_w, screen_h, ticks)
+                    g_force_radar_scan = false
+                end
         )
     end
 

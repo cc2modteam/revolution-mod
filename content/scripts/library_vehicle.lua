@@ -1336,19 +1336,23 @@ function update_modded_radar_data()
 
     local update_air = current_tick > next_air_scan
     local update_sea = current_tick > next_sea_scan
+    local force = g_force_radar_scan
 
-    if not user_connected and not g_is_holomap then
-        if not update_sea and not update_air then
-            -- do nothing
-            return
+    if not force then
+        if not user_connected and not g_is_holomap then
+            if not update_sea and not update_air then
+                -- do nothing
+                return
+            end
         end
-    end
 
-    if g_viewing_vehicle_id ~= nil then
-        if g_viewing_vehicle_id > 0 then
-            -- user is driving a unit
-            return
+        if g_viewing_vehicle_id ~= nil then
+            if g_viewing_vehicle_id > 0 then
+                -- user is driving a unit
+                return
+            end
         end
+
     end
 
     g_all_radars = {}
@@ -1364,6 +1368,10 @@ function update_modded_radar_data()
     if update_sea and update_air then
         -- dont do both
         update_sea = false
+    end
+    if force then
+        update_sea = true
+        update_air = true
     end
 
     if g_radar_debug then
@@ -1579,7 +1587,7 @@ function refresh_fow_islands()
     if g_fow_last_tick + 60 < now then
         g_fow_last_tick = now
         g_fow_visible = {}
-        local visible = 0
+        local fow_vis = g_fow_visible
         -- reveal any island within 16km of one of our units
         local our_team = update_get_screen_team_id()
         local island_count = update_get_tile_count()
@@ -1590,10 +1598,10 @@ function refresh_fow_islands()
         for i = 0, island_count - 1 do
             local island = update_get_tile_by_index(i)
             local island_id = island:get_id()
+            local is_visible = false
             if island:get_team_control() == our_team then
-                g_fow_visible[island_id] = true
+                is_visible = true
                 rev_set_fow_island_scouted(island_id)
-                visible = visible + 1
             else
                 local pos = island:get_position_xz()
                 -- foreign island, find any of our units in range
@@ -1604,15 +1612,15 @@ function refresh_fow_islands()
                             local unit_pos = vehicle:get_position_xz()
                             local dist = vec2_dist_sq(unit_pos, pos)
                             if dist < fow_range_sq then
-                                g_fow_visible[island_id] = true
+                                is_visible = true
                                 rev_set_fow_island_scouted(island_id)
-                                visible = visible + 1
                                 break
                             end
                         end
                     end
                 end
             end
+            table.insert(fow_vis,is_visible)
         end
     end
 end
