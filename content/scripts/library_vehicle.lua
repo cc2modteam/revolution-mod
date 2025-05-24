@@ -1259,37 +1259,33 @@ function update_modded_radar_list(hostile_only)
     local all_radars = g_all_radars
     local all_hostile_ew = g_all_hostile_ew
 
-    for i = 0, vehicle_count - 1 do
-        local vehicle = update_get_map_vehicle_by_index(i)
-        if vehicle:get() and not get_vehicle_docked(vehicle) then
-            local vehicle_team = get_vehicle_team_id(vehicle)
-
-            -- find hostile EWs
-            if screen_team ~= vehicle_team then
-                if _get_ew_attachment(vehicle) then
-                    -- hostile unit has an EW capability
-                    table.insert(all_hostile_ew, vehicle:get_id())
-                end
+    for _, vehicle in pairs(get_vehicles_table()) do
+        local vehicle_team = get_vehicle_team_id(vehicle)
+        -- find hostile EWs
+        if screen_team ~= vehicle_team then
+            if _get_ew_attachment(vehicle) then
+                -- hostile unit has an EW capability
+                table.insert(all_hostile_ew, vehicle:get_id())
             end
+        end
 
-            if vehicle_team ~= screen_team or not hostile_only then
-                local radar_type = _get_radar_attachment(vehicle)
-                if radar_type ~= nil then
-                    if radar_type == e_game_object_type.attachment_radar_awacs then
-                        if not get_awacs_radar_enabled(vehicle) then
-                            radar_type = nil
-                        end
+        if vehicle_team ~= screen_team or not hostile_only then
+            local radar_type = _get_radar_attachment(vehicle)
+            if radar_type ~= nil then
+                if radar_type == e_game_object_type.attachment_radar_awacs then
+                    if not get_awacs_radar_enabled(vehicle) then
+                        radar_type = nil
                     end
                 end
-                if radar_type ~= nil then
+            end
+            if radar_type ~= nil then
 
-                    local vid = vehicle:get_id()
-                    all_radars[vid] = {
-                        id = vid,
-                        type = radar_type
-                    }
+                local vid = vehicle:get_id()
+                all_radars[vid] = {
+                    id = vid,
+                    type = radar_type
+                }
 
-                end
             end
         end
     end
@@ -1407,117 +1403,115 @@ function do_radar_scan(update_air, update_sea)
     local fuzzed_by_hostile_ew = {}
     local fdsq = fast_dist_sq
 
-    for i = 0, vehicle_count - 1 do
-        local vehicle = update_get_map_vehicle_by_index(i)
-        if vehicle:get() then
-            local vteam = get_vehicle_team_id(vehicle)
-            local friendly = vteam == screen_team
-            local vdef = vehicle:get_definition_index()
-            local vid = vehicle:get_id()
-            local target_is_air = get_is_vehicle_air(vdef)
-            if get_vehicle_docked(vehicle) or (target_is_air and get_unit_altitude(vehicle) < get_low_level_radar_altitude(vehicle)) then
-                -- ignore docked or landed
-            else
-                local target_is_sea = false
-                if not target_is_air then
-                    target_is_sea = get_is_vehicle_sea(vdef)
-                    if vdef == e_game_object_type.chassis_land_turret then
-                        -- treat turrets deployed by carriers the same as ships for RADAR
-                        local att = vehicle:get_attachment(0)
-                        if att then
-                            local attdef = att:get_definition_index()
-                            if attdef == e_game_object_type.attachment_camera_observation
-                                    or attdef == e_game_object_type.attachment_radar_golfball
-                                    or attdef == e_game_object_type.attachment_camera
-                            then
-                                target_is_sea = true
-                            end
+    for _, vehicle in pairs(get_vehicles_table()) do
+        local vteam = get_vehicle_team_id(vehicle)
+        local friendly = vteam == screen_team
+        local vdef = vehicle:get_definition_index()
+        local vid = vehicle:get_id()
+        local target_is_air = get_is_vehicle_air(vdef)
+        if get_vehicle_docked(vehicle) or (target_is_air and get_unit_altitude(vehicle) < get_low_level_radar_altitude(vehicle)) then
+            -- ignore docked or landed
+        else
+            local target_is_sea = false
+            if not target_is_air then
+                target_is_sea = get_is_vehicle_sea(vdef)
+                if vdef == e_game_object_type.chassis_land_turret then
+                    -- treat turrets deployed by carriers the same as ships for RADAR
+                    local att = vehicle:get_attachment(0)
+                    if att then
+                        local attdef = att:get_definition_index()
+                        if attdef == e_game_object_type.attachment_camera_observation
+                                or attdef == e_game_object_type.attachment_radar_golfball
+                                or attdef == e_game_object_type.attachment_camera
+                        then
+                            target_is_sea = true
                         end
                     end
                 end
+            end
 
-                if update_sea and target_is_sea or update_air and target_is_air then
-                    seen_by_friendly_radars[vid] = nil
-                    nearest_hostile_radar[vid] = nil
-                    seen_by_hostile_radars[vid] = nil
+            if update_sea and target_is_sea or update_air and target_is_air then
+                seen_by_friendly_radars[vid] = nil
+                nearest_hostile_radar[vid] = nil
+                seen_by_hostile_radars[vid] = nil
 
-                    -- do EW
-                    if not friendly then
-                        if fuzzed_by_hostile_ew[vid] == nil then
-                           fuzzed_by_hostile_ew[vid] = get_close_hostile_ew(vid)
-                        end
+                -- do EW
+                if not friendly then
+                    if fuzzed_by_hostile_ew[vid] == nil then
+                       fuzzed_by_hostile_ew[vid] = get_close_hostile_ew(vid)
                     end
+                end
 
-                    -- do radars
-                    local radar_return_power = 0
-                    local radar_team = nil
-                    local nearest_hostile_radar_dist_sq = 999999
-                    for _, radar in pairs(all_radars) do
-                        local radar_id = radar.id
-                        local radar_vehicle = update_get_map_vehicle_by_id(radar_id)
-                        if radar_vehicle and radar_vehicle:get() then
-                            radar_team = get_vehicle_team_id(radar_vehicle)
-                            -- dont scan the same team as the radar
-                            -- and dont give needlefish "nails" from AI units
-                            if radar_team ~= vteam and get_team_has_humans(radar_team) then
-                                local radar_range = get_modded_radar_range(radar_vehicle)
-                                local radar_range_sq = radar_range * radar_range
-                                if update_sea and target_is_sea then
-                                    -- target is a ship
-                                    local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 20000)
-                                    if target_dist_sq < radar_range_sq then
-                                        -- ship seen
-                                        if radar_team == screen_team then
-                                            seen_by_friendly_radars[vid] = true
-                                        else
-                                            if target_dist_sq < nearest_hostile_radar_dist_sq then
-                                                nearest_hostile_radar_dist_sq = target_dist_sq
-                                                nearest_hostile_radar[vid] = radar_id
-                                            end
-                                            seen_by_hostile_radars[vid] = true
+                -- do radars
+                local radar_return_power = 0
+                local radar_team = nil
+                local nearest_hostile_radar_dist_sq = 999999
+                for _, radar in pairs(all_radars) do
+                    local radar_id = radar.id
+                    local radar_vehicle = update_get_map_vehicle_by_id(radar_id)
+                    if radar_vehicle and radar_vehicle:get() then
+                        radar_team = get_vehicle_team_id(radar_vehicle)
+                        -- dont scan the same team as the radar
+                        -- and dont give needlefish "nails" from AI units
+                        if radar_team ~= vteam and get_team_has_humans(radar_team) then
+                            local radar_range = get_modded_radar_range(radar_vehicle)
+                            local radar_range_sq = radar_range * radar_range
+                            if update_sea and target_is_sea then
+                                -- target is a ship
+                                local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 20000)
+                                if target_dist_sq < radar_range_sq then
+                                    -- ship seen
+                                    if radar_team == screen_team then
+                                        seen_by_friendly_radars[vid] = true
+                                    else
+                                        if target_dist_sq < nearest_hostile_radar_dist_sq then
+                                            nearest_hostile_radar_dist_sq = target_dist_sq
+                                            nearest_hostile_radar[vid] = radar_id
                                         end
+                                        seen_by_hostile_radars[vid] = true
+                                    end
+                                end
+                            else
+                                -- update air
+                                if screen_team ~= radar_team then
+                                    -- update our nails
+                                    -- we can hear a hostile radar
+                                    local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 24000)
+                                    --local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
+                                    if target_dist_sq < radar_range_sq then
+                                        if target_dist_sq < nearest_hostile_radar_dist_sq then
+                                            nearest_hostile_radar_dist_sq = target_dist_sq
+                                            nearest_hostile_radar[vid] = radar_id
+                                        end
+                                        seen_by_hostile_radars[vid] = true
                                     end
                                 else
-                                    -- update air
-                                    if screen_team ~= radar_team then
-                                        -- update our nails
-                                        -- we can hear a hostile radar
-                                        local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 24000)
-                                        --local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
-                                        if target_dist_sq < radar_range_sq then
-                                            if target_dist_sq < nearest_hostile_radar_dist_sq then
-                                                nearest_hostile_radar_dist_sq = target_dist_sq
-                                                nearest_hostile_radar[vid] = radar_id
-                                            end
-                                            seen_by_hostile_radars[vid] = true
-                                        end
-                                    else
-                                        -- did any of our radars see this target?
-                                        local power = get_radar_return_power(vehicle, radar_vehicle, radar_range)
-                                        if power > radar_return_power then
-                                            radar_return_power = power
-                                            if power > 0.00002 then
-                                                nearest_friendly_radar[vid] = {
-                                                    id = radar_id,
-                                                    power = power,
-                                                }
-                                            end
+                                    -- did any of our radars see this target?
+                                    local power = get_radar_return_power(vehicle, radar_vehicle, radar_range)
+                                    if power > radar_return_power then
+                                        radar_return_power = power
+                                        if power > 0.00002 then
+                                            nearest_friendly_radar[vid] = {
+                                                id = radar_id,
+                                                power = power,
+                                            }
                                         end
                                     end
                                 end
                             end
                         end
                     end
-                    -- radar_return_power is only ever set by a friendly radar
-                    if radar_return_power > 0.00002 then
-                        if radar_team == screen_team then
-                            seen_by_friendly_radars[vid] = true
-                        end
+                end
+                -- radar_return_power is only ever set by a friendly radar
+                if radar_return_power > 0.00002 then
+                    if radar_team == screen_team then
+                        seen_by_friendly_radars[vid] = true
                     end
                 end
             end
         end
     end
+
     g_fuzzed_by_hostile_ew = fuzzed_by_hostile_ew
 end
 
