@@ -1190,8 +1190,6 @@ function err_handler(arg)
     print(debug.traceback())
 end
 
-g_debug_enabled = true
-
 function update(screen_w, screen_h, ticks)
     if update_get_is_focus_local() then
         g_last_input_tick = update_get_logic_tick()
