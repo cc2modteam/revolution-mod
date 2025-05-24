@@ -414,11 +414,11 @@ function get_chassis_image_by_definition_index(index)
     return atlas_icons.icon_chassis_unknown
 end
 
+local chassis_air_min = e_game_object_type.chassis_air_wing_light
+local chassis_air_max = e_game_object_type.chassis_air_rotor_heavy
+
 function get_is_vehicle_air(definition_index)
-    return definition_index == e_game_object_type.chassis_air_wing_light
-        or definition_index == e_game_object_type.chassis_air_wing_heavy
-        or definition_index == e_game_object_type.chassis_air_rotor_light
-        or definition_index == e_game_object_type.chassis_air_rotor_heavy
+    return definition_index >= chassis_air_min and definition_index <= chassis_air_max
 end
 
 function get_is_vehicle_rotary(definition_index)
