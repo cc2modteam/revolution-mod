@@ -1591,6 +1591,8 @@ end
 local g_prof_counter = 0
 local g_prof_calls, g_prof_total, g_prof_this = {}, {}, {}
 function profiler_func(event)
+    -- record a call count profile, no point in really using the clock time,
+    -- we only get 1 sec resolution
     if update_get_logic_tick == nil then return end
     -- local now = update_get_logic_tick()
     local clock = 0
@@ -1611,7 +1613,7 @@ function profiler_func(event)
         g_prof_total[func] = (g_prof_total[func] or 0) + time
         g_prof_calls[func] = (g_prof_calls[func] or 0) + 1
     end
-    if g_prof_counter > 30000 then
+    if not g_count_calls then
         debug.sethook()
         dump_profile_stats()
     end
@@ -1621,11 +1623,13 @@ function dump_profile_stats()
     if update_get_is_focus_local() then
         print("dumping")
         for f, ctr in pairs(g_prof_total) do
-            print(("Function %s took %.3f seconds after %d calls"):format(f, ctr, g_prof_calls[f]))
+            print(("%s,%d,%.3f"):format(f,g_prof_calls[f],ctr))
         end
+        g_prof_calls = {}
     end
 end
 
+-- enable the profiler like so..
 --local st, err = pcall(function()
 --    debug.sethook(profiler_func, "cr")
 --end)
@@ -1689,8 +1693,14 @@ function _wait_until_next_second()
     end
 end
 
+-- g_dev_options = true
+g_count_calls = false
+g_trigger_call_timer = false
+
 function dev_call_timer(screen_name, maxtime, delay, func)
-    if screen_name ~= g_screen_name then
+    local repeats = 3
+    local call_counts = g_count_calls
+    if screen_name ~= g_screen_name or repeats == 0 then
         return
     end
 
@@ -1701,19 +1711,33 @@ function dev_call_timer(screen_name, maxtime, delay, func)
     g_timer_delay = g_timer_delay - 1
 
     if g_timer_delay == 0 then
+        g_timer_delay = nil
+        print("------- > ")
+        g_trigger_call_timer = false
         _wait_until_next_second()
+
+        local tick = update_get_logic_tick()
         local started = update_get_time_since_epoch()
-        print("start timer", started)
+        print("start timer", repeats, started, tick)
         local stop = started + maxtime
         local count = 0
-        while update_get_time_since_epoch() < stop do
-            func()
-            count = count +1
+        if call_counts then
+            debug.sethook(profiler_func, "cr")
         end
+
+        while repeats > 0 do
+            repeats = repeats - 1
+            while update_get_time_since_epoch() < stop do
+                func()
+                count = count +1
+            end
+        end
+
         print("done timer", update_get_time_since_epoch())
         local rate = count / maxtime
         print("calls", count)
         print("calls/sec", rate)
-        g_timer_delay = nil
+        g_count_calls = false
     end
+
 end

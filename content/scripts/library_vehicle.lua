@@ -1535,11 +1535,7 @@ function get_is_radar(vehicle_id)
 end
 
 function get_is_visible_by_modded_radar(vehicle)
-    local st, val = pcall(_get_is_seen_by_friendly_modded_radar, vehicle)
-    if not st then
-        return false
-    end
-    return val
+    return _get_is_seen_by_friendly_modded_radar(vehicle)
 end
 
 function get_is_visible_by_hostile_modded_radar(vehicle)
@@ -2589,9 +2585,13 @@ g_track_missile_explosions = {
 g_track_missile_callbacks = {}
 
 function refresh_missile_data(visible_only)
-    local st, err = pcall(_refresh_missile_data, visible_only)
-    if not st then
-        print(err)
+    if g_debug_enabled then
+        local st, err = pcall(_refresh_missile_data, visible_only)
+        if not st then
+            print(err)
+        end
+    else
+        _refresh_missile_data(visible_only)
     end
 end
 

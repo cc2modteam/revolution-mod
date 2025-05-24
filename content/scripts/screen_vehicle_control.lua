@@ -992,6 +992,24 @@ function render_selection_map(screen_w, screen_h)
 
         ui:header(update_get_loc(e_loc.upp_actions))
 
+        if g_dev_options then
+            if ui:list_item("start call timer", true) then
+                if not g_trigger_call_timer then
+                    g_trigger_call_timer = true
+                    print("timer armed")
+                end
+            end
+            if ui:list_item("count calls", true) then
+                if not g_count_calls then
+                    g_count_calls = true
+                    print("timer call count armed")
+                else
+                    g_count_calls = false
+                    print("timer call count disarmed")
+                end
+            end
+        end
+
         if ui:list_item(update_get_loc(e_loc.upp_center_to_carrier), true) then
             g_camera_pos_x = g_screen_vehicle_pos:x()
             g_camera_pos_y = g_screen_vehicle_pos:y()
@@ -1187,7 +1205,13 @@ function update(screen_w, screen_h, ticks)
         return
     end
 
-    --dev_call_timer("screen_veh_m", 10, 90, function() _update(screen_w, screen_h, ticks)  end)
+    if g_trigger_call_timer then
+        dev_call_timer("screen_veh_m",
+                20,  -- seconds to time
+                90, -- ticks
+                function() _update(screen_w, screen_h, ticks)  end
+        )
+    end
 
     if not g_debug_enabled then
         _update(screen_w, screen_h, ticks)
@@ -1907,23 +1931,19 @@ function _update(screen_w, screen_h, ticks)
                         local v_ny = v_y + 160
                         local v_sx = v_x - 130
                         local v_sy = v_y - 280
-                        local st, err = pcall(function()
-                            update_world_triangle(
-                                    v_nx, v_ny,
-                                    v_nx + 30, v_ny - 15,
-                                    v_sx, v_sy,
-                                    color_grey_dark
-                            )
-                            update_world_triangle(
-                                    v_sx + 30, v_sy - 15,
-                                    v_nx + 30, v_ny - 15,
-                                    v_sx, v_sy,
-                                    color_grey_dark
-                            )
-                        end)
-                        if not st then
-                            print(err)
-                        end
+
+                        update_world_triangle(
+                                v_nx, v_ny,
+                                v_nx + 30, v_ny - 15,
+                                v_sx, v_sy,
+                                color_grey_dark
+                        )
+                        update_world_triangle(
+                                v_sx + 30, v_sy - 15,
+                                v_nx + 30, v_ny - 15,
+                                v_sx, v_sy,
+                                color_grey_dark
+                        )
 
                         --update_world_line(v_nx, v_ny, v_sx, v_sy, color_grey_dark)
                         --update_world_line(v_nx + 4, v_ny, v_sx + 4, v_sy, color_grey_dark)
