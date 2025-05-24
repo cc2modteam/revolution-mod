@@ -1434,52 +1434,46 @@ function _update(screen_w, screen_h, ticks)
                     end
                 end
 
-                local vehicle_count = update_get_map_vehicle_count()
+                for x, vehicle in pairs(get_vehicles_table()) do
+                    local vehicle_definition_index = vehicle:get_definition_index()
 
-                for i = 0, vehicle_count - 1, 1 do
-                    local vehicle = update_get_map_vehicle_by_index(i)
+                    if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
+                        local vehicle_team = vehicle:get_team()
+                        local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
+                        local revealed = vehicle:get_is_observation_revealed()
+                        local visible = vehicle:get_is_visible() or get_is_spectator_mode()
 
-                    if vehicle:get() then
-                        local vehicle_definition_index = vehicle:get_definition_index()
+                        if not revealed then
+                            revealed = get_is_visible_by_modded_radar(vehicle) or get_is_spectator_mode()
+                        end
 
-                        if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
-                            local vehicle_team = vehicle:get_team()
-                            local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
-                            local revealed = vehicle:get_is_observation_revealed()
-                            local visible = vehicle:get_is_visible() or get_is_spectator_mode()
+                        if vehicle_attached_parent_id == 0 and ( visible and revealed ) then
+                            local vehicle_pos_xz = vehicle:get_position_xz()
+                            local screen_pos_x, screen_pos_y = get_screen_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                            local vehicle_distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
 
-                            if not revealed then
-                                revealed = get_is_visible_by_modded_radar(vehicle) or get_is_spectator_mode()
+                            if vehicle_distance_to_cursor < highlighted_distance_best and vehicle_distance_to_cursor < 8 then
+                                g_highlighted:set_vehicle(vehicle:get_id())
+                                highlighted_distance_best = vehicle_distance_to_cursor
                             end
+                        end
 
-                            if vehicle_attached_parent_id == 0 and ( visible and revealed ) then
-                                local vehicle_pos_xz = vehicle:get_position_xz()
-                                local screen_pos_x, screen_pos_y = get_screen_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                local vehicle_distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
+                        if vehicle_team == screen_team then
+                            local waypoint_count = vehicle:get_waypoint_count()
 
-                                if vehicle_distance_to_cursor < highlighted_distance_best and vehicle_distance_to_cursor < 8 then
-                                    g_highlighted:set_vehicle(vehicle:get_id())
-                                    highlighted_distance_best = vehicle_distance_to_cursor
-                                end
-                            end
+                            if g_drag.vehicle_id == 0 or g_drag.vehicle_id == vehicle:get_id() then
+                                for j = 0, waypoint_count - 1, 1 do
+                                    local waypoint = vehicle:get_waypoint(j)
+                                    local waypoint_type = waypoint:get_type()
 
-                            if vehicle_team == screen_team then
-                                local waypoint_count = vehicle:get_waypoint_count()
+                                    if waypoint_type == e_waypoint_type.move or waypoint_type == e_waypoint_type.deploy then
+                                        local waypoint_pos = waypoint:get_position_xz(j)
+                                        local waypoint_screen_pos_x, waypoint_screen_pos_y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                        local waypoint_distance_to_cursor = math.abs(waypoint_screen_pos_x - g_cursor_pos_x) + math.abs(waypoint_screen_pos_y - g_cursor_pos_y)
 
-                                if g_drag.vehicle_id == 0 or g_drag.vehicle_id == vehicle:get_id() then
-                                    for j = 0, waypoint_count - 1, 1 do
-                                        local waypoint = vehicle:get_waypoint(j)
-                                        local waypoint_type = waypoint:get_type()
-
-                                        if waypoint_type == e_waypoint_type.move or waypoint_type == e_waypoint_type.deploy then
-                                            local waypoint_pos = waypoint:get_position_xz(j)
-                                            local waypoint_screen_pos_x, waypoint_screen_pos_y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                            local waypoint_distance_to_cursor = math.abs(waypoint_screen_pos_x - g_cursor_pos_x) + math.abs(waypoint_screen_pos_y - g_cursor_pos_y)
-
-                                            if waypoint_distance_to_cursor < highlighted_distance_best and waypoint_distance_to_cursor < 8 then
-                                                g_highlighted:set_vehicle_waypoint(vehicle:get_id(), waypoint:get_id())
-                                                highlighted_distance_best = waypoint_distance_to_cursor
-                                            end
+                                        if waypoint_distance_to_cursor < highlighted_distance_best and waypoint_distance_to_cursor < 8 then
+                                            g_highlighted:set_vehicle_waypoint(vehicle:get_id(), waypoint:get_id())
+                                            highlighted_distance_best = waypoint_distance_to_cursor
                                         end
                                     end
                                 end
@@ -1745,19 +1739,12 @@ function _update(screen_w, screen_h, ticks)
                     local def = weapon_radius_vehicle:get_definition_index()
 
                     if def == e_game_object_type.chassis_sea_ship_light or def == e_game_object_type.chassis_sea_ship_heavy then
-                        local vehicle_count = update_get_map_vehicle_count()
 
-                        for i = 0, vehicle_count - 1, 1 do
-                            local vehicle = update_get_map_vehicle_by_index(i)
+                        for x, vehicle in pairs(get_vehicles_table()) do
+                            if vehicle:get_definition_index() == e_game_object_type.chassis_carrier and vehicle:get_team() == screen_team then
+                                local vehicle_pos_xz = vehicle:get_position_xz()
 
-                            if vehicle:get() then
-                                local vehicle_definition_index = vehicle:get_definition_index()
-
-                                if vehicle:get_definition_index() == e_game_object_type.chassis_carrier and vehicle:get_team() == screen_team then
-                                    local vehicle_pos_xz = vehicle:get_position_xz()
-
-                                    render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), 500, color8(0, 255, 128, 8))
-                                end
+                                render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), 500, color8(0, 255, 128, 8))
                             end
                         end
                     end
@@ -1804,19 +1791,10 @@ function _update(screen_w, screen_h, ticks)
 
                     if weapon_radius_vehicle:get_team() == screen_team then
                         if def == e_game_object_type.chassis_sea_ship_light or def == e_game_object_type.chassis_sea_ship_heavy then
-                            local vehicle_count = update_get_map_vehicle_count()
-
-                            for i = 0, vehicle_count - 1, 1 do
-                                local vehicle = update_get_map_vehicle_by_index(i)
-
-                                if vehicle:get() then
-                                    local vehicle_definition_index = vehicle:get_definition_index()
-
-                                    if vehicle:get_definition_index() == e_game_object_type.chassis_carrier and vehicle:get_team() == screen_team then
-                                        local vehicle_pos_xz = vehicle:get_position_xz()
-
-                                        render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), 500, color8(0, 255, 128, 8))
-                                    end
+                            for x, vehicle in pairs(get_vehicles_table()) do
+                                if vehicle:get_definition_index() == e_game_object_type.chassis_carrier and vehicle:get_team() == screen_team then
+                                    local vehicle_pos_xz = vehicle:get_position_xz()
+                                    render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), 500, color8(0, 255, 128, 8))
                                 end
                             end
                         end
@@ -1911,662 +1889,619 @@ function _update(screen_w, screen_h, ticks)
         -- render vehicles to the map
 
         if is_placing_turret == false then
+            for x, vehicle in pairs(get_vehicles_table()) do
+                local vehicle_team = vehicle:get_team()
+                local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
+                local vehicle_definition_index = vehicle:get_definition_index()
+                local is_render_vehicle_icon = vehicle_attached_parent_id == 0
+                local is_sealthed = false
 
-            local vehicle_count = update_get_map_vehicle_count()
-            local now = update_get_logic_tick()
-            for i = 0, vehicle_count - 1, 1 do
-                local vehicle = update_get_map_vehicle_by_index(i)
+                if vehicle_definition_index == e_game_object_type.drydock then
+                    -- draw the drydock as grey
+                    local vehicle_pos_xz = vehicle:get_position_xz()
+                    local v_x = vehicle_pos_xz:x()
+                    local v_y = vehicle_pos_xz:y()
+                    local v_nx = v_x + 90
+                    local v_ny = v_y + 160
+                    local v_sx = v_x - 130
+                    local v_sy = v_y - 280
 
-                if vehicle:get() then
-                    local vehicle_id = vehicle:get_id()
-                    local vehicle_team = vehicle:get_team()
-                    local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
-                    local vehicle_definition_index = vehicle:get_definition_index()
-                    local is_render_vehicle_icon = vehicle_attached_parent_id == 0
-                    local is_sealthed = false
+                    update_world_triangle(
+                            v_nx, v_ny,
+                            v_nx + 30, v_ny - 15,
+                            v_sx, v_sy,
+                            color_grey_dark
+                    )
+                    update_world_triangle(
+                            v_sx + 30, v_sy - 15,
+                            v_nx + 30, v_ny - 15,
+                            v_sx, v_sy,
+                            color_grey_dark
+                    )
 
-                    if vehicle_definition_index == e_game_object_type.drydock then
-                        -- draw the drydock as grey
+                    --update_world_line(v_nx, v_ny, v_sx, v_sy, color_grey_dark)
+                    --update_world_line(v_nx + 4, v_ny, v_sx + 4, v_sy, color_grey_dark)
+                    --update_world_line(v_nx + 8, v_ny, v_sx + 8, v_sy, color_grey_dark)
+                    --update_world_line(v_nx + 12, v_ny, v_sx + 12, v_sy, color_grey_dark)
+
+
+                elseif vehicle_definition_index ~= e_game_object_type.chassis_spaceship then
+                    local is_air = get_is_vehicle_air(vehicle_definition_index)
+                    local is_visible = vehicle:get_is_visible()
+                    local is_revealed = vehicle:get_is_observation_revealed()
+                    if is_render_vehicle_icon then
+                        if not is_visible or not is_revealed then
+                            if get_is_visible_by_modded_radar(vehicle) then
+                                is_sealthed = false
+                                is_revealed = true
+                                is_visible = true
+                            end
+                        end
+                    end
+
+                    if is_visible and is_revealed then
                         local vehicle_pos_xz = vehicle:get_position_xz()
                         local v_x = vehicle_pos_xz:x()
                         local v_y = vehicle_pos_xz:y()
-                        local v_nx = v_x + 90
-                        local v_ny = v_y + 160
-                        local v_sx = v_x - 130
-                        local v_sy = v_y - 280
 
-                        update_world_triangle(
-                                v_nx, v_ny,
-                                v_nx + 30, v_ny - 15,
-                                v_sx, v_sy,
-                                color_grey_dark
-                        )
-                        update_world_triangle(
-                                v_sx + 30, v_sy - 15,
-                                v_nx + 30, v_ny - 15,
-                                v_sx, v_sy,
-                                color_grey_dark
-                        )
-
-                        --update_world_line(v_nx, v_ny, v_sx, v_sy, color_grey_dark)
-                        --update_world_line(v_nx + 4, v_ny, v_sx + 4, v_sy, color_grey_dark)
-                        --update_world_line(v_nx + 8, v_ny, v_sx + 8, v_sy, color_grey_dark)
-                        --update_world_line(v_nx + 12, v_ny, v_sx + 12, v_sy, color_grey_dark)
-
-
-                    elseif vehicle_definition_index ~= e_game_object_type.chassis_spaceship then
-                        local is_air = get_is_vehicle_air(vehicle_definition_index)
-                        local is_visible = vehicle:get_is_visible()
-                        local is_revealed = vehicle:get_is_observation_revealed()
-                        if is_render_vehicle_icon then
-                            if not is_visible or not is_revealed then
-                                if get_is_visible_by_modded_radar(vehicle) then
-                                    is_sealthed = false
-                                    is_revealed = true
-                                    is_visible = true
+                        if is_air and not get_is_spectator_mode() then
+                            -- hide low level aircraft
+                            if is_render_vehicle_icon and get_is_vehicle_masked(vehicle) then
+                                if vehicle:get_team() ~= update_get_screen_team_id() then
+                                    is_revealed = false
+                                    is_visible = false
+                                    is_render_vehicle_icon = false
+                                    if g_highlighted.vehicle_id == vehicle:get_id() then
+                                        g_highlighted.vehicle_id = 0
+                                    end
                                 end
                             end
                         end
 
-                        if vehicle_team ~= screen_team then
-                            -- hostile units
-                            -- aircraft traces
-                            --if is_air then
-                            --    local v_alt = get_unit_altitude(vehicle)
-                            --    local hist = g_hostile_air_histories[vehicle:get_id()]
-                            --    if is_visible and v_alt > 55 then
-                            --        save_vehicle_history(g_hostile_air_histories, vehicle)
-                            --
-                            --        -- now plot it's past path
-                            --        if hist then
-                            --            hist.max_history = 30
-                            --        end
-                            --        if hist and hist.updated - now < 120 then
-                            --            local positions = hist.position
-                            --            local last_p = nil
-                            --            for n, vp in pairs(positions) do
-                            --                if last_p ~= nil then
-                            --                    -- line
-                            --                    local p1x, p1y = control_screen_from_world(last_p:x(), last_p:y(), screen_w, screen_h)
-                            --                    local p2x, p2y = control_screen_from_world(vp:x(), vp:y(), screen_w, screen_h)
-                            --                    update_ui_line(p1x, p1y, p2x, p2y, color_grey_dark)
-                            --                end
-                            --                last_p = vp
-                            --            end
-                            --        end
-                            --    else
-                            --        if hist and hist.updated - now > 120 then
-                            --            remove_vehicle_history(g_hostile_air_histories, vehicle:get_id())
-                            --        end
-                            --    end
-                            --end
+                        local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
+                        -- render waypoints
+
+                        local vehicle_support_id = vehicle:get_supporting_vehicle_id()
+
+                        local waypoint_count = vehicle:get_waypoint_count()
+
+                        local waypoint_pos_x_prev = screen_pos_x
+                        local waypoint_pos_y_prev = screen_pos_y
+
+                        local show_waypoints = true
+                        local waypoint_color = g_color_waypoint
+                        if vehicle:get_definition_index() == e_game_object_type.chassis_sea_barge then
+                            waypoint_color = g_color_waypoint_dark
+                        elseif vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+                            show_waypoints = g_is_carrier_waypoint
+                        elseif vehicle:get_definition_index() == e_game_object_type.chassis_land_turret then
+                            show_waypoints = false
                         end
 
-                        if is_visible and is_revealed then
-                            local vehicle_pos_xz = vehicle:get_position_xz()
-                            local v_x = vehicle_pos_xz:x()
-                            local v_y = vehicle_pos_xz:y()
+                        if (vehicle_team == screen_team or get_is_spectator_mode()) and show_waypoints then
 
-                            if is_air and not get_is_spectator_mode() then
-                                -- hide low level aircraft
-                                if is_render_vehicle_icon and get_is_vehicle_masked(vehicle) then
-                                    if vehicle:get_team() ~= update_get_screen_team_id() then
-                                        is_revealed = false
-                                        is_visible = false
-                                        is_render_vehicle_icon = false
-                                        if g_highlighted.vehicle_id == vehicle:get_id() then
-                                            g_highlighted.vehicle_id = 0
-                                        end
-                                    end
+                            if g_highlighted.vehicle_id == vehicle:get_id() and g_highlighted.waypoint_id == 0 then
+                                waypoint_color = color8(255, 255, 255, 255)
+                            end
+
+                            local vehicle_dock_state = vehicle:get_dock_state()
+                            local vehicle_dock_queue_id = vehicle:get_dock_queue_vehicle_id()
+                            local dock_state_queue = 5
+                            local dock_state_docking = 1
+
+                            if (vehicle_dock_state == dock_state_queue or vehicle_dock_state == dock_state_docking) and vehicle_dock_queue_id ~= 0 and is_render_vehicle_icon then
+                                local parent_vehicle = update_get_map_vehicle_by_id(vehicle_dock_queue_id)
+
+                                if parent_vehicle:get() then
+                                    local parent_pos_xz = parent_vehicle:get_position_xz()
+                                    local parent_screen_pos_x, parent_screen_pos_y = get_screen_from_world(parent_pos_xz:x(), parent_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+
+                                    render_dashed_line(screen_pos_x, screen_pos_y, parent_screen_pos_x, parent_screen_pos_y, waypoint_color)
+                                end
+                            end
+                            local function render_resupply_link(vehicle_from, vehicle_to, is_resupplying)
+                                local from_xz = vehicle_from:get_position_xz()
+                                local from_screen_pos_x, from_screen_pos_y = get_screen_from_world(from_xz:x(), from_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                local to_xz = vehicle_to:get_position_xz()
+                                local to_screen_pos_x, to_screen_pos_y = get_screen_from_world(to_xz:x(), to_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                local color = color8(g_color_resupply:r(), g_color_resupply:g(), g_color_resupply:b(), g_color_resupply:a())
+
+                                if is_resupplying == false then
+                                    color:a(color:a() / 4)
+                                end
+
+                                render_dashed_line(from_screen_pos_x, from_screen_pos_y, to_screen_pos_x, to_screen_pos_y, color)
+
+                                if get_grid_spacing() < 2000 and g_animation_time % 20 > 10 and is_resupplying then
+                                    update_ui_image((screen_pos_x + to_screen_pos_x) / 2 - 3, (screen_pos_y + to_screen_pos_y) / 2 - 4, atlas_icons.column_stock, color, 0)
+                                end
+                            end
+                            local vehicle_resupply_id = vehicle:get_resupply_vehicle_id()
+
+                            if vehicle_resupply_id ~= 0 then
+                                local resupply_vehicle = update_get_map_vehicle_by_id(vehicle_resupply_id)
+
+                                if resupply_vehicle:get() then
+                                    local fuel_factor = vehicle:get_fuel_factor()
+                                    local ammo_factor = vehicle:get_ammo_factor()
+                                    local is_resupplying = math.floor(fuel_factor * 100 + 0.5) < 100 or math.floor(ammo_factor * 100 + 0.5) < 100
+
+                                    render_resupply_link(resupply_vehicle, vehicle, is_resupplying)
                                 end
                             end
 
-                            local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                            local vehicle_resupplying_id_count = vehicle:get_resupplying_vehicle_id_count()
 
-                            -- render waypoints
-
-                            local vehicle_support_id = vehicle:get_supporting_vehicle_id()
-
-                            local waypoint_count = vehicle:get_waypoint_count()
-
-                            local waypoint_pos_x_prev = screen_pos_x
-                            local waypoint_pos_y_prev = screen_pos_y
-
-                            local show_waypoints = true
-                            local waypoint_color = g_color_waypoint
-                            if vehicle:get_definition_index() == e_game_object_type.chassis_sea_barge then
-                                waypoint_color = g_color_waypoint_dark
-                            elseif vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
-                                show_waypoints = g_is_carrier_waypoint
-                            elseif vehicle:get_definition_index() == e_game_object_type.chassis_land_turret then
-                                show_waypoints = false
-                            end
-
-                            if (vehicle_team == screen_team or get_is_spectator_mode()) and show_waypoints then
-
-                                if g_highlighted.vehicle_id == vehicle:get_id() and g_highlighted.waypoint_id == 0 then
-                                    waypoint_color = color8(255, 255, 255, 255)
-                                end
-
-                                local vehicle_dock_state = vehicle:get_dock_state()
-                                local vehicle_dock_queue_id = vehicle:get_dock_queue_vehicle_id()
-                                local dock_state_queue = 5
-                                local dock_state_docking = 1
-
-                                if (vehicle_dock_state == dock_state_queue or vehicle_dock_state == dock_state_docking) and vehicle_dock_queue_id ~= 0 and is_render_vehicle_icon then
-                                    local parent_vehicle = update_get_map_vehicle_by_id(vehicle_dock_queue_id)
-
-                                    if parent_vehicle:get() then
-                                        local parent_pos_xz = parent_vehicle:get_position_xz()
-                                        local parent_screen_pos_x, parent_screen_pos_y = get_screen_from_world(parent_pos_xz:x(), parent_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-
-                                        render_dashed_line(screen_pos_x, screen_pos_y, parent_screen_pos_x, parent_screen_pos_y, waypoint_color)
-                                    end
-                                end
-                                local function render_resupply_link(vehicle_from, vehicle_to, is_resupplying)
-                                    local from_xz = vehicle_from:get_position_xz()
-                                    local from_screen_pos_x, from_screen_pos_y = get_screen_from_world(from_xz:x(), from_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                    local to_xz = vehicle_to:get_position_xz()
-                                    local to_screen_pos_x, to_screen_pos_y = get_screen_from_world(to_xz:x(), to_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                    local color = color8(g_color_resupply:r(), g_color_resupply:g(), g_color_resupply:b(), g_color_resupply:a())
-
-                                    if is_resupplying == false then
-                                        color:a(color:a() / 4)
-                                    end
-
-                                    render_dashed_line(from_screen_pos_x, from_screen_pos_y, to_screen_pos_x, to_screen_pos_y, color)
-
-                                    if get_grid_spacing() < 2000 and g_animation_time % 20 > 10 and is_resupplying then
-                                        update_ui_image((screen_pos_x + to_screen_pos_x) / 2 - 3, (screen_pos_y + to_screen_pos_y) / 2 - 4, atlas_icons.column_stock, color, 0)
-                                    end
-                                end
-                                local vehicle_resupply_id = vehicle:get_resupply_vehicle_id()
+                            for j = 0, vehicle_resupplying_id_count - 1, 1 do
+                                vehicle_resupply_id = vehicle:get_resupplying_vehicle_id(j)
 
                                 if vehicle_resupply_id ~= 0 then
                                     local resupply_vehicle = update_get_map_vehicle_by_id(vehicle_resupply_id)
 
                                     if resupply_vehicle:get() then
-                                        local fuel_factor = vehicle:get_fuel_factor()
-                                        local ammo_factor = vehicle:get_ammo_factor()
-                                        local is_resupplying = math.floor(fuel_factor * 100 + 0.5) < 100 or math.floor(ammo_factor * 100 + 0.5) < 100
+                                        local is_logistics_ammo, is_logistics_fuel = get_vehicle_logistics_capabilities(vehicle)
+                                        local fuel_factor = resupply_vehicle:get_fuel_factor()
+                                        local ammo_factor = resupply_vehicle:get_ammo_factor()
+                                        local is_resupplying = (is_logistics_ammo and math.floor(fuel_factor * 100 + 0.5) < 100) or (is_logistics_fuel and math.floor(ammo_factor * 100 + 0.5) < 100)
 
-                                        render_resupply_link(resupply_vehicle, vehicle, is_resupplying)
+                                        render_resupply_link(vehicle, resupply_vehicle, is_resupplying)
                                     end
                                 end
+                            end
 
-                                local vehicle_resupplying_id_count = vehicle:get_resupplying_vehicle_id_count()
+                            if vehicle_support_id ~= 0 then
+                                local parent_vehicle = update_get_map_vehicle_by_id(vehicle_support_id)
 
-                                for j = 0, vehicle_resupplying_id_count - 1, 1 do
-                                    vehicle_resupply_id = vehicle:get_resupplying_vehicle_id(j)
+                                if parent_vehicle:get() then
+                                    local parent_pos_xz = parent_vehicle:get_position_xz()
+                                    local parent_screen_pos_x, parent_screen_pos_y = get_screen_from_world(parent_pos_xz:x(), parent_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                                    if vehicle_resupply_id ~= 0 then
-                                        local resupply_vehicle = update_get_map_vehicle_by_id(vehicle_resupply_id)
-
-                                        if resupply_vehicle:get() then
-                                            local is_logistics_ammo, is_logistics_fuel = get_vehicle_logistics_capabilities(vehicle)
-                                            local fuel_factor = resupply_vehicle:get_fuel_factor()
-                                            local ammo_factor = resupply_vehicle:get_ammo_factor()
-                                            local is_resupplying = (is_logistics_ammo and math.floor(fuel_factor * 100 + 0.5) < 100) or (is_logistics_fuel and math.floor(ammo_factor * 100 + 0.5) < 100)
-
-                                            render_resupply_link(vehicle, resupply_vehicle, is_resupplying)
-                                        end
-                                    end
+                                    render_dashed_line(screen_pos_x, screen_pos_y, parent_screen_pos_x, parent_screen_pos_y, waypoint_color)
                                 end
+                            else
+                                local waypoint_path = vehicle:get_waypoint_path()
+                                local waypoint_start_index = 0
+                                if #waypoint_path > 0 then
+                                    waypoint_start_index = 1
 
-                                if vehicle_support_id ~= 0 then
-                                    local parent_vehicle = update_get_map_vehicle_by_id(vehicle_support_id)
+                                    for i = 1, #waypoint_path do
+                                        local waypoint_screen_pos_x, waypoint_screen_pos_y = get_screen_from_world(waypoint_path[i]:x(), waypoint_path[i]:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                                    if parent_vehicle:get() then
-                                        local parent_pos_xz = parent_vehicle:get_position_xz()
-                                        local parent_screen_pos_x, parent_screen_pos_y = get_screen_from_world(parent_pos_xz:x(), parent_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                        update_ui_line(waypoint_pos_x_prev, waypoint_pos_y_prev, waypoint_screen_pos_x, waypoint_screen_pos_y, waypoint_color)
 
-                                        render_dashed_line(screen_pos_x, screen_pos_y, parent_screen_pos_x, parent_screen_pos_y, waypoint_color)
-                                    end
-                                else
-                                    local waypoint_path = vehicle:get_waypoint_path()
-                                    local waypoint_start_index = 0
-                                    if #waypoint_path > 0 then
-                                        waypoint_start_index = 1
-
-                                        for i = 1, #waypoint_path do
-                                            local waypoint_screen_pos_x, waypoint_screen_pos_y = get_screen_from_world(waypoint_path[i]:x(), waypoint_path[i]:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-
-                                            update_ui_line(waypoint_pos_x_prev, waypoint_pos_y_prev, waypoint_screen_pos_x, waypoint_screen_pos_y, waypoint_color)
-
-                                            update_ui_rectangle(waypoint_screen_pos_x - 1, waypoint_screen_pos_y - 1, 2, 2, waypoint_color)
-
-                                            waypoint_pos_x_prev = waypoint_screen_pos_x
-                                            waypoint_pos_y_prev = waypoint_screen_pos_y
-                                        end
-
-                                        if waypoint_count > 0 then
-                                            local waypoint = vehicle:get_waypoint(0)
-                                            local waypoint_pos = waypoint:get_position_xz()
-                                            local path_end_x, path_end_y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-
-                                            update_ui_line(waypoint_pos_x_prev, waypoint_pos_y_prev, path_end_x, path_end_y, waypoint_color)
-                                        end
-                                    end
-
-                                    waypoint_pos_x_prev = screen_pos_x
-                                    waypoint_pos_y_prev = screen_pos_y
-
-                                    if is_render_vehicle_icon == false then
-                                        if vehicle_attached_parent_id ~= 0 then
-                                            local parent_vehicle = update_get_map_vehicle_by_id(vehicle_attached_parent_id)
-
-                                            if parent_vehicle:get() then
-                                                local parent_vehicle_pos_xz = parent_vehicle:get_position_xz()
-                                                waypoint_pos_x_prev, waypoint_pos_y_prev = get_screen_from_world(parent_vehicle_pos_xz:x(), parent_vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                            end
-                                        end
-                                    end
-
-                                    for j = 0, waypoint_count - 1, 1 do
-                                        local waypoint = vehicle:get_waypoint(j)
-                                        local waypoint_pos = waypoint:get_position_xz()
-                                        local waypoint_screen_pos_x, waypoint_screen_pos_y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-
-                                        if j >= waypoint_start_index then
-                                            update_ui_line(waypoint_pos_x_prev, waypoint_pos_y_prev, waypoint_screen_pos_x, waypoint_screen_pos_y, waypoint_color)
-                                        end
+                                        update_ui_rectangle(waypoint_screen_pos_x - 1, waypoint_screen_pos_y - 1, 2, 2, waypoint_color)
 
                                         waypoint_pos_x_prev = waypoint_screen_pos_x
                                         waypoint_pos_y_prev = waypoint_screen_pos_y
-
-                                        local waypoint_repeat_index = waypoint:get_repeat_index()
-
-                                        if waypoint_repeat_index >= 0 then
-                                            local waypoint_repeat = vehicle:get_waypoint(waypoint_repeat_index)
-                                            local waypoint_repeat_pos = waypoint_repeat:get_position_xz()
-
-                                            local repeat_screen_pos_x, repeat_screen_pos_y = get_screen_from_world(waypoint_repeat_pos:x(), waypoint_repeat_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-
-                                            update_ui_line(waypoint_screen_pos_x, waypoint_screen_pos_y, repeat_screen_pos_x, repeat_screen_pos_y, waypoint_color)
-                                            update_ui_image((waypoint_screen_pos_x + repeat_screen_pos_x) / 2 - 4, (waypoint_screen_pos_y + repeat_screen_pos_y) / 2 - 4, atlas_icons.map_icon_loop, waypoint_color, 0)
-                                        end
-
-                                        local attack_target_count = waypoint:get_attack_target_count()
-
-                                        for k = 0, attack_target_count - 1, 1 do
-                                            local is_valid = waypoint:get_attack_target_is_valid(k)
-
-                                            if is_valid then
-                                                -- validate that the attack target is visible on the map
-                                                -- if not, remove the waypoint order so it can't be used
-                                                -- track units beyond radar/visible range
-                                                local target_id = waypoint:get_attack_target_target_id(k)
-                                                local target_unit = update_get_map_vehicle_by_id(target_id)
-                                                if target_unit:get() then
-                                                    if not target_unit:get_is_visible() then
-                                                        vehicle:remove_waypoint_attack_target(waypoint:get_id(), k)
-                                                        is_valid = false
-                                                    end
-                                                end
-                                            end
-
-                                            if is_valid then
-                                                local attack_target_pos = waypoint:get_attack_target_position_xz(k)
-                                                local attack_target_attack_type = waypoint:get_attack_target_attack_type(k)
-                                                local attack_target_icon = get_attack_type_icon(attack_target_attack_type)
-
-                                                local attack_target_screen_pos_x, attack_target_screen_pos_y = get_screen_from_world(attack_target_pos:x(), attack_target_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-
-                                                local color = g_color_attack_order
-
-                                                if attack_target_attack_type == e_attack_type.airlift then
-                                                    color = g_color_airlift_order
-                                                end
-
-                                                update_ui_line(waypoint_screen_pos_x, waypoint_screen_pos_y, attack_target_screen_pos_x, attack_target_screen_pos_y, color)
-                                                update_ui_image(attack_target_screen_pos_x - 8, attack_target_screen_pos_y - 8, atlas_icons.map_icon_attack, color, 0)
-                                                update_ui_image(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4 - 8, attack_target_icon, color, 0)
-                                            end
-                                        end
                                     end
 
-                                    for j = 0, waypoint_count - 1, 1 do
-                                        local waypoint = vehicle:get_waypoint(j)
+                                    if waypoint_count > 0 then
+                                        local waypoint = vehicle:get_waypoint(0)
                                         local waypoint_pos = waypoint:get_position_xz()
+                                        local path_end_x, path_end_y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                                        local waypoint_screen_pos_x, waypoint_screen_pos_y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                        update_ui_line(waypoint_pos_x_prev, waypoint_pos_y_prev, path_end_x, path_end_y, waypoint_color)
+                                    end
+                                end
 
-                                        local waypoint_color = g_color_waypoint
+                                waypoint_pos_x_prev = screen_pos_x
+                                waypoint_pos_y_prev = screen_pos_y
 
-                                        local is_group_a = waypoint:get_is_wait_group(0)
-                                        local is_group_b = waypoint:get_is_wait_group(1)
-                                        local is_group_c = waypoint:get_is_wait_group(2)
-                                        local is_group_d = waypoint:get_is_wait_group(3)
+                                if is_render_vehicle_icon == false then
+                                    if vehicle_attached_parent_id ~= 0 then
+                                        local parent_vehicle = update_get_map_vehicle_by_id(vehicle_attached_parent_id)
 
-                                        local group_text = ""
-
-                                        if is_group_a then group_text = group_text..update_get_loc(e_loc.upp_acronym_alpha) end
-                                        if is_group_b then group_text = group_text..update_get_loc(e_loc.upp_acronym_beta) end
-                                        if is_group_c then group_text = group_text..update_get_loc(e_loc.upp_acronym_charlie) end
-                                        if is_group_d then group_text = group_text..update_get_loc(e_loc.upp_acronym_delta) end
-
-                                        local is_group = (is_group_a or is_group_b or is_group_c or is_group_d)
-                                        local is_deploy = waypoint:get_type() == e_waypoint_type.deploy
-
-                                        local alt = 400
-                                        if is_air then
-                                            alt = waypoint:get_altitude()
-                                        end
-
-                                        if g_highlighted.vehicle_id == vehicle:get_id() and g_highlighted.waypoint_id == 0 then
-                                            waypoint_color = color8(255, 255, 255, 255)
-                                        elseif g_highlighted.vehicle_id == vehicle:get_id() and g_highlighted.waypoint_id == waypoint:get_id() then
-                                            waypoint_color = color8(255, 255, 255, 255)
-                                        elseif is_deploy then
-                                            waypoint_color = g_color_airlift_order
-                                        elseif is_group then
-                                            waypoint_color = g_color_attack_order
-                                            if is_air and alt < 15 then
-                                                waypoint_color = color_status_dark_green
-                                            end
-                                        elseif is_air and alt < 50 then
-                                            waypoint_color = color_status_dark_yellow
-                                        end
-
-                                        update_ui_image(waypoint_screen_pos_x - 4, waypoint_screen_pos_y - 4, atlas_icons.map_icon_waypoint, waypoint_color, 0)
-
-                                        if is_deploy then
-                                            update_ui_image(waypoint_screen_pos_x - 4, waypoint_screen_pos_y - 11, atlas_icons.icon_deploy_vehicle, waypoint_color, 0)
-                                        elseif is_group then
-                                            update_ui_text(waypoint_screen_pos_x - 64, waypoint_screen_pos_y - 13, group_text, 128, 1, waypoint_color, 0)
+                                        if parent_vehicle:get() then
+                                            local parent_vehicle_pos_xz = parent_vehicle:get_position_xz()
+                                            waypoint_pos_x_prev, waypoint_pos_y_prev = get_screen_from_world(parent_vehicle_pos_xz:x(), parent_vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                                         end
                                     end
                                 end
 
-                                local attack_target_type = vehicle:get_attack_target_type()
+                                for j = 0, waypoint_count - 1, 1 do
+                                    local waypoint = vehicle:get_waypoint(j)
+                                    local waypoint_pos = waypoint:get_position_xz()
+                                    local waypoint_screen_pos_x, waypoint_screen_pos_y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                                if attack_target_type ~= e_attack_type.none then
-                                    local attack_target_pos = vehicle:get_attack_target_position_xz()
-                                    local attack_target_attack_type = vehicle:get_attack_target_type()
-                                    local attack_target_icon = get_attack_type_icon(attack_target_attack_type)
-
-                                    local attack_target_screen_pos_x, attack_target_screen_pos_y = get_screen_from_world(attack_target_pos:x(), attack_target_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-
-                                    local color = g_color_attack_order
-
-                                    if attack_target_attack_type == e_attack_type.airlift then
-                                        color = g_color_airlift_order
+                                    if j >= waypoint_start_index then
+                                        update_ui_line(waypoint_pos_x_prev, waypoint_pos_y_prev, waypoint_screen_pos_x, waypoint_screen_pos_y, waypoint_color)
                                     end
 
-                                    render_dashed_line(screen_pos_x, screen_pos_y, attack_target_screen_pos_x, attack_target_screen_pos_y, color)
-                                    update_ui_image(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4, atlas_icons.map_icon_waypoint, color, 0)
-                                    update_ui_image(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4 - 8, attack_target_icon, color, 0)
-                                    update_ui_text(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4 - 8, attack_target_attack_type, 128, 0, color_black, 0)
+                                    waypoint_pos_x_prev = waypoint_screen_pos_x
+                                    waypoint_pos_y_prev = waypoint_screen_pos_y
+
+                                    local waypoint_repeat_index = waypoint:get_repeat_index()
+
+                                    if waypoint_repeat_index >= 0 then
+                                        local waypoint_repeat = vehicle:get_waypoint(waypoint_repeat_index)
+                                        local waypoint_repeat_pos = waypoint_repeat:get_position_xz()
+
+                                        local repeat_screen_pos_x, repeat_screen_pos_y = get_screen_from_world(waypoint_repeat_pos:x(), waypoint_repeat_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+
+                                        update_ui_line(waypoint_screen_pos_x, waypoint_screen_pos_y, repeat_screen_pos_x, repeat_screen_pos_y, waypoint_color)
+                                        update_ui_image((waypoint_screen_pos_x + repeat_screen_pos_x) / 2 - 4, (waypoint_screen_pos_y + repeat_screen_pos_y) / 2 - 4, atlas_icons.map_icon_loop, waypoint_color, 0)
+                                    end
+
+                                    local attack_target_count = waypoint:get_attack_target_count()
+
+                                    for k = 0, attack_target_count - 1, 1 do
+                                        local is_valid = waypoint:get_attack_target_is_valid(k)
+
+                                        if is_valid then
+                                            -- validate that the attack target is visible on the map
+                                            -- if not, remove the waypoint order so it can't be used
+                                            -- track units beyond radar/visible range
+                                            local target_id = waypoint:get_attack_target_target_id(k)
+                                            local target_unit = update_get_map_vehicle_by_id(target_id)
+                                            if target_unit:get() then
+                                                if not target_unit:get_is_visible() then
+                                                    vehicle:remove_waypoint_attack_target(waypoint:get_id(), k)
+                                                    is_valid = false
+                                                end
+                                            end
+                                        end
+
+                                        if is_valid then
+                                            local attack_target_pos = waypoint:get_attack_target_position_xz(k)
+                                            local attack_target_attack_type = waypoint:get_attack_target_attack_type(k)
+                                            local attack_target_icon = get_attack_type_icon(attack_target_attack_type)
+
+                                            local attack_target_screen_pos_x, attack_target_screen_pos_y = get_screen_from_world(attack_target_pos:x(), attack_target_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+
+                                            local color = g_color_attack_order
+
+                                            if attack_target_attack_type == e_attack_type.airlift then
+                                                color = g_color_airlift_order
+                                            end
+
+                                            update_ui_line(waypoint_screen_pos_x, waypoint_screen_pos_y, attack_target_screen_pos_x, attack_target_screen_pos_y, color)
+                                            update_ui_image(attack_target_screen_pos_x - 8, attack_target_screen_pos_y - 8, atlas_icons.map_icon_attack, color, 0)
+                                            update_ui_image(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4 - 8, attack_target_icon, color, 0)
+                                        end
+                                    end
+                                end
+
+                                for j = 0, waypoint_count - 1, 1 do
+                                    local waypoint = vehicle:get_waypoint(j)
+                                    local waypoint_pos = waypoint:get_position_xz()
+
+                                    local waypoint_screen_pos_x, waypoint_screen_pos_y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+
+                                    local waypoint_color = g_color_waypoint
+
+                                    local is_group_a = waypoint:get_is_wait_group(0)
+                                    local is_group_b = waypoint:get_is_wait_group(1)
+                                    local is_group_c = waypoint:get_is_wait_group(2)
+                                    local is_group_d = waypoint:get_is_wait_group(3)
+
+                                    local group_text = ""
+
+                                    if is_group_a then group_text = group_text..update_get_loc(e_loc.upp_acronym_alpha) end
+                                    if is_group_b then group_text = group_text..update_get_loc(e_loc.upp_acronym_beta) end
+                                    if is_group_c then group_text = group_text..update_get_loc(e_loc.upp_acronym_charlie) end
+                                    if is_group_d then group_text = group_text..update_get_loc(e_loc.upp_acronym_delta) end
+
+                                    local is_group = (is_group_a or is_group_b or is_group_c or is_group_d)
+                                    local is_deploy = waypoint:get_type() == e_waypoint_type.deploy
+
+                                    local alt = 400
+                                    if is_air then
+                                        alt = waypoint:get_altitude()
+                                    end
+
+                                    if g_highlighted.vehicle_id == vehicle:get_id() and g_highlighted.waypoint_id == 0 then
+                                        waypoint_color = color8(255, 255, 255, 255)
+                                    elseif g_highlighted.vehicle_id == vehicle:get_id() and g_highlighted.waypoint_id == waypoint:get_id() then
+                                        waypoint_color = color8(255, 255, 255, 255)
+                                    elseif is_deploy then
+                                        waypoint_color = g_color_airlift_order
+                                    elseif is_group then
+                                        waypoint_color = g_color_attack_order
+                                        if is_air and alt < 15 then
+                                            waypoint_color = color_status_dark_green
+                                        end
+                                    elseif is_air and alt < 50 then
+                                        waypoint_color = color_status_dark_yellow
+                                    end
+
+                                    update_ui_image(waypoint_screen_pos_x - 4, waypoint_screen_pos_y - 4, atlas_icons.map_icon_waypoint, waypoint_color, 0)
+
+                                    if is_deploy then
+                                        update_ui_image(waypoint_screen_pos_x - 4, waypoint_screen_pos_y - 11, atlas_icons.icon_deploy_vehicle, waypoint_color, 0)
+                                    elseif is_group then
+                                        update_ui_text(waypoint_screen_pos_x - 64, waypoint_screen_pos_y - 13, group_text, 128, 1, waypoint_color, 0)
+                                    end
                                 end
                             end
 
-                            if is_render_vehicle_icon then
-                                -- render vehicle icon
-                                if vehicle_team ~= screen_team then
-                                    vehicle_definition_index = ew_fuzz_unit_def(vehicle_definition_index, vehicle:get_id())
+                            local attack_target_type = vehicle:get_attack_target_type()
+
+                            if attack_target_type ~= e_attack_type.none then
+                                local attack_target_pos = vehicle:get_attack_target_position_xz()
+                                local attack_target_attack_type = vehicle:get_attack_target_type()
+                                local attack_target_icon = get_attack_type_icon(attack_target_attack_type)
+
+                                local attack_target_screen_pos_x, attack_target_screen_pos_y = get_screen_from_world(attack_target_pos:x(), attack_target_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+
+                                local color = g_color_attack_order
+
+                                if attack_target_attack_type == e_attack_type.airlift then
+                                    color = g_color_airlift_order
                                 end
 
-                                local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
-
-                                local element_color = get_vehicle_team_color(vehicle_team)
-                                local is_highlight = false
-
-                                if g_selection.vehicle_id == vehicle:get_id() then
-                                    element_color = color8(255, 255, 255, 255)
-                                    is_highlight = true
-                                elseif g_drag.vehicle_id == vehicle:get_id() then
-                                    element_color = color8(255, 255, 255, 255)
-                                    is_highlight = true
-                                elseif g_highlighted.vehicle_id == vehicle:get_id() then
-                                    element_color = color8(255, 255, 255, 255)
-                                    is_highlight = true
-                                end
-
-                                if get_vehicle_has_robot_dogs(vehicle) and g_animation_time % 20 < 10 then
-                                    region_vehicle_icon = atlas_icons.map_icon_surface_capture
-                                end
-
-                                update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
-
-                                -- carrier direction indicator
-                                if vehicle_definition_index == e_game_object_type.chassis_carrier then
-                                    update_ui_image(screen_pos_x - 5, screen_pos_y - 5, atlas_icons.map_icon_circle_9, color_white, 0)
-
-                                    local vehicle_dir = vehicle:get_direction()
-
-                                    local screen_icon_x = screen_pos_x - icon_offset
-                                    local screen_icon_y = screen_pos_y - icon_offset
-
-                                    update_ui_line(screen_pos_x, screen_pos_y, screen_pos_x + (vehicle_dir:x() * 20), screen_pos_y + (vehicle_dir:y() * -20), color_white)
-
-                                    -- draw ship outline
-                                    if g_camera_size < 1000 then
-                                        -- ship is 200m long, 60m wide
-                                        local pix_per_m = screen_w / g_camera_size
-                                        local crr_half_len = 100 * pix_per_m
-                                        local outline_col = color8(16, 16, 16, 32)
-                                        local crr_ber = (math.atan(vehicle_dir:y(), vehicle_dir:x()) / math.pi * 180) + 90
-                                        local fl = (crr_ber - 20) * (math.pi / 180)
-                                        local fr = (crr_ber + 20) * (math.pi / 180)
-
-                                        local fl_x = math.sin(fl) * crr_half_len;
-                                        local fl_y = math.cos(fl) * crr_half_len;
-                                        local fr_x = math.sin(fr) * crr_half_len
-                                        local fr_y = math.cos(fr) * crr_half_len
-
-                                        update_ui_line(
-                                                screen_pos_x - fr_x,
-                                                screen_pos_y - fr_y,
-                                                screen_pos_x - fl_x,
-                                                screen_pos_y - fl_y,
-                                                outline_col
-                                        )
-                                        update_ui_line(
-                                                screen_pos_x - fr_x,
-                                                screen_pos_y - fr_y,
-                                                screen_pos_x + fl_x,
-                                                screen_pos_y + fl_y,
-                                                outline_col
-                                        )
-                                        update_ui_line(
-                                                screen_pos_x + fr_x,
-                                                screen_pos_y + fr_y,
-                                                screen_pos_x + fl_x,
-                                                screen_pos_y + fl_y,
-                                                outline_col
-                                        )
-                                        update_ui_line(
-                                                screen_pos_x + fr_x,
-                                                screen_pos_y + fr_y,
-                                                screen_pos_x - fl_x,
-                                                screen_pos_y - fl_y,
-                                                outline_col
-                                        )
-
-
-                                    end
-                                end
-                                local radar_state = draw_map_radar_state_indicator(vehicle, screen_pos_x, screen_pos_y, g_animation_time)
-                                if radar_state == "on" then
-                                    if g_highlighted.vehicle_id == vehicle:get_id() then
-                                        iter_radars(function(radar)
-                                            local radar_team = radar:get_team()
-                                            if radar_team ~= screen_team and get_vehicle_radar_state(radar) == "on" then
-                                                rev_render_radar_spokes(vehicle, radar, g_screen_w, g_screen_h, control_screen_from_world)
-                                            end
-                                        end)
-                                    end
-                                end
-
-                                local damage_indicator_factor = vehicle:get_damage_indicator_factor()
-                                local damage_factor = clamp(vehicle:get_hitpoints() / vehicle:get_total_hitpoints(), 0, 1)
-                                local fuel_factor = vehicle:get_fuel_factor()
-                                local ammo_factor = vehicle:get_ammo_factor()
-
-                                if damage_indicator_factor > 0 then
-                                    update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_damage_indicator, color8(255, 0, 0, math.floor(255 * damage_indicator_factor)), 0)
-                                end
-
-                                local cy = screen_pos_y + 4
-
-                                if damage_factor < 1 then
-                                    -- render healthbar
-
-                                    local bar_w = 8
-                                    local bar_x = screen_pos_x - bar_w / 2
-                                    local bar_y = cy
-
-                                    local bar_color = iff(damage_factor <= 0.2, color8(255, 0, 0, 255), color8(0, 255, 0, 255))
-                                    local back_color = color_black
-
-                                    if damage_indicator_factor > 0.8 then
-                                        if g_animation_time % 4 < 2 then
-                                            bar_color = color_white
-                                        else
-                                            bar_color = color8(255, 0, 0, 255)
-                                        end
-                                    end
-
-                                    if is_highlight then
-                                        bar_color = color_white
-                                    end
-
-                                    update_ui_rectangle(bar_x, bar_y, bar_w, 1, back_color)
-                                    update_ui_rectangle(bar_x, bar_y, math.floor(damage_factor * bar_w + 0.5), 1, bar_color)
-
-                                    cy = cy + 2
-                                end
-
-                                if (get_is_spectator_mode() or vehicle_team == screen_team) and vehicle_definition_index ~= e_game_object_type.chassis_land_robot_dog then
-                                    cx = screen_pos_x - 4
-
-                                    local is_visible_by_enemy = vehicle:get_is_visible_by_enemy()
-                                    if not is_visible_by_enemy then
-                                        if get_is_vehicle_air(vehicle_definition_index) then
-                                            is_visible_by_enemy = get_is_visible_by_hostile_modded_radar(vehicle)
-                                        end
-                                    end
-
-                                    if is_visible_by_enemy and g_animation_time % 20 > 10 then
-                                        local icon_color =  color_enemy
-
-                                        if is_highlight then
-                                            icon_color = color_white
-                                        end
-
-                                        update_ui_image(screen_pos_x + 3, screen_pos_y - 2, atlas_icons.map_icon_visible, icon_color, 0)
-                                    end
-
-                                    if fuel_factor < 0.5 and get_is_render_fuel_indicator(vehicle) then
-                                        local icon_color = iff(fuel_factor < 0.25, color8(255, 0, 0, 255), color8(255, 255, 0, 255))
-
-                                        if vehicle:get_resupply_vehicle_id() ~= 0 and g_animation_time % 20 > 10 then
-                                            icon_color = g_color_resupply
-                                        end
-
-                                        if is_highlight then
-                                            icon_color = color_white
-                                        end
-
-                                        update_ui_image(cx, cy, atlas_icons.map_icon_low_fuel, icon_color, 0)
-                                        cx = cx + 4
-                                    end
-
-                                    if ammo_factor < 0.5 and get_is_render_ammo_indicator(vehicle) then
-                                        local icon_color = iff(ammo_factor < 0.25, color8(255, 0, 0, 255), color8(255, 255, 0, 255))
-
-                                        if is_highlight then
-                                            icon_color = color_white
-                                        end
-
-                                        update_ui_image(cx, cy, atlas_icons.map_icon_low_ammo, icon_color, 0)
-                                        cx = cx + 4
-                                    end
-
-                                    if vehicle:get_is_hold_fire() == true then
-                                        update_ui_image(cx, cy, atlas_icons.map_icon_hold_fire, color8(255, 0, 0, 255), 0)
-                                        cx = cx + 4
-                                    end
-                                end
-
-                                if vehicle_team == screen_team then
-                                    if vehicle:get_controlling_peer_id() ~= 0 then
-                                        update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, atlas_icons.map_icon_vehicle_control, element_color, 0)
-                                    end
-                                end
-                            elseif g_selected_child_vehicle_id == vehicle:get_id() then
-                                -- render as selected child vehicle
-
-                                local parent_vehicle = update_get_map_vehicle_by_id(vehicle_attached_parent_id)
-
-                                g_tut_undocking_vehicle_id = vehicle:get_id()
-
-                                if parent_vehicle:get() then
-                                    local parent_vehicle_pos_xz = parent_vehicle:get_position_xz()
-                                    local vehicle_definition_index = vehicle:get_definition_index(i)
-
-                                    local screen_pos_x, screen_pos_y = get_screen_from_world(parent_vehicle_pos_xz:x(), parent_vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                    local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
-
-                                    update_ui_rectangle(screen_pos_x - icon_offset - 1, screen_pos_y - icon_offset - 14 - 1, 10, 10, color_black)
-                                    update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset - 14, region_vehicle_icon, color_white, 0)
-                                end
-                            end
-                        elseif is_revealed then
-                            local last_known_position_xz, is_last_known_position_set = vehicle:get_vision_last_known_position_xz()
-
-                            if is_last_known_position_set then
-                                local screen_pos_x, screen_pos_y = get_screen_from_world(last_known_position_xz:x(), last_known_position_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-
-                                if vehicle_attached_parent_id == 0 then
-                                    local element_color = get_vehicle_team_color(vehicle_team)
-
-                                    update_ui_image(screen_pos_x - 2, screen_pos_y - 2, atlas_icons.map_icon_last_known_pos, element_color, 0)
-                                end
+                                render_dashed_line(screen_pos_x, screen_pos_y, attack_target_screen_pos_x, attack_target_screen_pos_y, color)
+                                update_ui_image(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4, atlas_icons.map_icon_waypoint, color, 0)
+                                update_ui_image(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4 - 8, attack_target_icon, color, 0)
+                                update_ui_text(attack_target_screen_pos_x - 4, attack_target_screen_pos_y - 4 - 8, attack_target_attack_type, 128, 0, color_black, 0)
                             end
                         end
 
-                        if g_radar_debug and update_get_is_focus_local() and (update_get_logic_tick() % 120 < 45) then
-                            local vehicle_pos_xz = vehicle:get_position_xz()
-                            local v_x = vehicle_pos_xz:x()
-                            local v_y = vehicle_pos_xz:y()
-                            local color = color8(0, 255, 0, 32)
-
-                            if get_is_radar(vehicle:get_id()) then
-                                color = color8(255, 255, 255, 255)
+                        if is_render_vehicle_icon then
+                            -- render vehicle icon
+                            if vehicle_team ~= screen_team then
+                                vehicle_definition_index = ew_fuzz_unit_def(vehicle_definition_index, vehicle:get_id())
                             end
 
-                            local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                             local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
-                            update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon,
-                                    color, 0)
 
-                            if get_is_vehicle_air(vehicle:get_definition_index()) then
-                                -- draw line to nearest hostile radar that can see us
-                                local vid = vehicle:get_id()
-                                local nearest_hostile_radar = get_nearest_hostile_aew_radar(vid)
-                                if nearest_hostile_radar ~= nil  then
-                                    local radar_pos = hostile_radar:get_position_xz()
-                                    local r_sx, r_sy = get_screen_from_world(radar_pos:x(), radar_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                    update_ui_line(r_sx, r_sy, screen_pos_x, screen_pos_y, color_enemy)
+                            local element_color = get_vehicle_team_color(vehicle_team)
+                            local is_highlight = false
+
+                            if g_selection.vehicle_id == vehicle:get_id() then
+                                element_color = color8(255, 255, 255, 255)
+                                is_highlight = true
+                            elseif g_drag.vehicle_id == vehicle:get_id() then
+                                element_color = color8(255, 255, 255, 255)
+                                is_highlight = true
+                            elseif g_highlighted.vehicle_id == vehicle:get_id() then
+                                element_color = color8(255, 255, 255, 255)
+                                is_highlight = true
+                            end
+
+                            if get_vehicle_has_robot_dogs(vehicle) and g_animation_time % 20 < 10 then
+                                region_vehicle_icon = atlas_icons.map_icon_surface_capture
+                            end
+
+                            update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
+
+                            -- carrier direction indicator
+                            if vehicle_definition_index == e_game_object_type.chassis_carrier then
+                                update_ui_image(screen_pos_x - 5, screen_pos_y - 5, atlas_icons.map_icon_circle_9, color_white, 0)
+
+                                local vehicle_dir = vehicle:get_direction()
+
+                                local screen_icon_x = screen_pos_x - icon_offset
+                                local screen_icon_y = screen_pos_y - icon_offset
+
+                                update_ui_line(screen_pos_x, screen_pos_y, screen_pos_x + (vehicle_dir:x() * 20), screen_pos_y + (vehicle_dir:y() * -20), color_white)
+
+                                -- draw ship outline
+                                if g_camera_size < 1000 then
+                                    -- ship is 200m long, 60m wide
+                                    local pix_per_m = screen_w / g_camera_size
+                                    local crr_half_len = 100 * pix_per_m
+                                    local outline_col = color8(16, 16, 16, 32)
+                                    local crr_ber = (math.atan(vehicle_dir:y(), vehicle_dir:x()) / math.pi * 180) + 90
+                                    local fl = (crr_ber - 20) * (math.pi / 180)
+                                    local fr = (crr_ber + 20) * (math.pi / 180)
+
+                                    local fl_x = math.sin(fl) * crr_half_len;
+                                    local fl_y = math.cos(fl) * crr_half_len;
+                                    local fr_x = math.sin(fr) * crr_half_len
+                                    local fr_y = math.cos(fr) * crr_half_len
+
+                                    update_ui_line(
+                                            screen_pos_x - fr_x,
+                                            screen_pos_y - fr_y,
+                                            screen_pos_x - fl_x,
+                                            screen_pos_y - fl_y,
+                                            outline_col
+                                    )
+                                    update_ui_line(
+                                            screen_pos_x - fr_x,
+                                            screen_pos_y - fr_y,
+                                            screen_pos_x + fl_x,
+                                            screen_pos_y + fl_y,
+                                            outline_col
+                                    )
+                                    update_ui_line(
+                                            screen_pos_x + fr_x,
+                                            screen_pos_y + fr_y,
+                                            screen_pos_x + fl_x,
+                                            screen_pos_y + fl_y,
+                                            outline_col
+                                    )
+                                    update_ui_line(
+                                            screen_pos_x + fr_x,
+                                            screen_pos_y + fr_y,
+                                            screen_pos_x - fl_x,
+                                            screen_pos_y - fl_y,
+                                            outline_col
+                                    )
+
+
+                                end
+                            end
+                            local radar_state = draw_map_radar_state_indicator(vehicle, screen_pos_x, screen_pos_y, g_animation_time)
+                            if radar_state == "on" then
+                                if g_highlighted.vehicle_id == vehicle:get_id() then
+                                    iter_radars(function(radar)
+                                        local radar_team = radar:get_team()
+                                        if radar_team ~= screen_team and get_vehicle_radar_state(radar) == "on" then
+                                            rev_render_radar_spokes(vehicle, radar, g_screen_w, g_screen_h, control_screen_from_world)
+                                        end
+                                    end)
+                                end
+                            end
+
+                            local damage_indicator_factor = vehicle:get_damage_indicator_factor()
+                            local damage_factor = clamp(vehicle:get_hitpoints() / vehicle:get_total_hitpoints(), 0, 1)
+                            local fuel_factor = vehicle:get_fuel_factor()
+                            local ammo_factor = vehicle:get_ammo_factor()
+
+                            if damage_indicator_factor > 0 then
+                                update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_damage_indicator, color8(255, 0, 0, math.floor(255 * damage_indicator_factor)), 0)
+                            end
+
+                            local cy = screen_pos_y + 4
+
+                            if damage_factor < 1 then
+                                -- render healthbar
+
+                                local bar_w = 8
+                                local bar_x = screen_pos_x - bar_w / 2
+                                local bar_y = cy
+
+                                local bar_color = iff(damage_factor <= 0.2, color8(255, 0, 0, 255), color8(0, 255, 0, 255))
+                                local back_color = color_black
+
+                                if damage_indicator_factor > 0.8 then
+                                    if g_animation_time % 4 < 2 then
+                                        bar_color = color_white
+                                    else
+                                        bar_color = color8(255, 0, 0, 255)
+                                    end
                                 end
 
-                                -- draw a line from our nearest radar to the hostile it can see
-                                local nearest_ew, pwr = get_nearest_friendly_aew_radar(vid)
-                                if nearest_ew ~= nil and pwr > 0.00004 then
-                                    -- show very low power radar contacts
-                                    -- we only expose 0.00002+
-                                    local radar_pos = nearest_ew:get_position_xz()
-                                    local dist = vec2_dist(radar_pos, vehicle_pos_xz)
-                                    local r_sx, r_sy = get_screen_from_world(radar_pos:x(), radar_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                    update_ui_line(r_sx, r_sy, screen_pos_x, screen_pos_y, color_friendly)
-
-                                    update_ui_text(
-                                            screen_pos_x - icon_offset + 12,
-                                            screen_pos_y - icon_offset + 12,
-                                            string.format("%dm %1.6f", math.floor(dist), pwr), 128, 0, color_friendly, 0)
+                                if is_highlight then
+                                    bar_color = color_white
                                 end
+
+                                update_ui_rectangle(bar_x, bar_y, bar_w, 1, back_color)
+                                update_ui_rectangle(bar_x, bar_y, math.floor(damage_factor * bar_w + 0.5), 1, bar_color)
+
+                                cy = cy + 2
+                            end
+
+                            if (get_is_spectator_mode() or vehicle_team == screen_team) and vehicle_definition_index ~= e_game_object_type.chassis_land_robot_dog then
+                                cx = screen_pos_x - 4
+
+                                local is_visible_by_enemy = vehicle:get_is_visible_by_enemy()
+                                if not is_visible_by_enemy then
+                                    if get_is_vehicle_air(vehicle_definition_index) then
+                                        is_visible_by_enemy = get_is_visible_by_hostile_modded_radar(vehicle)
+                                    end
+                                end
+
+                                if is_visible_by_enemy and g_animation_time % 20 > 10 then
+                                    local icon_color =  color_enemy
+
+                                    if is_highlight then
+                                        icon_color = color_white
+                                    end
+
+                                    update_ui_image(screen_pos_x + 3, screen_pos_y - 2, atlas_icons.map_icon_visible, icon_color, 0)
+                                end
+
+                                if fuel_factor < 0.5 and get_is_render_fuel_indicator(vehicle) then
+                                    local icon_color = iff(fuel_factor < 0.25, color8(255, 0, 0, 255), color8(255, 255, 0, 255))
+
+                                    if vehicle:get_resupply_vehicle_id() ~= 0 and g_animation_time % 20 > 10 then
+                                        icon_color = g_color_resupply
+                                    end
+
+                                    if is_highlight then
+                                        icon_color = color_white
+                                    end
+
+                                    update_ui_image(cx, cy, atlas_icons.map_icon_low_fuel, icon_color, 0)
+                                    cx = cx + 4
+                                end
+
+                                if ammo_factor < 0.5 and get_is_render_ammo_indicator(vehicle) then
+                                    local icon_color = iff(ammo_factor < 0.25, color8(255, 0, 0, 255), color8(255, 255, 0, 255))
+
+                                    if is_highlight then
+                                        icon_color = color_white
+                                    end
+
+                                    update_ui_image(cx, cy, atlas_icons.map_icon_low_ammo, icon_color, 0)
+                                    cx = cx + 4
+                                end
+
+                                if vehicle:get_is_hold_fire() == true then
+                                    update_ui_image(cx, cy, atlas_icons.map_icon_hold_fire, color8(255, 0, 0, 255), 0)
+                                    cx = cx + 4
+                                end
+                            end
+
+                            if vehicle_team == screen_team then
+                                if vehicle:get_controlling_peer_id() ~= 0 then
+                                    update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, atlas_icons.map_icon_vehicle_control, element_color, 0)
+                                end
+                            end
+                        elseif g_selected_child_vehicle_id == vehicle:get_id() then
+                            -- render as selected child vehicle
+
+                            local parent_vehicle = update_get_map_vehicle_by_id(vehicle_attached_parent_id)
+
+                            g_tut_undocking_vehicle_id = vehicle:get_id()
+
+                            if parent_vehicle:get() then
+                                local parent_vehicle_pos_xz = parent_vehicle:get_position_xz()
+                                local vehicle_definition_index = vehicle:get_definition_index(i)
+
+                                local screen_pos_x, screen_pos_y = get_screen_from_world(parent_vehicle_pos_xz:x(), parent_vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
+
+                                update_ui_rectangle(screen_pos_x - icon_offset - 1, screen_pos_y - icon_offset - 14 - 1, 10, 10, color_black)
+                                update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset - 14, region_vehicle_icon, color_white, 0)
+                            end
+                        end
+                    elseif is_revealed then
+                        local last_known_position_xz, is_last_known_position_set = vehicle:get_vision_last_known_position_xz()
+
+                        if is_last_known_position_set then
+                            local screen_pos_x, screen_pos_y = get_screen_from_world(last_known_position_xz:x(), last_known_position_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+
+                            if vehicle_attached_parent_id == 0 then
+                                local element_color = get_vehicle_team_color(vehicle_team)
+
+                                update_ui_image(screen_pos_x - 2, screen_pos_y - 2, atlas_icons.map_icon_last_known_pos, element_color, 0)
+                            end
+                        end
+                    end
+
+                    if g_radar_debug and update_get_is_focus_local() and (update_get_logic_tick() % 120 < 45) then
+                        local vehicle_pos_xz = vehicle:get_position_xz()
+                        local v_x = vehicle_pos_xz:x()
+                        local v_y = vehicle_pos_xz:y()
+                        local color = color8(0, 255, 0, 32)
+
+                        if get_is_radar(vehicle:get_id()) then
+                            color = color8(255, 255, 255, 255)
+                        end
+
+                        local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                        local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
+                        update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon,
+                                color, 0)
+
+                        if get_is_vehicle_air(vehicle:get_definition_index()) then
+                            -- draw line to nearest hostile radar that can see us
+                            local vid = vehicle:get_id()
+                            local nearest_hostile_radar = get_nearest_hostile_aew_radar(vid)
+                            if nearest_hostile_radar ~= nil  then
+                                local radar_pos = hostile_radar:get_position_xz()
+                                local r_sx, r_sy = get_screen_from_world(radar_pos:x(), radar_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                update_ui_line(r_sx, r_sy, screen_pos_x, screen_pos_y, color_enemy)
+                            end
+
+                            -- draw a line from our nearest radar to the hostile it can see
+                            local nearest_ew, pwr = get_nearest_friendly_aew_radar(vid)
+                            if nearest_ew ~= nil and pwr > 0.00004 then
+                                -- show very low power radar contacts
+                                -- we only expose 0.00002+
+                                local radar_pos = nearest_ew:get_position_xz()
+                                local dist = vec2_dist(radar_pos, vehicle_pos_xz)
+                                local r_sx, r_sy = get_screen_from_world(radar_pos:x(), radar_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                update_ui_line(r_sx, r_sy, screen_pos_x, screen_pos_y, color_friendly)
+
+                                update_ui_text(
+                                        screen_pos_x - icon_offset + 12,
+                                        screen_pos_y - icon_offset + 12,
+                                        string.format("%dm %1.6f", math.floor(dist), pwr), 128, 0, color_friendly, 0)
                             end
                         end
                     end

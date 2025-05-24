@@ -3634,3 +3634,29 @@ function ew_fuzz_unit_def(def, vid)
     end
     return def
 end
+
+g_vt = {}
+g_vt_tick = 0
+function get_vehicles_table()
+    local now = update_get_logic_tick()
+    if now > g_vt_tick then
+        g_vt = nil
+    end
+
+    if g_vt == nil then
+        g_vt_tick = now
+        g_vt = {}
+        local vt = g_vt
+        local vehicle_count = update_get_map_vehicle_count()
+
+        for i = 0, vehicle_count - 1, 1 do
+            local vehicle = update_get_map_vehicle_by_index(i)
+
+            if vehicle:get() then
+                table.insert(vt, vehicle)
+            end
+        end
+    end
+
+    return g_vt;
+end
