@@ -1591,8 +1591,6 @@ function refresh_fow_islands()
         -- reveal any island within 16km of one of our units
         local our_team = update_get_screen_team_id()
         local island_count = update_get_tile_count()
-        local vehicle_count = update_get_map_vehicle_count()
-
         local fow_range_sq = g_fow_range * g_fow_range
 
         for i = 0, island_count - 1 do
@@ -1605,9 +1603,8 @@ function refresh_fow_islands()
             else
                 local pos = island:get_position_xz()
                 -- foreign island, find any of our units in range
-                for j = 0, vehicle_count - 1, 1 do
-                    local vehicle = update_get_map_vehicle_by_index(j)
-                    if vehicle:get() and vehicle:get_team() == our_team then
+                for _, vehicle in pairs(get_vehicles_table()) do
+                    if vehicle:get_team() == our_team then
                         if not get_vehicle_docked(vehicle) then
                             local unit_pos = vehicle:get_position_xz()
                             local dist = vec2_dist_sq(unit_pos, pos)
