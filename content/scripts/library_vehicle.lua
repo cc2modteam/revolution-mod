@@ -969,7 +969,6 @@ end
 function get_is_vehicle_masked(vehicle)
     if vehicle and vehicle:get() then
         if get_is_vehicle_air(vehicle:get_definition_index()) then
-
             if _get_radar_attachment(vehicle) ~= nil then
                 -- do not mask RADAR equipped air units
                 return false
@@ -985,6 +984,14 @@ function get_is_vehicle_masked(vehicle)
             if not masked then
                 if alt < 100 then
                     masked = get_close_hostile_ew_cached(vehicle:get_id()) ~= nil
+                end
+            end
+
+            if masked then
+                local nearest_friendly_crr, friendly_crr_dist = get_nearest_carrier(vehicle, true, update_get_screen_team_id())
+                -- unmask any aircraft nearer than 2.5km
+                if nearest_friendly_crr and friendly_crr_dist < 2500 then
+                    masked = false
                 end
             end
 
@@ -3628,6 +3635,9 @@ end
 
 g_vt = {}
 g_vt_tick = 0
+g_carriers_table = {}
+
+
 function get_vehicles_table()
     local now = update_get_logic_tick()
     if now > g_vt_tick then
@@ -3637,7 +3647,9 @@ function get_vehicles_table()
     if g_vt == nil then
         g_vt_tick = now
         g_vt = {}
+        g_carriers_table = {}
         local vt = g_vt
+        local ct = g_carriers_table
         local vehicle_count = update_get_map_vehicle_count()
 
         for i = 0, vehicle_count - 1, 1 do
@@ -3645,9 +3657,36 @@ function get_vehicles_table()
 
             if vehicle:get() then
                 table.insert(vt, vehicle)
+                if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+                    table.insert(ct, vehicle)
+                end
             end
         end
     end
 
     return g_vt;
+end
+
+function get_carriers_table()
+    get_vehicles_table()
+    return g_carriers_table
+end
+
+function get_nearest_carrier(vehicle, friendly, current_team)
+    local nearest_dist_sq = 400000 * 400000
+    local lim_dist_sq = 10000 * 10000
+    local pos = get_pos_xz(vehicle)
+    local nearest = nil
+    for _, crr in pairs(get_carriers_table()) do
+        local crr_team = get_vehicle_team_id(crr)
+        local match = (crr_team == current_team) and friendly
+        if match then
+            local d = fast_dist_sq2(pos, get_pos_xz(crr), lim_dist_sq)
+            if d < nearest_dist_sq then
+                nearest = crr
+                nearest_dist_sq = d
+            end
+        end
+    end
+    return nearest, nearest_dist_sq^0.5
 end
