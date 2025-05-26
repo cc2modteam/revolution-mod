@@ -252,39 +252,34 @@ function update(screen_w, screen_h, ticks)
                     end
                 end
 
-                local vehicle_count = update_get_map_vehicle_count()
-
                 -- render vehicle links to the map
                 if g_is_vehicle_links then
-                    for i = 0, vehicle_count - 1, 1 do
-                        local vehicle = update_get_map_vehicle_by_index(i)
+                    for _, vehicle in pairs(get_vehicles_table()) do
 
-                        if vehicle:get() then
-                            local vehicle_team = vehicle:get_team()
-                            local vehicle_attached_parent_id = vehicle:get_attached_parent_id(i)
+                        local vehicle_team = vehicle:get_team()
+                        local vehicle_attached_parent_id = vehicle:get_attached_parent_id(i)
 
-                            if vehicle_team == screen_team and vehicle_attached_parent_id == 0 then
-                                local def = vehicle:get_definition_index()
+                        if vehicle_team == screen_team and vehicle_attached_parent_id == 0 then
+                            local def = vehicle:get_definition_index()
 
-                                local veh_pos = vehicle:get_position_xz()
-                                local veh_x, veh_y = get_screen_from_world(veh_pos:x(), veh_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                            local veh_pos = vehicle:get_position_xz()
+                            local veh_x, veh_y = get_screen_from_world(veh_pos:x(), veh_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                                if def == e_game_object_type.chassis_sea_barge then
-                                    local action, destination_id, destination_type = vehicle:get_barge_state_data()
+                            if def == e_game_object_type.chassis_sea_barge then
+                                local action, destination_id, destination_type = vehicle:get_barge_state_data()
 
-                                    if destination_type == e_barge_destination_type.vehicle and destination_id == this_vehicle:get_id() then -- The destination of this barge is the carrier
-                                        render_dashed_line(veh_x, veh_y, carrier_x, carrier_y, color8(0, 255, 64, 255))
-                                    end
-                                elseif def ~= e_game_object_type.chassis_spaceship and def ~= e_game_object_type.drydock then
-                                    local is_rotor = (def == e_game_object_type.chassis_air_rotor_light or def == e_game_object_type.chassis_air_rotor_heavy)
+                                if destination_type == e_barge_destination_type.vehicle and destination_id == this_vehicle:get_id() then -- The destination of this barge is the carrier
+                                    render_dashed_line(veh_x, veh_y, carrier_x, carrier_y, color8(0, 255, 64, 255))
+                                end
+                            elseif def ~= e_game_object_type.chassis_spaceship and def ~= e_game_object_type.drydock then
+                                local is_rotor = (def == e_game_object_type.chassis_air_rotor_light or def == e_game_object_type.chassis_air_rotor_heavy)
 
-                                    local dock_state = vehicle:get_dock_state()
+                                local dock_state = vehicle:get_dock_state()
 
-                                    if dock_state == e_vehicle_dock_state.docking then
-                                        render_dashed_line(veh_x, veh_y, carrier_x, carrier_y, color8(205, 8, 8, 255))
-                                    elseif dock_state == e_vehicle_dock_state.dock_queue then
-                                        render_dashed_line(veh_x, veh_y, carrier_x, carrier_y, color8(205, 8, 246, 255))
-                                    end
+                                if dock_state == e_vehicle_dock_state.docking then
+                                    render_dashed_line(veh_x, veh_y, carrier_x, carrier_y, color8(205, 8, 8, 255))
+                                elseif dock_state == e_vehicle_dock_state.dock_queue then
+                                    render_dashed_line(veh_x, veh_y, carrier_x, carrier_y, color8(205, 8, 246, 255))
                                 end
                             end
                         end
@@ -292,35 +287,37 @@ function update(screen_w, screen_h, ticks)
                 end
 
                 -- render vehicles to the map
+                for _, vehicle in pairs(get_vehicles_table()) do
 
-                for i = 0, vehicle_count - 1, 1 do
-                    local vehicle = update_get_map_vehicle_by_index(i)
+                    local vehicle_team = vehicle:get_team()
+                    local vehicle_attached_parent_id = vehicle:get_attached_parent_id(i)
 
-                    if vehicle:get() then
-                        local vehicle_team = vehicle:get_team()
-                        local vehicle_attached_parent_id = vehicle:get_attached_parent_id(i)
+                    if vehicle:get_is_visible() and vehicle:get_is_observation_revealed() and vehicle_attached_parent_id == 0 then
+                        -- render vehicle icon
+                        local vehicle_definition_index = vehicle:get_definition_index()
+                        local show_icon = true
+                        if vehicle_team ~= screen_team then
+                            if get_is_vehicle_masked(vehicle) then
+                                show_icon = false
+                            end
+                        end
 
-                        if vehicle:get_is_visible() and vehicle:get_is_observation_revealed() and vehicle_attached_parent_id == 0 then
-                            -- render vehicle icon
-                            local vehicle_definition_index = vehicle:get_definition_index()
+                        if show_icon and vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
 
-                            if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
+                            local vehicle_pos_xz = vehicle:get_position_xz()
+                            local v_x = vehicle_pos_xz:x()
+                            local v_y = vehicle_pos_xz:y()
+                            local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                                local vehicle_pos_xz = vehicle:get_position_xz()
-                                local v_x = vehicle_pos_xz:x()
-                                local v_y = vehicle_pos_xz:y()
-                                local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                            local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
+                            local element_color = get_vehicle_team_color(vehicle_team)
 
-                                local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
-                                local element_color = get_vehicle_team_color(vehicle_team)
+                            update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
 
-                                update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
-
-                                if screen_team == vehicle_team then
-                                    if update_get_screen_vehicle():get_id() == vehicle:get_id() then
-                                        -- friendly
-                                        draw_map_radar_state_indicator(vehicle, screen_pos_x, screen_pos_y, g_animation_time)
-                                    end
+                            if screen_team == vehicle_team then
+                                if update_get_screen_vehicle():get_id() == vehicle:get_id() then
+                                    -- friendly
+                                    draw_map_radar_state_indicator(vehicle, screen_pos_x, screen_pos_y, g_animation_time)
                                 end
                             end
                         end
