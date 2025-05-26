@@ -841,7 +841,7 @@ function render_selection_waypoint(screen_w, screen_h)
                     local before_alt = waypoint_altitude
                     waypoint_altitude, is_modified = ui:selector(update_get_loc(e_loc.upp_altitude), waypoint_altitude, 0, 2000, 50)
                     if is_modified then
-                        if before_alt < 60 and waypoint_altitude < before_alt then
+                        if before_alt < 110 and waypoint_altitude < before_alt then
                             if before_alt > 30 then
                                 waypoint_altitude = before_alt - 10
                             else
