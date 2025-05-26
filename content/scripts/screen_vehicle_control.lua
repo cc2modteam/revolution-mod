@@ -1458,7 +1458,7 @@ function _update(screen_w, screen_h, ticks)
                             end
                         end
 
-                        if vehicle_team == screen_team then
+                        if vehicle_team == screen_team or get_is_spectator_mode() then
                             local waypoint_count = vehicle:get_waypoint_count()
 
                             if g_drag.vehicle_id == 0 or g_drag.vehicle_id == vehicle:get_id() then
