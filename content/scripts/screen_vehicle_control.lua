@@ -1889,6 +1889,7 @@ function _update(screen_w, screen_h, ticks)
         -- render vehicles to the map
 
         if is_placing_turret == false then
+            local ew_detected = nil
             for x, vehicle in pairs(get_vehicles_table()) do
                 local vehicle_team = vehicle:get_team()
                 local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
@@ -1919,12 +1920,6 @@ function _update(screen_w, screen_h, ticks)
                             color_grey_dark
                     )
 
-                    --update_world_line(v_nx, v_ny, v_sx, v_sy, color_grey_dark)
-                    --update_world_line(v_nx + 4, v_ny, v_sx + 4, v_sy, color_grey_dark)
-                    --update_world_line(v_nx + 8, v_ny, v_sx + 8, v_sy, color_grey_dark)
-                    --update_world_line(v_nx + 12, v_ny, v_sx + 12, v_sy, color_grey_dark)
-
-
                 elseif vehicle_definition_index ~= e_game_object_type.chassis_spaceship then
                     local is_air = get_is_vehicle_air(vehicle_definition_index)
                     local is_visible = vehicle:get_is_visible()
@@ -1954,11 +1949,35 @@ function _update(screen_w, screen_h, ticks)
                                     if g_highlighted.vehicle_id == vehicle:get_id() then
                                         g_highlighted.vehicle_id = 0
                                     end
+                                    if ew_detected == nil then
+                                        if get_close_hostile_ew_cached(vehicle:get_id()) then
+                                            ew_detected = true
+                                        end
+                                    end
                                 end
                             end
                         end
 
                         local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+
+                        if ew_detected == true then
+                            if g_camera_size < 24000 then
+                                if screen_pos_x > 0 and screen_pos_x < screen_w then
+                                    if screen_pos_y > 0 and screen_pos_y < screen_h then
+                                        if g_animation_time % 40 > 20 then
+                                            update_ui_image(
+                                                    15, screen_h - 48,
+                                                    atlas_icons.column_power, color_white, 0)
+                                        end
+                                        update_ui_text(
+                                                25, screen_h - 48,
+                                                update_get_loc(e_loc.upp_interference),
+                                                96,
+                                                0, color_white, 0)
+                                    end
+                                end
+                            end
+                        end
 
                         -- render waypoints
 
