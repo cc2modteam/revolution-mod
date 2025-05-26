@@ -976,13 +976,13 @@ function get_is_vehicle_masked(vehicle)
 
             local pos = vehicle:get_position_xz()
             local waves = update_get_ocean_depth_factor(pos:x(), pos:y())
-            local clutter_base = 60 + 20 * waves
+            local clutter_base = 55 + 20 * waves
             local alt = get_unit_altitude(vehicle)
 
             local masked = alt < clutter_base
             -- if under 100 and covered by an EW unit
             if not masked then
-                if alt < 100 then
+                if alt < 70 then
                     masked = get_close_hostile_ew_cached(vehicle:get_id()) ~= nil
                 end
             end
