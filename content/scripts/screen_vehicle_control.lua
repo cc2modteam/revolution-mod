@@ -1895,7 +1895,6 @@ function _update(screen_w, screen_h, ticks)
                 local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                 local vehicle_definition_index = vehicle:get_definition_index()
                 local is_render_vehicle_icon = vehicle_attached_parent_id == 0
-                local is_sealthed = false
 
                 if vehicle_definition_index == e_game_object_type.drydock then
                     -- draw the drydock as grey
@@ -1927,7 +1926,6 @@ function _update(screen_w, screen_h, ticks)
                     if is_render_vehicle_icon then
                         if not is_visible or not is_revealed then
                             if get_is_visible_by_modded_radar(vehicle) then
-                                is_sealthed = false
                                 is_revealed = true
                                 is_visible = true
                             end
@@ -1935,16 +1933,12 @@ function _update(screen_w, screen_h, ticks)
                     end
 
                     if is_visible and is_revealed then
-                        local vehicle_pos_xz = vehicle:get_position_xz()
-                        local v_x = vehicle_pos_xz:x()
-                        local v_y = vehicle_pos_xz:y()
-
                         if is_air and not get_is_spectator_mode() then
                             -- hide low level aircraft
                             if is_render_vehicle_icon and get_is_vehicle_masked(vehicle) then
                                 if vehicle:get_team() ~= update_get_screen_team_id() then
-                                    is_revealed = false
                                     is_visible = false
+                                    is_revealed = false
                                     is_render_vehicle_icon = false
                                     if g_highlighted.vehicle_id == vehicle:get_id() then
                                         g_highlighted.vehicle_id = 0
@@ -1957,7 +1951,12 @@ function _update(screen_w, screen_h, ticks)
                                 end
                             end
                         end
+                    end
 
+                    if is_visible and is_revealed then
+                        local vehicle_pos_xz = vehicle:get_position_xz()
+                        local v_x = vehicle_pos_xz:x()
+                        local v_y = vehicle_pos_xz:y()
                         local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
                         if ew_detected == true then
