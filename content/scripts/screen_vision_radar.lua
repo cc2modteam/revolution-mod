@@ -8,6 +8,14 @@ g_beep_counter = 0
 g_is_warning_on = false
 g_scroll_input_prev = 0
 
+local math_sin = math.sin
+local math_cos = math.cos
+local math_atan = math.atan
+local math_pi = math.pi
+local math_floor = math.floor
+local math_ceil = math.ceil
+local math_max = math.max
+
 function parse()
     g_zoom_level = parse_s32("zoom", g_zoom_level)
 end
@@ -68,7 +76,7 @@ function update(screen_w, screen_h, ticks)
 
     local function radar_col(a)
         local col = color8(0, 255, 0, 255)
-        col:a(math.floor((col:a() / 255) * (a / 255) * 255 + 0.5))
+        col:a(math_floor((col:a() / 255) * (a / 255) * 255 + 0.5))
         return col
     end
 
@@ -84,7 +92,7 @@ function update(screen_w, screen_h, ticks)
 
     for i = step, range, step do
         local distance_factor = clamp((i - step) / (range - step), 0, 1)
-        render_circle(0, 0, i / range * radius, radar_col(math.ceil(lerp(255, 32, distance_factor)) * 0.25))
+        render_circle(0, 0, i / range * radius, radar_col(math_ceil(lerp(255, 32, distance_factor)) * 0.25))
     end
 
     if is_interference == false and is_damaged == false and is_powered then
@@ -92,13 +100,13 @@ function update(screen_w, screen_h, ticks)
         update_ui_line(0, 0, screen_dir:x() * 20, -screen_dir:y() * 20, radar_col(32))
 
         if screen_vehicle:get_is_carrier_torpedo_enabled() then
-            local torpedo_bearing = screen_vehicle:get_carrier_torpedo_bearing() / 180 * math.pi - math.pi / 2
-            local screen_dir_torpedo = vec2(math.cos(torpedo_bearing), -math.sin(torpedo_bearing))
+            local torpedo_bearing = screen_vehicle:get_carrier_torpedo_bearing() / 180 * math_pi - math_pi / 2
+            local screen_dir_torpedo = vec2(math_cos(torpedo_bearing), -math_sin(torpedo_bearing))
             update_ui_line(0, 0, screen_dir_torpedo:x() * 200, -screen_dir_torpedo:y() * 200, color8(255, 16, 16, 32))
         end
 
-        local angle = g_animation_time / 120 * math.pi * 2
-        local radar_dir = vec2(math.cos(angle), math.sin(angle))
+        local angle = g_animation_time / 120 * math_pi * 2
+        local radar_dir = vec2(math_cos(angle), math_sin(angle))
         update_ui_line(0, 0, radar_dir:x() * radius, radar_dir:y() * radius, color_white)
 
         local targets = get_radar_targets(range)
@@ -113,11 +121,11 @@ function update(screen_w, screen_h, ticks)
             local is_enemy = team ~= screen_vehicle_map:get_team()
 
             local target_angle = vec2_angle_360(radar_dir, dir)
-            local angle_factor = clamp(remap(target_angle, 0, 2 * math.pi, 0, 1 + angle_fade_dist) - angle_fade_dist, 0, 1)
+            local angle_factor = clamp(remap(target_angle, 0, 2 * math_pi, 0, 1 + angle_fade_dist) - angle_fade_dist, 0, 1)
             angle_factor = angle_factor ^ 3
 
-            local target_color = iff(is_enemy, color8(255, 0, 0, math.ceil(angle_factor * 255)), radar_col(math.ceil(angle_factor * 255)))
-            local target_color_off = iff(is_enemy, color8(255, 0, 0, math.ceil(angle_factor * 128)), radar_col(math.ceil(angle_factor * 128)))
+            local target_color = iff(is_enemy, color8(255, 0, 0, math_ceil(angle_factor * 255)), radar_col(math_ceil(angle_factor * 255)))
+            local target_color_off = iff(is_enemy, color8(255, 0, 0, math_ceil(angle_factor * 128)), radar_col(math_ceil(angle_factor * 128)))
 
             if type == 0 then
                 update_ui_image(screen_pos:x() - 2, screen_pos:y() - 2, atlas_icons.screen_radar_land, target_color, 0)
@@ -150,7 +158,7 @@ function update(screen_w, screen_h, ticks)
     elseif is_interference then
         render_status_label(10, screen_h / 2 - 9, screen_w - 20, 12, update_get_loc(e_loc.upp_interference), color_status_bad, g_animation_time % 20 > 10, color_black)
     elseif hostile_missile_dist < hostile_warning_distance then
-        local blink_rate = math.floor(lerp(2, 30, math.max(0, hostile_missile_dist - 200) / (hostile_warning_distance - 200)) + 0.5)
+        local blink_rate = math_floor(lerp(2, 30, math_max(0, hostile_missile_dist - 200) / (hostile_warning_distance - 200)) + 0.5)
 
         g_beep_counter = g_beep_counter + 1
 
@@ -176,7 +184,7 @@ function input_event(event, action)
         if event == e_input.down then
             g_zoom_level = math.min(g_zoom_level + 1, #g_ranges)
         elseif event == e_input.up then
-            g_zoom_level = math.max(g_zoom_level - 1, 1)
+            g_zoom_level = math_max(g_zoom_level - 1, 1)
         elseif event == e_input.back then
             update_set_screen_state_exit()
         end
@@ -189,7 +197,7 @@ function input_axis(x, y, z, w)
     if w < -0.5 then scroll_input = -1 end
     if scroll_input ~= g_scroll_input_prev then
         if scroll_input > 0 then
-            g_zoom_level = math.max(g_zoom_level - 1, 1)
+            g_zoom_level = math_max(g_zoom_level - 1, 1)
         elseif scroll_input < 0 then
             g_zoom_level = math.min(g_zoom_level + 1, #g_ranges)
         end
@@ -204,7 +212,7 @@ end
 function input_scroll(dy)
     if update_get_active_input_type() == e_active_input.keyboard and g_is_pointer_hovered then
         if dy > 0 then
-            g_zoom_level = math.max(g_zoom_level - 1, 1)
+            g_zoom_level = math_max(g_zoom_level - 1, 1)
         elseif dy < 0 then
             g_zoom_level = math.min(g_zoom_level + 1, #g_ranges)
         end
@@ -249,7 +257,7 @@ function get_radar_targets(range)
                 local is_sea = get_is_vehicle_sea(def)
 
                 if is_air or is_sea then
-                    if vehicle:get_is_visible() and vehicle:get_is_observation_revealed() then
+                    if vehicle:get_is_visible() and vehicle:get_is_observation_revealed() and not get_is_vehicle_masked(vehicle) then
                         local icon_type = 0
 
                         if is_air then
@@ -260,7 +268,7 @@ function get_radar_targets(range)
                             type = icon_type,
                             team = vehicle:get_team(),
                             pos = vec2(pos:x() - screen_pos:x(), pos:y() - screen_pos:y()),
-                            dist = math.sqrt(dist_sq),
+                            dist = dist_sq ^ 0.5,
                             data = vehicle,
                         })
                     end
@@ -288,7 +296,7 @@ function get_radar_targets(range)
                         type = 2,
                         team = missile:get_team(),
                         pos = vec2(pos:x() - screen_pos:x(), pos:y() - screen_pos:y()),
-                        dist = math.sqrt(dist_sq),
+                        dist = dist_sq ^ 0.5,
                         data = missile,
                     })
                 end
@@ -300,17 +308,17 @@ function get_radar_targets(range)
 end
 
 function render_circle(x, y, radius, col)
-    local steps = math.max(math.floor(radius), 8)
-    local step = math.pi * 2 / steps
+    local steps = math_max(math_floor(radius), 8)
+    local step = math_pi * 2 / steps
     
     for i = 0, steps - 1 do
         local angle = i * step
         local angle_next = angle + step
         update_ui_line(
-            math.ceil(x + math.cos(angle) * radius), 
-            math.ceil(y + math.sin(angle) * radius), 
-            math.ceil(x + math.cos(angle_next) * radius),
-            math.ceil(y + math.sin(angle_next) * radius),
+            math_ceil(x + math_cos(angle) * radius), 
+            math_ceil(y + math_sin(angle) * radius), 
+            math_ceil(x + math_cos(angle_next) * radius),
+            math_ceil(y + math_sin(angle_next) * radius),
             col
         )
     end
@@ -319,10 +327,10 @@ end
 function vec2_angle_360(v0, v1)
     local dot = v0:x() * v1:x() + v0:y() * v1:y()
     local det = v0:x() * v1:y() - v0:y() * v1:x()
-    local angle = math.atan(det, dot)
+    local angle = math_atan(det, dot)
 
     if angle < 0 then
-        angle = angle + 2 * math.pi
+        angle = angle + 2 * math_pi
     end
 
     return angle
@@ -337,18 +345,18 @@ function is_blink_on(rate, is_pulse)
 end
 
 function render_status_label(x, y, w, h, text, col, is_outline, back_col)
-    x = math.floor(x)
-    y = math.floor(y)
+    x = math_floor(x)
+    y = math_floor(y)
 
     update_ui_push_offset(x, y)
     
     if is_outline then
         update_ui_rectangle(0, 0, w, h, color_black)
         update_ui_rectangle_outline(0, 0, w, h, col)
-        update_ui_text(0, h / 2 - 4, text, math.ceil(w / 2) * 2, 1, col, 0) 
+        update_ui_text(0, h / 2 - 4, text, math_ceil(w / 2) * 2, 1, col, 0) 
     else
         update_ui_rectangle(0, 0, w, h, col)
-        update_ui_text(0, h / 2 - 4, text, math.ceil(w / 2) * 2, 1, back_col or color_black, 0)    
+        update_ui_text(0, h / 2 - 4, text, math_ceil(w / 2) * 2, 1, back_col or color_black, 0)    
     end
 
     update_ui_pop_offset()
