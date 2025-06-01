@@ -599,6 +599,12 @@ function _update(screen_w, screen_h, ticks)
                             end
                         end
                         update_ui_image(screen_pos_x - 4, screen_pos_y + 10, icon, island_color, 0)
+                        if not g_revolution_hide_island_difficulty then
+                            local diff = island:get_difficulty_level()
+                            update_ui_text(screen_pos_x - 10, screen_pos_y + 10,
+                                    string.format("%d", diff), 8, 0, island_color, 0
+                            )
+                        end
                     end
                 end
 
