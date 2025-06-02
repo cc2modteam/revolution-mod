@@ -832,6 +832,7 @@ g_radar_seen_by_hostile = {}
 g_all_hostile_ew = {}
 g_ew_range_sq = 10000 * 10000
 
+g_radar_scanned = true
 -- every unit in detection range of a radar (of any team)
 g_seen_by_hostile_radars = {}
 g_seen_by_friendly_radars = {}
@@ -1260,7 +1261,6 @@ end
 function update_modded_radar_list(hostile_only)
     -- update the list of known radars & faked-radars
     local screen_team = update_get_screen_team_id()
-    local vehicle_count = update_get_map_vehicle_count()
     local seen_by_friendly_radars = g_seen_by_friendly_radars
     local seen_by_hostile_radars = g_seen_by_hostile_radars
     local all_radars = g_all_radars
@@ -1360,13 +1360,15 @@ function update_modded_radar_data()
 
     g_all_radars = {}
     g_all_hostile_ew = {}
-    g_nearest_hostile_radar = {}
 
     update_modded_radar_list(false)
 
     if not update_air and not update_sea then
+        g_radar_scanned = false
         return
     end
+    g_radar_scanned = true
+    g_nearest_hostile_radar = {}
 
     if update_sea and update_air then
         -- dont do both
@@ -1399,7 +1401,6 @@ function update_modded_radar_data()
 end
 
 function do_radar_scan(update_air, update_sea)
-    local vehicle_count = update_get_map_vehicle_count()
     local screen_team = update_get_screen_team_id()
 
     local all_radars = g_all_radars

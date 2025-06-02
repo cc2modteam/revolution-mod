@@ -1364,6 +1364,13 @@ function _update(screen_w, screen_h, ticks)
             update_set_screen_background_is_render_islands(get_is_collapse_islands() == false)
         end
 
+        local displayed_unit_count = 0
+        local revealed_unit_count = 0
+        local force_revealed_unit_count = 0
+        local visible_unit_count = 0
+        local unit_count = 0
+        local current_tick = update_get_logic_tick()
+
         local is_placing_turret = get_is_placing_turret()
 
         -- update highlighted vehicle/tile
@@ -1442,9 +1449,20 @@ function _update(screen_w, screen_h, ticks)
                         local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                         local revealed = vehicle:get_is_observation_revealed()
                         local visible = vehicle:get_is_visible() or get_is_spectator_mode()
+                        unit_count = unit_count + 1
+
+                        if revealed then
+                            revealed_unit_count = revealed_unit_count + 1
+                        end
+                        if visible then
+                            visible_unit_count = visible_unit_count + 1
+                        end
 
                         if not revealed then
                             revealed = get_is_visible_by_modded_radar(vehicle) or get_is_spectator_mode()
+                            if revealed then
+                                force_revealed_unit_count = force_revealed_unit_count + 1
+                            end
                         end
 
                         if vehicle_attached_parent_id == 0 and ( visible and revealed ) then
@@ -1730,7 +1748,7 @@ function _update(screen_w, screen_h, ticks)
             if weapon_radius_vehicle:get() then
                 if weapon_radius_vehicle:get_team() == screen_team or get_is_spectator_mode() then
                     local weapon_range, weapon_range_col = get_vehicle_weapon_range(weapon_radius_vehicle)
-                    local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, 256, 256)
+                    local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
                     if weapon_range > 0 then
                         render_weapon_radius(world_x, world_y, weapon_range, weapon_range_col)
@@ -1924,15 +1942,15 @@ function _update(screen_w, screen_h, ticks)
                     local is_visible = vehicle:get_is_visible()
                     local is_revealed = vehicle:get_is_observation_revealed()
                     if is_render_vehicle_icon then
-                        if not is_visible or not is_revealed then
+                        if not is_visible then
                             if get_is_visible_by_modded_radar(vehicle) then
-                                is_revealed = true
                                 is_visible = true
                             end
                         end
+                        is_render_vehicle_icon = is_visible
                     end
 
-                    if is_visible and is_revealed then
+                    if is_visible then
                         if is_air and not get_is_spectator_mode() then
                             -- hide low level aircraft
                             if is_render_vehicle_icon and get_is_vehicle_masked(vehicle) then
@@ -1940,6 +1958,9 @@ function _update(screen_w, screen_h, ticks)
                                     is_visible = false
                                     is_revealed = false
                                     is_render_vehicle_icon = false
+                                    if g_radar_debug then
+                                        local_print(string.format("%d hide visible radar unit", current_tick))
+                                    end
                                     if g_highlighted.vehicle_id == vehicle:get_id() then
                                         g_highlighted.vehicle_id = 0
                                     end
@@ -1953,27 +1974,32 @@ function _update(screen_w, screen_h, ticks)
                         end
                     end
 
-                    if is_visible and is_revealed then
+                    if is_visible then
                         local vehicle_pos_xz = vehicle:get_position_xz()
                         local v_x = vehicle_pos_xz:x()
                         local v_y = vehicle_pos_xz:y()
                         local screen_pos_x, screen_pos_y = get_screen_from_world(v_x, v_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                        local in_screen = false
+                        if screen_pos_x > 0 and screen_pos_x < screen_w then
+                            if screen_pos_y > 0 and screen_pos_y < screen_h then
+                                in_screen = true
+                            end
+                        end
+
 
                         if ew_detected == true then
                             if g_camera_size < 24000 then
-                                if screen_pos_x > 0 and screen_pos_x < screen_w then
-                                    if screen_pos_y > 0 and screen_pos_y < screen_h then
-                                        if g_animation_time % 40 > 20 then
-                                            update_ui_image(
-                                                    15, screen_h - 48,
-                                                    atlas_icons.column_power, color_white, 0)
-                                        end
-                                        update_ui_text(
-                                                25, screen_h - 48,
-                                                update_get_loc(e_loc.upp_interference),
-                                                96,
-                                                0, color_white, 0)
+                                if in_screen then
+                                    if g_animation_time % 40 > 20 then
+                                        update_ui_image(
+                                                15, screen_h - 48,
+                                                atlas_icons.column_power, color_white, 0)
                                     end
+                                    update_ui_text(
+                                            25, screen_h - 48,
+                                            update_get_loc(e_loc.upp_interference),
+                                            96,
+                                            0, color_white, 0)
                                 end
                             end
                         end
@@ -2255,7 +2281,7 @@ function _update(screen_w, screen_h, ticks)
                             end
                         end
 
-                        if is_render_vehicle_icon then
+                        if is_render_vehicle_icon and in_screen then
                             -- render vehicle icon
                             if vehicle_team ~= screen_team then
                                 vehicle_definition_index = ew_fuzz_unit_def(vehicle_definition_index, vehicle:get_id())
@@ -2282,6 +2308,7 @@ function _update(screen_w, screen_h, ticks)
                             end
 
                             update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset, region_vehicle_icon, element_color, 0)
+                            displayed_unit_count = displayed_unit_count + 1
 
                             -- carrier direction indicator
                             if vehicle_definition_index == e_game_object_type.chassis_carrier then
@@ -2525,6 +2552,18 @@ function _update(screen_w, screen_h, ticks)
                     end
                 end
             end
+        end
+        if g_radar_debug then
+            local_print(
+                    string.format(
+                            "%d units %d, visible %d, revealed %d, force_revealed %d, displayed_units %d %s",
+                            current_tick,
+                            unit_count,
+                            visible_unit_count,
+                            revealed_unit_count,
+                            force_revealed_unit_count,
+                            displayed_unit_count,
+                            g_radar_scanned))
         end
 
         -- render missiles to map
