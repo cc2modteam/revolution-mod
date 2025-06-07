@@ -720,8 +720,16 @@ function render_selection_command_center(screen_w, screen_h, selected_island)
                     if team:get() then
                         currency = team:get_currency()
                     end
-
-                    if ui:list_item(update_get_loc(e_loc.upp_construct), true, item.cost <= currency) then
+                    local now = update_get_logic_tick()
+                    local buildable = can_build_def(now, e_game_object_type.chassis_land_turret)
+                    local label = update_get_loc(e_loc.upp_construct)
+                    if not buildable then
+                        local remain = time_until_buildable(now, e_game_object_type.chassis_land_turret)
+                        if remain then
+                            label = string.format("%s - %d cooldown", label, math.floor(remain / 30))
+                        end
+                    end
+                    if ui:list_item(label, true, buildable and item.cost <= currency) then
                         g_command_center_ui.is_place_turret = true
                     end
                 ui:end_window()
@@ -1404,6 +1412,9 @@ function _update(screen_w, screen_h, ticks)
 
                         if vehicle_definition_index ~= e_game_object_type.chassis_spaceship and vehicle_definition_index ~= e_game_object_type.drydock then
                             local vehicle_team = vehicle:get_team()
+                            if vehicle_team == screen_team then
+                                built_team_unit(update_get_logic_tick(), vehicle)
+                            end
                             local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                             local revealed = vehicle:get_is_observation_revealed()
                             local visible = vehicle:get_is_visible()
@@ -4255,3 +4266,4 @@ function log_send_viewing_unit()
         end
     end
 end
+

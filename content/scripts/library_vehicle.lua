@@ -3452,3 +3452,58 @@ function do_screensaver(screen_w, screen_h, screen_enum)
     end
     return false
 end
+
+--
+-- record when units of each type are first seen on our team
+--
+g_last_built = {}
+g_last_built_ticks = {}
+g_build_cooldowns = {
+    [e_game_object_type.chassis_sea_barge] = 180 * 30,
+    [e_game_object_type.chassis_land_turret] = 60 * 30,
+    [e_game_object_type.chassis_sea_ship_light] = 180 * 30,
+}
+
+function built_team_unit(tick, v)
+    if v and v:get() then
+        local vdef = v:get_definition_index()
+        local cooldown = g_build_cooldowns[vdef]
+        if cooldown then
+            local id = v:get_id()
+            local last = g_last_built[vdef]
+            if last == nil then
+                last = {}
+                g_last_built[vdef] = last
+            end
+            if last[id] == nil then
+                last[id] = true
+                g_last_built_ticks[vdef] = tick
+            end
+        end
+    end
+end
+
+function time_since_last_built(tick, vdef)
+    local last =  g_last_built_ticks[vdef]
+    if last == nil then
+        return tick
+    end
+    return tick - last
+end
+
+function time_until_buildable(tick, vdef)
+    local cooldown = g_build_cooldowns[vdef]
+    local since = time_since_last_built(tick, vdef)
+    if since < cooldown then
+        return cooldown - since
+    end
+    return 0
+end
+
+function can_build_def(tick, vdef)
+    local cooldown = g_build_cooldowns[vdef]
+    if cooldown then
+        return time_until_buildable(tick, vdef) == 0
+    end
+    return true
+end

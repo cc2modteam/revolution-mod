@@ -250,6 +250,8 @@ function update_barge_cap(ticks)
                 barge_count = barge_count + 1
             elseif vdef == e_game_object_type.chassis_carrier then
                 carrier_count = carrier_count + 1
+            elseif vdef == e_game_object_type.chassis_sea_ship_light then
+                built_team_unit(update_get_logic_tick(), vehicle)
             end
         end
         g_barge_count = barge_count
@@ -1604,6 +1606,7 @@ function render_map_facility_ui(screen_w, screen_h, x, y, w, h, category_data, f
                 ))
             else
                 local order_barges = false
+                local enable_btn = true
                 local buy_number_buttons = { "+1", "+10", "+100", "+1000" }
                 if item.index == e_inventory_item.vehicle_barge then
                     -- barges
@@ -1611,7 +1614,24 @@ function render_map_facility_ui(screen_w, screen_h, x, y, w, h, category_data, f
                     buy_number_buttons = { string.format("+1 (%d/%d max)", g_barge_count, g_barge_max) }
                 end
 
-                local result = ui:button_group(buy_number_buttons, true)
+                if item.index == e_inventory_item.support_ship_light_aa
+                        or item.index == e_inventory_item.support_ship_light_torpedo
+                        or item.index == e_inventory_item.support_ship_light_gun
+                        or item.index == e_inventory_item.support_ship_light_missile
+                then
+                    local now = update_get_logic_tick()
+                    buy_number_buttons = { "+1" }
+                    enable_btn = can_build_def(now, e_game_object_type.chassis_sea_ship_light)
+                    if not enable_btn then
+                        local remain = time_until_buildable(now, e_game_object_type.chassis_sea_ship_light)
+                        if remain then
+                            local label = string.format("+1 - %d cooldown", math.floor(remain / 30))
+                            buy_number_buttons = { label }
+                        end
+                    end
+                end
+
+                local result = ui:button_group(buy_number_buttons, enable_btn)
 
                 if result == 0 then
                     if order_barges and g_barge_count >= g_barge_max then
