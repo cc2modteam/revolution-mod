@@ -250,7 +250,7 @@ g_last_input_tick = -600
 -- petrel tactical drop/lift
 g_tactical_vid = 0
 
-local color_shadow = color8(0, 0, 0, 128)
+local color_shadow = color8(0, 0, 0, 168)
 
 
 function ui_render_selection_carrier_vehicle_overview(x, y, w, h, carrier_vehicle)
@@ -2303,24 +2303,28 @@ function _update(screen_w, screen_h, ticks)
                             local element_color = get_vehicle_team_color(vehicle_team)
                             local is_highlight = false
 
-                            if is_air and g_is_show_aircraft_shadows and g_camera_size < 20000 then
-                                draw_aircraft_vector(vehicle, screen_pos_x, screen_pos_y)
-                                -- draw aircraft shadow
-                                local alt = get_unit_altitude(vehicle)
-                                local shadow_scale = (5000 / g_camera_size) * (alt / 2000)
-                                local dy = 12 * shadow_scale
-                                local dx = 4 * shadow_scale
-                                local sdx = screen_pos_x + dx
-                                local sdy = screen_pos_y + dy
-                                update_ui_begin_triangles()
-                                update_ui_add_triangle(
-                                        vec2(sdx, sdy),
-                                        vec2(sdx - 4, sdy + 5),
-                                        vec2(sdx + 4, sdy + 5),
-                                        color_shadow
-                                        )
-                                update_ui_end_triangles()
-                                -- update_ui_image(screen_pos_x - icon_offset + dx, screen_pos_y - icon_offset + dy, region_vehicle_icon, color_grey_dark, 0)
+
+                            if is_air then
+                                if g_is_show_aircraft_shadows and g_camera_size < 20000 then
+                                    -- draw aircraft shadow
+                                    local alt = get_unit_altitude(vehicle)
+                                    local shadow_scale = (5000 / g_camera_size) * (alt / 2000)
+                                    local dy = 12 * shadow_scale
+                                    local dx = 4 * shadow_scale
+                                    local sdx = screen_pos_x + dx
+                                    local sdy = screen_pos_y + dy
+                                    update_ui_begin_triangles()
+                                    update_ui_add_triangle(
+                                            vec2(sdx, sdy),
+                                            vec2(sdx - 4, sdy + 5),
+                                            vec2(sdx + 4, sdy + 5),
+                                            color_shadow
+                                            )
+                                    update_ui_end_triangles()
+                                end
+                                if g_is_show_aircraft_vectors then
+                                    draw_aircraft_vector(vehicle, screen_pos_x, screen_pos_y)
+                                end
                             end
 
                             if vehicle_team ~= screen_team then
