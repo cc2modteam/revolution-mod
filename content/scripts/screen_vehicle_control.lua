@@ -177,6 +177,7 @@ g_is_island_team_colors = true
 g_is_carrier_waypoint = false
 g_is_pip_enable = true
 g_is_render_grid = true
+g_is_show_aircraft_vectors = true
 
 g_map_window_scroll = 0
 g_selected_bay_index = -1
@@ -243,10 +244,13 @@ g_tut_selected_vehicle_id = 0
 g_tut_selected_waypoint_id = 0
 
 -- screen saver control
+-- screen saver control
 g_last_input_tick = -600
 
 -- petrel tactical drop/lift
 g_tactical_vid = 0
+
+local color_shadow = color8(0, 0, 0, 128)
 
 
 function ui_render_selection_carrier_vehicle_overview(x, y, w, h, carrier_vehicle)
@@ -1063,6 +1067,8 @@ function render_selection_map(screen_w, screen_h)
         g_is_island_team_colors = ui:checkbox(update_get_loc(e_loc.upp_island_team_colors), g_is_island_team_colors)
 
         g_is_carrier_waypoint = ui:checkbox("SHOW CARRIER WAYPOINTS", g_is_carrier_waypoint)
+        g_is_show_aircraft_vectors = ui:checkbox("SHOW AIRCRAFT VECTORS", g_is_show_aircraft_vectors)
+        g_is_show_aircraft_shadows = ui:checkbox("SHOW AIRCRAFT SHADOWS", g_is_show_aircraft_shadows)
         g_is_pip_enable = ui:checkbox("ENABLE CCTV FEED", g_is_pip_enable)
         g_is_render_grid = ui:checkbox("SHOW GRID", g_is_render_grid)
 
@@ -1188,6 +1194,16 @@ end
 
 function err_handler(arg)
     print(debug.traceback())
+end
+
+function draw_aircraft_vector(vehicle, screen_pos_x, screen_pos_y)
+    if g_is_show_aircraft_vectors then
+        local vehicle_dir = vehicle:get_direction()
+        update_ui_line(screen_pos_x, screen_pos_y,
+                screen_pos_x + (vehicle_dir:x() * 10), screen_pos_y + (vehicle_dir:y() * -10),
+                color_grey_dark)
+
+    end
 end
 
 function update(screen_w, screen_h, ticks)
@@ -2283,14 +2299,33 @@ function _update(screen_w, screen_h, ticks)
 
                         if is_render_vehicle_icon and in_screen then
                             -- render vehicle icon
+                            local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
+                            local element_color = get_vehicle_team_color(vehicle_team)
+                            local is_highlight = false
+
+                            if is_air and g_is_show_aircraft_shadows and g_camera_size < 20000 then
+                                draw_aircraft_vector(vehicle, screen_pos_x, screen_pos_y)
+                                -- draw aircraft shadow
+                                local alt = get_unit_altitude(vehicle)
+                                local shadow_scale = (5000 / g_camera_size) * (alt / 2000)
+                                local dy = 12 * shadow_scale
+                                local dx = 4 * shadow_scale
+                                local sdx = screen_pos_x + dx
+                                local sdy = screen_pos_y + dy
+                                update_ui_begin_triangles()
+                                update_ui_add_triangle(
+                                        vec2(sdx, sdy),
+                                        vec2(sdx - 4, sdy + 5),
+                                        vec2(sdx + 4, sdy + 5),
+                                        color_shadow
+                                        )
+                                update_ui_end_triangles()
+                                -- update_ui_image(screen_pos_x - icon_offset + dx, screen_pos_y - icon_offset + dy, region_vehicle_icon, color_grey_dark, 0)
+                            end
+
                             if vehicle_team ~= screen_team then
                                 vehicle_definition_index = ew_fuzz_unit_def(vehicle_definition_index, vehicle:get_id())
                             end
-
-                            local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
-
-                            local element_color = get_vehicle_team_color(vehicle_team)
-                            local is_highlight = false
 
                             if g_selection.vehicle_id == vehicle:get_id() then
                                 element_color = color8(255, 255, 255, 255)
@@ -2315,11 +2350,7 @@ function _update(screen_w, screen_h, ticks)
                                 update_ui_image(screen_pos_x - 5, screen_pos_y - 5, atlas_icons.map_icon_circle_9, color_white, 0)
 
                                 local vehicle_dir = vehicle:get_direction()
-
-                                local screen_icon_x = screen_pos_x - icon_offset
-                                local screen_icon_y = screen_pos_y - icon_offset
-
-                                update_ui_line(screen_pos_x, screen_pos_y, screen_pos_x + (vehicle_dir:x() * 20), screen_pos_y + (vehicle_dir:y() * -20), color_white)
+                                update_ui_line(screen_pos_x, screen_pos_y, screen_pos_x + (vehicle_dir:x() * 15), screen_pos_y + (vehicle_dir:y() * -15), color_white)
 
                                 -- draw ship outline
                                 if g_camera_size < 1000 then
