@@ -486,7 +486,7 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
                         update_ui_text(1, 16, this_vehicle:get_inventory_count_by_definition_index(item.type), button_w, 1, color_black, 0)
                     else
                         if ammo_type ~= -1 then
-                            update_ui_text(1, 16, format_ammo_quantity(math.min(this_vehicle:get_inventory_count_by_item_index(ammo_type) / ammo_divide, 99000)), button_w, 1, color_black, 0)
+                            -- update_ui_text(1, 16, format_ammo_quantity(math.min(this_vehicle:get_inventory_count_by_item_index(ammo_type) / ammo_divide, 99000)), button_w, 1, color_black, 0)
                         end
                     end
                 end

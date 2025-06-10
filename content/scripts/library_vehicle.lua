@@ -127,9 +127,9 @@ function get_attachment_data_by_definition_index(index)
             name_short = update_get_loc(e_loc.upp_unknown),
         },
         [e_game_object_type.attachment_turret_15mm] = {
-            name = update_get_loc(e_loc.upp_15mm_cannon),
+            name = "30MM RIFLE",
             icon16 = atlas_icons.icon_attachment_16_turret_main_gun_light,
-            name_short = update_get_loc(e_loc.upp_gun) .. " 15MM",
+            name_short = update_get_loc(e_loc.upp_gun) .. " RIFLE",
         },
         [e_game_object_type.attachment_turret_30mm] = {
             name = update_get_loc(e_loc.upp_30mm_cannon),
@@ -2980,6 +2980,7 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_hardpoint_bomb_2,
                     e_game_object_type.attachment_hardpoint_bomb_3,
                     e_game_object_type.attachment_hardpoint_torpedo,
+                    g_ew_attachment_type,
                 },
                 -- wings
                 [4] = _std_wing_attachments,
@@ -3051,6 +3052,12 @@ local st, _v = pcall(function()
                 [6] = {
                     e_game_object_type.attachment_fuel_tank_plane,
                 }
+            }
+        },
+        -- seal
+        [e_game_object_type.chassis_land_wheel_light] = {
+            options = {
+                [1] = concat_lists(_std_land_turrets, {e_game_object_type.attachment_turret_15mm}),
             }
         },
         -- walrus
