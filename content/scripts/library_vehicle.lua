@@ -1131,6 +1131,8 @@ function get_awacs_radar_enabled(vehicle)
     return false
 end
 
+g_radar_debug = true
+
 function refresh_modded_radar_cache()
     if g_radar_debug then
         local st, err = pcall(update_modded_radar_data)
@@ -1560,12 +1562,9 @@ end
 function _get_is_seen_by_friendly_modded_radar(vehicle)
     if vehicle and vehicle:get() then
         local vid = vehicle:get_id()
-        local vdef = vehicle:get_definition_index()
-
         if get_is_spectator_mode() then
-            return get_is_vehicle_land(vdef) or get_is_vehicle_air(vdef) or get_is_vehicle_sea(vdef)
+            return true
         end
-
         local exists = g_seen_by_friendly_radars[vid]
         if exists ~= nil then
             return true

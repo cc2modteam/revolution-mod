@@ -252,7 +252,6 @@ g_tactical_vid = 0
 
 local color_shadow = color8(0, 0, 0, 168)
 
-
 function ui_render_selection_carrier_vehicle_overview(x, y, w, h, carrier_vehicle)
     update_ui_rectangle(0, 0, 256, 256, color8(0, 0, 0, 128))
     
@@ -1300,7 +1299,6 @@ function _update(screen_w, screen_h, ticks)
 
     local screen_vehicle = update_get_screen_vehicle()
     local screen_team = update_get_screen_team_id()
-
     g_screen_vehicle_pos = screen_vehicle:get_position_xz()
 
     if g_is_camera_pos_initialised == false and screen_vehicle:get() then
@@ -1828,6 +1826,7 @@ function _update(screen_w, screen_h, ticks)
                             for x, vehicle in pairs(get_vehicles_table()) do
                                 if vehicle:get_definition_index() == e_game_object_type.chassis_carrier and vehicle:get_team() == screen_team then
                                     local vehicle_pos_xz = vehicle:get_position_xz()
+
                                     render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), 500, color8(0, 255, 128, 8))
                                 end
                             end
@@ -1961,12 +1960,13 @@ function _update(screen_w, screen_h, ticks)
                         if not is_visible then
                             if get_is_visible_by_modded_radar(vehicle) then
                                 is_visible = true
+                                is_revealed = true
                             end
                         end
-                        is_render_vehicle_icon = is_visible
+                        is_render_vehicle_icon = is_visible and is_revealed
                     end
 
-                    if is_visible then
+                    if is_render_vehicle_icon then
                         if is_air and not get_is_spectator_mode() then
                             -- hide low level aircraft
                             if is_render_vehicle_icon and get_is_vehicle_masked(vehicle) then
@@ -1990,7 +1990,7 @@ function _update(screen_w, screen_h, ticks)
                         end
                     end
 
-                    if is_visible then
+                    if is_render_vehicle_icon then
                         local vehicle_pos_xz = vehicle:get_position_xz()
                         local v_x = vehicle_pos_xz:x()
                         local v_y = vehicle_pos_xz:y()
@@ -2801,6 +2801,7 @@ function _update(screen_w, screen_h, ticks)
                     if get_is_vehicle_air(highlighted_vehicle:get_definition_index()) then
                         tool_height = tool_height + 10
                     end
+
                     render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, 140, tool_height, 10, function(w, h) render_vehicle_tooltip(w, h, highlighted_vehicle, peers) end, color8(0, 0, 0, 190))
                 end
             end
