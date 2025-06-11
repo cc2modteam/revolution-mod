@@ -2933,6 +2933,7 @@ local st, _v = pcall(function()
         e_game_object_type.attachment_turret_missile,
         e_game_object_type.attachment_radar_golfball,
         e_game_object_type.attachment_turret_robot_dog_capsule,
+        e_game_object_type.attachment_camera_observation,
     }
 
     _std_land_utils = {
@@ -3039,8 +3040,8 @@ local st, _v = pcall(function()
                 }
             },
             options = {
-                [1] = _std_wing_weapons,
-                [2] = _std_wing_weapons,
+                [1] = _std_wing_attachments,
+                [2] = _std_wing_attachments,
                 [3] = _std_wing_utils,
                 [4] = _std_wing_utils,
                 [5] = {
@@ -3049,7 +3050,7 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_sonic_pulse_generator,
                 },
                 [6] = {
-                    e_game_object_type.attachment_fuel_tank_plane,
+                    g_ew_attachment_type,
                 }
             }
         },
