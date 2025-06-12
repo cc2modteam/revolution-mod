@@ -1131,7 +1131,6 @@ function get_awacs_radar_enabled(vehicle)
     return false
 end
 
-g_radar_debug = true
 
 function refresh_modded_radar_cache()
     if g_radar_debug then
