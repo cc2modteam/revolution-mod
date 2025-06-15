@@ -244,7 +244,6 @@ g_tut_selected_vehicle_id = 0
 g_tut_selected_waypoint_id = 0
 
 -- screen saver control
--- screen saver control
 g_last_input_tick = -600
 
 -- petrel tactical drop/lift
@@ -1238,7 +1237,6 @@ function update(screen_w, screen_h, ticks)
         if not st then
             print(err)
         end
-
     end
 
     if g_is_big_display then
@@ -1710,7 +1708,6 @@ function _update(screen_w, screen_h, ticks)
         end
 
         -- render markers
-        local screen_team = update_get_screen_team_id()
         local function render_marker(marker_id)
             local value = get_marker_value(screen_team, marker_id)
             if is_waypoint_value_enabled(value) then
@@ -1966,6 +1963,8 @@ function _update(screen_w, screen_h, ticks)
                         is_render_vehicle_icon = is_visible and is_revealed
                     end
 
+                    local is_render_vehicle_wpts = is_render_vehicle_icon
+
                     if is_render_vehicle_icon then
                         if is_air and not get_is_spectator_mode() then
                             -- hide low level aircraft
@@ -1990,7 +1989,16 @@ function _update(screen_w, screen_h, ticks)
                         end
                     end
 
-                    if is_render_vehicle_icon then
+                    if not is_render_vehicle_wpts then
+
+                        if vehicle_definition_index ~= e_game_object_type.drydock and vehicle_definition_index ~= e_game_object_type.chassis_carrier then
+                            if vehicle:get_team() == screen_team then
+                                is_render_vehicle_wpts = vehicle:get_waypoint_count() > 0
+                            end
+                        end
+                    end
+
+                    if is_render_vehicle_wpts then
                         local vehicle_pos_xz = vehicle:get_position_xz()
                         local v_x = vehicle_pos_xz:x()
                         local v_y = vehicle_pos_xz:y()
