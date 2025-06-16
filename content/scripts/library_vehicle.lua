@@ -856,7 +856,6 @@ g_radar_ranges = {
 
 g_radar_last_sea_scan = 0
 g_radar_last_air_scan = 0
-g_radar_min_return_power = 0.00018
 g_radar_multiplier = 1
 
 function get_radar_multiplier()
@@ -1250,14 +1249,7 @@ function get_nearest_friendly_aew_radar(vid)
     return nil, 0
 end
 
-function get_radar_power(vid)
-    local radar, pwr = get_nearest_friendly_aew_radar(vid)
-    if radar ~= nil then
-        return pwr
-    end
-    return 0
-end
-
+g_radar_debug_info = {}
 
 function update_modded_radar_list(hostile_only)
     -- update the list of known radars & faked-radars
@@ -1452,9 +1444,8 @@ function do_radar_scan(update_air, update_sea)
                 end
 
                 -- do radars
-                local radar_return_power = 0
                 local radar_team = nil
-                local nearest_hostile_radar_dist_sq = 999999
+                local nearest_hostile_radar_dist_sq = 9999999
                 for _, radar in pairs(all_radars) do
                     local radar_id = radar.id
                     local radar_vehicle = update_get_map_vehicle_by_id(radar_id)
@@ -1463,14 +1454,24 @@ function do_radar_scan(update_air, update_sea)
                         -- dont scan the same team as the radar
                         -- and dont give needlefish "nails" from AI units
                         if radar_team ~= vteam and get_team_has_humans(radar_team) then
-                            local radar_range = get_modded_radar_range(radar_vehicle)
-                            local radar_range_sq = radar_range * radar_range
-                            if update_sea and target_is_sea then
-                                -- target is a ship
-                                local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 20000)
+                            if (update_sea and target_is_sea) or (update_air and target_is_air) then
+                                local radar_range = get_modded_radar_range(radar_vehicle)
+                                local radar_range_sq = radar_range * radar_range
+                                local range_lim = 20000
+                                if target_is_air then
+                                    range_lim = 24000
+                                end
+                                local target_dist_sq = radar_range_sq
+                                if target_is_sea or target_is_air then
+                                    target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), range_lim)
+                                end
+
                                 if target_dist_sq < radar_range_sq then
                                     -- ship seen
                                     if radar_team == screen_team then
+                                        if g_radar_debug then
+                                            g_radar_debug_info[vid] = "radar sees"
+                                        end
                                         seen_by_friendly_radars[vid] = true
                                     else
                                         if target_dist_sq < nearest_hostile_radar_dist_sq then
@@ -1480,41 +1481,8 @@ function do_radar_scan(update_air, update_sea)
                                         seen_by_hostile_radars[vid] = true
                                     end
                                 end
-                            else
-                                -- update air
-                                if screen_team ~= radar_team then
-                                    -- update our nails
-                                    -- we can hear a hostile radar
-                                    local target_dist_sq = fdsq(radar_vehicle:get_position_xz(), vehicle:get_position_xz(), 24000)
-                                    --local target_dist_sq = vec2_dist_sq(radar_vehicle:get_position_xz(), vehicle:get_position_xz())
-                                    if target_dist_sq < radar_range_sq then
-                                        if target_dist_sq < nearest_hostile_radar_dist_sq then
-                                            nearest_hostile_radar_dist_sq = target_dist_sq
-                                            nearest_hostile_radar[vid] = radar_id
-                                        end
-                                        seen_by_hostile_radars[vid] = true
-                                    end
-                                else
-                                    -- did any of our radars see this target?
-                                    local power = get_radar_return_power(vehicle, radar_vehicle, radar_range)
-                                    if power > radar_return_power then
-                                        radar_return_power = power
-                                        if power > 0.00002 then
-                                            nearest_friendly_radar[vid] = {
-                                                id = radar_id,
-                                                power = power,
-                                            }
-                                        end
-                                    end
-                                end
                             end
                         end
-                    end
-                end
-                -- radar_return_power is only ever set by a friendly radar
-                if radar_return_power > 0.00002 then
-                    if radar_team == screen_team then
-                        seen_by_friendly_radars[vid] = true
                     end
                 end
             end
@@ -1732,80 +1700,6 @@ function get_team_has_humans(team_id)
     return false
 end
 
-
--- Radar cross section
-
-g_vehicle_rcs = {}
-g_vehicle_rcs[e_game_object_type.chassis_air_wing_heavy] = 0.2
-g_vehicle_rcs[e_game_object_type.chassis_air_wing_light] = 1.5
-g_vehicle_rcs[e_game_object_type.chassis_air_rotor_light] = 1.8
-g_vehicle_rcs[e_game_object_type.chassis_air_rotor_heavy] = 2.2
-
-g_attachment_rcs = {}
-g_attachment_rcs[e_game_object_type.attachment_radar_awacs] = 2.5
-g_attachment_rcs[e_game_object_type.attachment_turret_rocket_pod] = 0.8
-g_attachment_rcs[e_game_object_type.attachment_hardpoint_torpedo] = 0.7
-g_attachment_rcs[e_game_object_type.attachment_hardpoint_torpedo_noisemaker] = 0.7
-g_attachment_rcs[e_game_object_type.attachment_hardpoint_torpedo_decoy] = 0.6
-g_attachment_rcs[e_game_object_type.attachment_turret_gimbal_30mm] = 0.65
-g_attachment_rcs[e_game_object_type.attachment_camera_plane] = 0.8
-g_attachment_rcs[e_game_object_type.attachment_turret_plane_chaingun] = 0.4
-g_attachment_rcs[e_game_object_type.attachment_hardpoint_bomb_3] = 0.4
-g_attachment_rcs[e_game_object_type.attachment_hardpoint_bomb_2] = 0.35
-g_attachment_rcs[e_game_object_type.attachment_fuel_tank_plane] = 0.35
-g_attachment_rcs[e_game_object_type.attachment_hardpoint_bomb_1] = 0.3
-g_attachment_rcs[e_game_object_type.attachment_hardpoint_missile_ir] = 0.17
-g_attachment_rcs[e_game_object_type.attachment_hardpoint_missile_laser] = 0.2
-g_attachment_rcs[e_game_object_type.attachment_hardpoint_missile_aa] = 0.25
-g_attachment_rcs[e_game_object_type.attachment_hardpoint_missile_tv] = 0.12
-g_attachment_rcs[e_game_object_type.attachment_flare_launcher] = 0.1
-
-function get_rcs(vehicle)
-    local rcs = nil
-
-    if vehicle and vehicle:get() then
-        local vdef = vehicle:get_definition_index()
-        if get_is_vehicle_air(vdef) then
-            return 2.3 -- yields 10km range for a 10km radar
-        end
-    end
-    return rcs
-end
-
-function get_rcs_cached(vehicle)
-    return get_rcs(vehicle)
-end
-
-function get_radar_return_power(target, radar, radar_range)
-    if radar_range > 0 and target and target:get() then
-        local rcs = get_rcs_cached(target)
-        if rcs ~= nil and rcs > 0 then
-            local radar_power = radar_range * 10
-            local dist_sq = vec2_dist_sq(target:get_position_xz(), radar:get_position_xz())
-            local intensity = radar_power / (4 * math_pi * dist_sq)
-            -- i = e/rcs
-            -- e = i * rcs
-            local reflection = rcs * intensity
-            return reflection
-        end
-    end
-    return 0
-end
-
-function get_rcs_detection_range(rcs)
-    if rcs > 0 then
-        local pwr = 0
-        local dist = 50000
-        while pwr < g_radar_min_return_power do
-            dist = dist - 250
-            local radar_power = 10000 * 10
-            local intensity = radar_power / (4 * math_pi * dist * dist)
-            pwr = rcs * intensity
-        end
-        return (dist/1000)
-    end
-    return 0
-end
 
 function get_vehicle_health_factor(vehicle)
     if vehicle and vehicle:get() then

@@ -2589,7 +2589,7 @@ function _update(screen_w, screen_h, ticks)
                                 update_ui_text(
                                         screen_pos_x - icon_offset + 12,
                                         screen_pos_y - icon_offset + 12,
-                                        string.format("%dm %1.6f", math.floor(dist), pwr), 128, 0, color_friendly, 0)
+                                        string.format("ID%d r=%dm p=%1.6f", vehicle:get_id(), math.floor(dist), pwr), 128, 0, color_friendly, 0)
                             end
                         end
                     end
