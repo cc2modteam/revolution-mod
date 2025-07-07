@@ -2811,6 +2811,13 @@ function _update(screen_w, screen_h, ticks)
                     end
 
                     render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, 140, tool_height, 10, function(w, h) render_vehicle_tooltip(w, h, highlighted_vehicle, peers) end, color8(0, 0, 0, 190))
+
+                    if g_debug_enabled or get_is_spectator_mode() then
+                        local hitpoints = highlighted_vehicle:get_hitpoints()
+                        local hitpoints_total = highlighted_vehicle:get_total_hitpoints()
+                        update_ui_text(g_pointer_pos_x, g_pointer_pos_y + 30,
+                                string.format("%d/%d", hitpoints, hitpoints_total), 100, 0, color_highlight, 0)
+                    end
                 end
             end
         elseif g_highlighted.vehicle_id > 0 and g_highlighted.waypoint_id ~= 0 then
