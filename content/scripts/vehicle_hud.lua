@@ -9,7 +9,6 @@ local math_min = math.min
 local math_abs = math.abs
 local math_floor = math.floor
 
-
 g_is_connected = false
 g_selected_attachment_index = -1
 g_selected_target_id = -1
@@ -1680,15 +1679,30 @@ function render_hud_rwr(screen_w, screen_h, vehicle)
     end
 end
 
+local green = color8(0, 255, 0, 200)
+local dgreen = color8(0, 120, 0, 120)
+local red = color8(255, 0, 0, 180)
+local rwr_dist_sq = 17000 * 17000
+local rwr_1k_sq = 1000 * 1000
+local rwr_1k5_sq = 1500 * 1500
+local rwr_4k5_sq = 4500 * 4500
+local rwr_6k_sq = 6000 * 6000
+local rwr_10k_sq = 10000 * 10000
+local ciws_attachmennts = {
+    [e_game_object_type.attachment_turret_ciws] = true,
+    [e_game_object_type.attachment_turret_carrier_ciws] = true,
+}
+
 function _render_hud_rwr(screen_w, screen_h, vehicle)
     local tick = update_get_logic_tick()
-
-    local green = color8(0, 255, 0, 180)
-    local red = color8(255, 0, 0, 180)
-
-    local size = 11
-    local w = screen_w - 32
-    local n = 130
+    local rwr_clampmin = vec2(0, 0)
+    local rwr_clampmax = vec2(screen_w, screen_h)
+    local size = 29
+    local x = screen_w - 32
+    local y = screen_h / 2
+    local n = y - (size / 2)
+    local w = x - (size / 2)
+    local e = x + (size / 2)
 
     local fwd = green
     local port = green
@@ -1702,6 +1716,11 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     local spike_color = red
     local rinfo = nil
 
+    render_circle(vec2(x, y), 29, 15, green)
+    render_circle(vec2(x, y), 15, 10, dgreen)
+    update_ui_line(x+1, y-size, x+1, y+size, dgreen)
+    update_ui_line(x-size, y, x+size, y, dgreen)
+
     if get_vehicle_health_factor(vehicle) < 0.5 then
         red = color8(255, 0, 0, 210)
         show_alert = true
@@ -1710,6 +1729,114 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
         port = red
         aft = red
         stbd = red
+    end
+    local our_id = vehicle:get_id()
+    local our_head = update_get_camera_heading()
+    local our_team = get_vehicle_team_id(vehicle)
+    local ourp = get_pos_xz(vehicle)
+
+    -- iterate all the targets and compute angles and threats
+    for _, v in pairs(get_vehicles_table()) do
+        -- hostile only please
+        local vid = v:get_id()
+        local vteam = get_vehicle_team_id(v)
+        local hostile = vteam ~= our_team
+        if hostile and not get_vehicle_docked(v) then
+            local vp = get_pos_xz(v)
+            local dist = fast_dist_sq2(vp, ourp, rwr_dist_sq)
+
+            if dist < rwr_dist_sq then
+                local vdef = v:get_definition_index()
+                local rdr = get_vehicle_radar(v)
+                local rdr_enabled = true
+                if vdef == e_game_object_type.chassis_carrier then
+                    rdr_enabled = get_awacs_radar_enabled(v)
+                end
+                if not rdr and get_is_vehicle_land(vdef) then
+                    if has_attachment(v, ciws_attachmennts) then
+                        rdr = e_game_object_type.attachment_turret_ciws
+                    end
+                end
+
+                local offset = 26
+                local txt = ""
+                local threat = false
+                local locked = false
+                if rdr and rdr_enabled then
+                    if vdef == e_game_object_type.chassis_sea_ship_heavy then
+                        if dist < rwr_10k_sq then
+                            txt = "s"
+                            if dist < rwr_6k_sq then
+                                threat = true
+                                if dist < rwr_4k5_sq then
+                                    locked = true
+                                end
+                            end
+                        end
+                    elseif vdef == e_game_object_type.chassis_carrier then
+                        txt = "s"
+                        threat = true
+                        if dist < rwr_4k5_sq then
+                            locked = true
+                        end
+                    elseif rdr == e_game_object_type.attachment_turret_ciws then
+                        if dist < rwr_1k5_sq then
+                            threat = true
+                            txt = "c"
+                            if dist < rwr_1k_sq then
+                                locked = true
+                            end
+                        end
+                    elseif rdr == e_game_object_type.attachment_radar_awacs then
+                        txt = "A"
+                        threat = true
+                    elseif rdr == e_game_object_type.attachment_radar_golfball then
+                        txt = "s"
+                        threat = true
+                    end
+
+                    if txt ~= "" then
+                        if threat or locked then
+                            offset = 14
+                        end
+
+                        local tvect = vec2(vp:x() - ourp:x(), vp:y() - ourp:y())
+                        local tnorm = vec2_normal(tvect)
+                        -- rotate
+                        local tx = (tnorm:x() * math_cos(our_head) - tnorm:y() * math_sin(our_head)) * offset
+                        local ty = 4 + ((tnorm:x() * math_sin(our_head) + tnorm:y() * math_cos(our_head)) * offset)
+                        -- print(dx, dz, our_team, vteam, hostile)
+                        update_ui_text(
+                                x + tx - 4,
+                                y - ty,
+                                txt, 10, 1, green, 0)
+                        if locked then
+                            -- draw diamond
+                            update_ui_line(
+                                    x + tx, y - ty,
+                                    x + tx + 6, y - ty + 6,
+                                    green
+                            )
+                            update_ui_line(
+                                    x + tx + 5, y - ty + 6,
+                                    x + tx, y - ty + 11,
+                                    green
+                            )
+                            update_ui_line(
+                                    x + tx + 1, y - ty,
+                                    x + tx - 5, y - ty + 6,
+                                    green
+                            )
+                            update_ui_line(
+                                    x + tx - 4, y - ty + 6,
+                                    x + tx + 1, y - ty + 11,
+                                    green
+                            )
+                        end
+                    end
+                end
+            end
+        end
     end
 
     if g_nearest_hostile_ew_radar ~= nil then
@@ -1732,60 +1859,22 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
 
     if tick % 30 < 15 then
         if show_nails then
-            update_ui_image_rot(w - 6, n + 24, atlas_icons.column_ammo, red, 0)
+            update_ui_image_rot(w - 6, y + size, atlas_icons.column_ammo, red, 0)
             show_alert = true
         end
     end
-
 
     if tick % 60 < 30 then
         if g_nearest_hostile_ew_radar ~= nil then
             -- change color
             show_alert = true
-            local sp, clamped = update_world_to_screen(g_nearest_hostile_ew_radar:get_position())
-
-            if sp:x() > 0 and sp:x() < screen_w then
-                if sp:y() > 0 and sp:y() < screen_h then
-                    if clamped then
-                        aft =red
-                    else
-                        fwd = red
-                    end
-                end
-            else
-                if sp:x() < 0 then
-                    if clamped then
-                        stbd = red
-                    else
-                        port = red
-                    end
-                elseif sp:x() > screen_w then
-                    if clamped then
-                        port = red
-                    else
-                        stbd = red
-                    end
-                end
-            end
         end
     end
 
     if show_alert then
-        update_ui_image_rot(w + 4, n + 14, atlas_icons.hud_warning, red, 0)
+        update_ui_image_rot(e + 7, y + size, atlas_icons.hud_warning, red, 0)
     end
 
-
-    update_ui_image_rot(w - 6, n + 3, atlas_icons.column_controlling_peer, color8(0, 255, 0, 255), 0)
-    update_ui_rectangle(w - size, n + size, size - 4, size - 4, port)
-    update_ui_rectangle(w, n, size - 4, size - 4, fwd)
-    update_ui_rectangle(w + size, n + size, size - 4, size - 4, stbd)
-    update_ui_rectangle(w, n + size + size, size - 4, size - 4, aft)
-
-    -- show RADAR type
-    if rinfo then
-        --update_ui_text(x, y, txt, width, 2, col, 0)
-        update_ui_text(w + 10, n - 1, rinfo, 8, 2, red, 0)
-    end
 end
 
 function render_attachment_hud_camera(screen_w, screen_h, map_data, vehicle, attachment)
@@ -5022,3 +5111,8 @@ function project_bullet_future(tick, vehicle, tick_fraction)
     return p
 end
 
+
+function get_2d_unitvector(v)
+    local mag = fast_sqrt( v:x() * v:x() + v:y() * v:y())
+    return vec2_normal()
+end

@@ -3591,3 +3591,7 @@ function get_nearest_carrier(vehicle, friendly, current_team)
     end
     return nearest, nearest_dist_sq^0.5
 end
+
+function fast_sqrt(x)
+    return x^0.5
+end

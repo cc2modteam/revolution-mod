@@ -1,6 +1,8 @@
 local floor = math.floor
 local atan = math.atan
 local abs = math.abs
+local math_max = math.max
+local math_min = math.min
 
 color_white = color8(255, 255, 255, 255)
 color_black = color8(0, 0, 0, 255)
@@ -640,7 +642,7 @@ function vec2_dist_sq(a, b)
 end
 
 function vec2_dist(a, b)
-    return math.sqrt(vec2_dist_sq(a, b))
+    return fast_sqrt(vec2_dist_sq(a, b))
 end
 
 function vec2_length_sq(a)
@@ -648,11 +650,11 @@ function vec2_length_sq(a)
 end
 
 function vec2_length(a)
-    return math.sqrt(vec2_length_sq(a))
+    return fast_sqrt(vec2_length_sq(a))
 end
 
 function vec2_normal(a)
-    local len = math.max(0.001, vec2_length(a))
+    local len = math_max(0.001, vec2_length(a))
     return vec2(a:x() / len, a:y() / len), len
 end
 
@@ -1672,7 +1674,7 @@ end
 
 g_rev_major = 1
 g_rev_minor = 5
-g_rev_patch = 5
+g_rev_patch = 6
 
 g_rev_mods = {
 
