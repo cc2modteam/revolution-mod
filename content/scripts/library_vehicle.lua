@@ -912,7 +912,17 @@ function _get_awacs_radar_attachment_position(vehicle)
     return -1
 end
 
+
 function has_attachment(vehicle, a_defs)
+    if vehicle.extended then
+        for d, _ in pairs(a_defs) do
+            if vehicle:has_attachment_type(d) then
+                return d
+            end
+        end
+        return nil
+    end
+
     local attachment_count = vehicle:get_attachment_count()
     for i = 0, attachment_count - 1 do
         local attachment = vehicle:get_attachment(i)
@@ -953,6 +963,10 @@ local radar_attachment_defs = {
 function _get_radar_attachment(vehicle)
     local d = nil
     if vehicle and vehicle:get() then
+        if vehicle.extended then
+            return vehicle:get_radar_type()
+        end
+
         if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
             d = e_game_object_type.attachment_radar_awacs
         else
@@ -1001,7 +1015,17 @@ function get_is_vehicle_masked(vehicle)
     return false
 end
 
+
 function get_modded_radar_range(vehicle)
+    if vehicle and vehicle:get() then
+        if vehicle.extended then
+            return vehicle:get_radar_range()
+        end
+    end
+    return _get_modded_radar_range(vehicle)
+end
+
+function _get_modded_radar_range(vehicle)
     if vehicle:get() then
 
         if g_revolution_override_radar_range ~= nil then
@@ -1047,6 +1071,13 @@ function get_modded_radar_range(vehicle)
 end
 
 function get_vehicle_radar_state(vehicle)
+    if vehicle and vehicle.extended then
+        return vehicle:get_radar_state()
+    end
+    return _get_vehicle_radar_state(vehicle)
+end
+
+function _get_vehicle_radar_state(vehicle)
     local state = nil
     if vehicle and vehicle:get() then
         local radar_pos = _get_awacs_radar_attachment_position(vehicle)
@@ -1416,7 +1447,7 @@ function do_radar_scan(update_air, update_sea)
             local target_is_sea = false
             if not target_is_air then
                 target_is_sea = get_is_vehicle_sea(vdef)
-                if vdef == e_game_object_type.chassis_land_turret then
+                if not target_is_sea and vdef == e_game_object_type.chassis_land_turret and g_rev_allow_carrier_land_turrets then
                     -- treat turrets deployed by carriers the same as ships for RADAR
                     local att = vehicle:get_attachment(0)
                     if att then
@@ -1472,6 +1503,9 @@ function do_radar_scan(update_air, update_sea)
                                         if g_radar_debug then
                                             g_radar_debug_info[vid] = "radar sees"
                                         end
+                                        if vehicle.extended then
+                                            vehicle.seen_by_friendly_radars = true
+                                        end
                                         seen_by_friendly_radars[vid] = true
                                     else
                                         if target_dist_sq < nearest_hostile_radar_dist_sq then
@@ -1520,6 +1554,9 @@ end
 function get_is_visible_by_hostile_modded_radar(vehicle)
     local seen = false
     if vehicle and vehicle:get() then
+        if vehicle.extended then
+            return vehicle:get_is_visible_by_hostile_modded_radar()
+        end
         local vid = vehicle:get_id()
         seen = g_seen_by_hostile_radars[vid] ~= nil
     end
@@ -1528,6 +1565,10 @@ end
 
 function _get_is_seen_by_friendly_modded_radar(vehicle)
     if vehicle and vehicle:get() then
+        if vehicle.extended then
+            return vehicle:get_is_seen_by_friendly_modded_radar()
+        end
+
         local vid = vehicle:get_id()
         if get_is_spectator_mode() then
             return true
@@ -1679,25 +1720,28 @@ end
 
 -- ai team check
 
+g_human_team_cache = {}
+g_human_team_cache_tick = 0
+
 function get_team_has_humans(team_id)
     local current_team = update_get_screen_team_id()
     if current_team == team_id then
         -- easy shortcut
         return true
     end
-
-    -- look through multiplier members, if a pear doesnt have the same team ID as us, then that
-    -- team is human controlled, else it's AI controlled or nobody has joined it
-    local peer_count = update_get_peer_count()
-
-    for i = 0, peer_count - 1 do
-        local team = update_get_peer_team(i)
-        if team == team_id then
-            return true
+    local now = update_get_logic_tick()
+    if g_human_team_cache_tick < now then
+        g_human_team_cache_tick = now
+        -- look through multiplier members, if a peer doesnt have the same team ID as us, then that
+        -- team is human controlled, else it's AI controlled or nobody has joined it
+        local peer_count = update_get_peer_count()
+        for i = 0, peer_count - 1 do
+            local team = update_get_peer_team(i)
+            g_human_team_cache[team] = true
         end
     end
 
-    return false
+    return g_human_team_cache[team_id] == true
 end
 
 
@@ -2368,11 +2412,11 @@ function get_carrier_lifeboat_attachments_value(vehicle)
 end
 
 function get_pos_xz(vehicle)
-    if vehicle.get_position ~= nil then
-        local pos = vehicle:get_position()
-        return vec2(pos:x(), pos:z())
+    if vehicle.get_position_xz ~= nil then
+        return vehicle:get_position_xz()
     end
-    return vehicle:get_position_xz()
+    local pos = vehicle:get_position()
+    return vec2(pos:x(), pos:z())
 end
 
 
@@ -2443,13 +2487,10 @@ end
 
 function get_vehicle_docked(vehicle)
     if vehicle then
-        if vehicle.get_is_docked ~= nil then
+        if g_is_hud then
             return vehicle:get_is_docked()
         end
-
-        if vehicle.get_attached_parent_id ~= nil then
-            return vehicle:get_attached_parent_id() ~= 0
-        end
+        return vehicle:get_attached_parent_id() ~= 0
     end
 
     return false
@@ -3558,7 +3599,7 @@ function get_vehicles_table()
 
             if vehicle:get() then
                 --table.insert(vt, vehicle)
-                table.insert(vt, VProxy.new(vehicle:get_id()))
+                table.insert(vt, VProxy_get(vehicle))
 
                 if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
                     table.insert(ct, vehicle)
@@ -3599,13 +3640,14 @@ function fast_sqrt(x)
 end
 
 -- vehicle proxy class to reduce lua<->native calls
-VProxy = {}
-function VProxy.new(vid)
+local VProxy = {}
+function VProxy.new(real)
     local self = setmetatable({}, {__index = VProxy})
-    self.id = vid
+    self.extended = true
     self.team = 0
+    self.id = 0
     self.definition_index = nil
-    self.get_attachment_count = nil
+    self.get_attachment_count_ = nil
     self.get_is_observation_type_revealed_ = nil
     self.get_is_observation_weapon_revealed_ = nil
     self.get_is_observation_fully_revealed_ = nil
@@ -3622,10 +3664,24 @@ function VProxy.new(vid)
     self.get_is_observation_revealed_ = nil
     self.get_waypoint_count_ = nil
     self.team = 0
-    self.v = update_get_map_vehicle_by_id(self.id)
+    self.attachment_defs = {}
+    self.radar_type = -1
+    self.radar_state = nil
+    self.radar_state_known = false
+    self.seen_by_friendly_radars = nil
+    self.is_visible_by_hostile_modded_radar = nil
+    self.position_xz = nil
+    self.position = nil
+    self.altitude = nil
+    self.v = real
     if self.v:get() then
         self.definition_index = self.v:get_definition_index()
-        self.team = self.v:get_team()
+        if g_is_hud then
+            self.team = self.v:get_team_id()
+        else
+            self.team = self.v:get_team()
+        end
+        self.id = self.v:get_id()
     else
         self.v = nil
     end
@@ -3642,6 +3698,10 @@ end
 
 function VProxy:get_id()
     return self.id
+end
+
+function VProxy:get_is_hud()
+    return self.v and self.v.get_position ~= nil
 end
 
 function VProxy:get_definition_index()
@@ -3692,14 +3752,36 @@ end
 
 function VProxy:get_position_xz()
     if self.get_position_xz_ == nil and self.v then
-        self.get_position_xz_ = self.v:get_position_xz()
+        if self.v.get_position_xz then
+            self.get_position_xz_ = self.v:get_position_xz()
+        else
+            -- HUD
+            local pos = self:get_position()
+            if pos then
+                self.get_position_xz_ = vec2(pos:x(), pos:z())
+            end
+        end
     end
     return self.get_position_xz_
 end
 
+function VProxy:get_altitude()
+    if self.altitude == nil and self.v then
+        self.altitude = get_unit_altitude(self.v)
+    end
+    return self.altitude
+end
+
 function VProxy:get_position()
     if self.get_position_ == nil and self.v then
-        self.get_position_ = self.v:get_position()
+        if self:get_is_hud() then
+            self.get_position_ = self.v:get_position()
+        else
+            local pos = self:get_position_xz()
+            if pos then
+                self.get_position_ = vec3(pos:x(), self:get_altitude(), pos:y())
+            end
+        end
     end
     return self.get_position_
 end
@@ -3777,7 +3859,6 @@ function VProxy:get_attachment_type(i)
     return nil
 end
 
-
 function VProxy:get_attached_vehicle_id(i)
     if self.v then
         return self.v:get_attached_vehicle_id(i)
@@ -3833,6 +3914,15 @@ function VProxy:get_dock_state()
     end
     return 0
 end
+
+function VProxy:get_is_docked()
+    -- HUD only
+    if self.v then
+        return self.v:get_is_docked()
+    end
+    return false
+end
+
 
 function VProxy:get_dock_queue_vehicle_id()
     if self.v then
@@ -4031,4 +4121,73 @@ function VProxy:set_target_vehicle(wpt, value)
         return self.v:set_target_vehicle(wpt, value)
     end
     return 0
+end
+
+-- extended methods
+function VProxy:has_attachment_type(a_def)
+    if #self.attachment_defs == 0 then
+        local attachment_count = self:get_attachment_count()
+        for i = 0, attachment_count - 1 do
+            local attachment = self:get_attachment(i)
+            if attachment and attachment:get() then
+                local definition_index = attachment:get_definition_index()
+                table.insert(self.attachment_defs, definition_index)
+            end
+        end
+    end
+
+    for d, _ in pairs(self.attachment_defs) do
+        if d == a_def then
+            return true
+        end
+    end
+    return false
+end
+
+function VProxy:get_radar_type()
+    if self.radar_type == -1 then
+        if self:get_definition_index() == e_game_object_type.chassis_carrier then
+            self.radar_type = e_game_object_type.attachment_radar_awacs
+        else
+            self.radar_type = has_attachment(self.v, radar_attachment_defs)
+        end
+    end
+
+    return self.radar_type
+end
+
+function VProxy:get_radar_range()
+    if self.radar_range == nil then
+        self.radar_range = _get_modded_radar_range(self.v)
+    end
+    return self.radar_range
+end
+
+function VProxy:get_radar_state()
+    if self.radar_state_known == false then
+        self.radar_state = _get_vehicle_radar_state(self.v)
+        self.radar_state_known = true
+    end
+    return self.radar_state
+end
+
+function VProxy:get_is_seen_by_friendly_modded_radar()
+    if self.seen_by_friendly_radars == nil then
+        self.seen_by_friendly_radars = g_seen_by_friendly_radars[self.id] == true
+    end
+    return self.seen_by_friendly_radars
+end
+
+function VProxy:get_is_visible_by_hostile_modded_radar()
+    if self.is_visible_by_hostile_modded_radar == nil then
+        self.is_visible_by_hostile_modded_radar = g_seen_by_hostile_radars[self.id] ~= nil
+    end
+    return self.is_visible_by_hostile_modded_radar
+end
+
+
+-- factory
+
+function VProxy_get(real)
+    return VProxy.new(real)
 end
