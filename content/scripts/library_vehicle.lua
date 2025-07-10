@@ -3557,7 +3557,9 @@ function get_vehicles_table()
             local vehicle = update_get_map_vehicle_by_index(i)
 
             if vehicle:get() then
-                table.insert(vt, vehicle)
+                --table.insert(vt, vehicle)
+                table.insert(vt, VProxy.new(vehicle:get_id()))
+
                 if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
                     table.insert(ct, vehicle)
                 end
@@ -3594,4 +3596,439 @@ end
 
 function fast_sqrt(x)
     return x^0.5
+end
+
+-- vehicle proxy class to reduce lua<->native calls
+VProxy = {}
+function VProxy.new(vid)
+    local self = setmetatable({}, {__index = VProxy})
+    self.id = vid
+    self.team = 0
+    self.definition_index = nil
+    self.get_attachment_count = nil
+    self.get_is_observation_type_revealed_ = nil
+    self.get_is_observation_weapon_revealed_ = nil
+    self.get_is_observation_fully_revealed_ = nil
+    self.get_position_xz_ = nil
+    self.get_position_ = nil
+    self.get_direction_ = nil
+    self.get_vehicle_attachment_count_ = nil
+    self.get_hitpoints_ = nil
+    self.get_total_hitpoints_ = nil
+    self.get_attached_parent_id_ = nil
+    self.get_controlling_peer_id_ = nil
+    self.get_is_visible_by_enemy_ = nil
+    self.get_is_visible_ = nil
+    self.get_is_observation_revealed_ = nil
+    self.get_waypoint_count_ = nil
+    self.team = 0
+    self.v = update_get_map_vehicle_by_id(self.id)
+    if self.v:get() then
+        self.definition_index = self.v:get_definition_index()
+        self.team = self.v:get_team()
+    else
+        self.v = nil
+    end
+
+    return self
+end
+
+function VProxy:get()
+    if self.v then
+        return true
+    end
+    return false
+end
+
+function VProxy:get_id()
+    return self.id
+end
+
+function VProxy:get_definition_index()
+    return self.definition_index
+end
+
+function VProxy:get_attachment_count()
+    if self.get_attachment_count_ == nil and self.v then
+        self.get_attachment_count_ = self.v:get_attachment_count()
+    end
+    return self.get_attachment_count_
+end
+
+function VProxy:get_waypoint_count()
+    if self.get_waypoint_count_ == nil and self.v then
+        self.get_waypoint_count_ = self.v:get_waypoint_count()
+    end
+    return self.get_waypoint_count_
+end
+
+function VProxy:get_direction()
+    if self.get_direction_ == nil and self.v then
+        self.get_direction_ = self.v:get_direction()
+    end
+    return self.get_direction_
+end
+
+function VProxy:get_is_visible()
+    if self.get_is_visible_ == nil and self.v then
+        self.get_is_visible_ = self.v:get_is_visible()
+    end
+    return self.get_is_visible_
+end
+
+function VProxy:get_is_observation_revealed()
+    if self.get_is_observation_revealed_ == nil and self.v then
+        self.get_is_observation_revealed_ = self.v:get_is_observation_revealed()
+    end
+    return self.get_is_observation_revealed_
+end
+
+function VProxy:get_controlling_peer_id()
+    if self.get_controlling_peer_id_ == nil and self.v then
+        self.get_controlling_peer_id_ = self.v:get_controlling_peer_id()
+    end
+    return self.get_controlling_peer_id_
+end
+
+function VProxy:get_position_xz()
+    if self.get_position_xz_ == nil and self.v then
+        self.get_position_xz_ = self.v:get_position_xz()
+    end
+    return self.get_position_xz_
+end
+
+function VProxy:get_position()
+    if self.get_position_ == nil and self.v then
+        self.get_position_ = self.v:get_position()
+    end
+    return self.get_position_
+end
+
+
+function VProxy:get_team()
+    return self.team
+end
+
+function VProxy:get_team_id()
+    return self.team
+end
+
+function VProxy:get_hitpoints()
+    if self.get_hitpoints_ == nil and self.v then
+        self.get_hitpoints_ = self.v:get_hitpoints()
+    end
+    return self.get_hitpoints_
+end
+
+function VProxy:get_total_hitpoints()
+    if self.get_total_hitpoints_ == nil and self.v then
+        self.get_total_hitpoints_ = self.v:get_total_hitpoints()
+    end
+    return self.get_total_hitpoints_
+end
+
+function VProxy:get_attached_parent_id()
+    if self.get_attached_parent_id_ == nil and self.v then
+        self.get_attached_parent_id_ = self.v:get_attached_parent_id()
+    end
+    return self.get_attached_parent_id_
+end
+
+function VProxy:get_is_visible_by_enemy()
+    if self.get_is_visible_by_enemy_ == nil and self.v then
+        self.get_is_visible_by_enemy_ = self.v:get_is_visible_by_enemy()
+    end
+    return self.get_is_visible_by_enemy_
+end
+
+function VProxy:get_is_observation_type_revealed()
+    if self.get_is_observation_type_revealed_ == nil and self.v then
+        self.get_is_observation_type_revealed_ = self.v:get_is_observation_type_revealed()
+    end
+    return self.get_is_observation_weapon_revealed_
+end
+
+function VProxy:get_is_observation_weapon_revealed()
+    if self.get_is_observation_weapon_revealed_ == nil and self.v then
+        self.get_is_observation_weapon_revealed_ = self.v:get_is_observation_weapon_revealed()
+    end
+    return self.get_is_observation_weapon_revealed_
+end
+
+function VProxy:get_is_observation_fully_revealed()
+    if self.get_is_observation_fully_revealed_ == nil and self.v then
+        self.get_is_observation_fully_revealed_ = self.v:get_is_observation_fully_revealed()
+    end
+    return self.get_is_observation_fully_revealed_
+end
+
+-- pass through methods, no caches
+function VProxy:get_attachment(i)
+    if self.v then
+        return self.v:get_attachment(i)
+    end
+    return nil
+end
+
+function VProxy:get_attachment_type(i)
+    if self.v then
+        return self.v:get_attachment_type(i)
+    end
+    return nil
+end
+
+
+function VProxy:get_attached_vehicle_id(i)
+    if self.v then
+        return self.v:get_attached_vehicle_id(i)
+    end
+    return nil
+end
+
+function VProxy:get_observation_factor()
+    if self.v then
+        return self.v:get_observation_factor()
+    end
+    return 0
+end
+
+function VProxy:get_ammo_factor()
+    if self.v then
+        return self.v:get_ammo_factor()
+    end
+    return 0
+end
+
+function VProxy:get_repair_factor()
+    if self.v then
+        return self.v:get_repair_factor()
+    end
+    return 0
+end
+
+function VProxy:get_fuel_factor()
+    if self.v then
+        return self.v:get_fuel_factor()
+    end
+    return 0
+end
+
+function VProxy:get_is_hold_fire()
+    if self.v then
+        return self.v:get_is_hold_fire()
+    end
+    return false
+end
+
+function VProxy:get_special_id()
+    if self.v then
+        return self.v:get_special_id()
+    end
+    return 0
+end
+
+function VProxy:get_dock_state()
+    if self.v then
+        return self.v:get_dock_state()
+    end
+    return 0
+end
+
+function VProxy:get_dock_queue_vehicle_id()
+    if self.v then
+        return self.v:get_dock_queue_vehicle_id()
+    end
+    return 0
+end
+
+function VProxy:get_supporting_vehicle_id()
+    if self.v then
+        return self.v:get_supporting_vehicle_id()
+    end
+    return 0
+end
+
+function VProxy:get_resupply_vehicle_id()
+    if self.v then
+        return self.v:get_resupply_vehicle_id()
+    end
+    return 0
+end
+
+function VProxy:get_resupplying_vehicle_id_count()
+    if self.v then
+        return self.v:get_resupplying_vehicle_id_count()
+    end
+    return 0
+end
+
+function VProxy:get_attack_target_position_xz()
+    if self.v then
+        return self.v:get_attack_target_position_xz()
+    end
+    return 0
+end
+
+function VProxy:get_attack_target_type()
+    if self.v then
+        return self.v:get_attack_target_type()
+    end
+    return 0
+end
+
+function VProxy:get_waypoint(i)
+    if self.v then
+        return self.v:get_waypoint(i)
+    end
+    return nil
+end
+
+function VProxy:get_waypoint_path(i)
+    if self.v then
+        return self.v:get_waypoint_path(i)
+    end
+    return nil
+end
+
+function VProxy:get_waypoint_by_id(i)
+    if self.v then
+        return self.v:get_waypoint_by_id(i)
+    end
+    return nil
+end
+
+function VProxy:remove_waypoint_attack_target(wpt, i)
+    if self.v then
+        return self.v:remove_waypoint_attack_target(wpt, i)
+    end
+    return nil
+end
+
+function VProxy:clear_waypoints()
+    if self.v then
+        return self.v:clear_waypoints()
+    end
+    return nil
+end
+
+function VProxy:clear_attack_target()
+    if self.v then
+        return self.v:clear_attack_target()
+    end
+    return nil
+end
+
+function VProxy:clear_waypoints_from(i)
+    if self.v then
+        return self.v:clear_waypoints_from(i)
+    end
+    return nil
+end
+
+function VProxy:add_waypoint(x, z)
+    if self.v then
+        return self.v:add_waypoint(x, z)
+    end
+    return nil
+end
+
+function VProxy:set_target_vehicle(wpt, tid)
+    if self.v then
+        return self.v:add_waypoint(wpt, tid)
+    end
+    return nil
+end
+
+function VProxy:set_waypoint_repeat(wpt1, wpt2)
+    if self.v then
+        return self.v:set_waypoint_repeat(wpt1, wpt2)
+    end
+    return nil
+end
+
+function VProxy:get_vision_last_known_position_xz()
+    if self.v then
+        return self.v:get_vision_last_known_position_xz()
+    end
+    return nil
+end
+
+function VProxy:get_damage_indicator_factor()
+    if self.v then
+        return self.v:get_damage_indicator_factor()
+    end
+    return 0
+end
+
+function VProxy:get_is_attack_type_capable(atype, air, land, sea)
+    if self.v then
+        return self.v:get_is_attack_type_capable(atype, air, land, sea)
+    end
+    return 0
+end
+
+
+function VProxy:get_attached_vehicle_id(bay)
+    if self.v then
+        return self.v:get_attached_vehicle_id(bay)
+    end
+    return 0
+end
+
+-- setters
+
+function VProxy:set_is_hold_fire(value)
+    if self.v then
+        return self.v:set_is_hold_fire(value)
+    end
+    return 0
+end
+
+function VProxy:set_waypoint_wait_group(wpt, gid, value)
+    if self.v then
+        return self.v:set_waypoint_wait_group(wpt, gid, value)
+    end
+    return 0
+end
+
+function VProxy:set_waypoint_type_deploy(wpt, value)
+    if self.v then
+        return self.v:set_waypoint_type_deploy(wpt, value)
+    end
+    return 0
+end
+
+function VProxy:set_waypoint_altitude(wpt, value)
+    if self.v then
+        return self.v:set_waypoint_altitude(wpt, value)
+    end
+    return 0
+end
+
+function VProxy:set_waypoint_attack_target_target_id(wpt, value)
+    if self.v then
+        return self.v:set_waypoint_attack_target_target_id(wpt, value)
+    end
+    return 0
+end
+
+function VProxy:set_waypoint_attack_target_attack_type(wpt, attack_index, attack_type)
+    if self.v then
+        return self.v:set_waypoint_attack_target_attack_type(wpt, attack_index, attack_type)
+    end
+    return 0
+end
+
+function VProxy:set_waypoint_repeat(wpt1, wpt2)
+    if self.v then
+        return self.v:set_waypoint_repeat(wpt1, wpt2)
+    end
+    return 0
+end
+
+function VProxy:set_target_vehicle(wpt, value)
+    if self.v then
+        return self.v:set_target_vehicle(wpt, value)
+    end
+    return 0
 end
