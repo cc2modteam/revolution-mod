@@ -3217,6 +3217,9 @@ end
 
 function get_factory_damage_enabled()
     if g_revolution_enable_factory_damage == nil then
+        if update_get_map_vehicle_count() > 300 then
+            return false
+        end
         return true
     end
     return g_revolution_enable_factory_damage
@@ -3491,13 +3494,14 @@ function iter_vehicle_histories(hist_tab, func)
 end
 
 function do_screensaver(screen_w, screen_h, screen_enum)
+    local total_units = update_get_map_vehicle_count()
 
     if string.find(g_screen_name, "holomap") then
         -- dont do this for the huge tacops screen
         return false
     end
 
-    if string.find(g_screen_name, "screen_veh_") then
+    if total_units < 400 and string.find(g_screen_name, "screen_veh_") then
         -- dont sleep the bridge screens
         return false
     end
@@ -3506,6 +3510,11 @@ function do_screensaver(screen_w, screen_h, screen_enum)
     local elapsed = now - g_last_input_tick
     local seconds = elapsed / 30
     local expired = seconds > 300
+
+    if total_units > 400 and not update_get_is_focus_local() then
+        expired = true
+    end
+
     if g_last_update_interval ~= nil and g_last_update_interval > 60 then
         -- no player near screen for 2 seconds
         if not update_get_is_focus_local() then
@@ -3545,6 +3554,8 @@ function do_screensaver(screen_w, screen_h, screen_enum)
                 12, 1, color_grey_mid, 0)
 
         end
+
+        update_ui_text(12, screen_h - 25, string.format("%d total units", total_units), screen_w, 0, color_grey_mid, 0)
 
         update_ui_text(50, screen_h - 24, format_time(update_get_logic_tick() / 30), screen_w, 1, color_grey_mid, 0)
 
@@ -4121,6 +4132,10 @@ function VProxy:set_target_vehicle(wpt, value)
         return self.v:set_target_vehicle(wpt, value)
     end
     return 0
+end
+
+function VProxy:get_barge_state_data()
+    return self.v:get_barge_state_data()
 end
 
 -- extended methods

@@ -1605,6 +1605,11 @@ function profiler_func(event)
         clock = update_get_time_since_epoch()
     end
 
+    if g_prof_counter > 640000 then
+        print("event count:", g_prof_counter)
+        g_count_calls = false
+    end
+
     local i = debug.getinfo(2, "Sln")
     local func = i.name or (i.source..':'..i.linedefined)
     if i.what ~= 'Lua' then return end

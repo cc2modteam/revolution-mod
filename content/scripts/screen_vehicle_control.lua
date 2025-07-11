@@ -1004,10 +1004,9 @@ function render_selection_map(screen_w, screen_h)
             if ui:list_item("count calls", true) then
                 if not g_count_calls then
                     g_count_calls = true
-                    print("timer call count armed")
-                else
-                    g_count_calls = false
-                    print("timer call count disarmed")
+                    g_prof_counter = 0
+                    print("timer call count profiler armed")
+                    debug.sethook(profiler_func, "cr")
                 end
             end
         end

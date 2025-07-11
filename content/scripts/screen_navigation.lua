@@ -126,6 +126,17 @@ function update_torpedo_info(screen_w, screen_h)
 end
 
 function update(screen_w, screen_h, ticks)
+    if g_debug_enabled then
+        local st, err = pcall(_update, screen_w, screen_h, ticks)
+        if not st then
+            print(err)
+        end
+    else
+        _update(screen_w, screen_h, ticks)
+    end
+end
+
+function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
     g_animation_time = g_animation_time + ticks
@@ -791,6 +802,12 @@ end
 function helm_hud_update(screen_w, screen_h, ticks)
     local eyeball_dist_px = 300
     local now = update_get_logic_tick()
+    local total_units = update_get_map_vehicle_count()
+
+    if total_units > 300 then
+        return
+    end
+
     local day_len = 54000 -- 30 minutes in ticks
     local time = now - 8100 -- Time since midnight on the first day
     local day_time = time % day_len
