@@ -278,13 +278,19 @@ function update_barge_cap(ticks)
 end
 
 function update(screen_w, screen_h, ticks)
-    local st, err = pcall(function()
+    if g_debug_enabled then
+        local st, err = pcall(function()
+            if not call_custom_inventory_update(screen_w, screen_h, ticks) then
+                _update(screen_w, screen_h, ticks)
+            end
+        end)
+        if not st then
+            print(err)
+        end
+    else
         if not call_custom_inventory_update(screen_w, screen_h, ticks) then
             _update(screen_w, screen_h, ticks)
         end
-    end)
-    if not st then
-        print(err)
     end
 end
 
@@ -294,14 +300,22 @@ function _update(screen_w, screen_h, ticks)
     g_screen_h = screen_h
     refresh_fow_islands()
     refresh_missile_data(false)
-    local st, err = pcall(g_tab_fuel.update_fuel_record, update_get_screen_team_id())
-    if not st then
-        print(err)
+    if g_debug_enabled then
+        local st, err = pcall(g_tab_fuel.update_fuel_record, update_get_screen_team_id())
+        if not st then
+            print(err)
+        end
+    else
+        g_tab_fuel.update_fuel_record(update_get_screen_team_id())
     end
 
-    st, err = pcall(update_barge_cap, ticks)
-    if not st then
-        print(err)
+    if g_debug_enabled then
+        st, err = pcall(update_barge_cap, ticks)
+        if not st then
+            print(err)
+        end
+    else
+        update_barge_cap(ticks)
     end
 
     g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard

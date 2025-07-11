@@ -943,7 +943,8 @@ local ew_attachment_defs = {
 function _get_ew_attachment(vehicle)
     local d = nil
     if vehicle and vehicle:get() then
-        if vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
+        local vdef = vehicle:get_definition_index()
+        if get_is_vehicle_air(vdef) then
             d = has_attachment(vehicle, ew_attachment_defs)
         end
     end
@@ -963,13 +964,28 @@ local radar_attachment_defs = {
 function _get_radar_attachment(vehicle)
     local d = nil
     if vehicle and vehicle:get() then
+        if get_vehicle_docked(vehicle) then
+            return d
+        end
+
         if vehicle.extended then
             return vehicle:get_radar_type()
         end
 
-        if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
+        -- turrets and barges dont have radars, dont bother looking
+        -- this could change one day
+        local vdef = vehicle:get_definition_index()
+
+        if vdef == e_game_object_type.chassis_carrier then
             d = e_game_object_type.attachment_radar_awacs
-        else
+        elseif vdef == e_game_object_type.chassis_sea_ship_light
+                or vdef == e_game_object_type.chassis_sea_ship_heavy
+                or vdef == e_game_object_type.chassis_air_wing_light
+                or vdef == e_game_object_type.chassis_land_wheel_light
+                or vdef == e_game_object_type.chassis_land_wheel_medium
+                or vdef == e_game_object_type.chassis_land_wheel_heavy
+            -- ok, we don't bother scanning mantas or helos, maybe we _should_ but we dont _neeeed_ to
+        then
             d = has_attachment(vehicle, radar_attachment_defs)
         end
     end
@@ -1282,8 +1298,24 @@ end
 
 g_radar_debug_info = {}
 
+local next_updated_radar_list = 0
+
 function update_modded_radar_list(hostile_only)
     -- update the list of known radars & faked-radars
+    local now = update_get_logic_tick()
+    if now < next_updated_radar_list then
+        return
+    end
+    next_updated_radar_list = now + math_random(0, 35)
+
+    local vehicle_count = update_get_map_vehicle_count()
+    if vehicle_count > 300 then
+        -- cut down the number of updates on huge maps
+        next_updated_radar_list = next_updated_radar_list + 20
+    end
+    g_all_radars = {}
+    g_all_hostile_ew = {}
+
     local screen_team = update_get_screen_team_id()
     local seen_by_friendly_radars = g_seen_by_friendly_radars
     local seen_by_hostile_radars = g_seen_by_hostile_radars
@@ -1381,9 +1413,6 @@ function update_modded_radar_data()
         end
 
     end
-
-    g_all_radars = {}
-    g_all_hostile_ew = {}
 
     update_modded_radar_list(false)
 
@@ -1592,8 +1621,12 @@ g_island_color_unknown = color8(0x12, 0x12, 0x12, 0xff)
 function refresh_fow_islands()
     -- only do this every 2 seconds
     local now = update_get_logic_tick()
+    local interval = 60
+    if update_get_map_vehicle_count() > 200 then
+        interval = 240
+    end
 
-    if g_fow_last_tick + 60 < now then
+    if g_fow_last_tick + interval < now then
         g_fow_last_tick = now
         g_fow_visible = {}
         local fow_vis = g_fow_visible

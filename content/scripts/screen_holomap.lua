@@ -166,9 +166,13 @@ function render_marker(team_id, marker_id, screen_w, screen_h)
 end
 
 function update(screen_w, screen_h, ticks)
-    local st, err = pcall(_update, screen_w, screen_h, ticks)
-    if not st then
-        print(err)
+    if g_debug_enabled then
+        local st, err = pcall(_update, screen_w, screen_h, ticks)
+        if not st then
+            print(err)
+        end
+    else
+        _update(screen_w, screen_h, ticks)
     end
 end
 
@@ -206,11 +210,19 @@ function _update(screen_w, screen_h, ticks)
     local screen_team = update_get_screen_team_id()
     local is_local = update_get_is_focus_local()
 
-    if is_local then
-        ensure_marker_value(screen_team, 1)
-        ensure_marker_value(screen_team, 2)
-        ensure_marker_value(screen_team, 3)
-        ensure_marker_value(screen_team, 4)
+    if not is_local then
+        local unit_count = update_get_map_vehicle_count()
+        if unit_count > 400 then
+            return
+        end
+    else
+        local now = update_get_logic_tick()
+        if now % 10 > 7 then
+            ensure_marker_value(screen_team, 1)
+            ensure_marker_value(screen_team, 2)
+            ensure_marker_value(screen_team, 3)
+            ensure_marker_value(screen_team, 4)
+        end
     end
     
     local world_x = 0
@@ -427,15 +439,17 @@ function _update(screen_w, screen_h, ticks)
         end
         update_set_screen_background_is_render_islands(true)
 
-        -- draw markers
-        local st, err = pcall(function()
-            render_marker(screen_team, 1, screen_w, screen_h)
-            render_marker(screen_team, 2, screen_w, screen_h)
-            render_marker(screen_team, 3, screen_w, screen_h)
-            render_marker(screen_team, 4, screen_w, screen_h)
-        end)
-        if not st then
-            print(string.format("err3 = %s", err))
+        if vehicle_count < 300 then
+            -- draw markers
+            local st, err = pcall(function()
+                render_marker(screen_team, 1, screen_w, screen_h)
+                render_marker(screen_team, 2, screen_w, screen_h)
+                render_marker(screen_team, 3, screen_w, screen_h)
+                render_marker(screen_team, 4, screen_w, screen_h)
+            end)
+            if not st then
+                print(string.format("err3 = %s", err))
+            end
         end
 
         if get_is_spectator_mode() then
@@ -611,15 +625,12 @@ function _update(screen_w, screen_h, ticks)
             end
         end
 
-        -- find hovered vehilce or waypoint
+        -- find hovered vehicle or waypoint
         if is_local and (not g_is_mouse_mode or g_is_pointer_hovered) then
             g_highlighted_vehicle_id = 0
             g_highlighted_waypoint_id = 0
             local highlighted_distance_best = 5 * math.max( 1, 2000 / cur_map_zoom )
-
-            for i = 0, vehicle_count - 1, 1 do
-                local vehicle = update_get_map_vehicle_by_index(i)
-
+            for _, vehicle in pairs(get_vehicles_table()) do
                 if vehicle:get() then
                     local vehicle_definition_index = vehicle:get_definition_index()
 
@@ -715,9 +726,7 @@ function _update(screen_w, screen_h, ticks)
         end
 
         -- render vehicle stuff
-        for i = 0, vehicle_count - 1, 1 do
-            local vehicle = update_get_map_vehicle_by_index(i)
-            
+        for _, vehicle in pairs(get_vehicles_table()) do
             local vehicle_pos_xz = vehicle:get_position_xz()
             local screen_pos_x, screen_pos_y = get_holomap_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), screen_w, screen_h)
 

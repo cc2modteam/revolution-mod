@@ -145,17 +145,19 @@ function _update(screen_w, screen_h, ticks)
         update_torpedo_info(screen_w, screen_h)
         return
     elseif g_screen_name == "screen_helm_hud" then
-        local st, err = pcall( function()
-        helm_hud_update(screen_w, screen_h, ticks)
-        end)
-        if not st then
-            print(err)
+        if g_debug_enabled then
+            local st, err = pcall( function()
+                helm_hud_update(screen_w, screen_h, ticks)
+            end)
+            if not st then
+                print(err)
+            end
+        else
+            helm_hud_update(screen_w, screen_h, ticks)
         end
 
         return
     end
-
-    refresh_fow_islands()
 
     if update_get_active_input_type() == e_active_input.gamepad then
         -- Set pointer to middle of screen
@@ -192,6 +194,7 @@ function _update(screen_w, screen_h, ticks)
         if g_alt_mode == "helm" then
             compass_update(screen_w, screen_h, ticks)
         else
+            refresh_fow_islands()
 
             if not g_is_follow_carrier then
                 update_add_ui_interaction_special(update_get_loc(e_loc.interaction_pan), e_ui_interaction_special.map_pan)
