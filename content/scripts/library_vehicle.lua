@@ -1198,17 +1198,9 @@ function iter_radars(func)
     if func == nil then
         return
     end
-    local proxy_cache = g_proxy_cache
     for i, item in pairs(g_all_radars) do
         local radar_id = item.id
-        local radar = proxy_cache[radar_id]
-        if radar == nil then
-            radar = update_get_map_vehicle_by_id(radar_id)
-            if radar and radar:get() then
-                radar = VProxy_get(radar)
-                proxy_cache[radar_id] = radar
-            end
-        end
+        local radar = update_get_map_vehicle_by_id(radar_id)
         if radar and radar:get() then
             func(radar)
         end
@@ -3627,7 +3619,6 @@ g_vt = {}
 g_vt_tick = 0
 g_carriers_table = {}
 
-g_proxy_cache = {}
 
 function get_vehicles_table()
     local now = update_get_logic_tick()
@@ -3638,8 +3629,6 @@ function get_vehicles_table()
     if g_vt == nil then
         g_vt_tick = now
         g_vt = {}
-        g_proxy_cache = {}
-        local proxy_cache = g_proxy_cache
         g_carriers_table = {}
         local vt = g_vt
         local ct = g_carriers_table
@@ -3656,7 +3645,6 @@ function get_vehicles_table()
                 if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
                     table.insert(ct, proxy)
                 end
-                proxy_cache[proxy.id] = proxy
             end
         end
     end

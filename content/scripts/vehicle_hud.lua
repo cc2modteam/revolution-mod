@@ -4881,7 +4881,8 @@ function find_nearest_vehicle_types(vehicle, other_defs, hostile, friendly_team,
     end
     local nearest = nil
     local distance_sq = 999999999
-    for x, unit in pairs(get_vehicles_table()) do
+    for i = 0, vehicle_count - 1 do
+        local unit = update_get_map_vehicle_by_index(i)
         if unit:get() and (unit:get_altitude() > min_alt or want_lifeboat) then
             local match_team = unit:get_team_id() == friendly_team
             if hostile then
