@@ -1730,7 +1730,7 @@ function dev_call_timer(screen_name, maxtime, delay, func)
 
         local tick = update_get_logic_tick()
         local started = update_get_time_since_epoch()
-        print("start timer", repeats, started, tick)
+        print("start timer for max", maxtime, "seconds", started, tick)
         local stop = started + maxtime
         local count = 0
         if call_counts then
@@ -1744,8 +1744,9 @@ function dev_call_timer(screen_name, maxtime, delay, func)
                 count = count +1
             end
         end
-
-        print("done timer", update_get_time_since_epoch())
+        local ended = update_get_time_since_epoch()
+        print("done timer at", ended)
+        print("elapsed", ended - started, "sec")
         local rate = count / maxtime
         print("calls", count)
         print("calls/sec", rate)
