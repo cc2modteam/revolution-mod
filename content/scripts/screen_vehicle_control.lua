@@ -1225,7 +1225,7 @@ function update(screen_w, screen_h, ticks)
     end
 
     if g_trigger_call_timer then
-        dev_call_timer("screen_veh_m",
+        dev_call_timer(g_screen_name,
                 20,  -- seconds to time
                 90, -- ticks
                 function()

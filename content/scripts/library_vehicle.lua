@@ -978,13 +978,7 @@ function _get_radar_attachment(vehicle)
 
         if vdef == e_game_object_type.chassis_carrier then
             d = e_game_object_type.attachment_radar_awacs
-        elseif vdef == e_game_object_type.chassis_sea_ship_light
-                or vdef == e_game_object_type.chassis_sea_ship_heavy
-                or vdef == e_game_object_type.chassis_air_wing_light
-                or vdef == e_game_object_type.chassis_land_wheel_light
-                or vdef == e_game_object_type.chassis_land_wheel_medium
-                or vdef == e_game_object_type.chassis_land_wheel_heavy
-            -- ok, we don't bother scanning mantas or helos, maybe we _should_ but we dont _neeeed_ to
+        elseif vdef ~= e_game_object_type.chassis_land_turret
         then
             d = has_attachment(vehicle, radar_attachment_defs)
         end
@@ -1204,9 +1198,15 @@ function iter_radars(func)
     if func == nil then
         return
     end
+    local proxy_cache = g_proxy_cache
     for i, item in pairs(g_all_radars) do
         local radar_id = item.id
-        local radar = update_get_map_vehicle_by_id(radar_id)
+        local radar = proxy_cache[radar_id]
+        if radar == nil then
+            -- does not rormally happen
+            local_print("uncached radar")
+            radar = update_get_map_vehicle_by_id(radar_id)
+        end
         if radar and radar:get() then
             func(radar)
         end
@@ -2467,8 +2467,10 @@ function find_pos_nearest_vehicle_types(ref_pos, other_defs, hostile, friendly_t
     local vehicle_count = update_get_map_vehicle_count()
     local nearest = nil
     local distance_sq = 999999999
-    for i = 0, vehicle_count - 1 do
-        local unit = update_get_map_vehicle_by_index(i)
+    --for i = 0, vehicle_count - 1 do
+    --    local unit = update_get_map_vehicle_by_index(i)
+
+    for x, unit in pairs(get_vehicles_table()) do
         if unit:get() then
             local match_team = get_unit_team(unit) == friendly_team
             if hostile then
@@ -3623,6 +3625,7 @@ g_vt = {}
 g_vt_tick = 0
 g_carriers_table = {}
 
+g_proxy_cache = {}
 
 function get_vehicles_table()
     local now = update_get_logic_tick()
@@ -3633,6 +3636,8 @@ function get_vehicles_table()
     if g_vt == nil then
         g_vt_tick = now
         g_vt = {}
+        g_proxy_cache = {}
+        local proxy_cache = g_proxy_cache
         g_carriers_table = {}
         local vt = g_vt
         local ct = g_carriers_table
@@ -3643,11 +3648,13 @@ function get_vehicles_table()
 
             if vehicle:get() then
                 --table.insert(vt, vehicle)
-                table.insert(vt, VProxy_get(vehicle))
+                local proxy = VProxy_get(vehicle)
+                table.insert(vt, proxy)
 
                 if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
-                    table.insert(ct, vehicle)
+                    table.insert(ct, proxy)
                 end
+                proxy_cache[proxy.id] = proxy
             end
         end
     end
@@ -3707,6 +3714,7 @@ function VProxy.new(real)
     self.get_is_visible_ = nil
     self.get_is_observation_revealed_ = nil
     self.get_waypoint_count_ = nil
+    self.get_is_docked_ = nil
     self.team = 0
     self.attachment_defs = {}
     self.radar_type = -1
@@ -3888,6 +3896,20 @@ function VProxy:get_is_observation_fully_revealed()
     return self.get_is_observation_fully_revealed_
 end
 
+function VProxy:get_is_docked()
+    -- HUD only
+    if self.v then
+        if self:get_is_hud() then
+            self.get_is_docked_ = self.v:get_is_docked()
+        else
+            local parent = self:get_attached_parent_id()
+            self.get_is_docked_ = parent ~= 0
+        end
+    end
+    return self.get_is_docked_ == true
+end
+
+
 -- pass through methods, no caches
 function VProxy:get_attachment(i)
     if self.v then
@@ -3958,15 +3980,6 @@ function VProxy:get_dock_state()
     end
     return 0
 end
-
-function VProxy:get_is_docked()
-    -- HUD only
-    if self.v then
-        return self.v:get_is_docked()
-    end
-    return false
-end
-
 
 function VProxy:get_dock_queue_vehicle_id()
     if self.v then

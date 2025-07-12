@@ -230,7 +230,7 @@ function _update(screen_w, screen_h, ticks)
         end
     else
         local now = update_get_logic_tick()
-        if now % 10 > 7 then
+        if now % 30 == 0 then
             ensure_marker_value(screen_team, 1)
             ensure_marker_value(screen_team, 2)
             ensure_marker_value(screen_team, 3)
@@ -454,15 +454,10 @@ function _update(screen_w, screen_h, ticks)
 
         if vehicle_count < 300 then
             -- draw markers
-            local st, err = pcall(function()
-                render_marker(screen_team, 1, screen_w, screen_h)
-                render_marker(screen_team, 2, screen_w, screen_h)
-                render_marker(screen_team, 3, screen_w, screen_h)
-                render_marker(screen_team, 4, screen_w, screen_h)
-            end)
-            if not st then
-                print(string.format("err3 = %s", err))
-            end
+            render_marker(screen_team, 1, screen_w, screen_h)
+            render_marker(screen_team, 2, screen_w, screen_h)
+            render_marker(screen_team, 3, screen_w, screen_h)
+            render_marker(screen_team, 4, screen_w, screen_h)
         end
 
         if get_is_spectator_mode() then
@@ -762,26 +757,23 @@ function _update(screen_w, screen_h, ticks)
                         detected = get_is_visible_by_modded_radar(vehicle)
                         if detected then
                             -- not rendered by the holomap, render a static icon ourselves
-                            local st, err = pcall(function()
-                                local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index_graphic(vehicle_definition_index)
-                                local element_color = update_get_team_color(vehicle_team)
-                                local heading = 0
-                                local alt_h = 0
-                                if get_is_vehicle_air(vehicle:get_definition_index()) then
-                                    heading = vehicle:get_rotation_y()
-                                    -- draw the alt line
-                                    local h_scale = (g_map_size + g_map_size_offset)
-                                    local altitude = get_unit_altitude(vehicle)
-                                    if altitude > 20 and h_scale < 20000 then
-                                        alt_h = ((altitude / 2000) * 50) / (h_scale / 5000)
-                                        update_ui_line(screen_pos_x - icon_offset, screen_pos_y - icon_offset - alt_h, screen_pos_x - icon_offset, screen_pos_y - icon_offset, color_grey_dark)
-                                    end
+
+                            local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index_graphic(vehicle_definition_index)
+                            local element_color = update_get_team_color(vehicle_team)
+                            local heading = 0
+                            local alt_h = 0
+                            if get_is_vehicle_air(vehicle:get_definition_index()) then
+                                heading = vehicle:get_rotation_y()
+                                -- draw the alt line
+                                local h_scale = (g_map_size + g_map_size_offset)
+                                local altitude = get_unit_altitude(vehicle)
+                                if altitude > 20 and h_scale < 20000 then
+                                    alt_h = ((altitude / 2000) * 50) / (h_scale / 5000)
+                                    update_ui_line(screen_pos_x - icon_offset, screen_pos_y - icon_offset - alt_h, screen_pos_x - icon_offset, screen_pos_y - icon_offset, color_grey_dark)
                                 end
-                                update_ui_image_rot(screen_pos_x - icon_offset, screen_pos_y - icon_offset - alt_h, region_vehicle_icon, element_color, heading)
-                            end)
-                            if not st then
-                                print(string.format("err2 = %s", err))
                             end
+                            update_ui_image_rot(screen_pos_x - icon_offset, screen_pos_y - icon_offset - alt_h, region_vehicle_icon, element_color, heading)
+
                         end
                     end
                 end
