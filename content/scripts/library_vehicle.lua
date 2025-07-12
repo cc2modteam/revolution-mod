@@ -912,7 +912,6 @@ function _get_awacs_radar_attachment_position(vehicle)
     return -1
 end
 
-
 function has_attachment(vehicle, a_defs)
     if vehicle.extended then
         for d, _ in pairs(a_defs) do
@@ -1024,7 +1023,6 @@ function get_is_vehicle_masked(vehicle)
     end
     return false
 end
-
 
 function get_modded_radar_range(vehicle)
     if vehicle and vehicle:get() then
@@ -1470,7 +1468,7 @@ function do_radar_scan(update_air, update_sea)
             local target_is_sea = false
             if not target_is_air then
                 target_is_sea = get_is_vehicle_sea(vdef)
-                if not target_is_sea and vdef == e_game_object_type.chassis_land_turret and g_rev_allow_carrier_land_turrets then
+                if vdef == e_game_object_type.chassis_land_turret then
                     -- treat turrets deployed by carriers the same as ships for RADAR
                     local att = vehicle:get_attachment(0)
                     if att then
@@ -3716,7 +3714,7 @@ function VProxy.new(real)
     self.position = nil
     self.altitude = nil
     self.v = real
-    if self.v:get() then
+    if self.v and self.v:get() then
         self.definition_index = self.v:get_definition_index()
         if g_is_hud then
             self.team = self.v:get_team_id()
