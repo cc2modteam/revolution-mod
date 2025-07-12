@@ -998,15 +998,23 @@ function render_selection_map(screen_w, screen_h)
             if ui:list_item("start call timer", true) then
                 if not g_trigger_call_timer then
                     g_trigger_call_timer = true
+                    g_command_center_ui.selected_panel = 0
+                    g_screen_index = 0
+                    g_selection:clear()
                     print("timer armed")
+                    return
                 end
             end
             if ui:list_item("count calls", true) then
                 if not g_count_calls then
                     g_count_calls = true
                     g_prof_counter = 0
+                    g_command_center_ui.selected_panel = 0
+                    g_screen_index = 0
+                    g_selection:clear()
                     print("timer call count profiler armed")
                     debug.sethook(profiler_func, "cr")
+                    return
                 end
             end
         end

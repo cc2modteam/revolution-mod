@@ -167,6 +167,19 @@ end
 
 function update(screen_w, screen_h, ticks)
     if g_debug_enabled then
+        if g_trigger_call_timer then
+            g_fow_last_tick = 0
+            g_force_radar_scan = true
+            dev_call_timer(nil,
+                    20,  -- seconds to time
+                    90, -- ticks
+            function()
+                        _update(screen_w, screen_h, ticks)
+                    end
+            )
+            g_force_radar_scan = false
+        end
+
         local st, err = pcall(_update, screen_w, screen_h, ticks)
         if not st then
             print(err)
@@ -1305,6 +1318,12 @@ function _update(screen_w, screen_h, ticks)
                                     if ui:button(string.format("Set %s %d", mname, i), btn_enabled, 1) then
                                         g_setting_marker = i
                                     end
+                                end
+                            end
+                            if g_debug_enabled then
+                                if ui:button("c timer", g_trigger_call_timer ~= true, 1) then
+                                    g_trigger_call_timer = true
+                                    print("timer armed")
                                 end
                             end
                         end)

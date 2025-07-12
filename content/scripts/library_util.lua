@@ -1716,13 +1716,17 @@ function dev_call_timer(screen_name, maxtime, delay, func)
         g_timer_delay = delay
     end
 
+    if g_timer_delay % 30 == 0 then
+        print(g_timer_delay / 30)
+    end
+
     g_timer_delay = g_timer_delay - 1
 
     if g_timer_delay == 0 then
         g_timer_delay = nil
-        print("------- > ")
         g_trigger_call_timer = false
         _wait_until_next_second()
+        print("------- > ")
 
         local tick = update_get_logic_tick()
         local started = update_get_time_since_epoch()
