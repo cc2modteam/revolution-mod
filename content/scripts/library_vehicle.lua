@@ -1203,9 +1203,11 @@ function iter_radars(func)
         local radar_id = item.id
         local radar = proxy_cache[radar_id]
         if radar == nil then
-            -- does not rormally happen
-            local_print("uncached radar")
             radar = update_get_map_vehicle_by_id(radar_id)
+            if radar and radar:get() then
+                radar = VProxy_get(radar)
+                proxy_cache[radar_id] = radar
+            end
         end
         if radar and radar:get() then
             func(radar)
