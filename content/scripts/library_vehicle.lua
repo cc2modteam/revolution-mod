@@ -1818,35 +1818,33 @@ MARKER_WPT_OFFSET = 80000
 
 MASK_DRYDOCK_WPTX_FLAGS = 0x00000000FF
 
-g_team_drydock = nil
+g_team_drydocks = {}
 
 function find_team_drydock(team_id)
-    local want_curren_team = false
     if team_id == nil then
         team_id = update_get_screen_team_id()
     end
-    if team_id == update_get_screen_team_id() then
-        want_curren_team = true
-        if g_team_drydock ~= nil then
-            return g_team_drydock
-        end
-    end
-
-    local vehicle_count = update_get_map_vehicle_count()
-    for i = 0, vehicle_count - 1, 1 do
-        local vehicle = update_get_map_vehicle_by_index(i)
-        if vehicle:get() then
-            if vehicle:get_definition_index() == e_game_object_type.drydock then
-                if get_unit_team(vehicle) == team_id then
-                    if want_curren_team then
-                        g_team_drydock = vehicle
+    local drydock = nil
+    local drydock_id = g_team_drydocks[team_id]
+    if drydock_id == nil then
+        local vehicle_count = update_get_map_vehicle_count()
+        for i = 0, vehicle_count - 1, 1 do
+            local vehicle = update_get_map_vehicle_by_index(i)
+            if vehicle:get() then
+                local vehicle_definition_index = vehicle:get_definition_index()
+                if vehicle_definition_index == e_game_object_type.drydock then
+                    if get_vehicle_team_id(vehicle) == team_id then
+                        g_team_drydocks[team_id] = vehicle:get_id()
+                        return vehicle
                     end
-                    return vehicle
                 end
             end
         end
+    else
+        drydock = update_get_map_vehicle_by_id(drydock_id)
     end
-    return nil -- shouldn't really happen
+
+    return drydock
 end
 
 function set_airlift_now(petrel, cargo)

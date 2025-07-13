@@ -217,7 +217,7 @@ function _update(screen_w, screen_h, ticks)
     g_animation_time = g_animation_time + ticks
     refresh_modded_radar_cache()
     refresh_fow_islands()
-    refresh_missile_data(true)
+
     local screen_vehicle = update_get_screen_vehicle()
 
     local screen_team = update_get_screen_team_id()
@@ -244,6 +244,7 @@ function _update(screen_w, screen_h, ticks)
     local drydock = find_team_drydock(screen_team)
 
     if is_local then
+        refresh_missile_data(true)
         if not g_is_mouse_mode then
             g_pointer_pos_x = screen_w / 2
             g_pointer_pos_y = screen_h / 2
