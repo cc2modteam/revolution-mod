@@ -1385,6 +1385,13 @@ function update_modded_radar_data()
         user_connected = false
     end
 
+    if g_viewing_vehicle_id ~= nil then
+        if g_viewing_vehicle_id > 0 then
+            -- user is driving a unit
+            return
+        end
+    end
+
     local update_air = current_tick > next_air_scan
     local update_sea = current_tick > next_sea_scan
     local force = g_force_radar_scan
@@ -1396,14 +1403,6 @@ function update_modded_radar_data()
                 return
             end
         end
-
-        if g_viewing_vehicle_id ~= nil then
-            if g_viewing_vehicle_id > 0 then
-                -- user is driving a unit
-                return
-            end
-        end
-
     end
 
     update_modded_radar_list(false)
@@ -3691,6 +3690,7 @@ function VProxy.new(real)
     self.get_position_xz_ = nil
     self.get_position_ = nil
     self.get_direction_ = nil
+    self.get_rotation_y_ = nil
     self.get_vehicle_attachment_count_ = nil
     self.get_hitpoints_ = nil
     self.get_total_hitpoints_ = nil
@@ -3759,6 +3759,14 @@ function VProxy:get_waypoint_count()
     end
     return self.get_waypoint_count_
 end
+
+function VProxy:get_rotation_y()
+    if self.get_rotation_y_ == nil and self.v then
+        self.get_rotation_y_ = self.v:get_rotation_y()
+    end
+    return self.get_rotation_y_
+end
+
 
 function VProxy:get_direction()
     if self.get_direction_ == nil and self.v then

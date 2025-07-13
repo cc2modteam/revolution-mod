@@ -1226,7 +1226,7 @@ function update(screen_w, screen_h, ticks)
 
     if g_trigger_call_timer then
         dev_call_timer(g_screen_name,
-                20,  -- seconds to time
+                5,  -- seconds to time
                 90, -- ticks
                 function()
                     g_fow_last_tick = 0
@@ -2419,7 +2419,7 @@ function _update(screen_w, screen_h, ticks)
                                 end
                             end
                             local radar_state = draw_map_radar_state_indicator(vehicle, screen_pos_x, screen_pos_y, g_animation_time)
-                            if radar_state == "on" then
+                            if radar_state == "on" and update_get_is_focus_local() then
                                 if g_highlighted.vehicle_id == vehicle:get_id() then
                                     iter_radars(function(radar)
                                         local radar_team = radar:get_team()
@@ -2914,7 +2914,9 @@ function _update(screen_w, screen_h, ticks)
             end
 
             -- render captain's holomap cursor
-            render_team_holomap_cursor(screen_vehicle:get_team())
+            if update_get_is_focus_local() then
+                render_team_holomap_cursor(screen_vehicle:get_team())
+            end
 
             render_cursor_info(screen_w, screen_h, drag_start_pos)
             render_map_scale(screen_w, screen_h)

@@ -1,4 +1,14 @@
 
+local math_floor = math.floor
+local math_max = math.max
+local math_min = math.min
+local math_ceil = math.ceil
+local math_sin = math.sin
+local math_cos = math.cos
+local math_atan = math.atan
+local math_pi = math.pi
+local math_abs = math.abs
+
 g_colors = {
     backlight_default = color8(0, 2, 10, 255),
     glow_default = color8(64, 204, 255, 255),
@@ -171,7 +181,7 @@ function update(screen_w, screen_h, ticks)
             g_fow_last_tick = 0
             g_force_radar_scan = true
             dev_call_timer(nil,
-                    20,  -- seconds to time
+                    5,  -- seconds to time
                     90, -- ticks
             function()
                         _update(screen_w, screen_h, ticks)
@@ -189,6 +199,10 @@ function update(screen_w, screen_h, ticks)
     end
 end
 
+g_do_holomap_rwr = true
+g_enable_holomap_rwr = true
+g_disable_mini_text = false
+
 function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
@@ -202,6 +216,7 @@ function _update(screen_w, screen_h, ticks)
     end
 
     if g_is_pointer_down then
+        g_do_holomap_rwr = false
         g_pointer_hold_count = 1 + g_pointer_hold_count
         if g_pointer_hold_count > 5 then
             if not g_is_pointer_hold then
@@ -209,8 +224,17 @@ function _update(screen_w, screen_h, ticks)
             end
         end
     else
+        g_do_holomap_rwr = g_enable_holomap_rwr
         g_pointer_hold_count = 0
         g_is_pointer_hold = false
+    end
+
+    if ticks > 1 then
+        g_do_holomap_rwr = false
+    end
+
+    if g_map_size > 80000 then
+        g_do_holomap_rwr = false
     end
 
     g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
@@ -285,13 +309,13 @@ function _update(screen_w, screen_h, ticks)
         g_map_x_offset = lerp(g_map_x_offset, 0, 0.15)
         g_map_z_offset = lerp(g_map_z_offset, 0, 0.15)
         
-        if math.abs(g_map_x_offset) < 1000 then
+        if math_abs(g_map_x_offset) < 1000 then
             g_map_size_offset = step(g_map_size_offset, 0, 4000)
         end
     else
         g_map_size_offset = step(g_map_size_offset, 0, 4000)
 
-        if math.abs(g_map_size_offset) < 1000 then
+        if math_abs(g_map_size_offset) < 1000 then
             g_map_x_offset = lerp(g_map_x_offset, 0, 0.15)
             g_map_z_offset = lerp(g_map_z_offset, 0, 0.15)
         end
@@ -521,8 +545,8 @@ function _update(screen_w, screen_h, ticks)
                             local wx, wy = get_world_from_holomap(screen_w / 2, screen_h / 2, screen_w, screen_h)
                             local ix = island_pos:x()
                             local iy = island_pos:y()
-                            local dy = math.abs(iy - wy)
-                            local dx = math.abs(ix - wx)
+                            local dy = math_abs(iy - wy)
+                            local dx = math_abs(ix - wx)
                             if dx < 3500 then
                                 if dy < 1900 then
                                     on_screen_count = on_screen_count + 1
@@ -607,8 +631,8 @@ function _update(screen_w, screen_h, ticks)
 
                     if rev_show_island_name(island:get_id()) then
                         if cur_map_zoom < 145000 then
-                            local scaled_alpha = math.ceil(255 * (145000 - cur_map_zoom) / (145000 - 66000))
-                            local island_name_color = color8(island_color:r(), island_color:g(), island_color:b(), math.min(scaled_alpha, island_color:a()))
+                            local scaled_alpha = math_ceil(255 * (145000 - cur_map_zoom) / (145000 - 66000))
+                            local island_name_color = color8(island_color:r(), island_color:g(), island_color:b(), math_min(scaled_alpha, island_color:a()))
                             update_ui_text_mini(screen_pos_x - 64, screen_pos_y, island_name, 128, 1, island_name_color)
                         end
                     end
@@ -638,7 +662,7 @@ function _update(screen_w, screen_h, ticks)
         if is_local and (not g_is_mouse_mode or g_is_pointer_hovered) then
             g_highlighted_vehicle_id = 0
             g_highlighted_waypoint_id = 0
-            local highlighted_distance_best = 5 * math.max( 1, 2000 / cur_map_zoom )
+            local highlighted_distance_best = 5 * math_max( 1, 2000 / cur_map_zoom )
             for _, vehicle in pairs(get_vehicles_table()) do
                 if vehicle:get() then
                     local vehicle_definition_index = vehicle:get_definition_index()
@@ -689,7 +713,7 @@ function _update(screen_w, screen_h, ticks)
             end
         end
 
-        local blast_size = math.floor(160/ (g_map_size / 40))
+        local blast_size = math_floor(160/ (g_map_size / 40))
         if blast_size > 1 then
             -- render bomb blasts to the map
             for mid, blast in pairs(g_missile_impacts) do
@@ -773,7 +797,9 @@ function _update(screen_w, screen_h, ticks)
                                     update_ui_line(screen_pos_x - icon_offset, screen_pos_y - icon_offset - alt_h, screen_pos_x - icon_offset, screen_pos_y - icon_offset, color_grey_dark)
                                 end
                             end
-                            update_ui_image_rot(screen_pos_x - icon_offset, screen_pos_y - icon_offset - alt_h, region_vehicle_icon, element_color, heading)
+                            if heading then
+                                update_ui_image_rot(screen_pos_x - icon_offset, screen_pos_y - icon_offset - alt_h, region_vehicle_icon, element_color, heading)
+                            end
 
                         end
                     end
@@ -1025,36 +1051,36 @@ function _update(screen_w, screen_h, ticks)
             update_ui_line(drag_x, drag_y, g_pointer_pos_x, g_pointer_pos_y, team_col)
 
             local dist_screen = vec2_dist(vec2(drag_x, drag_y), vec2(g_pointer_pos_x, g_pointer_pos_y))
-            local angle = math.atan(g_pointer_pos_y - drag_y, g_pointer_pos_x - drag_x)
-            local bearing = 90 + angle / math.pi * 180
+            local angle = math_atan(g_pointer_pos_y - drag_y, g_pointer_pos_x - drag_x)
+            local bearing = 90 + angle / math_pi * 180
             if bearing < 0 then bearing = bearing + 360 end
 
-            local angle_world = math.atan(world_y - g_ruler_y, world_x - g_ruler_x)
-            local bearing_world = 90 - angle_world / math.pi * 180
+            local angle_world = math_atan(world_y - g_ruler_y, world_x - g_ruler_x)
+            local bearing_world = 90 - angle_world / math_pi * 180
             if bearing_world < 0 then bearing_world = bearing_world + 360 end
 
             if dist_screen > 5 then
                 local function rotate(x, y, a)
-                    local s = math.sin(a)
-                    local c = math.cos(a)
+                    local s = math_sin(a)
+                    local c = math_cos(a)
                     return x * c - y * s, x * s + y * c
                 end
 
                 local rad = 10
 
                 if dist_screen > rad then
-                    local step =  math.pi / 180 * 20
-                    local bearing_rad =  bearing / 180 * math.pi
+                    local xstep =  math_pi / 180 * 20
+                    local bearing_rad =  bearing / 180 * math_pi
 
                     update_ui_push_offset(drag_x, drag_y)
                     update_ui_begin_triangles()
 
-                    for a = 0, bearing_rad, step do
-                        local a_next = math.min(bearing_rad, a + step)
+                    for a = 0, bearing_rad, xstep do
+                        local a_next = math_min(bearing_rad, a + step)
                         local p0 = vec2(rotate(0, -rad, a))
                         local p1 = vec2(rotate(0, -rad, a_next))
                         update_ui_add_triangle(vec2(0, 0), p0, p1, mult_alpha(team_col, 0.1))
-                        update_ui_line(math.floor(p0:x()), math.floor(p0:y()), math.floor(p1:x()), math.floor(p1:y()), team_col)
+                        update_ui_line(math_floor(p0:x()), math_floor(p0:y()), math_floor(p1:x()), math_floor(p1:y()), team_col)
                     end
 
                     update_ui_end_triangles()
@@ -1214,9 +1240,8 @@ function _update(screen_w, screen_h, ticks)
                 -- add buttons for some aircraft
                 local quick_units = 0
                 local crr_pos = screen_vehicle:get_position_xz()
-                for i = 0, vehicle_count - 1, 1 do
+                for x, quick_unit in pairs(get_vehicles_table()) do
                     if quick_units < 16 then
-                        local quick_unit = update_get_map_vehicle_by_index(i)
                         if quick_unit:get() then
                             local def = quick_unit:get_definition_index()
                             if quick_unit:get_team() == screen_team then
@@ -1233,7 +1258,7 @@ function _update(screen_w, screen_h, ticks)
                                         end
 
                                         local fuel = string.format("F%2.1f", 100 * quick_unit:get_fuel_factor()) .. "%"
-                                        local quick_label = string.format("%s %3dkm", fuel, math.floor(v_dist))
+                                        local quick_label = string.format("%s %3dkm", fuel, math_floor(v_dist))
 
                                         local quick_payload_id = quick_unit:get_attached_vehicle_id(0)
                                         if quick_payload_id ~= 0 then
@@ -1264,7 +1289,7 @@ function _update(screen_w, screen_h, ticks)
                 local markers_toolbox_x = 465
                 local markers_toolbox_title = ""
                 if g_markers_open then
-                    markers_toolbox_title = " Markers"
+                    markers_toolbox_title = " Tools"
                     markers_toolbox_h = 160
                     markers_toolbox_w = 60
                     markers_toolbox_x = markers_toolbox_x - (markers_toolbox_w - markers_collapsed_size)
@@ -1313,6 +1338,20 @@ function _update(screen_w, screen_h, ticks)
                                     end
                                 end
                             end
+
+                            local rwr_btn = "RWR ON"
+                            if not g_enable_holomap_rwr then
+                                rwr_btn = "RWR OFF"
+                            end
+                            if ui:button(rwr_btn, true, 1) then
+                                if g_enable_holomap_rwr then
+                                    g_enable_holomap_rwr = false
+                                else
+                                    g_enable_holomap_rwr = true
+                                end
+                                print("Holomap RWR", g_enable_holomap_rwr)
+                            end
+
                             if g_debug_enabled then
                                 if ui:button("c timer", g_trigger_call_timer ~= true, 1) then
                                     g_trigger_call_timer = true
@@ -1544,7 +1583,7 @@ function map_zoom(amount, screen_w, screen_h, zoom_x, zoom_y)
     local cursor_prev_x, cursor_prev_y = get_world_from_holomap(cursor_x, cursor_y, screen_w, screen_h)
 
     g_map_size = g_map_size * amount
-    g_map_size = math.max(500, math.min(g_map_size, 200000))
+    g_map_size = math_max(500, math_min(g_map_size, 200000))
 
     local cursor_next_x, cursor_next_y = get_world_from_holomap(cursor_x, cursor_y, screen_w, screen_h)
     local dx = cursor_next_x - cursor_prev_x
@@ -1607,8 +1646,8 @@ function render_notification_blueprint(screen_w, screen_h, blueprints, text_col)
         local item_spacing = 5
         local item_h = 18
         local rows_per_column = 6
-        local columns = math.ceil(#blueprints / rows_per_column)
-        local rows = iff(#blueprints <= rows_per_column, #blueprints, math.floor((#blueprints - 1) / columns) + 1)
+        local columns = math_ceil(#blueprints / rows_per_column)
+        local rows = iff(#blueprints <= rows_per_column, #blueprints, math_floor((#blueprints - 1) / columns) + 1)
 
         local display_h = 30 + rows * (item_h + item_spacing)
         local cy = (screen_h - display_h) / 2
@@ -1709,7 +1748,7 @@ function get_notification_color(notification)
 end
 
 function mult_alpha(col, alpha) 
-    return color8(col:r(), col:g(), col:b(), math.floor(col:a() * alpha))  
+    return color8(col:r(), col:g(), col:b(), math_floor(col:a() * alpha))  
 end
 
 function focus_carrier()
@@ -1726,12 +1765,12 @@ function focus_world()
 
     local function min(a, b)
         if a == nil then return b end
-        return math.min(a, b)
+        return math_min(a, b)
     end
 
     local function max(a, b)
         if a == nil then return b end
-        return math.max(a, b)
+        return math_max(a, b)
     end
 
     local min_x = nil
@@ -1756,7 +1795,7 @@ function focus_world()
     if min_x ~= nil then
         local target_x = (min_x + max_x) / 2
         local target_z = (min_z + max_z) / 2
-        local target_size = math.max(max_x - min_x, max_z - min_z) * 1.5
+        local target_size = math_max(max_x - min_x, max_z - min_z) * 1.5
 
         transition_to_map_pos(target_x, target_z, target_size)
     end
@@ -1791,8 +1830,8 @@ function get_holomap_from_world(world_x, world_y, screen_w, screen_h)
     local view_x = (world_x - map_x) / view_w
     local view_y = (map_z - world_y) / view_h
 
-    local screen_x = math.floor(((view_x + 0.5) * screen_w) + 0.5)
-    local screen_y = math.floor(((view_y + 0.5) * screen_h) + 0.5)
+    local screen_x = math_floor(((view_x + 0.5) * screen_w) + 0.5)
+    local screen_y = math_floor(((view_y + 0.5) * screen_h) + 0.5)
 
     return screen_x, screen_y
 end
@@ -1828,7 +1867,7 @@ function get_vehicle_weapon_range(vehicle)
         local attachment = vehicle:get_attachment(i)
 
         if attachment:get() then
-            weapon_range = math.max(attachment:get_weapon_range(), weapon_range)
+            weapon_range = math_max(attachment:get_weapon_range(), weapon_range)
         end
     end
 
@@ -1845,9 +1884,9 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
     local repair_factor = vehicle:get_repair_factor()
     local fuel_factor = vehicle:get_fuel_factor()
     local ammo_factor = vehicle:get_ammo_factor()
-    local repair_bar = math.floor(repair_factor * bar_h)
-    local fuel_bar = math.floor(fuel_factor * bar_h)
-    local ammo_bar = math.floor(ammo_factor * bar_h)
+    local repair_bar = math_floor(repair_factor * bar_h)
+    local fuel_bar = math_floor(fuel_factor * bar_h)
+    local ammo_bar = math_floor(ammo_factor * bar_h)
 
     local cx = 2
     local cy = 2
@@ -1885,7 +1924,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 
         local display_name = vehicle_definition_name
         update_ui_text(cx, 1, display_name, 124, 0, color_white, 0)
-        cx = cx + math.max(update_ui_get_text_size(display_id,   10000, 0),
+        cx = cx + math_max(update_ui_get_text_size(display_id,   10000, 0),
                            update_ui_get_text_size(display_name, 10000, 0)) + 2
     else
 --        update_ui_image(cx, 2, atlas_icons.icon_chassis_16_wheel_small, color_inactive, 0)
@@ -1895,7 +1934,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 
         local display_name = "***"
         update_ui_text(cx, 1, display_name, 124, 0, color_inactive, 0)
-        cx = cx + math.max(update_ui_get_text_size(display_id,   10000, 0),
+        cx = cx + math_max(update_ui_get_text_size(display_id,   10000, 0),
                            update_ui_get_text_size(display_name, 10000, 0)) + 2
     end
 
@@ -1921,7 +1960,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
             end
 
             if #attachments > 0 then
-                local attachment_index = (math.floor( g_animation_time / 20 ) % (#attachments)) + 1
+                local attachment_index = (math_floor( g_animation_time / 20 ) % (#attachments)) + 1
                 local icon, icon_16 = get_attachment_icons(attachments[attachment_index]:get_definition_index())
 
                 if icon_16 ~= nil then
@@ -2000,7 +2039,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 end
 
 function render_dashed_line(x0, y0, x1, y1, col)
-    local line_length = math.max(vec2_dist(vec2(x0, y0), vec2(x1, y1)), 1)
+    local line_length = math_max(vec2_dist(vec2(x0, y0), vec2(x1, y1)), 1)
     local normal = vec2((x1 - x0) / line_length, (y1 - y0) / line_length)
     local segment_length = 3
     local segment_spacing = 3
@@ -2008,7 +2047,7 @@ function render_dashed_line(x0, y0, x1, y1, col)
     local offset = (g_animation_time / 2) % step
 
     for cursor = offset, line_length, step do
-        local length = math.min(segment_length, line_length - cursor)
+        local length = math_min(segment_length, line_length - cursor)
 
         update_ui_line(x0 + normal:x() * cursor, y0 + normal:y() * cursor, x0 + normal:x() * (cursor + length), y0 + normal:y() * (cursor + length), col)
     end
@@ -2022,13 +2061,13 @@ function render_weapon_radius(world_pos_x, world_pos_y, radius, screen_w, screen
     if alt_steps ~= nil then
         steps = alt_steps
     end
-    local step = math.pi * 2 / steps
+    local step = math_pi * 2 / steps
     local angle_prev = 0
     local screen_pos_x, screen_pos_y = get_holomap_from_world(world_pos_x, world_pos_y, screen_w, screen_h)
 
     update_ui_begin_triangles()
     if c_color == nil then
-        c_color = color8(32, 8, 8, math.floor(32 * (math.sin(g_animation_time * 0.15) * 0.5 + 0.5)))
+        c_color = color8(32, 8, 8, math_floor(32 * (math_sin(g_animation_time * 0.15) * 0.5 + 0.5)))
     end
     if b_color == nil then
         b_color = color8(32, 8, 8, 64)
@@ -2036,8 +2075,8 @@ function render_weapon_radius(world_pos_x, world_pos_y, radius, screen_w, screen
 
     for i = 1, steps do
         local angle = step * i
-        local x0, y0 = get_holomap_from_world(world_pos_x + math.cos(angle_prev) * radius, world_pos_y + math.sin(angle_prev) * radius, screen_w, screen_h)
-        local x1, y1 = get_holomap_from_world(world_pos_x + math.cos(angle) * radius, world_pos_y + math.sin(angle) * radius, screen_w, screen_h)
+        local x0, y0 = get_holomap_from_world(world_pos_x + math_cos(angle_prev) * radius, world_pos_y + math_sin(angle_prev) * radius, screen_w, screen_h)
+        local x1, y1 = get_holomap_from_world(world_pos_x + math_cos(angle) * radius, world_pos_y + math_sin(angle) * radius, screen_w, screen_h)
         local color = b_color
 
         update_ui_line(x0, y0, x1, y1, color)
@@ -2121,8 +2160,8 @@ end
 function render_startup_memchk( screen_w, screen_h )
     local anim = (g_animation_time - g_startup_phase_anim) * 4
     
-    local mem = math.min( 640, anim )
-    update_ui_text(16, 16, string.format("%.0fKB OK", math.floor(mem)), 128, 0, color_white, 0)
+    local mem = math_min( 640, anim )
+    update_ui_text(16, 16, string.format("%.0fKB OK", math_floor(mem)), 128, 0, color_white, 0)
     
     if anim > 200 then
         g_startup_phase_anim = g_animation_time
@@ -2131,7 +2170,7 @@ function render_startup_memchk( screen_w, screen_h )
 end
 
 function render_startup_bios( screen_w, screen_h )
-    local anim = math.floor( (g_animation_time - g_startup_phase_anim) / 2 ) + 1
+    local anim = math_floor( (g_animation_time - g_startup_phase_anim) / 2 ) + 1
     
     local bios_text = {
         "Firmware Version 3.22.7\n",
@@ -2159,7 +2198,7 @@ function render_startup_bios( screen_w, screen_h )
     
     local out = ""
     
-    local stop = math.min( #bios_text, anim )
+    local stop = math_min( #bios_text, anim )
     
     for i = 1, stop, 1 do
         out = out .. bios_text[i]
@@ -2199,8 +2238,8 @@ function render_startup_sys( screen_w, screen_h )
     local win_w = 256
     local win_h = 85
     
-    local anim_win_w = math.min( win_w, anim * 8 )
-    local anim_win_h = math.min( win_h, anim * 8 )
+    local anim_win_w = math_min( win_w, anim * 8 )
+    local anim_win_h = math_min( win_h, anim * 8 )
     
     local win_title = ""
     if anim_win_w > 128 then win_title = "Vessel Registration" end
@@ -2247,8 +2286,8 @@ function render_startup_manual( screen_w, screen_h )
     local win_w = 192
     local win_h = 32
     
-    local anim_win_w = math.min( win_w, anim * 4 )
-    local anim_win_h = math.min( win_h, anim * 4 )
+    local anim_win_w = math_min( win_w, anim * 4 )
+    local anim_win_h = math_min( win_h, anim * 4 )
     
     local win_title = ""
     if anim_win_w > 128 then win_title = "Carrier Command" end
@@ -2318,9 +2357,9 @@ function ui_render_selection_carrier_vehicle_overview(x, y, w, h, carrier_vehicl
         local repair_factor = vehicle:get_repair_factor()
         local fuel_factor = vehicle:get_fuel_factor()
         local ammo_factor = vehicle:get_ammo_factor()
-        local repair_bar = math.floor(repair_factor * bar_h)
-        local fuel_bar = math.floor(fuel_factor * bar_h)
-        local ammo_bar = math.floor(ammo_factor * bar_h)
+        local repair_bar = math_floor(repair_factor * bar_h)
+        local fuel_bar = math_floor(fuel_factor * bar_h)
+        local ammo_bar = math_floor(ammo_factor * bar_h)
 
         local bx = cx + 17
         local by = cy + 3
@@ -2589,7 +2628,7 @@ function render_map_scale(screen_w, screen_h)
     if g_is_render_holomap_grids then
 
         local grid_spacing = get_grid_spacing()
-        local text = iff( grid_spacing >= 1000, math.floor(grid_spacing / 1000) .. update_get_loc(e_loc.acronym_kilometers), math.floor(grid_spacing) .. update_get_loc(e_loc.acronym_meters) )
+        local text = iff( grid_spacing >= 1000, math_floor(grid_spacing / 1000) .. update_get_loc(e_loc.acronym_kilometers), math_floor(grid_spacing) .. update_get_loc(e_loc.acronym_meters) )
 
         local sx, _ = get_holomap_from_world(0, 0, screen_w, screen_h)
         local ex, _ = get_holomap_from_world(grid_spacing, 0, screen_w, screen_h)
@@ -2688,11 +2727,13 @@ function draw_surface_radar_circle(vehicle, anim_time)
         end
 
         -- draw radar spokes to near-ish radars
-        iter_radars(function(radar)
-            local radar_team = radar:get_team()
-            if radar_team ~= team and get_vehicle_radar_state(radar) == "on" then
-                rev_render_radar_spokes(vehicle, radar, g_screen_w, g_screen_h, get_holomap_from_world)
-            end
-        end)
+        if g_do_holomap_rwr then
+            iter_radars(function(radar)
+                local radar_team = radar:get_team()
+                if radar_team ~= team and get_vehicle_radar_state(radar) == "on" then
+                    rev_render_radar_spokes(vehicle, radar, g_screen_w, g_screen_h, get_holomap_from_world)
+                end
+            end)
+        end
     end
 end

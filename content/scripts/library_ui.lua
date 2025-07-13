@@ -4131,8 +4131,7 @@ function rev_render_radar_spokes(vehicle, radar, screen_w, screen_h, screen_from
         local radar_sight_range = _get_radar_detection_range(radar_class)
         if radar_sight_range < 10000 then
             -- if the radar is weak, do not show it
-            local radar_dist = math.sqrt(radar_dist_sq)
-            if radar_dist > 1.25 * radar_sight_range then
+            if radar_dist_sq > (1.25 * radar_sight_range)^2 then
                 return
             end
         end
