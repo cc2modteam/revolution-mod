@@ -2,6 +2,15 @@
 <data name="Revolution 1.5 Beta 2" author="Thumblegudget, Bredroll, QuantX, NexusQuille + Others" description="
 NOTE! This is a Beta of Rev:1.5
 
+Beta 2 is experimentally exploring the following:
+[list]
+[*] Lag when there are many hundreds of units (when unmodded does not lag)
+[*] Stutter when walking around the bridge after joining or loading a game. This seems to be related to the holomap script
+[*] Reduce unnecessary extra computation for radars by using a proxy object
+[/list]
+
+WARNING! This beta may be unstable or slow, use are your own risk.
+
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other features.
 
