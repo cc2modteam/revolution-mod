@@ -1076,7 +1076,7 @@ function _update(screen_w, screen_h, ticks)
                     update_ui_begin_triangles()
 
                     for a = 0, bearing_rad, xstep do
-                        local a_next = math_min(bearing_rad, a + step)
+                        local a_next = math_min(bearing_rad, a + xstep)
                         local p0 = vec2(rotate(0, -rad, a))
                         local p1 = vec2(rotate(0, -rad, a_next))
                         update_ui_add_triangle(vec2(0, 0), p0, p1, mult_alpha(team_col, 0.1))
