@@ -1355,6 +1355,10 @@ function _update(screen_w, screen_h, ticks)
                     local y = math.floor(next_wpt:y())
                     if do_airlift then
                         y = y | 1
+                    else
+                        if y % 2 == 1 then
+                            y = y + 1
+                        end
                     end
                     set_settings_pending_gfx(x, y)
                 else
