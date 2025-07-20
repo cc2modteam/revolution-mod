@@ -2957,6 +2957,10 @@ function render_compass(screen_vehicle, pos, col)
             update_ui_text(pos:x() + 12, pos:y() + 12, wtext, 60, 0, wpc, 0)
 
             -- draw the position on the surface
+            if wy & 1 == 1 then
+                -- pickup
+                wpc = color_friendly
+            end
             render_ground_marker(wpc, wdist, wp)
         end
     end

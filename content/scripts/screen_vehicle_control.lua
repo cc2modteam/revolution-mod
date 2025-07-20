@@ -1341,10 +1341,21 @@ function _update(screen_w, screen_h, ticks)
             g_last_waypoint_send = now
             local camera = update_get_map_vehicle_by_id(g_viewing_vehicle_id)
             if get_is_vehicle_type_waypoint_capable(camera:get_definition_index()) then
-                local next_wpt = get_next_waypoint_xz(camera)
+                local next_wpt = nil
+                local do_airlift = false
+                local attack_target_attack_type = camera:get_attack_target_type()
+                if attack_target_attack_type == e_attack_type.airlift then
+                    next_wpt = camera:get_attack_target_position_xz()
+                    do_airlift = true
+                else
+                    next_wpt = get_next_waypoint_xz(camera)
+                end
                 if next_wpt ~= nil then
                     local x = math.floor(next_wpt:x()) | 1
-                    local y = math.floor(next_wpt:y()) | 1
+                    local y = math.floor(next_wpt:y())
+                    if do_airlift then
+                        y = y | 1
+                    end
                     set_settings_pending_gfx(x, y)
                 else
                     reset_settings_pending_gfx()
@@ -2368,7 +2379,6 @@ function _update(screen_w, screen_h, ticks)
                             local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
                             local element_color = get_vehicle_team_color(vehicle_team)
                             local is_highlight = false
-
 
                             if is_air then
                                 if g_is_show_aircraft_shadows and g_camera_size < 20000 then
