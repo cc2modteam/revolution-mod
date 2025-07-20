@@ -1699,7 +1699,7 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     local rwr_clampmax = vec2(screen_w, screen_h)
     local size = 29
     local x = screen_w - 32
-    local y = screen_h / 2
+    local y = screen_h / 4
     local n = y - (size / 2)
     local w = x - (size / 2)
     local e = x + (size / 2)
@@ -2912,6 +2912,21 @@ function render_control_mode(pos, vehicle, col)
 
 end
 
+function render_ground_marker(col, wdist, wp)
+    if wdist < 5000 then
+        local swpp, clamped = world_to_screen_clamped(wp, vec2(0, 0), vec2(g_screen_w, g_screen_h))
+        if not clamped then
+            local tl = vec2(swpp:x() - 3, swpp:y() - 7)
+            local tr = vec2(swpp:x() + 3, swpp:y() - 7)
+
+            update_ui_begin_triangles()
+            update_ui_add_triangle(tl, swpp, tr, col)
+            update_ui_end_triangles()
+            --update_ui_image_rot(swpp:x(), swpp:y(), atlas_icons.hud_impact_marker, col, 0)
+        end
+    end
+end
+
 function render_compass(screen_vehicle, pos, col)
     local width = 120
 
@@ -2921,6 +2936,30 @@ function render_compass(screen_vehicle, pos, col)
     local total_w = 4 * spacing
 
     local labels = { update_get_loc(e_loc.upp_compass_n), update_get_loc(e_loc.upp_compass_e), update_get_loc(e_loc.upp_compass_s), update_get_loc(e_loc.upp_compass_w) }
+    local v_pos = screen_vehicle:get_position()
+    local settings = update_get_game_settings()
+    if settings then
+        local wx = settings.gfx_resolution_pending_x
+        if wx & 1 ~= 0 then
+            local wy = settings.gfx_resolution_pending_y
+            -- render the waypoint
+            local wp = vec3(wx, 0, wy)
+            local wpc = color8(255, 200, 0, 255)
+            render_compass_waypoint(pos:x(), pos:y() + 3, width, wp, wpc, 3)
+            -- show the distance
+            local wdist = math.floor(vec3_dist(v_pos, wp))
+            local wtext = ""
+            if wdist < 9000 then
+                wtext = string.format("%dm", wdist)
+            else
+                wtext = string.format("%3.1fkm", wdist/ 1000)
+            end
+            update_ui_text(pos:x() + 12, pos:y() + 12, wtext, 60, 0, wpc, 0)
+
+            -- draw the position on the surface
+            render_ground_marker(wpc, wdist, wp)
+        end
+    end
 
     if screen_vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
         local nearest_crr = find_nearest_vehicle_types(screen_vehicle, {e_game_object_type.chassis_carrier}, false, nil, -10)
@@ -2930,7 +2969,7 @@ function render_compass(screen_vehicle, pos, col)
 
         local st, err = pcall(function()
             -- indicate nearest island as a grey contact
-            local v_pos = screen_vehicle:get_position()
+
             local nearest_tile = get_nearest_island_tile(v_pos:x(), v_pos:z())
             local tile_pos = nearest_tile:get_position_xz()
             local tile_mark = vec3(tile_pos:x(), 0, tile_pos:y())

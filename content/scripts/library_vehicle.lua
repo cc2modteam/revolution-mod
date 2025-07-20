@@ -3675,6 +3675,31 @@ function fast_sqrt(x)
     return x^0.5
 end
 
+-- send data to/from the HUD
+function get_settings_pending_gfx_x()
+    local settings = update_get_game_settings()
+    return settings.gfx_resolution_pending_x
+end
+
+function get_settings_pending_gfx_y()
+    local settings = update_get_game_settings()
+    return settings.gfx_resolution_pending_y
+end
+
+function reset_settings_pending_gfx()
+    local settings = update_get_game_settings()
+    set_settings_pending_gfx(settings.gfx_resolution_x, settings.gfx_resolution_y)
+end
+
+function set_settings_pending_gfx(w, h)
+    local settings = update_get_game_settings()
+    if settings.gfx_resolution_pending_x ~= w then
+        if settings.gfx_resolution_pending_y ~= h then
+            update_ui_event("set_game_setting gfx_resolution", w, h)
+        end
+    end
+end
+
 -- vehicle proxy class to reduce lua<->native calls
 local VProxy = {}
 function VProxy.new(real)

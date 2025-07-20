@@ -995,6 +995,10 @@ function render_selection_map(screen_w, screen_h)
         ui:header(update_get_loc(e_loc.upp_actions))
 
         if g_dev_options then
+            if ui:list_item("settings test") then
+                update_ui_event("set_game_setting gfx_resolution", 2^31, 876543)
+            end
+
             if ui:list_item("start call timer", true) then
                 if not g_trigger_call_timer then
                     g_trigger_call_timer = true
@@ -1269,6 +1273,30 @@ end
 
 g_hostile_air_histories = {}
 
+function get_next_waypoint_xz(vehicle)
+    local first = nil
+    if vehicle and vehicle:get() then
+        local waypoint_count = vehicle:get_waypoint_count()
+        if waypoint_count > 0 then
+            for j = 0, waypoint_count - 1, 1 do
+                local waypoint = vehicle:get_waypoint(j)
+                if first == nil then
+                    first = waypoint
+                end
+                if waypoint:get_repeat_index() >= 0 then
+                    return nil
+                end
+            end
+        end
+    end
+    if first then
+        return first:get_position_xz()
+    end
+    return nil
+end
+
+g_last_waypoint_send = 0
+
 function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
@@ -1299,6 +1327,29 @@ function _update(screen_w, screen_h, ticks)
             end
         else
             g_tactical_vid = 0
+        end
+    end
+    --
+    -- IMPORTANT
+    -- only test g_viewing_vehicle_id after the first input event
+    -- or the game crashes!
+    --
+    if g_last_input_tick and g_viewing_vehicle_id ~= "" and g_viewing_vehicle_id > 0 then
+        -- viewing a unit camera directly
+        local now = update_get_logic_tick()
+        if now - g_last_waypoint_send > 30 then
+            g_last_waypoint_send = now
+            local camera = update_get_map_vehicle_by_id(g_viewing_vehicle_id)
+            if get_is_vehicle_type_waypoint_capable(camera:get_definition_index()) then
+                local next_wpt = get_next_waypoint_xz(camera)
+                if next_wpt ~= nil then
+                    local x = math.floor(next_wpt:x()) | 1
+                    local y = math.floor(next_wpt:y()) | 1
+                    set_settings_pending_gfx(x, y)
+                else
+                    reset_settings_pending_gfx()
+                end
+            end
         end
     end
 
