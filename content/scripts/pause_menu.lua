@@ -592,7 +592,7 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
                     .. "."
                     .. g_rev_minor
                     .. "-"
-                    .. g_rev_patch .. " beta 2",
+                    .. g_rev_patch .. " beta 2.1",
             220, 0, color_grey_dark, 0)
 
     for mod_i, mod_name in pairs(g_rev_mods) do
