@@ -2922,7 +2922,6 @@ function render_ground_marker(col, wdist, wp)
             update_ui_begin_triangles()
             update_ui_add_triangle(tl, swpp, tr, col)
             update_ui_end_triangles()
-            --update_ui_image_rot(swpp:x(), swpp:y(), atlas_icons.hud_impact_marker, col, 0)
         end
     end
 end
@@ -2937,33 +2936,35 @@ function render_compass(screen_vehicle, pos, col)
 
     local labels = { update_get_loc(e_loc.upp_compass_n), update_get_loc(e_loc.upp_compass_e), update_get_loc(e_loc.upp_compass_s), update_get_loc(e_loc.upp_compass_w) }
     local v_pos = screen_vehicle:get_position()
+    if g_enable_hud_waypoints then
     local settings = update_get_game_settings()
-    if settings then
-        local wx = settings.gfx_resolution_pending_x
-        if wx & 1 ~= 0 then
-            local wy = settings.gfx_resolution_pending_y
-            -- render the waypoint
-            local wp = vec3(wx, 0, wy)
-            local wpc = color8(255, 200, 0, 255)
-            render_compass_waypoint(pos:x(), pos:y() + 3, width, wp, wpc, 3)
-            -- show the distance
-            local wdist = math.floor(vec3_dist(v_pos, wp))
-            local wtext = ""
-            if wdist < 9000 then
-                wtext = string.format("%dm", wdist)
-            else
-                wtext = string.format("%3.1fkm", wdist/ 1000)
-            end
-            update_ui_text(pos:x() + 12, pos:y() + 12, wtext, 60, 0, wpc, 0)
+        if settings then
+            local wx = settings.gfx_resolution_pending_x
+            if wx & 1 ~= 0 then
+                local wy = settings.gfx_resolution_pending_y
+                -- render the waypoint
+                local wp = vec3(wx, 0, wy)
+                local wpc = color8(255, 200, 0, 255)
+                render_compass_waypoint(pos:x(), pos:y() + 3, width, wp, wpc, 3)
+                -- show the distance
+                local wdist = math.floor(vec3_dist(v_pos, wp))
+                local wtext = ""
+                if wdist < 9000 then
+                    wtext = string.format("%dm", wdist)
+                else
+                    wtext = string.format("%3.1fkm", wdist/ 1000)
+                end
+                update_ui_text(pos:x() + 12, pos:y() + 12, wtext, 60, 0, wpc, 0)
 
-            -- draw the position on the surface
-            if wy & 1 == 1 then
-                -- pickup
-                wpc = color_friendly
+                -- draw the position on the surface
+                if wy & 1 == 1 then
+                    -- pickup
+                    wpc = color_friendly
+                end
+                render_ground_marker(wpc, wdist, wp)
             end
-            render_ground_marker(wpc, wdist, wp)
         end
-    end
+    end -- g_enable_hud_waypoints
 
     if screen_vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
         local nearest_crr = find_nearest_vehicle_types(screen_vehicle, {e_game_object_type.chassis_carrier}, false, nil, -10)
