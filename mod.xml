@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Revolution 1.5 Beta 2" author="Thumblegudget, Bredroll, QuantX, NexusQuille + Others" description="
-NOTE! This is a Beta of Rev:1.5
-
-Beta 2 is experimentally exploring the following:
-[list]
-[*] Lag when there are many hundreds of units (when unmodded does not lag)
-[*] Stutter when walking around the bridge after joining or loading a game. This seems to be related to the holomap script
-[*] Reduce unnecessary extra computation for radars by using a proxy object
-[/list]
-
-WARNING! This beta may be unstable or slow, use are your own risk.
+<data name="Revolution 1.5-6" author="Thumblegudget, Bredroll, QuantX, NexusQuille + Others" description="
 
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other features.
+
+Recent changes:
+[list]
+[*] Next generation aircraft RWR sensor
+[*] Reduce lag when there are many hundreds of units (when unmodded does not lag)
+[*] Fix Stutter when walking around the bridge after joining or loading a game.
+[*] Reduce unnecessary extra computation for radars by using a proxy object
+[*] Walrus can carry the 'small' low damage turret as well as a main attachment.
+[/list]
 
 v1.5:
 [list]
@@ -21,9 +20,7 @@ v1.5:
 [*] HUD horizon ladder can now be togged off/on by double tapping the map
 [*] HUD 20mm gun-sight less cluttered when horizon ladder hidden
 [*] Helm gets a basic HUD showing nearby islands and compass course
-[*] Razorbill now able to carry a centre mounted fuel tank
 [*] Turrets can now be moved around by ground vehicles pushing.
-[*] Various CPU usage improvements
 [/list]
 
 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3496283808]v1.4 available here[/url]
@@ -40,10 +37,8 @@ v1.5:
 [*] Needlefish rebalance (reduced simulated Radar range)
 [*] AWACS rebalance (~10-12km max range again for a better feel)
 [*] Manta rebalance (less deadly against carriers for more air combat)
-[*] Aircraft RWR sensor
 [*] Bomb enemy factories to slow production
 [*] Barge map/info will now warn when your barge has no delivery waypoints
-[*] Operator screen can show a list of active friendly units from the screen menu
 [*] Operator screen will show island type in command center tooltips
 [*] Loadout screen can now manage loadouts for units on a different carrier
 [/list]
