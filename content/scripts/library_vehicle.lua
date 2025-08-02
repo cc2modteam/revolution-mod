@@ -4022,6 +4022,13 @@ function VProxy:get_resupply_vehicle_id()
     return 0
 end
 
+function VProxy:get_resupplying_vehicle_id(j)
+    if self.v then
+        return self.v:get_resupplying_vehicle_id(j)
+    end
+    return 0
+end
+
 function VProxy:get_resupplying_vehicle_id_count()
     if self.v then
         return self.v:get_resupplying_vehicle_id_count()
