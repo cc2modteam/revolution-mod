@@ -1207,13 +1207,15 @@ end
 
 function get_close_hostile_ew_vehicle(vself)
     local vpos = get_pos_xz(vself)
+    local vid = vself:get_id()
     local max_sq = g_ew_range_sq
     for _, ewid in pairs(g_all_hostile_ew) do
         if ewid ~= vid then
             local ew = update_get_map_vehicle_by_id(ewid)
             if ew and ew:get() then
                 local ew_pos = get_pos_xz(ew)
-                return fast_dist_sq2(ew_pos, vpos, max_sq) < max_sq
+                local fuzzed = fast_dist_sq2(ew_pos, vpos, max_sq) < max_sq
+                return fuzzed
             end
         end
     end
@@ -4224,8 +4226,8 @@ function VProxy:has_attachment_type(a_def)
         end
     end
 
-    for d, _ in pairs(self.attachment_defs) do
-        if d == a_def then
+    for _, a in pairs(self.attachment_defs) do
+        if a == a_def then
             return true
         end
     end

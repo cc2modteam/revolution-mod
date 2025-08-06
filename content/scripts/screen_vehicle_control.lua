@@ -2030,9 +2030,8 @@ function _update(screen_w, screen_h, ticks)
                     local is_visible = vehicle:get_is_visible()
                     local is_revealed = vehicle:get_is_observation_revealed()
                     if is_render_vehicle_icon then
-                        if not is_visible then
+                        if is_visible and not is_revealed then
                             if get_is_visible_by_modded_radar(vehicle) then
-                                is_visible = true
                                 is_revealed = true
                             end
                         end
@@ -2603,13 +2602,13 @@ function _update(screen_w, screen_h, ticks)
 
                             if parent_vehicle:get() then
                                 local parent_vehicle_pos_xz = parent_vehicle:get_position_xz()
-                                local vehicle_definition_index = vehicle:get_definition_index(i)
+                                local vvehicle_definition_index = vehicle:get_definition_index(i)
 
-                                local screen_pos_x, screen_pos_y = get_screen_from_world(parent_vehicle_pos_xz:x(), parent_vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
+                                local sscreen_pos_x, sscreen_pos_y = get_screen_from_world(parent_vehicle_pos_xz:x(), parent_vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vvehicle_definition_index)
 
-                                update_ui_rectangle(screen_pos_x - icon_offset - 1, screen_pos_y - icon_offset - 14 - 1, 10, 10, color_black)
-                                update_ui_image(screen_pos_x - icon_offset, screen_pos_y - icon_offset - 14, region_vehicle_icon, color_white, 0)
+                                update_ui_rectangle(sscreen_pos_x - icon_offset - 1, sscreen_pos_y - icon_offset - 14 - 1, 10, 10, color_black)
+                                update_ui_image(sscreen_pos_x - icon_offset, sscreen_pos_y - icon_offset - 14, region_vehicle_icon, color_white, 0)
                             end
                         end
                     elseif is_revealed then
