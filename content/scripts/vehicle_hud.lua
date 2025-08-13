@@ -2189,12 +2189,11 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
                             update_ui_text(lead_position_screen:x() + label_x - lead_radius, lead_position_screen:y() + label_y,
                                     string.format("%dm", math.floor(dist)), 42, 1, dist_col, 0)
 
-                            update_ui_line(lead_position_screen:x() - lead_radius + 3, lead_position_screen:y(), lead_position_screen:x() - lead_radius - 3, lead_position_screen:y(), lead_col)
-                            update_ui_line(lead_position_screen:x() + 2, lead_position_screen:y() + lead_radius - 1, lead_position_screen:x() + 2, lead_position_screen:y() + lead_radius + 4, lead_col)
-                            render_circle(lead_position_screen, lead_radius, 8, lead_col)
+                            -- update_ui_line(lead_position_screen:x() - lead_radius + 3, lead_position_screen:y(), lead_position_screen:x() - lead_radius - 3, lead_position_screen:y(), lead_col)
+                            -- update_ui_line(lead_position_screen:x() + 2, lead_position_screen:y() + lead_radius - 1, lead_position_screen:x() + 2, lead_position_screen:y() + lead_radius + 4, lead_col)
+                            --render_circle(lead_position_screen, lead_radius, 8, lead_col)
                         end
 
-                    else
                         update_ui_image_rot(lead_position_screen:x(), lead_position_screen:y(), atlas_icons.crosshair, lead_col, 0)
                     end
                 end
