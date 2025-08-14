@@ -2557,11 +2557,13 @@ function _update(screen_w, screen_h, ticks)
                                 end
 
                                 local is_refueling = false
-                                for i = 0, vehicle:get_attachment_count() - 1 do
-                                    local attachment = vehicle:get_attachment(i)
-                                    if attachment:get() and attachment:get_definition_index() == e_game_object_type.attachment_fuel_tank_plane and attachment:get_stabilisation_mode() == "stabilised" then
-                                        is_refueling = true
-                                        break
+                                if e_loc.interaction_toggle_refuel ~= nil then
+                                    for i = 0, vehicle:get_attachment_count() - 1 do
+                                        local attachment = vehicle:get_attachment(i)
+                                        if attachment:get() and attachment:get_definition_index() == e_game_object_type.attachment_fuel_tank_plane and attachment:get_stabilisation_mode() == "stabilised" then
+                                            is_refueling = true
+                                            break
+                                        end
                                     end
                                 end
 
