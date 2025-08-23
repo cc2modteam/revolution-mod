@@ -497,9 +497,9 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
 
         if awacs_mode then
             if is_awacs then
-                radar_name = "AWACS"
+                radar_name = update_get_loc(e_loc.upp_awacs_short)
             elseif is_golfball then
-                radar_name = "RADAR"
+                radar_name = update_get_loc(e_loc.upp_radar_golfball_short)
             end
             if g_map_toggle then
                 g_radar_mode = (g_radar_mode + 1) % radar_modes.count
@@ -567,20 +567,20 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
 
         if is_awacs then
             update_ui_text(w - 45, h - 160,
-                    string.format("FUEL %d%%", fuel_pct),
+                    string.format("%s %d%%", update_get_loc(e_loc.upp_fuel), fuel_pct),
                     60, 0, fuel_col, 0
             )
         end
         if awacs_mode then
             -- display the mode toggles
-            local radar_mode_name = "CONTACTS"
+            local radar_mode_name = update_get_loc(e_loc.radar_mode_contacts)
             local mode_select_x = w - 130
             local mode_select_y = h + 20
             if g_radar_mode == radar_modes.air_labels then
-                radar_mode_name = "ATC"
+                radar_mode_name = update_get_loc(e_loc.radar_mode_atc)
                 mode_select_x = mode_select_x + 6
             elseif g_radar_mode == radar_modes.air_threats then
-                radar_mode_name = "THREAT"
+                radar_mode_name = update_get_loc(e_loc.radar_mode_threat)
                 mode_select_x = mode_select_x + 12
             else
 
@@ -594,7 +594,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             "012", 64, 0, col, 0)
 
             update_ui_text(w - 90, mode_select_y,
-                    string.format("MODE: %s", radar_mode_name),
+                    string.format("%s: %s", update_get_loc(e_loc.mode_cap), radar_mode_name),
                     90, 0, col, 0
             )
         end
@@ -602,7 +602,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
 
     else
         update_ui_text(2 + x, h,
-                string.format("scale: %5dm", camera_size / 2),
+                string.format("%s: %5dm", update_get_loc(e_loc.scale), camera_size / 2),
                 w - 10, 0, col, 3
         )
         update_ui_line(14 + x, h + 10, 14 + x, h - 100, col)
@@ -1937,12 +1937,12 @@ function render_attachment_hud_bomb(screen_w, screen_h, map_data, vehicle, attac
             local c_green = color8(0, 255, 0, 255)
             local c_red = color8(255, 0, 0, 255)
             local ccip_col = c_green
-            local gnd_mode = "CCIP"
+            local gnd_mode = update_get_loc(e_loc.vehicle_ui_ccip)
             local tgt_dist = -1
             if g_selected_target_id ~= 0 then
                 local selected_target = update_get_map_vehicle_by_id(g_selected_target_id)
                 if selected_target:get() then
-                    gnd_mode = "CCRP"
+                    gnd_mode = update_get_loc(e_loc.vehicle_ui_ccrp)
                     -- compare hit pos with target loc
                     local tgt_pos = selected_target:get_position()
                     local ccrp_dist = vec2_dist(tgt_pos, predicted_hit_pos)
@@ -3276,9 +3276,9 @@ function render_airspeed_meter(pos, vehicle, step, col)
     -- if we are a PTR show the nearest airliftable unit ID and distance
     if e_game_object_type.chassis_air_rotor_heavy == vehicle:get_definition_index() then
         if g_hovering then
-            local word = "HOVR"
+            local word = update_get_loc(e_loc.vehicle_list_state_hovr_string)
             if vehicle:get_throttle_factor() < 0.4 then
-                word = "LAND"
+                word = update_get_loc(e_loc.vehicle_list_state_land_string)
             end
             update_ui_text(pos:x() + 184, pos:y() + 110, word, 200, 0, col, 0)
         end
@@ -4902,9 +4902,9 @@ function render_bad_signal(vehicle, screen_w, screen_h)
     update_ui_rectangle_outline(
             x, y, 180, 19, color
     )
-    local text = "SIGNAL JAMMED"
+    local text = update_get_loc(e_loc.vehicle_ui_signal_jammed)
     update_ui_text(x + 58, y + 5, text, 200, 0, color, 0)
-    text = string.format("Bandwidth %2.1f kbps", 50 + (math.floor(g_animation_time) % 255)/10)
+    text = string.format(update_get_loc(e_loc.mode_bandwidth), 50 + (math.floor(g_animation_time) % 255)/10)
     update_ui_text(x, y + 35, text, 200, 0, color, 0)
 end
 

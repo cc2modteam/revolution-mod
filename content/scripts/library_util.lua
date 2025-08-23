@@ -925,7 +925,7 @@ function update_access_denied(screen_w, screen_h, ticks)
 
     g_denied_anim = g_denied_anim + ticks
 
-    local msg = "ACCESS DENIED"
+    local msg = e_loc.access_denied_cap
 
     local msg_w, msg_h = update_ui_get_text_size(msg, screen_w, 0)
 

@@ -104,7 +104,7 @@ function update(screen_w, screen_h, ticks)
             title = name .. " " .. update_get_loc(e_loc.upp_id) .. " " .. tostring(docking_vehicle:get_id())
 
 			if docking_vehicle:get_dock_state()==7 then
-				local title = "HOLD ON DECK"
+				local title = update_get_loc(e_loc.button_hold_on_deck_cap)
 				local title_w, title_h = update_ui_get_text_size( title, 10000, 0 )
 				title_w=title_w+6
 				update_ui_rectangle(0, (region_h-title_h)/2, region_w, title_h, color_status_bad)

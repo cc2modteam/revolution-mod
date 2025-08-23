@@ -3189,15 +3189,15 @@ function _update(screen_w, screen_h, ticks)
         end
         local header = ""
         if g_wall_mode == g_wall_all then
-            header = "ALL UNITS"
+            header = update_get_loc(e_loc.vehicle_list_all_cap)
         elseif g_wall_mode == g_wall_air then
-            header = "AIRCRAFT"
+            header = update_get_loc(e_loc.vehicle_list_aircraft_cap)
         elseif g_wall_mode == g_wall_gnd then
-            header = "GROUND"
+            header = update_get_loc(e_loc.vehicle_list_ground_cap)
         elseif g_wall_mode == g_wall_sea then
-            header = "SEA"
+            header = update_get_loc(e_loc.vehicle_list_sea_cap)
         elseif g_wall_mode == g_wall_trt then
-            header = "TURRETS"
+            header = update_get_loc(e_loc.vehicle_list_turrets_cap)
         end
 
         --

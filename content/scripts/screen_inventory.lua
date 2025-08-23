@@ -1842,7 +1842,7 @@ function render_node_tooltip(w, h, id, type)
                 if g_revolution_hide_hostile_island_types then
                     visible = fow_island_visible(id)
                     if not visible then
-                        tile_text = "insufficiant data"
+                        tile_text = update_get_loc(e_loc.inventory_ui_insufficient_date)
                         tile_icon = atlas_icons.map_icon_island
                         unlocks = {}
                     end

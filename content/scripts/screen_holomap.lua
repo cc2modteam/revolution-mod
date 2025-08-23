@@ -1095,14 +1095,14 @@ function _update(screen_w, screen_h, ticks)
             end
 
             update_ui_image(cx, cy, atlas_icons.column_angle, icon_col, 0)
-            update_ui_text(cx + 15, cy, string.format("Bearing: %.0f deg", bearing_world), 100, 0, text_col, 0)
+            update_ui_text(cx + 15, cy, string.format("%s: %.0f deg", update_get_loc(e_loc.holomap_ui_bearing), bearing_world), 100, 0, text_col, 0)
             cy = cy - 10
 
             local dist = vec2_dist(vec2(g_ruler_x, g_ruler_y), vec2(world_x, world_y))
             plot_torpedo_intercepts(vec2(g_ruler_x, g_ruler_y), vec2(world_x, world_y))
 
             update_ui_image(cx, cy, atlas_icons.map_icon_loop, icon_col, 0)
-            update_ui_text(cx + 15, cy, string.format("Torpedo Delay: %.0f s", dist/g_torpedo_speed), 500, 0, text_col, 0)
+            update_ui_text(cx + 15, cy, string.format("%s: %.0f s", update_get_loc(e_loc.holomap_ui_torpedo_delay), dist/g_torpedo_speed), 500, 0, text_col, 0)
             cy = cy - 10
 
             if dist < 10000 then
@@ -1289,14 +1289,14 @@ function _update(screen_w, screen_h, ticks)
                 local markers_toolbox_x = 465
                 local markers_toolbox_title = ""
                 if g_markers_open then
-                    markers_toolbox_title = " Tools"
+                    markers_toolbox_title = " " .. update_get_loc(e_loc.holomap_tools_title)
                     markers_toolbox_h = 160
                     markers_toolbox_w = 60
                     markers_toolbox_x = markers_toolbox_x - (markers_toolbox_w - markers_collapsed_size)
 
                     if g_setting_marker > 0 then
                         update_ui_text(1, 90,
-                                string.format("Set Marker %s position..", get_marker_name(g_setting_marker)), screen_w/2, 0, color_white, 0)
+                                string.format("%s %s..", update_get_loc(e_loc.holomap_ui_set_marker_tooltip), get_marker_name(g_setting_marker)), screen_w/2, 0, color_white, 0)
                     end
                 end
 
@@ -1328,20 +1328,20 @@ function _update(screen_w, screen_h, ticks)
                                     btn_enabled = false
                                 end
                                 if is_waypoint_value_enabled(value) then
-                                    if ui:button(string.format("Del %s", mname), btn_enabled, 1) then
+                                    if ui:button(string.format("%s %s", update_get_loc(e_loc.holomap_ui_button_del), mname), btn_enabled, 1) then
                                         unset_marker_waypoint(screen_team, i)
                                         g_setting_marker = 0
                                     end
                                 else
-                                    if ui:button(string.format("Set %s %d", mname, i), btn_enabled, 1) then
+                                    if ui:button(string.format("%s %s %d", update_get_loc(e_loc.holomap_ui_button_set), mname, i), btn_enabled, 1) then
                                         g_setting_marker = i
                                     end
                                 end
                             end
 
-                            local rwr_btn = "RWR ON"
+                            local rwr_btn = update_get_loc(e_loc.rwr_button_on)
                             if not g_enable_holomap_rwr then
-                                rwr_btn = "RWR OFF"
+                                rwr_btn = update_get_loc(e_loc.rwr_button_off)
                             end
                             if ui:button(rwr_btn, true, 1) then
                                 if g_enable_holomap_rwr then
