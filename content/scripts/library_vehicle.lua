@@ -144,7 +144,7 @@ function get_attachment_data_by_definition_index(index)
         [e_game_object_type.attachment_turret_heavy_cannon] = {
             name = update_get_loc(e_loc.upp_heavy_cannon),
             icon16 = atlas_icons.icon_attachment_16_turret_main_heavy_cannon,
-            name_short = update_get_loc(e_loc.heavy_cannon_short),
+            name_short = update_get_loc(e_loc.upp_heavy_cannon_short),
         },
         [e_game_object_type.attachment_turret_battle_cannon] = {
             name = update_get_loc(e_loc.upp_100mm_cannon),
