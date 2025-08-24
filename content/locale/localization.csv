@@ -1410,7 +1410,7 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1408	e_loc_upp_travel,	TRAVEL	VOYAGER	REISEN	VIAJE	ПЛЫВЕТ	VIAJAR POR	航行	旅行
 1409	e_loc_upp_show_grid,	SHOW GRID	Afficher la grille	RASTER ANZEIGEN	MOSTRAR CUADRÍCULA	ОТОБРАЖАТЬ СЕТКУ	MOSTRE AS GRADES	显示网格	グリッドを表示
 1410	e_loc_interaction_bearing,	bearing	palier	Lager	soportando	направление	consequência	方向	ベアリング
-1411	e_loc_upp_air_traffic_taxi,	TAXI	TAXI	TAXI	TAXI	РУЛЕЖКА	TÁXI	出租车	タクシー
+1411	e_loc_upp_air_traffic_taxi,	TAXI	TAXI	TAXI	TAXI	РУЛЕЖКА	TÁXI	滑行	タクシー
 1412	e_loc_upp_air_traffic_queued,	QUEUED	En file d'attente	IN WARTESCHLANGE	PUESTO EN COLA	ОЖИДАНИЕ	ENFILEIRADAS	排队	qu々
 1413	e_loc_upp_air_traffic_landing,	LANDING	ATTERRISSAGE	LANDUNG	ATERRIZAJE	ПОСАДКА	ATERRISSAGEM	降落	着陸
 1414	e_loc_upp_air_traffic_launch,	LAUNCH	LANCEMENT	START	LANZAMIENTO	ЗАПУСК	LANÇAR	起飞	発売
@@ -1606,12 +1606,12 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1602	e_loc_vehicle_list_state_unkown_desc	Unkown	Inconnu	Unbekannt	Desconocido	Неизвестно	Desconhecido	未知	不明
 1603	e_loc_vehicle_list_state_damg_string	DAMG	ENDM	BESC	DAÑAD	ПОВР	DANI	受损	損傷
 1604	e_loc_vehicle_list_state_damg_desc	Vehicle under attack	Véhicule attaqué	Fahrzeug unter Beschuss	Vehículo atacado	Транспорт под атакой	Veículo sob ataque	载具受到攻击	車両が攻撃を受けている
-1605	e_loc_vehicle_list_state_land_string	LAND	ATER	LAND	ATER	ПРИЗ	ATER	着陆	着陸
-1606	e_loc_vehicle_list_state_land_desc	Landing	En train d'atterrir	Landet gerade	Aterrizando	Идёт посадка	Aterrando	正在着陆	着陸中
+1605	e_loc_vehicle_list_state_land_string	LAND	ATER	LAND	ATER	ПРИЗ	ATER	降落	着陸
+1606	e_loc_vehicle_list_state_land_desc	Landing	En train d'atterrir	Landet gerade	Aterrizando	Идёт посадка	Aterrando	正在降落	着陸中
 1607	e_loc_vehicle_list_state_dock_string	DOCK	AMAR	DOCK	ACOP	СТЫК	ATRA	停泊	接舷
 1608	e_loc_vehicle_list_state_dock_desc	Docking	Amarrage en cours	Dockt an	Acoplando	Идёт стыковка	Atracando	正在停泊	ドッキング中
 1609	e_loc_vehicle_list_state_ptrn_string	PTRN	MODÈ	MSTR	PATR	ШАБЛ	PADR	流程	手順
-1610	e_loc_vehicle_list_state_land_ptrn_desc	In Landing Pattern	Dans le circuit d'atterrissage	Im Landeanflugmuster	En el patrón de aterrizaje	В посадочной схеме	No padrão de aterragem	在着陆流程中	着陸パターンで
+1610	e_loc_vehicle_list_state_land_ptrn_desc	In Landing Pattern	Dans le circuit d'atterrissage	Im Landeanflugmuster	En el patrón de aterrizaje	В посадочной схеме	No padrão de aterragem	在降落流程中	着陸パターンで
 1611	e_loc_vehicle_list_state_dock_ptrn_desc	In Docking Pattern	Dans le circuit d'amarrage	Im Andockmuster	En el patrón de acoplamiento	В схеме стыковки	No padrão de atracagem	在停泊流程中	ドッキングパターンで
 1612	e_loc_vehicle_list_state_lnch_string	LNCH	LNCR	STRT	LNZR	ЗПУК	LNÇR	出动	発射
 1613	e_loc_vehicle_list_state_lnch_desc	Launching	Lancement	Startet	Lanzando	Идёт запуск	Lançando	正在起飞	発射中
@@ -1647,7 +1647,7 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1643	e_loc_vehicle_list_state_loop_string	LOOP	BOUC	SCLF	BCLE	ПТЛЯ	LAÇO	循环	周回
 1644	e_loc_vehicle_list_state_loop_desc	Following Waypoint Loop	Suivant la boucle de points de passage	Folge Wegpunkt-Schleife	Siguiendo el bucle de puntos de ruta	Следую по петле путевых точек	Seguindo o laço de pontos de rota	正在跟随路径点循环	通過点周回に追従
 1643	e_loc_vehicle_list_state_free_string	FREE	LIBR	FREI	LIBR	СВОБ	LIVR	自由	自由
-1644	e_loc_vehicle_list_state_hovr_string	HOVR	HOVR	SCBN	CIERNES	ЗАВИ	PAIRAR	悬停	浮遊
+1644	e_loc_vehicle_list_state_hovr_string	HOVR	HOVR	SCBN	CIERNES	ЗАВИ	PAIRAR	滞空	浮遊
 1645	e_loc_vehicle_list_state_idle_string	IDLE	IDLE	LRLF	INAC	ХОЛО	INAT	闲置	休止
 1646	e_loc_vehicle_list_state_idle_desc	Waiting for Tasking	En attente d'une tâche	Warte auf Aufgabe	Esperando tarea	Ожидание задания	Aguardando tarefa	等待命令	命令待機中
 1647	e_loc_upp_vehicle_list_all	ALL UNITS	TOUTES LES UNITÉS	ALLE EINHEITEN	TODAS LAS UNIDADES	ВСЕ ЮНИТЫ	TODAS AS UNIDADES	所有单位	全機
