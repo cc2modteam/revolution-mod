@@ -1613,10 +1613,10 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1609	e_loc_vehicle_list_state_ptrn_string	PTRN	MODÈ	MSTR	PATR	ШАБЛ	PADR	流程	手順
 1610	e_loc_vehicle_list_state_land_ptrn_desc	In Landing Pattern	Dans le circuit d'atterrissage	Im Landeanflugmuster	En el patrón de aterrizaje	В посадочной схеме	No padrão de aterragem	在着陆流程中	着陸パターンで
 1611	e_loc_vehicle_list_state_dock_ptrn_desc	In Docking Pattern	Dans le circuit d'amarrage	Im Andockmuster	En el patrón de acoplamiento	В схеме стыковки	No padrão de atracagem	在停泊流程中	ドッキングパターンで
-1612	e_loc_vehicle_list_state_lnch_string	LNCH	LNCR	STRT	LNZR	ЗПУК	LNÇR	起飞	発射
+1612	e_loc_vehicle_list_state_lnch_string	LNCH	LNCR	STRT	LNZR	ЗПУК	LNÇR	出动	発射
 1613	e_loc_vehicle_list_state_lnch_desc	Launching	Lancement	Startet	Lanzando	Идёт запуск	Lançando	正在起飞	発射中
 1614	e_loc_vehicle_list_state_stby_string	STBY	ATNT	BER	ESP	ГОТ	ESPR	就绪	待機
-1615	e_loc_vehicle_list_state_stby_desc	Waiting to Launch	En attente de lancement	Warte auf Start	Esperando para lanzar	Ожидание запуска	Aguardando lançamento	等待起飞	発射待機中
+1615	e_loc_vehicle_list_state_stby_desc	Waiting to Launch	En attente de lancement	Warte auf Start	Esperando para lanzar	Ожидание запуска	Aguardando lançamento	等待出动	発射待機中
 1616	e_loc_vehicle_list_state_taxi_string	TAXI	ROLG	RLLN	RODJ	РУЛН	TANE	滑行	滑行
 1617	e_loc_vehicle_list_state_taxi_desc	Taxiing to Launch	Roulage au lancement	Rollende zum Start	Rodando para el despegue	Руление на взлёт	Taxiar para lançamento	滑行至起飞地点	発射地点へタキシング
 1618	e_loc_vehicle_list_state_hold_string	HOLD	MAIN	HALT	MANT	ДЕРЖ	MANT	待命	保留
@@ -1664,3 +1664,8 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1658	e_loc_mode_bandwidth	Bandwidth	BANDE PASSANTE	BANDBREITE	ANCHO DE BANDA	ПРОПУСКНАЯ СПОСОБНОСТЬ	LARGURA DE BANDA	带宽	帯域幅
 1659	e_loc_vehicle_ui_ccip	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP
 1660	e_loc_vehicle_ui_ccrp	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP
+1661	e_loc_surface_traffic_title	SURFACE TRAFFIC	TRAFIC DE SURFACE	BODENVERKEHR	TRÁFICO DE SUPERFICIE	НАЗЕМНЫЙ ТРАФИК	TRÁFEGO DE SUPERFÍCIE	地面交通	地面交通
+1662	e_loc_docking_queue_cap	DOCKING QUEUE	QUEUE D'ACCOSTAGE	ANDOCKWARTESCHLANGE	COLA DE ACOPLAMIENTO	ОЧЕРЕДЬ СТЫКОВКИ	FILA DE ATRACAGEM	停泊队列	ドッキングキュー
+1663	e_loc_change_cap	CHANGE	CHANGER	WECHSELN	CAMBIAR	ИЗМЕНИТЬ	MUDAR	改变	変更
+1664	e_loc_close_screen_cap	CLOSE	FERMER	SCHLIESSEN	CERRAR	ЗАКРЫТЬ	FECHAR	关闭	閉じる
+1665	e_loc_click_for_transmission	Click for transmissions	Cliquez pour les transmissions	Klicken Sie für Übertragungen	Haga clic para transmisiones	Нажмите для передач	Clique para transmissões	点击查看消息	クリックして通信

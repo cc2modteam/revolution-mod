@@ -3106,7 +3106,7 @@ function tab_fuel_render(screen_w, screen_h, x, y, w, h, is_tab_active, screen_v
         g_ui,
         {
             {
-                w=table_widths[1], margin=5, value="AIRCRAFT",
+                w=table_widths[1], margin=5, value=update_get_loc(e_loc.vehicle_list_aircraft_cap),
             },
             {
                 w=table_widths[2], margin=2, value=string.format("%5dt", math.floor(air_fuel/1000)),

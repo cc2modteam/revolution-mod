@@ -1217,7 +1217,7 @@ function _update(screen_w, screen_h, ticks)
                 local quickbar_w = quickbar_collapsed_size
                 local quickbar_title = ""
                 if g_quickbar_open then
-                    quickbar_title = "Aircraft"
+                    quickbar_title = update_get_loc(e_loc.vehicle_list_aircraft_cap)
                     quickbar_w = 130
                     quickbar_h = 190
                 end
