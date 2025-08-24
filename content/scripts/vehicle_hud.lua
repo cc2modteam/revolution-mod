@@ -594,7 +594,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
             "012", 64, 0, col, 0)
 
             update_ui_text(w - 90, mode_select_y,
-                    string.format("%s: %s", update_get_loc(e_loc.mode_cap), radar_mode_name),
+                    string.format("%s: %s", update_get_loc(e_loc.upp_mode), radar_mode_name),
                     90, 0, col, 0
             )
         end

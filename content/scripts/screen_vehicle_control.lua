@@ -404,7 +404,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
 
 
             if vehicle_can_airlift(vehicle) and vehicle_has_cargo(vehicle) then
-                local window2 = ui:begin_window(update_get_loc(e_loc.cargo_cap), 10 + left_w + 5, 10 + 94, loadout_w, 84, atlas_icons.column_stock, false, 2)
+                local window2 = ui:begin_window(update_get_loc(e_loc.upp_cargo), 10 + left_w + 5, 10 + 94, loadout_w, 84, atlas_icons.column_stock, false, 2)
                 local region_w, region_h = ui:get_region()
                 window2.cy = region_h / 2 - 32
                 local cargo_id = get_vehicle_cargo_id(vehicle)
@@ -455,7 +455,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                         g_viewing_vehicle_id = vehicle:get_id()
                         g_screen_index = 1
                     end
-                    if ui:list_item(update_get_loc(e_loc.vehicle_hold_here_cap), true) then
+                    if ui:list_item(update_get_loc(e_loc.upp_vehicle_hold_here), true) then
                         vehicle:clear_waypoints()
                         local alt = math.floor(math.max(0, get_unit_altitude(vehicle) - 5))
                         add_altitude_waypoint(vehicle, vehicle:get_position_xz(), alt, 3)
@@ -463,7 +463,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                         g_is_ignore_tap = 1
                     end
                     if get_can_autoland(vehicle:get_definition_index()) then
-                        if ui:list_item(update_get_loc(e_loc.vehicle_land_here_cap), true) then
+                        if ui:list_item(update_get_loc(e_loc.upp_vehicle_land_here), true) then
                             setup_autoland(vehicle)
                             g_selection:clear()
                             g_is_ignore_tap = 1
@@ -473,7 +473,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     if vehicle_can_airlift(vehicle) then
                         local ptr_vid = vehicle:get_id()
                         if ptr_vid ~= g_tactical_vid then
-                            if ui:list_item(update_get_loc(e_loc.vehicle_set_tactical_mode_cap), true) then
+                            if ui:list_item(update_get_loc(e_loc.upp_vehicle_set_tactical_mode), true) then
                                 vehicle:clear_waypoints()
                                 vehicle:clear_attack_target()
                                 g_tactical_vid = vehicle:get_id()
@@ -483,7 +483,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
 
                             end
                         else
-                            if ui:list_item(e_loc.vehicle_unset_tactical_mode_cap, true) then
+                            if ui:list_item(e_loc.upp_vehicle_unset_tactical_mode, true) then
                                 vehicle:clear_waypoints()
                                 vehicle:clear_attack_target()
                                 g_tactical_vid = 0
@@ -496,7 +496,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                                 g_selection:clear()
                                 g_is_ignore_tap = 1
                             end
-                            if ui:list_item(update_get_loc(e_loc.cargo_camera_cap), true) then
+                            if ui:list_item(update_get_loc(e_loc.upp_cargo_camera), true) then
                                 local cargo_id = get_vehicle_cargo_id(vehicle)
                                 g_selection:set_vehicle(cargo_id)
                                 update_set_screen_vehicle_control_id(cargo_id)
@@ -507,7 +507,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                         else
                             local nearest_id, nearest_range = get_nearest_friendly_airliftable_id(vehicle, 750)
                             if nearest_id > 0 then
-                                if ui:list_item(update_get_loc(e_loc.vehicle_airlift_nearest_cap), true) then
+                                if ui:list_item(update_get_loc(e_loc.upp_vehicle_airlift_nearest), true) then
                                     set_airlift_now(vehicle, nearest_id)
                                     g_selection:clear()
                                     g_is_ignore_tap = 1
@@ -877,7 +877,7 @@ function render_selection_waypoint(screen_w, screen_h)
                     end
 
                     if get_can_autoland(vehicle_definition_index) then
-                        if ui:button(update_get_loc(e_loc.vehicle_land_here_cap), true) then
+                        if ui:button(update_get_loc(e_loc.upp_vehicle_land_here), true) then
                             local prev_pos = nil
                             if selected_waypoint:get_id() > 1 then
                                 local prev_wpt = selected_vehicle:get_waypoint_by_id(selected_waypoint:get_id() - 1)
@@ -3189,15 +3189,15 @@ function _update(screen_w, screen_h, ticks)
         end
         local header = ""
         if g_wall_mode == g_wall_all then
-            header = update_get_loc(e_loc.vehicle_list_all_cap)
+            header = update_get_loc(e_loc.upp_vehicle_list_all)
         elseif g_wall_mode == g_wall_air then
-            header = update_get_loc(e_loc.vehicle_list_aircraft_cap)
+            header = update_get_loc(e_loc.upp_vehicle_list_aircraft)
         elseif g_wall_mode == g_wall_gnd then
-            header = update_get_loc(e_loc.vehicle_list_ground_cap)
+            header = update_get_loc(e_loc.upp_vehicle_list_ground)
         elseif g_wall_mode == g_wall_sea then
-            header = update_get_loc(e_loc.vehicle_list_sea_cap)
+            header = update_get_loc(e_loc.upp_vehicle_list_sea)
         elseif g_wall_mode == g_wall_trt then
-            header = update_get_loc(e_loc.vehicle_list_turrets_cap)
+            header = update_get_loc(e_loc.upp_vehicle_list_turrets)
         end
 
         --

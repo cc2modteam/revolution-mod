@@ -1184,14 +1184,14 @@ function _update(screen_w, screen_h, ticks)
         local now = update_get_logic_tick()
 
         if g_button_mode == 0 then
-            update_ui_text(1, 1, "MISSION TIME: " .. format_time( now / 30 ), label_w, 0, color_white, 0)
+            update_ui_text(1, 1, update_get_loc(e_loc.upp_mission_time) .. ": " .. format_time( now / 30 ), label_w, 0, color_white, 0)
 
             -- if the carrier is docked, show the welcome message
             if g_revolution_welcome ~= nil then
                 local self = update_get_screen_vehicle()
                 if self and self:get() then
                     if self:get_attached_parent_id() ~= 0 then
-                        update_ui_text(32, 13, get_ship_name(update_get_screen_vehicle()) .. " DOCKED", 480, 0, color_white, 0)
+                        update_ui_text(32, 13, get_ship_name(update_get_screen_vehicle()) .. " " .. update_get_loc(e_loc.upp_docked), 480, 0, color_white, 0)
                         update_ui_text(32, 13 * 2, g_revolution_welcome, 480, 0, color_white, 0)
                     end
                 end
@@ -1217,7 +1217,7 @@ function _update(screen_w, screen_h, ticks)
                 local quickbar_w = quickbar_collapsed_size
                 local quickbar_title = ""
                 if g_quickbar_open then
-                    quickbar_title = update_get_loc(e_loc.vehicle_list_aircraft_cap)
+                    quickbar_title = update_get_loc(e_loc.upp_vehicle_list_aircraft)
                     quickbar_w = 130
                     quickbar_h = 190
                 end

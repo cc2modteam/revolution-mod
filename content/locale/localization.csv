@@ -1550,7 +1550,7 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1548	e_loc_hold_fire,	HOLD FIRE	RETENIR LE FEU	FEUER HALTEN	MANTENER EL FUEGO	ДЕРЖАТЬ ОГОНЬ	SEGURAR FOGO	停火	火を止める
 1548	e_loc_hold_fire,	HOLD FIRE	RETENIR LE FEU	FEUER HALTEN	MANTENER EL FUEGO	ДЕРЖАТЬ ОГОНЬ	SEGURAR FOGO	停火	火を止める
 
-1549 	e_loc_access_denied_cap	ACCESS DENIED	ACCÈS REFUSÉ	ZUGRIFF VERWEIGERT	ACCESO DENEGADO	ДОСТУП ЗАПРЕЩЁН	ACESSO NEGADO	访问被拒	アクセスが拒否
+1549 	e_loc_upp_access_denied	ACCESS DENIED	ACCÈS REFUSÉ	ZUGRIFF VERWEIGERT	ACCESO DENEGADO	ДОСТУП ЗАПРЕЩЁН	ACESSO NEGADO	访问被拒	アクセスが拒否
 1550	e_loc_upp_30mm_rifle	30MM RIFLE	FUSIL 30 MM	30-MM-GEWEHR	FUSIL DE 30 MM	ВИНТОВКА 30мм	FUZIL 30 MM	30毫米枪	30MMライフル銃
 1551 	e_loc_upp_electronic_countermeasure	ELECTRONIC COUNTERMEASURE	CONTRE-MESURE ÉLECTRONIQUE	ELEKTRONISCHE GEGENMASSNAHME	CONTRAMEDIDA ELECTRÓNICA	ЭЛЕКТРОННОЕ ПРОТИВОДЕЙСТВИЕ	CONTRAMEDIDA ELETRÔNICA	电子反制武器	電子防衛
 1552	e_loc_upp_30mm_rifle_short	RFL 30MM	FSL 30MM	GEW 30MM	FSL 30MM	ВИН 30мм	FZL 30MM	30MM枪	30MMライフル
@@ -1601,7 +1601,7 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1597	e_loc_holomap_ui_button_set	Set	Poser	Setzen	Poner	Установить	Definir	放置	置く
 1598	e_loc_holomap_tools_title	Tools	Outils	Werkzeuge	Herramientas	Инструменты	Ferramentas	工具	ツール
 1599	e_loc_holomap_ui_set_marker_tooltip	Set Marker	Poser Marqueur	Markierung Setzen	Poner Marcador	Установить Маркер	Definir Marcador	放置标记	置くマーカ
-1600	e_loc_button_hold_on_deck_cap	HOLD ON DECK	ATTENDEZ SUR LE PONT	BLEIBEN SIE AN DECK	ESPERA EN CUBIERTA	ОЖИДАЕТ НА ПАЛУБЕ	ESPERE NO CONVÉS	留在甲板上	ホールド・オン・デッキ
+1600	e_loc_upp_button_hold_on_deck	HOLD ON DECK	ATTENDEZ SUR LE PONT	BLEIBEN SIE AN DECK	ESPERA EN CUBIERTA	ОЖИДАЕТ НА ПАЛУБЕ	ESPERE NO CONVÉS	留在甲板上	ホールド・オン・デッキ
 1601	e_loc_inventory_ui_insufficient_date	insufficiant data	données insuffisantes	unzureichende daten	datos insuficientes	недостаточно данных	dados insuficientes	数据不足	データ不足
 1602	e_loc_vehicle_list_state_unkown_desc	Unkown	Inconnu	Unbekannt	Desconocido	Неизвестно	Desconhecido	未知	不明
 1603	e_loc_vehicle_list_state_damg_string	DAMG	ENDM	BESC	DAÑAD	ПОВР	DANI	受损	損傷
@@ -1625,7 +1625,7 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1621	e_loc_vehicle_list_state_hplt_desc	Human Piloted	Piloté par un humain	Von einem Menschen gesteuert	Pilotado por un humano	Управляется человеком	Pilotado por um humano	正在由人类驾驶	有人操縦中
 1622	e_loc_vehicle_list_state_piloted_by_desc	Piloted by	Piloté par	Gesteuert von	Pilotado por	Пилотируемый	Pilotado por	驾驶员:	操縦者:
 1623	e_loc_vehicle_list_state_attk_string	ATTK	ATTQ	AGRF	ATAQ	АТАК	ATAQ	攻击	攻撃
-1624	e_loc_vehicle_list_state_ATTK_desc	Attacking Target	Attaque de la cible	Zielangriff	Atacando objetivo	Атака цели	Atacando o alvo	正在攻击目标	目標を攻撃中
+1624	e_loc_vehicle_list_state_attk_desc	Attacking Target	Attaque de la cible	Zielangriff	Atacando objetivo	Атака цели	Atacando o alvo	正在攻击目标	目標を攻撃中
 1625	e_loc_vehicle_list_state_lift_string	LIFT	TPAR	LUFT	TPAR	АВИА	TPAR	空运	空輸
 1626	e_loc_vehicle_list_state_lift_desc	Airlifting Target	Transport aérien de la cible	Ziel per Luft transportieren	Transporte aéreo del objetivo	Авиапереброска цели	Transporte aéreo do alvo	正在空运目标	目標を空輸中
 1627	e_loc_vehicle_list_state_wypt_string	WYPT	PTPA	WGPT	PTRT	ПТТК	PTRT	航点	経路
@@ -1650,29 +1650,31 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1644	e_loc_vehicle_list_state_hovr_string	HOVR	HOVR	SCBN	CIERNES	ЗАВИ	PAIRAR	悬停	浮遊
 1645	e_loc_vehicle_list_state_idle_string	IDLE	IDLE	LRLF	INAC	ХОЛО	INAT	闲置	休止
 1646	e_loc_vehicle_list_state_idle_desc	Waiting for Tasking	En attente d'une tâche	Warte auf Aufgabe	Esperando tarea	Ожидание задания	Aguardando tarefa	等待命令	命令待機中
-1647	e_loc_vehicle_list_all_cap	ALL UNITS	TOUTES LES UNITÉS	ALLE EINHEITEN	TODAS LAS UNIDADES	ВСЕ ЮНИТЫ	TODAS AS UNIDADES	所有单位	全機
-1648	e_loc_vehicle_list_aircraft_cap	AIRCRAFT	AVION	FLUGZEUG	AERONAVE	САМОЛЕТ	AERONAVE	飞机	航空機
-1649	e_loc_vehicle_list_ground_cap	GROUND	TERRESTRE	BODEN	TERRESTRE	НАЗЕМНЫЙ	TERRESTRE	地面	地上
-1650	e_loc_vehicle_list_sea_cap	SEA	MARIN	SEE	MARINO	МОРСКОЙ	MARINHO	海上	海上
-1651	e_loc_vehicle_list_turrets_cap	TURRETS	TOURELLES	TÜRME	TORRETAS	ТУРЕЛИ	TORRETAS	炮塔	砲塔
+1647	e_loc_upp_vehicle_list_all	ALL UNITS	TOUTES LES UNITÉS	ALLE EINHEITEN	TODAS LAS UNIDADES	ВСЕ ЮНИТЫ	TODAS AS UNIDADES	所有单位	全機
+1648	e_loc_upp_vehicle_list_aircraft	AIRCRAFT	AVION	FLUGZEUG	AERONAVE	САМОЛЕТ	AERONAVE	飞机	航空機
+1649	e_loc_upp_vehicle_list_ground	GROUND	TERRESTRE	BODEN	TERRESTRE	НАЗЕМНЫЙ	TERRESTRE	地面	地上
+1650	e_loc_upp_vehicle_list_sea	SEA	MARIN	SEE	MARINO	МОРСКОЙ	MARINHO	海上	海上
+1651	e_loc_upp_vehicle_list_turrets	TURRETS	TOURELLES	TÜRME	TORRETAS	ТУРЕЛИ	TORRETAS	炮塔	砲塔
 1652	e_loc_vehicle_mounted_lgm_text	LGM	LGM	LGR	LGM	ЛНР	LGM	激光导弹	LGM
 1653	e_loc_radar_mode_contacts	CONTACTS	CONTACTS	KONTAKTE	CONTACTOS	КОНТАКТЫ	CONTATOS	联系人	コンタクト
 1654	e_loc_radar_mode_atc	ATC	ATC	FVK	ATC	ОрВД	ATCO	空中管制	航空管制
 1655	e_loc_radar_mode_threat	THREAT	MENACE	BEDROHUNG	AMENAZA	УГРОЗА	AMEAÇA	威胁	脅威
-1656	e_loc_mode_cap	MODE	MODE	MODUS	MODO	РЕЖИМ	MODO	模式	モード
+1656	e_loc_upp_mode	MODE	MODE	MODUS	MODO	РЕЖИМ	MODO	模式	モード
 1657	e_loc_vehicle_ui_signal_jammed	SIGNAL JAMMED	SIGNAL BROUILLÉ	SIGNAL GESTÖRT	SEÑAL INTERFERIDA	СИГНАЛ ЗАГЛУШЕН	SINAL INTERFERIDO	信号被干扰	信号妨害中
 1658	e_loc_mode_bandwidth	Bandwidth	BANDE PASSANTE	BANDBREITE	ANCHO DE BANDA	ПРОПУСКНАЯ СПОСОБНОСТЬ	LARGURA DE BANDA	带宽	帯域幅
 1659	e_loc_vehicle_ui_ccip	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP
 1660	e_loc_vehicle_ui_ccrp	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP
 1661	e_loc_surface_traffic_title	SURFACE TRAFFIC	TRAFIC DE SURFACE	BODENVERKEHR	TRÁFICO DE SUPERFICIE	НАЗЕМНЫЙ ТРАФИК	TRÁFEGO DE SUPERFÍCIE	地面交通	地面交通
-1662	e_loc_docking_queue_cap	DOCKING QUEUE	QUEUE D'ACCOSTAGE	ANDOCKWARTESCHLANGE	COLA DE ACOPLAMIENTO	ОЧЕРЕДЬ СТЫКОВКИ	FILA DE ATRACAGEM	停泊队列	ドッキングキュー
-1663	e_loc_change_cap	CHANGE	CHANGER	WECHSELN	CAMBIAR	ИЗМЕНИТЬ	MUDAR	改变	変更
-1664	e_loc_close_screen_cap	CLOSE	FERMER	SCHLIESSEN	CERRAR	ЗАКРЫТЬ	FECHAR	关闭	閉じる
+1662	e_loc_upp_docking_queue	DOCKING QUEUE	QUEUE D'ACCOSTAGE	ANDOCKWARTESCHLANGE	COLA DE ACOPLAMIENTO	ОЧЕРЕДЬ СТЫКОВКИ	FILA DE ATRACAGEM	停泊队列	ドッキングキュー
+1663	e_loc_upp_change	CHANGE	CHANGER	WECHSELN	CAMBIAR	ИЗМЕНИТЬ	MUDAR	改变	変更
+1664	e_loc_upp_close_screen	CLOSE	FERMER	SCHLIESSEN	CERRAR	ЗАКРЫТЬ	FECHAR	关闭	閉じる
 1665	e_loc_click_for_transmission	Click for transmissions	Cliquez pour les transmissions	Klicken Sie für Übertragungen	Haga clic para transmisiones	Нажмите для передач	Clique para transmissões	点击查看消息	クリックして通信
-1666	e_loc_vehicle_land_here_cap	LAND HERE	ATTERRISSEZ ICI	HIER LANDEN	ATERRIZA AQUÍ	ПРИЗЕМЛИТЕСЬ ЗДЕСЬ	ATERRE AQUI	在此着陆	ここにランディング
-1667	e_loc_vehicle_hold_here_cap	HOLD HERE	MAINTENEZ ICI	HIER HALTEN	MANTÉN AQUÍ	ДЕРЖИТЕСЬ ЗДЕСЬ	MANTENHA AQUI	在此待命	ここで待機
-1668	e_loc_vehicle_set_tactical_mode_cap	SET TACTICAL MODE	PASSER EN MODE TACTIQUE	TAKTIK-MODUS EINSTELLEN	ACTIVAR MODO TÁCTICO	ВКЛЮЧИТЬ ТАКТИЧЕСКИЙ РЕЖИМ	DEFINIR MODO TÁTICO	设置战术模式	戦術モード設定
-1669	e_loc_vehicle_unset_tactical_mode_cap	UNSET TACTICAL MODE	DÉSACTIVER MODE TACTIQUE	TAKTIK-MODUS DEAKTIVIEREN	DESACTIVAR MODO TÁCTICO	ВЫКЛЮЧИТЬ ТАКТИЧЕСКИЙ РЕЖИМ	DESATIVAR MODO TÁTICO	取消战术模式	戦術モード解除
-1670	e_loc_cargo_camera_cap	CARGO CAMERA	CAMÉRA DE CARGAISON	FRACHTKAMERA	CÁMARA DE CARGA	ГРУЗОВАЯ КАМЕРА	CÂMERA DE CARGA	货物摄像头机	カーゴカメラ
-1671	e_loc_vehicle_airlift_nearest_cap	AIRLIFT NEAREST	TRANSPORT AÉRIEN DU PLUS PROCHE	NÄCHSTES PER LUFT TRANSPORTIEREN	TRANSPORTE AÉREO DEL MÁS CERCANO	АВИАПЕРЕБРОСКА БЛИЖАЙШЕГО	TRANSPORTE AÉREO DO MAIS PRÓXIMO	空运最近单位	最近を空輸
-1672	e_loc_cargo_cap	CARGO	CARGA	FRACHT	CARGA	ГРУЗ	CARGA	货物	カーゴ
+1666	e_loc_upp_vehicle_land_here	LAND HERE	ATTERRISSEZ ICI	HIER LANDEN	ATERRIZA AQUÍ	ПРИЗЕМЛИТЕСЬ ЗДЕСЬ	ATERRE AQUI	在此着陆	ここにランディング
+1667	e_loc_upp_vehicle_hold_here	HOLD HERE	MAINTENEZ ICI	HIER HALTEN	MANTÉN AQUÍ	ДЕРЖИТЕСЬ ЗДЕСЬ	MANTENHA AQUI	在此待命	ここで待機
+1668	e_loc_upp_vehicle_set_tactical_mode	SET TACTICAL MODE	PASSER EN MODE TACTIQUE	TAKTIK-MODUS EINSTELLEN	ACTIVAR MODO TÁCTICO	ВКЛЮЧИТЬ ТАКТИЧЕСКИЙ РЕЖИМ	DEFINIR MODO TÁTICO	设置战术模式	戦術モード設定
+1669	e_loc_upp_vehicle_unset_tactical_mode	UNSET TACTICAL MODE	DÉSACTIVER MODE TACTIQUE	TAKTIK-MODUS DEAKTIVIEREN	DESACTIVAR MODO TÁCTICO	ВЫКЛЮЧИТЬ ТАКТИЧЕСКИЙ РЕЖИМ	DESATIVAR MODO TÁTICO	取消战术模式	戦術モード解除
+1670	e_loc_upp_cargo_camera	CARGO CAMERA	CAMÉRA DE CARGAISON	FRACHTKAMERA	CÁMARA DE CARGA	ГРУЗОВАЯ КАМЕРА	CÂMERA DE CARGA	货物摄像头机	カーゴカメラ
+1671	e_loc_upp_vehicle_airlift_nearest	AIRLIFT NEAREST	TRANSPORT AÉRIEN DU PLUS PROCHE	NÄCHSTES PER LUFT TRANSPORTIEREN	TRANSPORTE AÉREO DEL MÁS CERCANO	АВИАПЕРЕБРОСКА БЛИЖАЙШЕГО	TRANSPORTE AÉREO DO MAIS PRÓXIMO	空运最近单位	最近を空輸
+1672	e_loc_upp_cargo	CARGO	CARGA	FRACHT	CARGA	ГРУЗ	CARGA	货物	カーゴ
+1673	e_loc_upp_hangar	HANGAR	HANGAR	HANGAR	HANGAR	АНГАР	HANGAR	机库	格納庫
+1674	e_loc_upp_mission_time	MISSION TIME	DURÉE DE LA MISSION	MISSIONSDDAUER	TIEMPO DE MISIÓN	ВРЕМЯ МИССИИ	TEMPO DA MISSÃO	任务时间	任務時間

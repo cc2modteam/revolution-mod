@@ -147,7 +147,7 @@ function _update(screen_w, screen_h, ticks)
 
 		ui:header(update_get_loc(e_loc.upp_carrier))
 		ui:text(get_ship_name(current_ship))
-        if ui:button(update_get_loc(e_loc.change_cap), attached, 0) then
+        if ui:button(update_get_loc(e_loc.upp_change), attached, 0) then
             if attached then
                 local value = get_carrier_lifeboat_attachments_value(current_ship)
                 value = value + 1
@@ -159,7 +159,7 @@ function _update(screen_w, screen_h, ticks)
 		end
 
         ui:text(update_get_loc(e_loc.click_for_transmission))
-        if ui:button(update_get_loc(e_loc.close_screen_cap), attached, 0) then
+        if ui:button(update_get_loc(e_loc.upp_close_screen), attached, 0) then
             if attached then
                 g_transmission_mode = true
             end
@@ -177,13 +177,13 @@ function _update(screen_w, screen_h, ticks)
             ui:text(update_get_loc(e_loc.upp_awacs_short) .. " " .. update_get_loc(e_loc.upp_range))
             local awacs_range = 10 * get_radar_multiplier()
             ui:text(string.format("%d km", math.floor(awacs_range)))
-            if ui:button(update_get_loc(e_loc.change_cap), can_change_game_settings, 0) then
+            if ui:button(update_get_loc(e_loc.upp_change), can_change_game_settings, 0) then
 
             end
 
             ui:text("FOG OF WAR")
             ui:text("enabled")
-            if ui:button(update_get_loc(e_loc.change_cap), can_change_game_settings, 0) then
+            if ui:button(update_get_loc(e_loc.upp_change), can_change_game_settings, 0) then
 
             end
 

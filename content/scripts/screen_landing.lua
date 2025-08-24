@@ -481,7 +481,7 @@ function update(screen_w, screen_h, ticks)
             
                 update_ui_push_offset(right_w + (left_w - 100) / 2, region_h - 22)
                 update_ui_rectangle_outline(0, 0, 100, 16, dmc)
-                update_ui_text(0, 4, update_get_loc(e_loc.docking_queue_cap), 100, 1, dmc, 0)
+                update_ui_text(0, 4, update_get_loc(e_loc.upp_docking_queue), 100, 1, dmc, 0)
                 update_ui_pop_offset()
 
                 update_ui_push_clip( left_w, 0, right_w, region_h )
