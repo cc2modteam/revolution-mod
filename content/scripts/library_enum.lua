@@ -1828,6 +1828,11 @@ e_loc = {
 	click_for_transmission = 1665,
 	vehicle_land_here_cap = 1666,
 	vehicle_hold_here_cap = 1667,
+	vehicle_set_tactical_mode_cap = 1668,
+	vehicle_unset_tactical_mode_cap = 1669,
+	cargo_camera_cap = 1670,
+	vehicle_airlift_nearest_cap = 1671,
+	cargo_cap = 1672,
 }
 
 e_barge_destination_type = {

@@ -404,7 +404,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
 
 
             if vehicle_can_airlift(vehicle) and vehicle_has_cargo(vehicle) then
-                local window2 = ui:begin_window("CARGO", 10 + left_w + 5, 10 + 94, loadout_w, 84, atlas_icons.column_stock, false, 2)
+                local window2 = ui:begin_window(update_get_loc(e_loc.cargo_cap), 10 + left_w + 5, 10 + 94, loadout_w, 84, atlas_icons.column_stock, false, 2)
                 local region_w, region_h = ui:get_region()
                 window2.cy = region_h / 2 - 32
                 local cargo_id = get_vehicle_cargo_id(vehicle)
@@ -473,7 +473,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     if vehicle_can_airlift(vehicle) then
                         local ptr_vid = vehicle:get_id()
                         if ptr_vid ~= g_tactical_vid then
-                            if ui:list_item("SET TACTICAL MODE", true) then
+                            if ui:list_item(update_get_loc(e_loc.vehicle_set_tactical_mode_cap), true) then
                                 vehicle:clear_waypoints()
                                 vehicle:clear_attack_target()
                                 g_tactical_vid = vehicle:get_id()
@@ -483,7 +483,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
 
                             end
                         else
-                            if ui:list_item("UNSET TACTICAL MODE", true) then
+                            if ui:list_item(e_loc.vehicle_unset_tactical_mode_cap, true) then
                                 vehicle:clear_waypoints()
                                 vehicle:clear_attack_target()
                                 g_tactical_vid = 0
@@ -496,7 +496,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                                 g_selection:clear()
                                 g_is_ignore_tap = 1
                             end
-                            if ui:list_item("CARGO " .. update_get_loc(e_loc.upp_camera), true) then
+                            if ui:list_item(update_get_loc(e_loc.cargo_camera_cap), true) then
                                 local cargo_id = get_vehicle_cargo_id(vehicle)
                                 g_selection:set_vehicle(cargo_id)
                                 update_set_screen_vehicle_control_id(cargo_id)
@@ -507,7 +507,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                         else
                             local nearest_id, nearest_range = get_nearest_friendly_airliftable_id(vehicle, 750)
                             if nearest_id > 0 then
-                                if ui:list_item("AIRLIFT NEAREST", true) then
+                                if ui:list_item(update_get_loc(e_loc.vehicle_airlift_nearest_cap), true) then
                                     set_airlift_now(vehicle, nearest_id)
                                     g_selection:clear()
                                     g_is_ignore_tap = 1

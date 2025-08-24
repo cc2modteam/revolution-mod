@@ -1671,3 +1671,8 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1665	e_loc_click_for_transmission	Click for transmissions	Cliquez pour les transmissions	Klicken Sie für Übertragungen	Haga clic para transmisiones	Нажмите для передач	Clique para transmissões	点击查看消息	クリックして通信
 1666	e_loc_vehicle_land_here_cap	LAND HERE	ATTERRISSEZ ICI	HIER LANDEN	ATERRIZA AQUÍ	ПРИЗЕМЛИТЕСЬ ЗДЕСЬ	ATERRE AQUI	在此着陆	ここにランディング
 1667	e_loc_vehicle_hold_here_cap	HOLD HERE	MAINTENEZ ICI	HIER HALTEN	MANTÉN AQUÍ	ДЕРЖИТЕСЬ ЗДЕСЬ	MANTENHA AQUI	在此待命	ここで待機
+1668	e_loc_vehicle_set_tactical_mode_cap	SET TACTICAL MODE	PASSER EN MODE TACTIQUE	TAKTIK-MODUS EINSTELLEN	ACTIVAR MODO TÁCTICO	ВКЛЮЧИТЬ ТАКТИЧЕСКИЙ РЕЖИМ	DEFINIR MODO TÁTICO	设置战术模式	戦術モード設定
+1669	e_loc_vehicle_unset_tactical_mode_cap	UNSET TACTICAL MODE	DÉSACTIVER MODE TACTIQUE	TAKTIK-MODUS DEAKTIVIEREN	DESACTIVAR MODO TÁCTICO	ВЫКЛЮЧИТЬ ТАКТИЧЕСКИЙ РЕЖИМ	DESATIVAR MODO TÁTICO	取消战术模式	戦術モード解除
+1670	e_loc_cargo_camera_cap	CARGO CAMERA	CAMÉRA DE CARGAISON	FRACHTKAMERA	CÁMARA DE CARGA	ГРУЗОВАЯ КАМЕРА	CÂMERA DE CARGA	货物摄像头机	カーゴカメラ
+1671	e_loc_vehicle_airlift_nearest_cap	AIRLIFT NEAREST	TRANSPORT AÉRIEN DU PLUS PROCHE	NÄCHSTES PER LUFT TRANSPORTIEREN	TRANSPORTE AÉREO DEL MÁS CERCANO	АВИАПЕРЕБРОСКА БЛИЖАЙШЕГО	TRANSPORTE AÉREO DO MAIS PRÓXIMO	空运最近单位	最近を空輸
+1672	e_loc_cargo_cap	CARGO	CARGA	FRACHT	CARGA	ГРУЗ	CARGA	货物	カーゴ
