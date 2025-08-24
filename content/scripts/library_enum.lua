@@ -1825,7 +1825,9 @@ e_loc = {
 	docking_queue_cap = 1662,
 	change_cap = 1663,
 	close_screen_cap = 1664,
-	click_for_transmission = 1665
+	click_for_transmission = 1665,
+	vehicle_land_here_cap = 1666,
+	vehicle_hold_here_cap = 1667,
 }
 
 e_barge_destination_type = {

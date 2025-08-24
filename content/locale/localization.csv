@@ -1669,3 +1669,5 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1663	e_loc_change_cap	CHANGE	CHANGER	WECHSELN	CAMBIAR	ИЗМЕНИТЬ	MUDAR	改变	変更
 1664	e_loc_close_screen_cap	CLOSE	FERMER	SCHLIESSEN	CERRAR	ЗАКРЫТЬ	FECHAR	关闭	閉じる
 1665	e_loc_click_for_transmission	Click for transmissions	Cliquez pour les transmissions	Klicken Sie für Übertragungen	Haga clic para transmisiones	Нажмите для передач	Clique para transmissões	点击查看消息	クリックして通信
+1666	e_loc_vehicle_land_here_cap	LAND HERE	ATTERRISSEZ ICI	HIER LANDEN	ATERRIZA AQUÍ	ПРИЗЕМЛИТЕСЬ ЗДЕСЬ	ATERRE AQUI	在此着陆	ここにランディング
+1667	e_loc_vehicle_hold_here_cap	HOLD HERE	MAINTENEZ ICI	HIER HALTEN	MANTÉN AQUÍ	ДЕРЖИТЕСЬ ЗДЕСЬ	MANTENHA AQUI	在此待命	ここで待機

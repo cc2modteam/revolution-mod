@@ -455,7 +455,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                         g_viewing_vehicle_id = vehicle:get_id()
                         g_screen_index = 1
                     end
-                    if ui:list_item("HOLD HERE", true) then
+                    if ui:list_item(update_get_loc(e_loc.vehicle_hold_here_cap), true) then
                         vehicle:clear_waypoints()
                         local alt = math.floor(math.max(0, get_unit_altitude(vehicle) - 5))
                         add_altitude_waypoint(vehicle, vehicle:get_position_xz(), alt, 3)
@@ -463,7 +463,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                         g_is_ignore_tap = 1
                     end
                     if get_can_autoland(vehicle:get_definition_index()) then
-                        if ui:list_item("LAND HERE", true) then
+                        if ui:list_item(update_get_loc(e_loc.vehicle_land_here_cap), true) then
                             setup_autoland(vehicle)
                             g_selection:clear()
                             g_is_ignore_tap = 1
@@ -877,7 +877,7 @@ function render_selection_waypoint(screen_w, screen_h)
                     end
 
                     if get_can_autoland(vehicle_definition_index) then
-                        if ui:button("LAND HERE", true) then
+                        if ui:button(update_get_loc(e_loc.vehicle_land_here_cap), true) then
                             local prev_pos = nil
                             if selected_waypoint:get_id() > 1 then
                                 local prev_wpt = selected_vehicle:get_waypoint_by_id(selected_waypoint:get_id() - 1)
