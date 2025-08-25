@@ -1549,132 +1549,133 @@ id	name	en	fr	de	es	ru	pt	zh	ja
 1547	e_loc_upp_flight_invert,	FLIGHT INVERT	INVERSATION DU VOL	FLUGUMKEHRUNG	VUELO INVERTIDO	ИНВЕРТИРОВАНИЕ ПОЛЕТА	INVERTER VÔO	飞行反转	フライトインバート
 1548	e_loc_hold_fire,	HOLD FIRE	RETENIR LE FEU	FEUER HALTEN	MANTENER EL FUEGO	ДЕРЖАТЬ ОГОНЬ	SEGURAR FOGO	停火	火を止める
 1548	e_loc_hold_fire,	HOLD FIRE	RETENIR LE FEU	FEUER HALTEN	MANTENER EL FUEGO	ДЕРЖАТЬ ОГОНЬ	SEGURAR FOGO	停火	火を止める
-
-1549 	e_loc_upp_access_denied	ACCESS DENIED	ACCÈS REFUSÉ	ZUGRIFF VERWEIGERT	ACCESO DENEGADO	ДОСТУП ЗАПРЕЩЁН	ACESSO NEGADO	访问被拒	アクセスが拒否
-1550	e_loc_upp_30mm_rifle	30MM RIFLE	FUSIL 30 MM	30-MM-GEWEHR	FUSIL DE 30 MM	ВИНТОВКА 30мм	FUZIL 30 MM	30毫米轻型炮	30MMライフル銃
-1551 	e_loc_upp_electronic_countermeasure	ELECTRONIC COUNTERMEASURE	CONTRE-MESURE ÉLECTRONIQUE	ELEKTRONISCHE GEGENMASSNAHME	CONTRAMEDIDA ELECTRÓNICA	ЭЛЕКТРОННОЕ ПРОТИВОДЕЙСТВИЕ	CONTRAMEDIDA ELETRÔNICA	电子反制武器	電子防衛
-1552	e_loc_upp_30mm_rifle_short	RFL 30MM	FSL 30MM	GEW 30MM	FSL 30MM	ВИН 30мм	FZL 30MM	30MM轻炮	30MMライフル
-1553	e_loc_upp_30mm_cannon_short	GUN 30MM	CANON 30MM	KAN 30MM	CAÑ 30MM	ПУШ 30MM	ARMA 30MM	30MM炮	30MM砲
-1554	e_loc_upp_40mm_cannon_short	GUN 40MM	CANON 40MM	KAN 40MM	CAÑ 40MM	ПУШ 40MM	ARMA 40MM	40MM炮	40MM砲
-1555	e_loc_upp_heavy_cannon_short	HVY 100MM	LRD 100MM	SWR 100MM	PSS 100MM	ТЯЖ 100MM	PSD 100MM	100MM重炮	100MM重砲
-1556	e_loc_upp_100mm_cannon_short	BTL 100MM	BTL 100MM	KMP 100MM	BTL 100MM	БТЛ 100MM	BTL 100MM	100MM战斗炮	100MM戦闘砲
-1557	e_loc_upp_120mm_cannon_short	GUN 120MM	CANON 120MM	KAN 120MM	CAÑ 120MM	ПУШ 120MM	ARMA 120MM	120MM炮	120MM砲
-1558	e_loc_upp_160mm_cannon_short	GUN 160MM	CANON 160MM	KAN 160MM	CAÑ 160MM	ПУШ 160MM	ARMA 160MM	160MM炮	160MM砲
-1559	e_loc_upp_20mm_auto_cannon_short	CHAINGUN	CHAINGUN	CHAINGUN	CAÑ CADENA	ЦЕПНАЯ ПУШКА	ARMA CORRENTE	链炮	チェーンガン
-1560	e_loc_upp_rocket_pod_short	RKT POD	NACELLE ROQ	RAKETEN-POD	CONTENEDOR COH	РАК БЛОК	CÁPS FOG	火箭巢	ロケット弾ポ
-1561	e_loc_upp_missile_1_short	MSL IR	MSL IR	RAK IR	MSL IR	РКТ IR	MSL IR	红外导弹	ミサイル IR
-1562	e_loc_upp_missile_2_short	MSL LSR	MSL LSR	RAK LSR	MSL LSR	РКТ LSR	MSL LSR	激光导弹	ミサイル LSR
-1563	e_loc_upp_missile_4_short	MSL AA	MSL AA	RAK AA	MSL AA	РКТ AA	MSL AA	防空导弹	ミサイル AA
-1564	e_loc_upp_missile_tv_short	MSL TV	MSL TV	RAK TV	MSL TV	РКТ TV	MSL TV	电视导弹	ミサイル TV
-1565	e_loc_upp_actuated_camera_short	VIEW CAM	VUE CAM	KAM-ANSICHT	VISTA CÁM	ВИД КАМ	VISUAL CÂM	可动摄像头	作動カメラ
-1566	e_loc_upp_fixed_camera_short	CONTROL	CONTRÔLE	STEUERUNG	CONTROL	УПРАВЛЕНИЕ	CONTROLE	主控	制御
-1567	e_loc_upp_observation_camera_short	OBS CAM	CAM SURV	BEOB KAM	CÁM OBS	КАМ НАБЛ	CÂM OBS	观测摄像头	観測カメラ
-1568	e_loc_upp_awacs_short	AWACS	AWACS	AWACS	AWACS	АВАКС	AWACS	预警雷达	AWACS
-1569	e_loc_upp_external_fuel_tank_short	FUEL TANK	RÉSERVOIR CARBURANT	AUSSENTANK	DEPÓSITO COMBUSTIBLE	ТОПЛИВНЫЙ БАК	TANQUE COMBUSTÍVEL	燃料箱	燃料タンク
-1570	e_loc_upp_ir_countermeasures_short	FLARE	LEURRES	FLARES	BENGALAS	ТЕПЛОВЫЕ ЛОВУШКИ	FLARES	热焰弹	フレア
-1571	e_loc_upp_radar_golfball_short	RADAR	RADAR	RADAR	RADAR	РАДАР	RADAR	雷达	レーダー
-1572	upp_naval_cruise_missile_short	CRUISE MSL	MSL CROISIÈRE	MARSCHFLUGKÖRPER	MSL CRUCERO	КРЫЛАТАЯ РКТ	MSL CRUZEIRO	巡航导弹	巡航ミサイル
-1573 	e_loc_upp_electronic_countermeasure_short	EW	GUE	ELE	GUE	РЭБ	GUE	电战	EW
-1574 	e_loc_upp_torpedo_short	TORP EXPL	TORP EXPl	TORP EXP	TORP EXP	ТОРП ВЗР	TORP EXP	高爆鱼雷	爆発魚雷
-1575 	e_loc_upp_torpedo_decoy_short	TORP DECOY	TORP LEURRE	TORP KÖDER	TORP SEÑUELO	ТОРП ЛОЖНАЯ	TORP ISCA	诱饵鱼雷	デコイ魚雷
-1576 	e_loc_upp_torpedo_noise_short	TORP NOISE	TORP BRUIT	TORP GERÄUSCH	TORP RUIDO	ТОРП ИМИТАТОР	TORP BARULHO	噪声鱼雷	騒音魚雷
-1577	e_loc_upp_bomb_1_short	BOMB LIGHT	BOMBE LÉGÈRE	BOMBE LEICHTE	BOMBA LIGERA	БОМБА ЛЕГКАЯ	BOMBA LEVE	轻炸弹	軽爆弾
-1578	e_loc_upp_bomb_2_short	BOMB MEDIUM	BOMBE MOYENNE	BOMBE MITTLERE	BOMBA MEDIA	БОМБА СРЕДНЯЯ	BOMBA MÉDIA	中炸弹	中爆弾
-1579	e_loc_upp_bomb_3_short	BOMB HEAVY	BOMBE LOURDE	BOMBE SCHWERE	BOMBA PESADA	БОМБА ТЯЖЕЛАЯ	BOMBA PESADA	重炸弹	重爆弾
-1580	e_loc_upp_sonic_pulse_generator_short	PULSE GEN	IMPUL GÉN	PULSGEBER	PULSOS GEN	ИМПУЛЬСОВ ГЕН	PULSO GERA	脉冲发生器	パルス発生器
-1581	e_loc_upp_smoke_launcher_explosive_short	SMK EXPL	FUMÉE EXPL	NEBEL EXPL	HUMO EXPL	ДЫМОВОЙ ВЗР	FUMAÇA EXPL	爆发烟雾	爆発発煙筒
-1582	e_loc_upp_smoke_launcher_stream_short	SMK STRM	FUMÉE STRM	NEBEL STROM	HUMO CHOR	ДЫМОВОЙ ПОТОК	FUMAÇA RAJADA	持续烟雾	持続発煙筒
-1583	e_loc_upp_logistics_container_20mm_short	BOX 20MM	CAISSE 20MM	KISTE 20MM	CAJA 20MM	ЯЩИК 20MM	CAIXA 20MM	20MM补给箱	20MM補給箱
-1584	e_loc_upp_logistics_container_30mm_short	BOX 30MM	CAISSE 30MM	KISTE 30MM	CAJA 30MM	ЯЩИК 30MM	CAIXA 30MM	30MM补给箱	30MM補給箱
-1585	e_loc_upp_logistics_container_40mm_short	BOX 40MM	CAISSE 40MM	KISTE 40MM	CAJA 40MM	ЯЩИК 40MM	CAIXA 40MM	40MM补给箱	40MM補給箱
-1586	e_loc_upp_logistics_container_100mm_short	BOX 100MM	CAISSE 100MM	KISTE 100MM	CAJA 100MM	ЯЩИК 100MM	CAIXA 100MM	100MM补给箱	100MM補給箱
-1587	e_loc_upp_logistics_container_120mm_short	BOX 120MM	CAISSE 120MM	KISTE 120MM	CAJA 120MM	ЯЩИК 120MM	CAIXA 120MM	120MM补给箱	120MM補給箱
-1588	e_loc_upp_logistics_container_160mm_short	BOX 160MM	CAISSE 160MM	KISTE 160MM	CAJA 160MM	ЯЩИК 160MM	CAIXA 160MM	160MM补给箱	160MM補給箱
-1589	e_loc_upp_logistics_container_ir_missile_short	BOX MSL IR	CAISSE MSL IR	KISTE RAK IR	CAJA MSL IR	ЯЩИК РКТ IR	CAIXA MSL IR	红外导弹补给箱	ミサイル IR  補給箱
-1590	e_loc_upp_turret_droid_short	DUAL 30MM	DOUBLE 30MM	DUAL 30MM	DUAL 30MM	ДВОЙНАЯ 30MM	DUPLO 30MM	30MM双联炮	30MM双銃
-1591	e_loc_upp_deployable_droid_short	DROID	DROÏDE	DROIDE	DROIDE	ДРОИД	DROIDE	机甲	ドロイド
-1592	e_loc_rwr_button_on	RWR ON	RWR AN	RWR ON	RWR ON	САР ВКЛ	RWR ON	开启雷达信号侦测器	RWR 入
-1593	e_loc_rwr_button_off	RWR OFF	RWR AUS	RWR OFF	RWR OFF	САР ВКЛ	RWR OFF	关闭雷达信号侦测器	RWR 切
-1594	e_loc_holomap_ui_bearing	Bearing	Azimut	Peilung	Rumbo	Азимут	Azimute	方位	ベアリング
-1595	e_loc_holomap_ui_torpedo_delay	Torpedo Delay	Délai de torpille	Torpedo-Verzögerung	Retardo del torpedo	Задержка торпеды	Atraso de torpedeiro	鱼雷延迟	魚雷遅延
-1596	e_loc_holomap_ui_button_del	Del	Suppr	Lösch	Elim	Удал	Excluir	删除	削除
-1597	e_loc_holomap_ui_button_set	Set	Poser	Setzen	Poner	Установить	Definir	放置	置く
-1598	e_loc_holomap_tools_title	Tools	Outils	Werkzeuge	Herramientas	Инструменты	Ferramentas	工具	ツール
-1599	e_loc_holomap_ui_set_marker_tooltip	Set Marker	Poser Marqueur	Markierung Setzen	Poner Marcador	Установить Маркер	Definir Marcador	放置标记	置くマーカ
-1600	e_loc_upp_button_hold_on_deck	HOLD ON DECK	ATTENDEZ SUR LE PONT	BLEIBEN SIE AN DECK	ESPERA EN CUBIERTA	ОЖИДАЕТ НА ПАЛУБЕ	ESPERE NO CONVÉS	留在甲板上	ホールド・オン・デッキ
-1601	e_loc_inventory_ui_insufficient_date	insufficiant data	données insuffisantes	unzureichende daten	datos insuficientes	недостаточно данных	dados insuficientes	数据不足	データ不足
-1602	e_loc_vehicle_list_state_unkown_desc	Unkown	Inconnu	Unbekannt	Desconocido	Неизвестно	Desconhecido	未知	不明
-1603	e_loc_vehicle_list_state_damg_string	DAMG	ENDM	BESC	DAÑAD	ПОВР	DANI	受损	損傷
-1604	e_loc_vehicle_list_state_damg_desc	Vehicle under attack	Véhicule attaqué	Fahrzeug unter Beschuss	Vehículo atacado	Транспорт под атакой	Veículo sob ataque	载具受到攻击	車両が攻撃を受けている
-1605	e_loc_vehicle_list_state_land_string	LAND	ATER	LAND	ATER	ПРИЗ	ATER	降落	着陸
-1606	e_loc_vehicle_list_state_land_desc	Landing	En train d'atterrir	Landet gerade	Aterrizando	Идёт посадка	Aterrando	正在降落	着陸中
-1607	e_loc_vehicle_list_state_dock_string	DOCK	AMAR	DOCK	ACOP	СТЫК	ATRA	停泊	接舷
-1608	e_loc_vehicle_list_state_dock_desc	Docking	Amarrage en cours	Dockt an	Acoplando	Идёт стыковка	Atracando	正在停泊	ドッキング中
-1609	e_loc_vehicle_list_state_ptrn_string	PTRN	MODÈ	MSTR	PATR	ШАБЛ	PADR	流程	手順
-1610	e_loc_vehicle_list_state_land_ptrn_desc	In Landing Pattern	Dans le circuit d'atterrissage	Im Landeanflugmuster	En el patrón de aterrizaje	В посадочной схеме	No padrão de aterragem	在降落流程中	着陸パターンで
-1611	e_loc_vehicle_list_state_dock_ptrn_desc	In Docking Pattern	Dans le circuit d'amarrage	Im Andockmuster	En el patrón de acoplamiento	В схеме стыковки	No padrão de atracagem	在停泊流程中	ドッキングパターンで
-1612	e_loc_vehicle_list_state_lnch_string	LNCH	LNCR	STRT	LNZR	ЗПУК	LNÇR	出动	発射
-1613	e_loc_vehicle_list_state_lnch_desc	Launching	Lancement	Startet	Lanzando	Идёт запуск	Lançando	正在起飞	発射中
-1614	e_loc_vehicle_list_state_stby_string	STBY	ATNT	BER	ESP	ГОТ	ESPR	就绪	待機
-1615	e_loc_vehicle_list_state_stby_desc	Waiting to Launch	En attente de lancement	Warte auf Start	Esperando para lanzar	Ожидание запуска	Aguardando lançamento	等待出动	発射待機中
-1616	e_loc_vehicle_list_state_taxi_string	TAXI	ROLG	RLLN	RODJ	РУЛН	TANE	滑行	滑行
-1617	e_loc_vehicle_list_state_taxi_desc	Taxiing to Launch	Roulage au lancement	Rollende zum Start	Rodando para el despegue	Руление на взлёт	Taxiar para lançamento	滑行至起飞地点	発射地点へタキシング
-1618	e_loc_vehicle_list_state_hold_string	HOLD	MAIN	HALT	MANT	ДЕРЖ	MANT	待命	保留
-1619	e_loc_vehicle_list_state_hold_desc	Holding for Launch	En attente de lancement	Halten für Start	Mantener para el lanzamiento	Ожидание запуска	Aguardando para lançamento	起飞待命	発射保留中
-1620	e_loc_vehicle_list_state_hplt_string	HPLT	HUPI	MPIL	HUPI	ЧПЛТ	HUPI	遥控	操縦
-1621	e_loc_vehicle_list_state_hplt_desc	Human Piloted	Piloté par un humain	Von einem Menschen gesteuert	Pilotado por un humano	Управляется человеком	Pilotado por um humano	正在由人类驾驶	有人操縦中
-1622	e_loc_vehicle_list_state_piloted_by_desc	Piloted by	Piloté par	Gesteuert von	Pilotado por	Пилотируемый	Pilotado por	驾驶员:	操縦者:
-1623	e_loc_vehicle_list_state_attk_string	ATTK	ATTQ	AGRF	ATAQ	АТАК	ATAQ	攻击	攻撃
-1624	e_loc_vehicle_list_state_attk_desc	Attacking Target	Attaque de la cible	Zielangriff	Atacando objetivo	Атака цели	Atacando o alvo	正在攻击目标	目標を攻撃中
-1625	e_loc_vehicle_list_state_lift_string	LIFT	TPAR	LUFT	TPAR	АВИА	TPAR	空运	空輸
-1626	e_loc_vehicle_list_state_lift_desc	Airlifting Target	Transport aérien de la cible	Ziel per Luft transportieren	Transporte aéreo del objetivo	Авиапереброска цели	Transporte aéreo do alvo	正在空运目标	目標を空輸中
-1627	e_loc_vehicle_list_state_wypt_string	WYPT	PTPA	WGPT	PTRT	ПТТК	PTRT	航点	経路
-1628	e_loc_vehicle_list_state_wypt_desc	Heading to Waypoint	En route vers le point de passage	Auf dem Weg zum Wegpunkt	Dirigiéndose al punto de ruta	Следую к путевой точке	A caminho do ponto de rota	正在前往路径点	通過点へ前進
-1629	e_loc_vehicle_list_state_dply_string	DPLY	DPLY	ENST	DPLG	РВТН	DDBR	部署	展開
-1630	e_loc_vehicle_list_state_dply_desc	Deploying Payload	Déploiement de la charge utile	Lädt Nutzlast ab	Despliegue de carga útil	Развёртывание полезной нагрузки	Desdobrando a carga útil	正在部署载荷	ペイロード展開中
-1631	e_loc_vehicle_list_state_rtrn_string	RTRN	RTUR	RKHR	RGRS	ВЗВР	RTRN	返回	帰還
-1632	e_loc_vehicle_list_state_rtrn_desc	Returning to Carrier	Retour au porte-avions	Rückkehr zum Träger	Regresando al portaviones	Возвращение на авианосец	Retornando ao porta-aviões	正在返回航母	空母へ帰還
-1633	e_loc_vehicle_list_state_supp_string	SUPP	SUPP	UTRZ	APOY	ПОДД	APOI	支援	支援
-1634	e_loc_vehicle_list_state_supp_desc	Supporting Target	Soutien de la cible	Zielunterstützung	Apoyando objetivo	Поддержка цели	Apoio ao alvo	正在支援目标	目標を支援中
-1635	e_loc_vehicle_list_state_wga_string	WG A	AG A	WG A	EG A	ОГ А	AG A	等待A	A待つ
-1636	e_loc_vehicle_list_state_wga_desc	Waiting for Alpha Go	En attente d'Alpha Go	Warten auf Alpha Go	Esperando a Alpha Go	Ожидание Альфа Го	Aguardando Alpha Go	等待Alpha Go	アルファ碁を待機
-1637	e_loc_vehicle_list_state_wgb_string	WG B	AG B	WG B	EG B	ОГ B	AG B	等待B	B待つ
-1638	e_loc_vehicle_list_state_wgb_desc	En attente de Bravo Go	Warten auf Bravo Go	Esperando a Bravo Go	Ожидание Браво Го	Aguardando Bravo Go	等待Bravo Go	ブラボー碁を待機
-1639	e_loc_vehicle_list_state_wgc_string	WG C	AG C	WG C	EG C	ОГ C	AG C	等待C	C待つ
-1640	e_loc_vehicle_list_state_wgc_desc	Waiting for Charlie Go	En attente de Charlie Go	Warten auf Charlie Go	Esperando a Charlie Go	Ожидание Чарли Го	Aguardando Charlie Go	等待Charlie Go	チャーリー碁を待機
-1641	e_loc_vehicle_list_state_wgd_string	WG D	AG D	WG D	EG D	ОГ D	AG D	等待D	D待つ
-1642	e_loc_vehicle_list_state_wgd_desc	Waiting for Delta Go	En attente de Delta Go	Warten auf Delta Go	Esperando a Delta Go	Ожидание Дельта Го	Aguardando Delta Go	等待Delta Go	デルタ碁を待機
-1643	e_loc_vehicle_list_state_loop_string	LOOP	BOUC	SCLF	BCLE	ПТЛЯ	LAÇO	循环	周回
-1644	e_loc_vehicle_list_state_loop_desc	Following Waypoint Loop	Suivant la boucle de points de passage	Folge Wegpunkt-Schleife	Siguiendo el bucle de puntos de ruta	Следую по петле путевых точек	Seguindo o laço de pontos de rota	正在跟随路径点循环	通過点周回に追従
-1643	e_loc_vehicle_list_state_free_string	FREE	LIBR	FREI	LIBR	СВОБ	LIVR	自由	自由
-1644	e_loc_vehicle_list_state_hovr_string	HOVR	HOVR	SCBN	CIERNES	ЗАВИ	PAIRAR	滞空	浮遊
-1645	e_loc_vehicle_list_state_idle_string	IDLE	IDLE	LRLF	INAC	ХОЛО	INAT	闲置	休止
-1646	e_loc_vehicle_list_state_idle_desc	Waiting for Tasking	En attente d'une tâche	Warte auf Aufgabe	Esperando tarea	Ожидание задания	Aguardando tarefa	等待命令	命令待機中
-1647	e_loc_upp_vehicle_list_all	ALL UNITS	TOUTES LES UNITÉS	ALLE EINHEITEN	TODAS LAS UNIDADES	ВСЕ ЮНИТЫ	TODAS AS UNIDADES	所有单位	全機
-1648	e_loc_upp_vehicle_list_aircraft	AIRCRAFT	AVION	FLUGZEUG	AERONAVE	САМОЛЕТ	AERONAVE	飞机	航空機
-1649	e_loc_upp_vehicle_list_ground	GROUND	TERRESTRE	BODEN	TERRESTRE	НАЗЕМНЫЙ	TERRESTRE	地面	地上
-1650	e_loc_upp_vehicle_list_sea	SEA	MARIN	SEE	MARINO	МОРСКОЙ	MARINHO	海上	海上
-1651	e_loc_upp_vehicle_list_turrets	TURRETS	TOURELLES	TÜRME	TORRETAS	ТУРЕЛИ	TORRETAS	炮塔	砲塔
-1652	e_loc_vehicle_mounted_lgm_text	LGM	LGM	LGR	LGM	ЛНР	LGM	激光导弹	LGM
-1653	e_loc_radar_mode_contacts	CONTACTS	CONTACTS	KONTAKTE	CONTACTOS	КОНТАКТЫ	CONTATOS	联系人	コンタクト
-1654	e_loc_radar_mode_atc	ATC	ATC	FVK	ATC	ОрВД	ATCO	空中管制	航空管制
-1655	e_loc_radar_mode_threat	THREAT	MENACE	BEDROHUNG	AMENAZA	УГРОЗА	AMEAÇA	威胁	脅威
-1656	e_loc_upp_mode	MODE	MODE	MODUS	MODO	РЕЖИМ	MODO	模式	モード
-1657	e_loc_vehicle_ui_signal_jammed	SIGNAL JAMMED	SIGNAL BROUILLÉ	SIGNAL GESTÖRT	SEÑAL INTERFERIDA	СИГНАЛ ЗАГЛУШЕН	SINAL INTERFERIDO	信号被干扰	信号妨害中
-1658	e_loc_mode_bandwidth	Bandwidth	BANDE PASSANTE	BANDBREITE	ANCHO DE BANDA	ПРОПУСКНАЯ СПОСОБНОСТЬ	LARGURA DE BANDA	带宽	帯域幅
-1659	e_loc_vehicle_ui_ccip	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP
-1660	e_loc_vehicle_ui_ccrp	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP
-1661	e_loc_surface_traffic_title	SURFACE TRAFFIC	TRAFIC DE SURFACE	BODENVERKEHR	TRÁFICO DE SUPERFICIE	НАЗЕМНЫЙ ТРАФИК	TRÁFEGO DE SUPERFÍCIE	地面交通	地面交通
-1662	e_loc_upp_docking_queue	DOCKING QUEUE	QUEUE D'ACCOSTAGE	ANDOCKWARTESCHLANGE	COLA DE ACOPLAMIENTO	ОЧЕРЕДЬ СТЫКОВКИ	FILA DE ATRACAGEM	停泊队列	ドッキングキュー
-1663	e_loc_upp_change	CHANGE	CHANGER	WECHSELN	CAMBIAR	ИЗМЕНИТЬ	MUDAR	改变	変更
-1664	e_loc_upp_close_screen	CLOSE	FERMER	SCHLIESSEN	CERRAR	ЗАКРЫТЬ	FECHAR	关闭	閉じる
-1665	e_loc_click_for_transmission	Click for transmissions	Cliquez pour les transmissions	Klicken Sie für Übertragungen	Haga clic para transmisiones	Нажмите для передач	Clique para transmissões	点击查看消息	クリックして通信
-1666	e_loc_upp_vehicle_land_here	LAND HERE	ATTERRISSEZ ICI	HIER LANDEN	ATERRIZA AQUÍ	ПРИЗЕМЛИТЕСЬ ЗДЕСЬ	ATERRE AQUI	在此着陆	ここにランディング
-1667	e_loc_upp_vehicle_hold_here	HOLD HERE	MAINTENEZ ICI	HIER HALTEN	MANTÉN AQUÍ	ДЕРЖИТЕСЬ ЗДЕСЬ	MANTENHA AQUI	在此待命	ここで待機
-1668	e_loc_upp_vehicle_set_tactical_mode	SET TACTICAL MODE	PASSER EN MODE TACTIQUE	TAKTIK-MODUS EINSTELLEN	ACTIVAR MODO TÁCTICO	ВКЛЮЧИТЬ ТАКТИЧЕСКИЙ РЕЖИМ	DEFINIR MODO TÁTICO	设置战术模式	戦術モード設定
-1669	e_loc_upp_vehicle_unset_tactical_mode	UNSET TACTICAL MODE	DÉSACTIVER MODE TACTIQUE	TAKTIK-MODUS DEAKTIVIEREN	DESACTIVAR MODO TÁCTICO	ВЫКЛЮЧИТЬ ТАКТИЧЕСКИЙ РЕЖИМ	DESATIVAR MODO TÁTICO	取消战术模式	戦術モード解除
-1670	e_loc_upp_cargo_camera	CARGO CAMERA	CAMÉRA DE CARGAISON	FRACHTKAMERA	CÁMARA DE CARGA	ГРУЗОВАЯ КАМЕРА	CÂMERA DE CARGA	货物摄像头机	カーゴカメラ
-1671	e_loc_upp_vehicle_airlift_nearest	AIRLIFT NEAREST	TRANSPORT AÉRIEN DU PLUS PROCHE	NÄCHSTES PER LUFT TRANSPORTIEREN	TRANSPORTE AÉREO DEL MÁS CERCANO	АВИАПЕРЕБРОСКА БЛИЖАЙШЕГО	TRANSPORTE AÉREO DO MAIS PRÓXIMO	空运最近单位	最近を空輸
-1672	e_loc_upp_cargo	CARGO	CARGA	FRACHT	CARGA	ГРУЗ	CARGA	货物	カーゴ
-1673	e_loc_upp_hangar	HANGAR	HANGAR	HANGAR	HANGAR	АНГАР	HANGAR	机库	格納庫
-1674	e_loc_upp_mission_time	MISSION TIME	DURÉE DE LA MISSION	MISSIONSDDAUER	TIEMPO DE MISIÓN	ВРЕМЯ МИССИИ	TEMPO DA MISSÃO	任务时间	任務時間
+1549	e_loc_upp_refuel,	REFUEL	FAIRE LE PLEIN	AUFTANKEN	REPOSTAR	ДОЗАПРАВКА	REABASTECER	补充燃料	燃料補給
+1550	e_loc_interaction_toggle_refuel,	toggle refuel	basculer le ravitaillement	tanken umschalten	alternar repostaje	переключить дозаправку	alternar reabastecimento	切换加油	給油を切り替える
+1551	e_loc_upp_access_denied	ACCESS DENIED	ACCÈS REFUSÉ	ZUGRIFF VERWEIGERT	ACCESO DENEGADO	ДОСТУП ЗАПРЕЩЁН	ACESSO NEGADO	访问被拒	アクセスが拒否
+1552	e_loc_upp_30mm_rifle	30MM RIFLE	FUSIL 30 MM	30-MM-GEWEHR	FUSIL DE 30 MM	ВИНТОВКА 30мм	FUZIL 30 MM	30毫米轻型炮	30MMライフル銃
+1553	e_loc_upp_electronic_countermeasure	ELECTRONIC COUNTERMEASURE	CONTRE-MESURE ÉLECTRONIQUE	ELEKTRONISCHE GEGENMASSNAHME	CONTRAMEDIDA ELECTRÓNICA	ЭЛЕКТРОННОЕ ПРОТИВОДЕЙСТВИЕ	CONTRAMEDIDA ELETRÔNICA	电子反制武器	電子防衛
+1554	e_loc_upp_30mm_rifle_short	RFL 30MM	FSL 30MM	GEW 30MM	FSL 30MM	ВИН 30мм	FZL 30MM	30MM轻炮	30MMライフル
+1555	e_loc_upp_30mm_cannon_short	GUN 30MM	CANON 30MM	KAN 30MM	CAÑ 30MM	ПУШ 30MM	ARMA 30MM	30MM炮	30MM砲
+1556	e_loc_upp_40mm_cannon_short	GUN 40MM	CANON 40MM	KAN 40MM	CAÑ 40MM	ПУШ 40MM	ARMA 40MM	40MM炮	40MM砲
+1557	e_loc_upp_heavy_cannon_short	HVY 100MM	LRD 100MM	SWR 100MM	PSS 100MM	ТЯЖ 100MM	PSD 100MM	100MM重炮	100MM重砲
+1558	e_loc_upp_100mm_cannon_short	BTL 100MM	BTL 100MM	KMP 100MM	BTL 100MM	БТЛ 100MM	BTL 100MM	100MM战斗炮	100MM戦闘砲
+1559	e_loc_upp_120mm_cannon_short	GUN 120MM	CANON 120MM	KAN 120MM	CAÑ 120MM	ПУШ 120MM	ARMA 120MM	120MM炮	120MM砲
+1560	e_loc_upp_160mm_cannon_short	GUN 160MM	CANON 160MM	KAN 160MM	CAÑ 160MM	ПУШ 160MM	ARMA 160MM	160MM炮	160MM砲
+1561	e_loc_upp_20mm_auto_cannon_short	CHAINGUN	CHAINGUN	CHAINGUN	CAÑ CADENA	ЦЕПНАЯ ПУШКА	ARMA CORRENTE	链炮	チェーンガン
+1562	e_loc_upp_rocket_pod_short	RKT POD	NACELLE ROQ	RAKETEN-POD	CONTENEDOR COH	РАК БЛОК	CÁPS FOG	火箭巢	ロケット弾ポ
+1563	e_loc_upp_missile_1_short	MSL IR	MSL IR	RAK IR	MSL IR	РКТ IR	MSL IR	红外导弹	ミサイル IR
+1564	e_loc_upp_missile_2_short	MSL LSR	MSL LSR	RAK LSR	MSL LSR	РКТ LSR	MSL LSR	激光导弹	ミサイル LSR
+1565	e_loc_upp_missile_4_short	MSL AA	MSL AA	RAK AA	MSL AA	РКТ AA	MSL AA	防空导弹	ミサイル AA
+1566	e_loc_upp_missile_tv_short	MSL TV	MSL TV	RAK TV	MSL TV	РКТ TV	MSL TV	电视导弹	ミサイル TV
+1567	e_loc_upp_actuated_camera_short	VIEW CAM	VUE CAM	KAM-ANSICHT	VISTA CÁM	ВИД КАМ	VISUAL CÂM	可动摄像头	作動カメラ
+1568	e_loc_upp_fixed_camera_short	CONTROL	CONTRÔLE	STEUERUNG	CONTROL	УПРАВЛЕНИЕ	CONTROLE	主控	制御
+1569	e_loc_upp_observation_camera_short	OBS CAM	CAM SURV	BEOB KAM	CÁM OBS	КАМ НАБЛ	CÂM OBS	观测摄像头	観測カメラ
+1570	e_loc_upp_awacs_short	AWACS	AWACS	AWACS	AWACS	АВАКС	AWACS	预警雷达	AWACS
+1571	e_loc_upp_external_fuel_tank_short	FUEL TANK	RÉSERVOIR CARBURANT	AUSSENTANK	DEPÓSITO COMBUSTIBLE	ТОПЛИВНЫЙ БАК	TANQUE COMBUSTÍVEL	燃料箱	燃料タンク
+1572	e_loc_upp_ir_countermeasures_short	FLARE	LEURRES	FLARES	BENGALAS	ТЕПЛОВЫЕ ЛОВУШКИ	FLARES	热焰弹	フレア
+1573	e_loc_upp_radar_golfball_short	RADAR	RADAR	RADAR	RADAR	РАДАР	RADAR	雷达	レーダー
+1574	upp_naval_cruise_missile_short	CRUISE MSL	MSL CROISIÈRE	MARSCHFLUGKÖRPER	MSL CRUCERO	КРЫЛАТАЯ РКТ	MSL CRUZEIRO	巡航导弹	巡航ミサイル
+1575	e_loc_upp_electronic_countermeasure_short	EW	GUE	ELE	GUE	РЭБ	GUE	电战	EW
+1576	e_loc_upp_torpedo_short	TORP EXPL	TORP EXPl	TORP EXP	TORP EXP	ТОРП ВЗР	TORP EXP	高爆鱼雷	爆発魚雷
+1577	e_loc_upp_torpedo_decoy_short	TORP DECOY	TORP LEURRE	TORP KÖDER	TORP SEÑUELO	ТОРП ЛОЖНАЯ	TORP ISCA	诱饵鱼雷	デコイ魚雷
+1578	e_loc_upp_torpedo_noise_short	TORP NOISE	TORP BRUIT	TORP GERÄUSCH	TORP RUIDO	ТОРП ИМИТАТОР	TORP BARULHO	噪声鱼雷	騒音魚雷
+1579	e_loc_upp_bomb_1_short	BOMB LIGHT	BOMBE LÉGÈRE	BOMBE LEICHTE	BOMBA LIGERA	БОМБА ЛЕГКАЯ	BOMBA LEVE	轻炸弹	軽爆弾
+1580	e_loc_upp_bomb_2_short	BOMB MEDIUM	BOMBE MOYENNE	BOMBE MITTLERE	BOMBA MEDIA	БОМБА СРЕДНЯЯ	BOMBA MÉDIA	中炸弹	中爆弾
+1581	e_loc_upp_bomb_3_short	BOMB HEAVY	BOMBE LOURDE	BOMBE SCHWERE	BOMBA PESADA	БОМБА ТЯЖЕЛАЯ	BOMBA PESADA	重炸弹	重爆弾
+1582	e_loc_upp_sonic_pulse_generator_short	PULSE GEN	IMPUL GÉN	PULSGEBER	PULSOS GEN	ИМПУЛЬСОВ ГЕН	PULSO GERA	脉冲发生器	パルス発生器
+1583	e_loc_upp_smoke_launcher_explosive_short	SMK EXPL	FUMÉE EXPL	NEBEL EXPL	HUMO EXPL	ДЫМОВОЙ ВЗР	FUMAÇA EXPL	爆发烟雾	爆発発煙筒
+1584	e_loc_upp_smoke_launcher_stream_short	SMK STRM	FUMÉE STRM	NEBEL STROM	HUMO CHOR	ДЫМОВОЙ ПОТОК	FUMAÇA RAJADA	持续烟雾	持続発煙筒
+1585	e_loc_upp_logistics_container_20mm_short	BOX 20MM	CAISSE 20MM	KISTE 20MM	CAJA 20MM	ЯЩИК 20MM	CAIXA 20MM	20MM补给箱	20MM補給箱
+1586	e_loc_upp_logistics_container_30mm_short	BOX 30MM	CAISSE 30MM	KISTE 30MM	CAJA 30MM	ЯЩИК 30MM	CAIXA 30MM	30MM补给箱	30MM補給箱
+1587	e_loc_upp_logistics_container_40mm_short	BOX 40MM	CAISSE 40MM	KISTE 40MM	CAJA 40MM	ЯЩИК 40MM	CAIXA 40MM	40MM补给箱	40MM補給箱
+1588	e_loc_upp_logistics_container_100mm_short	BOX 100MM	CAISSE 100MM	KISTE 100MM	CAJA 100MM	ЯЩИК 100MM	CAIXA 100MM	100MM补给箱	100MM補給箱
+1589	e_loc_upp_logistics_container_120mm_short	BOX 120MM	CAISSE 120MM	KISTE 120MM	CAJA 120MM	ЯЩИК 120MM	CAIXA 120MM	120MM补给箱	120MM補給箱
+1590	e_loc_upp_logistics_container_160mm_short	BOX 160MM	CAISSE 160MM	KISTE 160MM	CAJA 160MM	ЯЩИК 160MM	CAIXA 160MM	160MM补给箱	160MM補給箱
+1591	e_loc_upp_logistics_container_ir_missile_short	BOX MSL IR	CAISSE MSL IR	KISTE RAK IR	CAJA MSL IR	ЯЩИК РКТ IR	CAIXA MSL IR	红外导弹补给箱	ミサイル IR  補給箱
+1592	e_loc_upp_turret_droid_short	DUAL 30MM	DOUBLE 30MM	DUAL 30MM	DUAL 30MM	ДВОЙНАЯ 30MM	DUPLO 30MM	30MM双联炮	30MM双銃
+1593	e_loc_upp_deployable_droid_short	DROID	DROÏDE	DROIDE	DROIDE	ДРОИД	DROIDE	机甲	ドロイド
+1594	e_loc_rwr_button_on	RWR ON	RWR AN	RWR ON	RWR ON	САР ВКЛ	RWR ON	开启雷达信号侦测器	RWR 入
+1595	e_loc_rwr_button_off	RWR OFF	RWR AUS	RWR OFF	RWR OFF	САР ВКЛ	RWR OFF	关闭雷达信号侦测器	RWR 切
+1596	e_loc_holomap_ui_bearing	Bearing	Azimut	Peilung	Rumbo	Азимут	Azimute	方位	ベアリング
+1597	e_loc_holomap_ui_torpedo_delay	Torpedo Delay	Délai de torpille	Torpedo-Verzögerung	Retardo del torpedo	Задержка торпеды	Atraso de torpedeiro	鱼雷延迟	魚雷遅延
+1598	e_loc_holomap_ui_button_del	Del	Suppr	Lösch	Elim	Удал	Excluir	删除	削除
+1599	e_loc_holomap_ui_button_set	Set	Poser	Setzen	Poner	Установить	Definir	放置	置く
+1600	e_loc_holomap_tools_title	Tools	Outils	Werkzeuge	Herramientas	Инструменты	Ferramentas	工具	ツール
+1601	e_loc_holomap_ui_set_marker_tooltip	Set Marker	Poser Marqueur	Markierung Setzen	Poner Marcador	Установить Маркер	Definir Marcador	放置标记	置くマーカ
+1602	e_loc_upp_button_hold_on_deck	HOLD ON DECK	ATTENDEZ SUR LE PONT	BLEIBEN SIE AN DECK	ESPERA EN CUBIERTA	ОЖИДАЕТ НА ПАЛУБЕ	ESPERE NO CONVÉS	留在甲板上	ホールド・オン・デッキ
+1603	e_loc_inventory_ui_insufficient_date	insufficiant data	données insuffisantes	unzureichende daten	datos insuficientes	недостаточно данных	dados insuficientes	数据不足	データ不足
+1604	e_loc_vehicle_list_state_unkown_desc	Unkown	Inconnu	Unbekannt	Desconocido	Неизвестно	Desconhecido	未知	不明
+1605	e_loc_vehicle_list_state_damg_string	DAMG	ENDM	BESC	DAÑAD	ПОВР	DANI	受损	損傷
+1606	e_loc_vehicle_list_state_damg_desc	Vehicle under attack	Véhicule attaqué	Fahrzeug unter Beschuss	Vehículo atacado	Транспорт под атакой	Veículo sob ataque	载具受到攻击	車両が攻撃を受けている
+1607	e_loc_vehicle_list_state_land_string	LAND	ATER	LAND	ATER	ПРИЗ	ATER	降落	着陸
+1608	e_loc_vehicle_list_state_land_desc	Landing	En train d'atterrir	Landet gerade	Aterrizando	Идёт посадка	Aterrando	正在降落	着陸中
+1609	e_loc_vehicle_list_state_dock_string	DOCK	AMAR	DOCK	ACOP	СТЫК	ATRA	停泊	接舷
+1610	e_loc_vehicle_list_state_dock_desc	Docking	Amarrage en cours	Dockt an	Acoplando	Идёт стыковка	Atracando	正在停泊	ドッキング中
+1611	e_loc_vehicle_list_state_ptrn_string	PTRN	MODÈ	MSTR	PATR	ШАБЛ	PADR	流程	手順
+1612	e_loc_vehicle_list_state_land_ptrn_desc	In Landing Pattern	Dans le circuit d'atterrissage	Im Landeanflugmuster	En el patrón de aterrizaje	В посадочной схеме	No padrão de aterragem	在降落流程中	着陸パターンで
+1613	e_loc_vehicle_list_state_dock_ptrn_desc	In Docking Pattern	Dans le circuit d'amarrage	Im Andockmuster	En el patrón de acoplamiento	В схеме стыковки	No padrão de atracagem	在停泊流程中	ドッキングパターンで
+1614	e_loc_vehicle_list_state_lnch_string	LNCH	LNCR	STRT	LNZR	ЗПУК	LNÇR	出动	発射
+1615	e_loc_vehicle_list_state_lnch_desc	Launching	Lancement	Startet	Lanzando	Идёт запуск	Lançando	正在起飞	発射中
+1616	e_loc_vehicle_list_state_stby_string	STBY	ATNT	BER	ESP	ГОТ	ESPR	就绪	待機
+1617	e_loc_vehicle_list_state_stby_desc	Waiting to Launch	En attente de lancement	Warte auf Start	Esperando para lanzar	Ожидание запуска	Aguardando lançamento	等待出动	発射待機中
+1618	e_loc_vehicle_list_state_taxi_string	TAXI	ROLG	RLLN	RODJ	РУЛН	TANE	滑行	滑行
+1619	e_loc_vehicle_list_state_taxi_desc	Taxiing to Launch	Roulage au lancement	Rollende zum Start	Rodando para el despegue	Руление на взлёт	Taxiar para lançamento	滑行至起飞地点	発射地点へタキシング
+1620	e_loc_vehicle_list_state_hold_string	HOLD	MAIN	HALT	MANT	ДЕРЖ	MANT	待命	保留
+1621	e_loc_vehicle_list_state_hold_desc	Holding for Launch	En attente de lancement	Halten für Start	Mantener para el lanzamiento	Ожидание запуска	Aguardando para lançamento	起飞待命	発射保留中
+1622	e_loc_vehicle_list_state_hplt_string	HPLT	HUPI	MPIL	HUPI	ЧПЛТ	HUPI	遥控	操縦
+1623	e_loc_vehicle_list_state_hplt_desc	Human Piloted	Piloté par un humain	Von einem Menschen gesteuert	Pilotado por un humano	Управляется человеком	Pilotado por um humano	正在由人类驾驶	有人操縦中
+1624	e_loc_vehicle_list_state_piloted_by_desc	Piloted by	Piloté par	Gesteuert von	Pilotado por	Пилотируемый	Pilotado por	驾驶员:	操縦者:
+1625	e_loc_vehicle_list_state_attk_string	ATTK	ATTQ	AGRF	ATAQ	АТАК	ATAQ	攻击	攻撃
+1626	e_loc_vehicle_list_state_attk_desc	Attacking Target	Attaque de la cible	Zielangriff	Atacando objetivo	Атака цели	Atacando o alvo	正在攻击目标	目標を攻撃中
+1627	e_loc_vehicle_list_state_lift_string	LIFT	TPAR	LUFT	TPAR	АВИА	TPAR	空运	空輸
+1628	e_loc_vehicle_list_state_lift_desc	Airlifting Target	Transport aérien de la cible	Ziel per Luft transportieren	Transporte aéreo del objetivo	Авиапереброска цели	Transporte aéreo do alvo	正在空运目标	目標を空輸中
+1629	e_loc_vehicle_list_state_wypt_string	WYPT	PTPA	WGPT	PTRT	ПТТК	PTRT	航点	経路
+1630	e_loc_vehicle_list_state_wypt_desc	Heading to Waypoint	En route vers le point de passage	Auf dem Weg zum Wegpunkt	Dirigiéndose al punto de ruta	Следую к путевой точке	A caminho do ponto de rota	正在前往路径点	通過点へ前進
+1631	e_loc_vehicle_list_state_dply_string	DPLY	DPLY	ENST	DPLG	РВТН	DDBR	部署	展開
+1632	e_loc_vehicle_list_state_dply_desc	Deploying Payload	Déploiement de la charge utile	Lädt Nutzlast ab	Despliegue de carga útil	Развёртывание полезной нагрузки	Desdobrando a carga útil	正在部署载荷	ペイロード展開中
+1633	e_loc_vehicle_list_state_rtrn_string	RTRN	RTUR	RKHR	RGRS	ВЗВР	RTRN	返回	帰還
+1634	e_loc_vehicle_list_state_rtrn_desc	Returning to Carrier	Retour au porte-avions	Rückkehr zum Träger	Regresando al portaviones	Возвращение на авианосец	Retornando ao porta-aviões	正在返回航母	空母へ帰還
+1635	e_loc_vehicle_list_state_supp_string	SUPP	SUPP	UTRZ	APOY	ПОДД	APOI	支援	支援
+1636	e_loc_vehicle_list_state_supp_desc	Supporting Target	Soutien de la cible	Zielunterstützung	Apoyando objetivo	Поддержка цели	Apoio ao alvo	正在支援目标	目標を支援中
+1637	e_loc_vehicle_list_state_wga_string	WG A	AG A	WG A	EG A	ОГ А	AG A	等待A	A待つ
+1638	e_loc_vehicle_list_state_wga_desc	Waiting for Alpha Go	En attente d'Alpha Go	Warten auf Alpha Go	Esperando a Alpha Go	Ожидание Альфа Го	Aguardando Alpha Go	等待Alpha Go	アルファ碁を待機
+1639	e_loc_vehicle_list_state_wgb_string	WG B	AG B	WG B	EG B	ОГ B	AG B	等待B	B待つ
+1640	e_loc_vehicle_list_state_wgb_desc	En attente de Bravo Go	Warten auf Bravo Go	Esperando a Bravo Go	Ожидание Браво Го	Aguardando Bravo Go	等待Bravo Go	ブラボー碁を待機	
+1641	e_loc_vehicle_list_state_wgc_string	WG C	AG C	WG C	EG C	ОГ C	AG C	等待C	C待つ
+1642	e_loc_vehicle_list_state_wgc_desc	Waiting for Charlie Go	En attente de Charlie Go	Warten auf Charlie Go	Esperando a Charlie Go	Ожидание Чарли Го	Aguardando Charlie Go	等待Charlie Go	チャーリー碁を待機
+1643	e_loc_vehicle_list_state_wgd_string	WG D	AG D	WG D	EG D	ОГ D	AG D	等待D	D待つ
+1644	e_loc_vehicle_list_state_wgd_desc	Waiting for Delta Go	En attente de Delta Go	Warten auf Delta Go	Esperando a Delta Go	Ожидание Дельта Го	Aguardando Delta Go	等待Delta Go	デルタ碁を待機
+1645	e_loc_vehicle_list_state_loop_string	LOOP	BOUC	SCLF	BCLE	ПТЛЯ	LAÇO	循环	周回
+1646	e_loc_vehicle_list_state_loop_desc	Following Waypoint Loop	Suivant la boucle de points de passage	Folge Wegpunkt-Schleife	Siguiendo el bucle de puntos de ruta	Следую по петле путевых точек	Seguindo o laço de pontos de rota	正在跟随路径点循环	通過点周回に追従
+1645	e_loc_vehicle_list_state_free_string	FREE	LIBR	FREI	LIBR	СВОБ	LIVR	自由	自由
+1646	e_loc_vehicle_list_state_hovr_string	HOVR	HOVR	SCBN	CIERNES	ЗАВИ	PAIRAR	滞空	浮遊
+1647	e_loc_vehicle_list_state_idle_string	IDLE	IDLE	LRLF	INAC	ХОЛО	INAT	闲置	休止
+1648	e_loc_vehicle_list_state_idle_desc	Waiting for Tasking	En attente d'une tâche	Warte auf Aufgabe	Esperando tarea	Ожидание задания	Aguardando tarefa	等待命令	命令待機中
+1649	e_loc_upp_vehicle_list_all	ALL UNITS	TOUTES LES UNITÉS	ALLE EINHEITEN	TODAS LAS UNIDADES	ВСЕ ЮНИТЫ	TODAS AS UNIDADES	所有单位	全機
+1650	e_loc_upp_vehicle_list_aircraft	AIRCRAFT	AVION	FLUGZEUG	AERONAVE	САМОЛЕТ	AERONAVE	飞机	航空機
+1651	e_loc_upp_vehicle_list_ground	GROUND	TERRESTRE	BODEN	TERRESTRE	НАЗЕМНЫЙ	TERRESTRE	地面	地上
+1652	e_loc_upp_vehicle_list_sea	SEA	MARIN	SEE	MARINO	МОРСКОЙ	MARINHO	海上	海上
+1653	e_loc_upp_vehicle_list_turrets	TURRETS	TOURELLES	TÜRME	TORRETAS	ТУРЕЛИ	TORRETAS	炮塔	砲塔
+1654	e_loc_vehicle_mounted_lgm_text	LGM	LGM	LGR	LGM	ЛНР	LGM	激光导弹	LGM
+1655	e_loc_radar_mode_contacts	CONTACTS	CONTACTS	KONTAKTE	CONTACTOS	КОНТАКТЫ	CONTATOS	联系人	コンタクト
+1656	e_loc_radar_mode_atc	ATC	ATC	FVK	ATC	ОрВД	ATCO	空中管制	航空管制
+1657	e_loc_radar_mode_threat	THREAT	MENACE	BEDROHUNG	AMENAZA	УГРОЗА	AMEAÇA	威胁	脅威
+1658	e_loc_upp_mode	MODE	MODE	MODUS	MODO	РЕЖИМ	MODO	模式	モード
+1659	e_loc_vehicle_ui_signal_jammed	SIGNAL JAMMED	SIGNAL BROUILLÉ	SIGNAL GESTÖRT	SEÑAL INTERFERIDA	СИГНАЛ ЗАГЛУШЕН	SINAL INTERFERIDO	信号被干扰	信号妨害中
+1660	e_loc_mode_bandwidth	Bandwidth	BANDE PASSANTE	BANDBREITE	ANCHO DE BANDA	ПРОПУСКНАЯ СПОСОБНОСТЬ	LARGURA DE BANDA	带宽	帯域幅
+1661	e_loc_vehicle_ui_ccip	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP	CCIP
+1662	e_loc_vehicle_ui_ccrp	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP	CCRP
+1663	e_loc_surface_traffic_title	SURFACE TRAFFIC	TRAFIC DE SURFACE	BODENVERKEHR	TRÁFICO DE SUPERFICIE	НАЗЕМНЫЙ ТРАФИК	TRÁFEGO DE SUPERFÍCIE	地面交通	地面交通
+1664	e_loc_upp_docking_queue	DOCKING QUEUE	QUEUE D'ACCOSTAGE	ANDOCKWARTESCHLANGE	COLA DE ACOPLAMIENTO	ОЧЕРЕДЬ СТЫКОВКИ	FILA DE ATRACAGEM	停泊队列	ドッキングキュー
+1665	e_loc_upp_change	CHANGE	CHANGER	WECHSELN	CAMBIAR	ИЗМЕНИТЬ	MUDAR	改变	変更
+1666	e_loc_upp_close_screen	CLOSE	FERMER	SCHLIESSEN	CERRAR	ЗАКРЫТЬ	FECHAR	关闭	閉じる
+1667	e_loc_click_for_transmission	Click for transmissions	Cliquez pour les transmissions	Klicken Sie für Übertragungen	Haga clic para transmisiones	Нажмите для передач	Clique para transmissões	点击查看消息	クリックして通信
+1668	e_loc_upp_vehicle_land_here	LAND HERE	ATTERRISSEZ ICI	HIER LANDEN	ATERRIZA AQUÍ	ПРИЗЕМЛИТЕСЬ ЗДЕСЬ	ATERRE AQUI	在此着陆	ここにランディング
+1669	e_loc_upp_vehicle_hold_here	HOLD HERE	MAINTENEZ ICI	HIER HALTEN	MANTÉN AQUÍ	ДЕРЖИТЕСЬ ЗДЕСЬ	MANTENHA AQUI	在此待命	ここで待機
+1670	e_loc_upp_vehicle_set_tactical_mode	SET TACTICAL MODE	PASSER EN MODE TACTIQUE	TAKTIK-MODUS EINSTELLEN	ACTIVAR MODO TÁCTICO	ВКЛЮЧИТЬ ТАКТИЧЕСКИЙ РЕЖИМ	DEFINIR MODO TÁTICO	设置战术模式	戦術モード設定
+1671	e_loc_upp_vehicle_unset_tactical_mode	UNSET TACTICAL MODE	DÉSACTIVER MODE TACTIQUE	TAKTIK-MODUS DEAKTIVIEREN	DESACTIVAR MODO TÁCTICO	ВЫКЛЮЧИТЬ ТАКТИЧЕСКИЙ РЕЖИМ	DESATIVAR MODO TÁTICO	取消战术模式	戦術モード解除
+1672	e_loc_upp_cargo_camera	CARGO CAMERA	CAMÉRA DE CARGAISON	FRACHTKAMERA	CÁMARA DE CARGA	ГРУЗОВАЯ КАМЕРА	CÂMERA DE CARGA	货物摄像头机	カーゴカメラ
+1673	e_loc_upp_vehicle_airlift_nearest	AIRLIFT NEAREST	TRANSPORT AÉRIEN DU PLUS PROCHE	NÄCHSTES PER LUFT TRANSPORTIEREN	TRANSPORTE AÉREO DEL MÁS CERCANO	АВИАПЕРЕБРОСКА БЛИЖАЙШЕГО	TRANSPORTE AÉREO DO MAIS PRÓXIMO	空运最近单位	最近を空輸
+1674	e_loc_upp_cargo	CARGO	CARGA	FRACHT	CARGA	ГРУЗ	CARGA	货物	カーゴ
+1675	e_loc_upp_hangar	HANGAR	HANGAR	HANGAR	HANGAR	АНГАР	HANGAR	机库	格納庫
+1676	e_loc_upp_mission_time	MISSION TIME	DURÉE DE LA MISSION	MISSIONSDDAUER	TIEMPO DE MISIÓN	ВРЕМЯ МИССИИ	TEMPO DA MISSÃO	任务时间	任務時間
