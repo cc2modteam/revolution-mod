@@ -448,7 +448,7 @@ function update(screen_w, screen_h, ticks)
 
     local title = ""
     
-    if g_hovered_lmr ~= 2 then title = title .. "SURFACE TRAFFIC" end
+    if g_hovered_lmr ~= 2 then title = title .. update_get_loc(e_loc.surface_traffic_title) end
     if g_hovered_lmr == 1 then title = title .. "       " end
     if g_hovered_lmr ~= 0 then title = title .. update_get_loc(e_loc.upp_air_traffic) end
 
@@ -481,7 +481,7 @@ function update(screen_w, screen_h, ticks)
             
                 update_ui_push_offset(right_w + (left_w - 100) / 2, region_h - 22)
                 update_ui_rectangle_outline(0, 0, 100, 16, dmc)
-                update_ui_text(0, 4, "DOCKING QUEUE", 100, 1, dmc, 0)
+                update_ui_text(0, 4, update_get_loc(e_loc.upp_docking_queue), 100, 1, dmc, 0)
                 update_ui_pop_offset()
 
                 update_ui_push_clip( left_w, 0, right_w, region_h )
@@ -685,89 +685,89 @@ function render_vehicle_list( win_list, is_air )
             
             -- drone mode tab, set the list entry string and color
             local vehicle_state_string = "????"
-            local vehicle_state_description = "Unknown"
+            local vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_unkown_desc)
             local vehicle_state_color = color_white
             
             --TODO: incoming damage alert mode, this status is quite short lived, maybe replace it with something else
             if damage_indicator_factor > 0 then
             
-                vehicle_state_string = "DAMG"
-                vehicle_state_description = "Vehicle under attack"
+                vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_damg_string)
+                vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_damg_desc)
                 vehicle_state_color = color_status_bad
             
             --TODO: plane landing mode. helis don't get the "docking" aka landing state even though the final approach is not cancelable
             --TODO: had to add the landing check for helis here, because they are in the dock_queue state all the way down to the runway.
             elseif vehicle_dock_state == e_vehicle_dock_state.docking then
             
-                vehicle_state_string = iff(is_air, "LAND", "DOCK")
-                vehicle_state_description = iff(is_air, "Landing", "Docking")
+                vehicle_state_string = iff(is_air, update_get_loc(e_loc.vehicle_list_state_land_string), update_get_loc(e_loc.vehicle_list_state_dock_string))
+                vehicle_state_description = iff(is_air, update_get_loc(e_loc.vehicle_list_state_land_desc), update_get_loc(e_loc.vehicle_list_state_dock_desc))
                 vehicle_state_color = g_colors.docking
                 
             -- holding mode and helicopter landing mode
             elseif vehicle_dock_state == e_vehicle_dock_state.dock_queue then
                 
-                vehicle_state_string = "PTRN"
-                vehicle_state_description = iff(is_air, "In Landing Pattern", "In Docking Pattern")
+                vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_ptrn_string)
+                vehicle_state_description = iff(is_air, update_get_loc(e_loc.vehicle_list_state_land_ptrn_desc), update_get_loc(e_loc.vehicle_list_state_dock_ptrn_desc))
                 vehicle_state_color = g_colors.dock_queue
      
             --TODO: launch mode. "undocking" is also active when the drone is on the crane and going up on the elevator, maybe add a "TAXI" state that is set while the drone is on them? couldn't find a way to check for that though
             elseif vehicle_dock_state == e_vehicle_dock_state.undocking then
             
-                vehicle_state_string = "LNCH"
-                vehicle_state_description = "Launching"
+                vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_lnch_string)
+                vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_lnch_desc)
                 vehicle_state_color = color_status_dark_green
             
             -- standby mode, "pending_undock" is active when the drone is rearming and refueling, or waiting inside the drone bay for the crane and elevator to be free
             elseif vehicle_dock_state == e_vehicle_dock_state.pending_undock then
             
-                vehicle_state_string = "STBY"
-                vehicle_state_description = "Waiting to Launch"
+                vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_stby_string)
+                vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_stby_desc)
                 vehicle_state_color = g_colors.carrier
             
             -- taxi
             elseif vehicle_dock_state == e_vehicle_dock_state.docking_taxi then
             
-                vehicle_state_string = "TAXI"
-                vehicle_state_description = "Taxiing to Launch"
+                vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_taxi_string)
+                vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_taxi_desc)
                 vehicle_state_color = color_grey_mid
                 
             -- holding for launch
             elseif vehicle_dock_state == e_vehicle_dock_state.undock_holding then
                 
-                vehicle_state_string = "HOLD"
-                vehicle_state_description = "Holding for Launch"
+                vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_hold_string)
+                vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_hold_desc)
                 vehicle_state_color = color_status_bad
                 
             -- manual flight control mode
             elseif vehicle_manual_flight_control then
             
-                vehicle_state_string = "HPLT"
-                vehicle_state_description = "Human Piloted"
+                vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_hplt_string)
+                vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_hplt_desc)
                 vehicle_state_color = color_grey_dark
                 
                 if vehicle_peer_id ~= 0 then
                     local peer_index = update_get_peer_index_by_id(vehicle_peer_id)
-                    vehicle_state_description = "Piloted by " .. update_get_peer_name(peer_index)
+                    vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_piloted_by_desc) .. " " .. update_get_peer_name(peer_index)
                 end
             
             -- attack mode, the Petrel's airlift order is a type of attack, make sure to filter it
             elseif attack_target_type ~= e_attack_type.none then
             
-                vehicle_state_string = "ATTK"
-                vehicle_state_description = "Attacking Target"
+                vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_attk_string)
+                vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_attk_desc)
                 vehicle_state_color = color_status_warning
             
                 if attack_target_type == e_attack_type.airlift then
-                    vehicle_state_string = "LIFT"
-                    vehicle_state_description = "Airlifting Target"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_lift_string)
+                    vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_lift_desc)
                     vehicle_state_color = color8(255, 100, 0, 255)
                 end
             
             -- waypoint modes
             elseif waypoint_count > 0 then
             
-                vehicle_state_string = "WYPT"
-                vehicle_state_description = "Heading to Waypoint"
+                vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_wypt_string)
+                vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_wypt_desc)
                 vehicle_state_color = color_friendly
                 
                 local waypoint = vehicle:get_waypoint(0)
@@ -775,32 +775,32 @@ function render_vehicle_list( win_list, is_air )
                 local waypoint_dist = vec2_dist( vehicle:get_position_xz(), waypoint:get_position_xz() ) < iff( v.is_wing, 350, 20 )
                 
                 if waypoint:get_type() == e_waypoint_type.deploy then
-                    vehicle_state_string = "DPLY"
-                    vehicle_state_description = "Deploying Payload"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_dply_string)
+                    vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_dply_desc)
                     vehicle_state_color = color8(255, 100, 0, 255)
                 elseif waypoint:get_type() == e_waypoint_type.dock then
-                    vehicle_state_string = "RTRN"
-                    vehicle_state_description = "Returning to Carrier"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_rtrn_string)
+                    vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_rtrn_desc)
                     vehicle_state_color = g_colors.dock_queue
                 elseif waypoint:get_type() == e_waypoint_type.support then
-                    vehicle_state_string = "SUPP"
-                    vehicle_state_description = "Supporting Target"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_supp_string)
+                    vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_supp_desc)
                     vehicle_state_color = color_white
                 elseif waypoint:get_is_wait_group(0) and waypoint_dist then
-                    vehicle_state_string = "WG A"
-                    vehicle_state_description = "Waiting for Alpha Go"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_wga_string)
+                    vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_wga_desc)
                     vehicle_state_color = color_status_warning
                 elseif waypoint:get_is_wait_group(1) and waypoint_dist then
-                    vehicle_state_string = "WG B"
-                    vehicle_state_description = "Waiting for Bravo Go"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_wgb_string)
+                    vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_wgb_desc)
                     vehicle_state_color = color_status_warning
                 elseif waypoint:get_is_wait_group(2) and waypoint_dist then
-                    vehicle_state_string = "WG C"
-                    vehicle_state_description = "Waiting for Charlie Go"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_wgc_string)
+                    vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_wgc_desc)
                     vehicle_state_color = color_status_warning
                 elseif waypoint:get_is_wait_group(3) and waypoint_dist then
-                    vehicle_state_string = "WG D"
-                    vehicle_state_description = "Waiting for Delta Go"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_wgd_string)
+                    vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_wgd_desc)
                     vehicle_state_color = color_status_warning
                 else
                     --iterate through the waypoints and see if they loop on themselves
@@ -808,8 +808,8 @@ function render_vehicle_list( win_list, is_air )
                         waypoint = vehicle:get_waypoint(w)
 
                         if waypoint:get_repeat_index(w) >= 0 then
-                            vehicle_state_string = "LOOP"
-                            vehicle_state_description = "Following Waypoint Loop"
+                            vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_loop_string)
+                            vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_loop_string)
                             vehicle_state_color = color8(0, 30, 230, 255)
                             break
                         end
@@ -821,13 +821,13 @@ function render_vehicle_list( win_list, is_air )
 
                 -- drone behavior depends on drone type here. planes fly straight ahead, helis hover stationary
                 if v.is_wing then
-                    vehicle_state_string = "FREE"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_free_string)
                 elseif v.is_rotor then
-                    vehicle_state_string = "HOVR"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_hovr_string)
                 else
-                    vehicle_state_string = "IDLE"
+                    vehicle_state_string = update_get_loc(e_loc.vehicle_list_state_idle_string)
                 end
-                vehicle_state_description = "Waiting for Tasking"
+                vehicle_state_description = update_get_loc(e_loc.vehicle_list_state_idle_desc)
             end
 
             -- remote control tab
@@ -858,11 +858,11 @@ function render_vehicle_list( win_list, is_air )
                     if selected_col == 2 then
                         text = string.format("%s ID %d", full_name, id)
                     elseif selected_col == 3 then
-                        text = string.format("Fuel")
+                        text = string.format(update_get_loc(e_loc.fuel))
                     elseif selected_col == 4 then
-                        text = string.format("Health")
+                        text = string.format(update_get_loc(e_loc.hp))
                     elseif selected_col == 5 then
-                        text = string.format("Ammo")
+                        text = string.format(update_get_loc(e_loc.upp_ammo))
                     end
 
                     tooltip = {

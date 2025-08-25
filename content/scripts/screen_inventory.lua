@@ -1842,7 +1842,7 @@ function render_node_tooltip(w, h, id, type)
                 if g_revolution_hide_hostile_island_types then
                     visible = fow_island_visible(id)
                     if not visible then
-                        tile_text = "insufficiant data"
+                        tile_text = update_get_loc(e_loc.inventory_ui_insufficient_date)
                         tile_icon = atlas_icons.map_icon_island
                         unlocks = {}
                     end
@@ -3106,7 +3106,7 @@ function tab_fuel_render(screen_w, screen_h, x, y, w, h, is_tab_active, screen_v
         g_ui,
         {
             {
-                w=table_widths[1], margin=5, value="AIRCRAFT",
+                w=table_widths[1], margin=5, value=update_get_loc(e_loc.upp_vehicle_list_aircraft),
             },
             {
                 w=table_widths[2], margin=2, value=string.format("%5dt", math.floor(air_fuel/1000)),

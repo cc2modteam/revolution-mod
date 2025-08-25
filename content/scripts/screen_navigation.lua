@@ -751,7 +751,7 @@ function compass_update(screen_w, screen_h, ticks)
             -- fuel
             local fuel = this_vehicle:get_fuel_factor()
 
-            update_ui_text(128, 60, string.format("FUEL: %d%%", round_int(fuel * 100)),
+            update_ui_text(128, 60, string.format("%s: %d%%", update_get_loc(e_loc.upp_fuel), round_int(fuel * 100)),
                     64, 1, color_white, 0, 0
             )
             update_ui_rectangle(128, 74,

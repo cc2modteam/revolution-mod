@@ -44,7 +44,7 @@ function update(screen_w, screen_h, ticks)
                 if vehicle:get_attachment_count() >= 18 then
                     if vehicle:get_attachment(14):get_definition_index() == e_game_object_type.attachment_hardpoint_missile_laser then
                         left_attachment = vehicle:get_attachment(14)
-                        left_text = "LGM"
+                        left_text = update_get_loc(e_loc.vehicle_mounted_lgm_text)
                         left_inventory = e_inventory_item.hardpoint_missile_laser
                     end
                 end
