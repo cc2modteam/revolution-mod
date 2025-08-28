@@ -451,6 +451,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
 
                 if get_is_vehicle_enterable(vehicle) then
                     if ui:list_item(update_get_loc(e_loc.upp_camera), true) then
+                        sidebar_close()
                         update_set_screen_vehicle_control_id(vehicle:get_id())
                         g_viewing_vehicle_id = vehicle:get_id()
                         g_screen_index = 1
@@ -499,6 +500,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                             if ui:list_item("CARGO " .. update_get_loc(e_loc.upp_camera), true) then
                                 local cargo_id = get_vehicle_cargo_id(vehicle)
                                 g_selection:set_vehicle(cargo_id)
+                                sidebar_close()
                                 update_set_screen_vehicle_control_id(cargo_id)
                                 g_viewing_vehicle_id = cargo_id
                                 g_screen_index = 1
@@ -995,8 +997,22 @@ function render_selection_map(screen_w, screen_h)
         ui:header(update_get_loc(e_loc.upp_actions))
 
         if g_dev_options then
-            if ui:list_item("settings test") then
-                update_ui_event("set_game_setting gfx_resolution", 2^31, 876543)
+            if ui:list_item("interaction test", true) then
+                update_ui_event("chat_team", string.format("test %d", update_get_logic_tick()))
+                update_ui_event("chat_team", "! moose")
+                sidebar_send("hello\nworld!")
+            end
+
+            if ui:list_item("sidebar open", true) then
+                sidebar_open()
+            end
+
+            if ui:list_item("sidebar close", true) then
+                sidebar_close()
+            end
+
+            if ui:list_item("sidebar add", true) then
+                sidebar_add_text(15, 30, "hello", "w")
             end
 
             if ui:list_item("start call timer", true) then
@@ -1218,6 +1234,9 @@ end
 function update(screen_w, screen_h, ticks)
     if update_get_is_focus_local() then
         g_last_input_tick = update_get_logic_tick()
+        if g_viewing_vehicle_id == 0 then
+            sidebar_open()
+        end
     end
 
     if call_func_override("screen_vehicle_control__update", screen_w, screen_h, ticks) then
@@ -1297,7 +1316,8 @@ end
 
 g_last_waypoint_send = 0
 
-function _update(screen_w, screen_h, ticks)
+
+function __update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
     g_last_update_interval = ticks
@@ -1384,7 +1404,11 @@ function _update(screen_w, screen_h, ticks)
         g_next_pos_x = g_camera_pos_x
         g_next_pos_y = g_camera_pos_y
     end
-
+    if g_viewing_vehicle_id > 0 and update_get_is_focus_local() then
+        if g_client_sidebar.open then
+            sidebar_close()
+        end
+    end
     update_set_screen_vehicle_control_id(g_viewing_vehicle_id)
 
     g_blink_timer = g_blink_timer + ticks
@@ -2915,6 +2939,7 @@ function _update(screen_w, screen_h, ticks)
             if highlighted_vehicle:get() then
                 if get_is_vehicle_air(highlighted_vehicle:get_definition_index()) then
                     local waypoint = highlighted_vehicle:get_waypoint_by_id(g_highlighted.waypoint_id)
+                    local waypoint = highlighted_vehicle:get_waypoint_by_id(g_highlighted.waypoint_id)
 
                     if waypoint:get() then
                         local altitude_text = waypoint:get_altitude() .. update_get_loc(e_loc.acronym_meters)
@@ -3233,6 +3258,13 @@ function _update(screen_w, screen_h, ticks)
     g_pointer_pos_y_prev = g_pointer_pos_y
 end
 
+function _update(w, h, t)
+    __update(w, h, t)
+    sidebar_commit()
+    g_client_sidebar.closing = false
+end
+
+
 function render_vehicle_info_panel(x, y, vehicle)
     local w = 127
     local h = 22
@@ -3527,6 +3559,7 @@ function input_event(event, action)
                     elseif g_drag:is_drag() then
                         g_drag:clear()
                     else
+                        sidebar_close()
                         update_set_screen_state_exit()
                     end
                 end
@@ -3711,6 +3744,7 @@ function input_event(event, action)
     elseif g_screen_index == 2 then
         if action == e_input_action.release then
             if event == e_input.back then
+                sidebar_close()
                 update_set_screen_state_exit()
             end
         end
@@ -3840,6 +3874,8 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
     if vehicle_team ~= screen_team then
         vehicle_definition_index = ew_fuzz_unit_def(vehicle_definition_index, vehicle:get_id())
     end
+    local hitpoints = vehicle:get_hitpoints()
+    local hitpoints_total = vehicle:get_total_hitpoints()
 
     local vehicle_definition_name, vehicle_definition_region = get_chassis_data_by_definition_index(vehicle_definition_index)
     local vehicle_name = vehicle_definition_name
@@ -3899,6 +3935,9 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
         update_ui_text(cx, 1, vehicle_name, 124, 0, color_white, 0)
         cx = cx + math.max(update_ui_get_text_size(display_id,   10000, 0),
                            update_ui_get_text_size(vehicle_name, 10000, 0)) + 2
+
+        sidebar_add_text(32, 100, vehicle_name, "w")
+
     else
         update_ui_image(cx, 2, atlas_icons.icon_chassis_16_wheel_small, color_inactive, 0)
         cx = cx + 18
@@ -4403,4 +4442,78 @@ function update_world_triangle(ax, ay, bx, by, cx, cy, col)
 
     update_ui_add_triangle(vec2(ax, ay), vec2(bx, by), vec2(cx, cy), col)
     update_ui_end_triangles()
+end
+
+g_client_sidebar = {
+    open = false,
+    last_message = "",
+    text = {},
+    active = false,
+}
+
+function sidebar_send(msg)
+    g_client_sidebar.last_message = msg
+    if msg then
+        local txt = string.format("!\n%s", msg)
+        update_ui_event("chat_team", txt)
+        -- local_print(">>", txt)
+    end
+end
+
+function sidebar_add_text(x, y, txt, col)
+    if g_client_sidebar.open then
+        g_client_sidebar.active = true
+        table.insert(g_client_sidebar.text, {x = x, y = y, txt = txt, col = col})
+    end
+end
+
+function sidebar_open()
+    if not g_client_sidebar.closing then
+        if not g_client_sidebar.open then
+            sidebar_send("open")
+            print("open")
+        end
+        g_client_sidebar.open = true
+    end
+end
+
+function sidebar_close()
+    if g_client_sidebar.open then
+        g_client_sidebar.closing = true
+        sidebar_send("close")
+        print("close")
+    end
+
+    g_client_sidebar.open = false
+    g_client_sidebar.text = {}
+    g_client_sidebar.active = false
+end
+
+function sidebar_clear()
+    if g_client_sidebar.active then
+        g_client_sidebar.active = false
+        sidebar_send("clear")
+        g_client_sidebar.text = {}
+    end
+end
+
+
+function sidebar_commit()
+    local msg = ""
+    for _, v in pairs(g_client_sidebar.text) do
+        local prev = msg
+        if prev ~= "" then
+            prev = prev .. "\n"
+        end
+        msg = string.format("%stext|%d|%d|%s|%s", prev, v.x, v.y, v.txt, v.col)
+    end
+    if msg ~= "" then
+        -- print("[" .. msg .. "]")
+        if g_client_sidebar.last_message ~= msg then
+            sidebar_send(msg)
+            g_client_sidebar.text = {}
+        end
+    else
+        sidebar_clear()
+    end
 end

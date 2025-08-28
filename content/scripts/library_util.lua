@@ -20,6 +20,10 @@ color_friendly = color8(16, 255, 255, 255)
 color_enemy = color8(255, 16, 16, 255)
 color_button_bg = color8(4, 12, 12, 255)
 color_button_bg_inactive = color8(7, 7, 7, 255)
+color_red = color_enemy
+color_green = color8(16, 255, 16, 255)
+color_yellow = color8(255, 255, 16, 255)
+color_blue = color8(16, 16, 255, 255)
 
 -- actually team names really - inb
 vessel_names = {
