@@ -1312,7 +1312,7 @@ g_sidebar = {
 	open = false,
 	x = 42,
 	y = 120,
-	w = 0.2,
+	w = 0.214,
 }
 
 g_sb_colors = {
@@ -1326,10 +1326,10 @@ g_sb_colors = {
 
 function sidebar_color(txt)
 	local c = g_sb_colors[txt]
-	if c ~= nil then
-		return c
+	if c == nil then
+		return color_white
 	end
-	return color_white
+	return c
 end
 
 function on_sidebar_message(message)
@@ -1369,7 +1369,6 @@ function on_sidebar_message(message)
 					end
 				end
 				if item.type then
-
 					table.insert(sidebar.items, item)
 				end
 
@@ -1405,9 +1404,11 @@ function render_sidebar(ui, screen_w, screen_h)
 		-- render the items
 		for _, item in pairs(g_sidebar.items) do
 			if item.type == "text" then
-				update_ui_text(
-						sidebar.x + item.x, sidebar.y + item.y, item.txt, w, 0, item.color, 0
-				)
+				if item.x ~= nil and item.y ~= nil and item.txt and item.color then
+					update_ui_text(
+							sidebar.x + item.x, sidebar.y + item.y, item.txt, w, 0, item.color, 0
+					)
+				end
 			end
 		end
 

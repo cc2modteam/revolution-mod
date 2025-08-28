@@ -3936,7 +3936,13 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
         cx = cx + math.max(update_ui_get_text_size(display_id,   10000, 0),
                            update_ui_get_text_size(vehicle_name, 10000, 0)) + 2
 
-        sidebar_add_text(32, 100, vehicle_name, "w")
+        sidebar_add_text(10, 10, vehicle_name, "w")
+        sidebar_add_text(10, 20, display_id, "w")
+        sidebar_add_text(10, 30, "FUEL:", "w")
+        sidebar_add_text(60, 30, string.format("%d%%", round_int(fuel_factor * 100)), "w")
+
+        sidebar_add_text(10, 50, "HEALTH:", "w")
+        sidebar_add_text(60, 50, string.format("%d/%d", hitpoints, hitpoints_total), "w")
 
     else
         update_ui_image(cx, 2, atlas_icons.icon_chassis_16_wheel_small, color_inactive, 0)
