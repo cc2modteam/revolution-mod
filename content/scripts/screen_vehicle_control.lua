@@ -3871,7 +3871,9 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
     local vehicle_pos_xz = vehicle:get_position_xz()
     local vehicle_definition_index = vehicle:get_definition_index()
     local vehicle_team = vehicle:get_team()
+    local friendly = true
     if vehicle_team ~= screen_team then
+        friendly = false
         vehicle_definition_index = ew_fuzz_unit_def(vehicle_definition_index, vehicle:get_id())
     end
     local hitpoints = vehicle:get_hitpoints()
@@ -3936,10 +3938,18 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
         cx = cx + math.max(update_ui_get_text_size(display_id,   10000, 0),
                            update_ui_get_text_size(vehicle_name, 10000, 0)) + 2
 
+        local sidebar_unit_color = "w"
+        local sidebar_fuel_color = "g"
+        if not friendly then
+            sidebar_unit_color = "r"
+        end
+
         sidebar_add_text(10, 10, vehicle_name, "w")
-        sidebar_add_text(10, 20, display_id, "w")
-        sidebar_add_text(10, 30, "FUEL:", "w")
-        sidebar_add_text(60, 30, string.format("%d%%", round_int(fuel_factor * 100)), "w")
+        sidebar_add_text(10, 20, display_id, sidebar_unit_color)
+        if friendly then
+            sidebar_add_text(10, 30, "FUEL:", "w")
+            sidebar_add_text(60, 30, string.format("%d%%", round_int(fuel_factor * 100)), sidebar_fuel_color)
+        end
 
         sidebar_add_text(10, 50, "HEALTH:", "w")
         sidebar_add_text(60, 50, string.format("%d/%d", hitpoints, hitpoints_total), "w")

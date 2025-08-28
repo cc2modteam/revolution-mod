@@ -1378,6 +1378,7 @@ function on_sidebar_message(message)
 end
 
 function process_sidebar(msg)
+
 	local sidebar = g_sidebar
 	if msg.message:sub(1, 1) == "!" then
 		if msg.timestamp > sidebar.last then
@@ -1400,7 +1401,6 @@ function render_sidebar(ui, screen_w, screen_h)
 		local h = math.floor(screen_h / 3)
 		update_ui_rectangle(sidebar.x, sidebar.y, w, h, color_black)
 		update_ui_rectangle_outline(sidebar.x, sidebar.y, w, h, color_grey_dark)
-
 		-- render the items
 		for _, item in pairs(g_sidebar.items) do
 			if item.type == "text" then
