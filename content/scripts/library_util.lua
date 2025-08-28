@@ -1679,7 +1679,7 @@ end
 
 g_rev_major = 1
 g_rev_minor = 5
-g_rev_patch = 12
+g_rev_patch = "beta"
 
 g_rev_mods = {
 
@@ -1751,6 +1751,7 @@ function dev_call_timer(screen_name, maxtime, delay, func)
         print("calls", count)
         print("calls/sec", rate)
         g_count_calls = false
+        update_ui_event("copy_to_clipboard", string.format("calls/sec %f", rate))
     end
 
 end

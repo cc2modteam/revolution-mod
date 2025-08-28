@@ -137,6 +137,7 @@ function update(screen_w, screen_h, ticks)
 end
 
 function _update(screen_w, screen_h, ticks)
+    local highres = screen_w > 128
     g_screen_w = screen_w
     g_screen_h = screen_h
     g_animation_time = g_animation_time + ticks
@@ -227,6 +228,9 @@ function _update(screen_w, screen_h, ticks)
                 update_set_screen_map_position_scale(g_camera_pos_x, g_camera_pos_y, g_camera_size)
 
                 local is_render_islands = (g_camera_size < (screen_w / 2 * 1024))
+                if highres then
+                    is_render_islands = (g_camera_size < (64 * 1024))
+                end
 
                 update_set_screen_background_is_render_islands(is_render_islands)
 
@@ -248,8 +252,9 @@ function _update(screen_w, screen_h, ticks)
                             update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, island_color, 0)
                         elseif g_is_island_names then
                             local screen_pos_x, screen_pos_y = get_screen_from_world(island_position:x(), island_position:y() + 3000.0, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+
                             if rev_show_island_name(island:get_id()) then
-                                update_ui_text(screen_pos_x - math.floor(screen_w / 2), screen_pos_y - 9, get_island_name(island), 128, 1, island_color, 0)
+                                update_ui_text(screen_pos_x - 64, screen_pos_y - 9, get_island_name(island), 128, 1, island_color, 0)
                             end
 
                             if (not g_revolution_hide_island_difficulty) and rev_show_island_icon(island:get_id()) and island:get_team_control() ~= update_get_screen_team_id() then
@@ -257,7 +262,6 @@ function _update(screen_w, screen_h, ticks)
                                 local icon_w = 6
                                 local icon_spacing = 2
                                 local total_w = icon_w * difficulty_level + icon_spacing * (difficulty_level - 1)
-
                                 for i = 0, difficulty_level - 1 do
                                     update_ui_image(screen_pos_x - total_w / 2 + (icon_w + icon_spacing) * i, screen_pos_y, atlas_icons.column_difficulty, island_color, 0)
                                 end
@@ -682,6 +686,10 @@ end
 function compass_update(screen_w, screen_h, ticks)
     if update_screen_overrides(screen_w, screen_h, ticks)  then return end
 
+    if screen_w > 128 then
+        update_ui_push_offset(screen_w / 4, screen_h / 5)
+    end
+
     update_ui_image(0, 0, atlas_icons.screen_compass_background, color_white, 0)
     update_ui_rectangle(50, 28, 28, 12, color_white)
     update_ui_rectangle(51, 29, 26, 10, color_black)
@@ -769,12 +777,20 @@ function compass_update(screen_w, screen_h, ticks)
                     82, 1, 41, 41, color_black
             )
         end
-    end
 
+        if screen_h > 128 then
+            -- HD mode!
+            update_ui_text_scale(0, screen_h * 0.5,
+                    string.format("%03d", math.floor(math.deg( this_vehicle_bearing )) % 360), screen_w /2, 1, color_white, 0, 4)
+        end
+
+    end
 
     update_ui_image(26, 42, atlas_icons.screen_compass_dial_overlay, color_white, 0)
 
-
+    if screen_w > 128 then
+        update_ui_pop_offset()
+    end
 end
 
 local m_pi = math.pi
