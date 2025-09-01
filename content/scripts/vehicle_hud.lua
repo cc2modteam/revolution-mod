@@ -47,6 +47,7 @@ g_is_render_fuel = true
 g_is_render_hp = true
 g_is_render_control_mode = true
 g_is_render_compass = true
+g_compass_pos = nil
 
 g_notification = {
     notification_vehicle_control_mode = {
@@ -479,8 +480,9 @@ camera_modes = {
 
 function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, attachment)
     local screen_vehicle_def = screen_vehicle:get_definition_index()
-    local camera_x = screen_vehicle:get_position():x()
-    local camera_y = screen_vehicle:get_position():z()
+    local camera_pos = update_get_camera_position()
+    local camera_x = camera_pos:x()
+    local camera_y = camera_pos:z()
     local is_viewing_sub_camera = false
     local col = color8(0, 255, 0, 255)
     local is_awacs = false
@@ -2105,7 +2107,37 @@ function render_attachment_hud_tv_missile(screen_w, screen_h, map_data, vehicle,
         local vehicle_pos = vehicle:get_position()
         local camera_pos = update_get_camera_position()
         local dist = vec3_dist(vehicle_pos, camera_pos)
-        
+        local tv_max_range = 5000
+        local dist_max = math_min(dist, tv_max_range)
+        local remain = tv_max_range - dist_max
+        -- render a range bar chart and pointer towards the launcher
+        if remain > 0 then
+            local remain_frac = remain / tv_max_range
+            local bar_col = col
+            if remain_frac < 0.2 then
+                bar_col = color_enemy
+            elseif remain_frac < 0.4 then
+                bar_col = color_status_dark_yellow
+            end
+            update_ui_rectangle(
+                    hud_pos:x() - 100, hud_pos:y() + 61, 42 * remain_frac, 2, bar_col
+            )
+            update_ui_rectangle_outline(
+                    hud_pos:x() - 100, hud_pos:y() + 60, 42, 4, col
+            )
+            -- add the compass mark for the aircraft
+            if g_compass_pos ~= nil then
+                render_compass_waypoint(
+                        g_compass_pos:x(),
+                        g_compass_pos:y(),
+                        150,
+                        vehicle_pos,
+                        color_white,
+                        3
+                )
+            end
+        end
+
         update_ui_image(hud_pos:x() - 100, hud_pos:y() + 50, atlas_icons.column_distance, col, 0)
         update_ui_text(hud_pos:x() - 100 + 12, hud_pos:y() + 50, string.format("%.0f", dist) .. update_get_loc(e_loc.acronym_meters), 200, 0, col, 0)
         update_ui_rectangle(hud_pos:x(), hud_pos:y() - 1, 1, 3, col)
@@ -2954,14 +2986,14 @@ end
 
 function render_compass(screen_vehicle, pos, col)
     local width = 120
-
+    g_compass_pos = pos
     local heading = update_get_camera_heading() / math.pi / 2
 
     local spacing = width / 2
     local total_w = 4 * spacing
 
     local labels = { update_get_loc(e_loc.upp_compass_n), update_get_loc(e_loc.upp_compass_e), update_get_loc(e_loc.upp_compass_s), update_get_loc(e_loc.upp_compass_w) }
-    local v_pos = screen_vehicle:get_position()
+    local v_pos = update_get_camera_position()
 
     if screen_vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
         local nearest_crr = find_nearest_vehicle_types(screen_vehicle, {e_game_object_type.chassis_carrier}, false, nil, -10)
@@ -3736,7 +3768,7 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
 
     local filter_target = function(v)
         -- Ignore self and docked vehicles
-        if v:get_id() ~= vehicle_id and not v:get_is_docked() then
+        if (v:get_id() ~= vehicle_id or attachment_def == e_game_object_type.attachment_hardpoint_missile_tv) and not v:get_is_docked() then
             if render_heat then
                 return true
             end
@@ -3761,10 +3793,12 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
     end
 
     -- get all relevant targets and their data
+    local cam_pos = update_get_camera_position()
+    local show_target_dist_to_launcher = attachment_def == e_game_object_type.attachment_hardpoint_missile_tv
 
     for v in iter_vision(map_data, filter_target) do
         local pos = v:get_position()
-        local dist_sq = vec3_dist_sq(pos, vehicle_pos)
+        local dist_sq = vec3_dist_sq(pos, cam_pos)
         local is_manta = v:get_definition_index() == e_game_object_type.chassis_air_wing_heavy
         local observe_range_sq = iff(get_is_vehicle_sea(v:get_definition_index()), range_ships_sq, range_sq)
 
@@ -3949,15 +3983,25 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
                 local dist = math.sqrt(data.dist_sq)
                 local dist_str = ""
 
-                if dist < 10000 then
+                if dist < 8000 then
                     dist_str = string.format("%.0f", dist) .. update_get_loc(e_loc.acronym_meters)
                 else
-                    dist_str = string.format("%.0f", dist / 1000) .. update_get_loc(e_loc.acronym_kilometers)
+                    dist_str = string.format("%1.1f", dist / 1000) .. update_get_loc(e_loc.acronym_kilometers)
                 end
 
                 local dist_w = update_ui_get_text_size(dist_str, 10000, 1) + 7
 
                 update_ui_text(pos:x() - dist_w, cursor_y, dist_str, 128, 0, col, 0)
+
+                if show_target_dist_to_launcher then
+                    local ldist = vec3_dist(vehicle_pos, data.vehicle:get_position())
+                    local text = "--"
+                    if ldist > 10 then
+                        text = string.format("%1.1fkm", ldist/1000)
+                    end
+                    update_ui_text(pos:x() - dist_w, cursor_y + 10, text, 128, 0, color_white, 0)
+                end
+
             end
         end
     end
@@ -4307,7 +4351,7 @@ function render_circle(pos, radius, steps, col, frac)
     end
     local arc = math_2pi * frac
     local step = (arc / steps)
-    
+
     for i = 0, steps - 1 do
         local angle = i * step - math_pi_2
         local angle_next = angle + step
