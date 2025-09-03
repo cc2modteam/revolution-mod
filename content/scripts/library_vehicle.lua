@@ -3742,7 +3742,7 @@ function VProxy.new(real)
     self.v = real
     if self.v and self.v:get() then
         self.definition_index = self.v:get_definition_index()
-        if g_is_hud then
+        if self.v.get_team_id ~= nil then
             self.team = self.v:get_team_id()
         else
             self.team = self.v:get_team()
@@ -3751,7 +3751,6 @@ function VProxy.new(real)
     else
         self.v = nil
     end
-
     return self
 end
 
