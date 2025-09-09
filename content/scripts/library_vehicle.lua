@@ -3894,7 +3894,11 @@ end
 
 function VProxy:get_attached_parent_id()
     if self.get_attached_parent_id_ == nil and self.v then
-        self.get_attached_parent_id_ = self.v:get_attached_parent_id()
+        if self.v.get_attached_parent_id ~= nil then
+            self.get_attached_parent_id_ = self.v:get_attached_parent_id()
+        else
+            return 0
+        end
     end
     return self.get_attached_parent_id_
 end

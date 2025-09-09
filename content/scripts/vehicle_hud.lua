@@ -49,6 +49,12 @@ g_is_render_control_mode = true
 g_is_render_compass = true
 g_compass_pos = nil
 
+g_last_carrier_health_tick = 0
+g_carrier_health = {}
+g_carrier_damaged = {}
+g_last_hud_update_tick = 0
+g_update_delta = 1000
+
 g_notification = {
     notification_vehicle_control_mode = {
         text = "",
@@ -179,9 +185,106 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
     end
 end
 
+function carrier_health(screen_vehicle, screen_w, screen_h, now)
+    local health_tick_delta = now - g_last_carrier_health_tick
+    if health_tick_delta > 5 then
+        local our_team = screen_vehicle:get_team_id()
+        -- every 1 sec
+        g_last_carrier_health_tick = now
+
+        if g_update_delta > 0 and g_update_delta < 3 then
+            -- check for carrier health changes
+            for vid, h in pairs(g_carrier_health) do
+                local carrier = update_get_map_vehicle_by_id(vid)
+                if carrier and carrier:get() then
+                    local hdiff = h - carrier:get_hitpoints()
+                    if hdiff > 100 then
+                        -- light bomb is approx 170
+                        -- 100mm gun is approx 300
+                        g_carrier_damaged[vid] = {dmg = hdiff, tick = now}
+                    end
+                else
+                    g_carrier_damaged[vid] = nil
+                end
+            end
+        end
+
+        g_carrier_health = {}
+        for _, vehicle in iter_vehicles(nil) do
+            if vehicle:get() then
+                local vteam = vehicle:get_team_id()
+                if vteam == our_team then
+                    local vdef = vehicle:get_definition_index()
+                    if vdef == e_game_object_type.chassis_carrier then
+                        local vid = vehicle:get_id()
+                        local hp = vehicle:get_hitpoints()
+                        g_carrier_health[vid] = hp
+                    end
+                end
+            end
+        end
+
+    end
+
+    -- render carrier damage message
+    local dmg_message = string.format("%s %s!", update_get_loc(e_loc.upp_crr), update_get_loc(e_loc.upp_damaged))
+    local dmg_ttl = 60
+    for vid, data in pairs(g_carrier_damaged) do
+        local elapsed = now - data.tick
+        local dmg_remain = dmg_ttl - elapsed
+        local dmg_remain_factor = dmg_remain / dmg_ttl
+        if elapsed > dmg_ttl then
+            g_carrier_damaged[vid] = nil
+        else
+            if data.dmg > 100 then
+                -- minor damage, show the message
+
+                local shake_x = 23
+                local shake_y = 8
+                if data.dmg > 130 then
+                    if data.dmg > 200 then
+                        shake_x = 40
+                        shake_y = 15
+                    end
+
+                    shake_x = round_int(shake_x * dmg_remain_factor)
+                    shake_y = round_int(shake_y * dmg_remain_factor)
+
+                    local color_blk = color8(0, 0, 0, 255)
+                    -- shake HUD
+                    local dx = math.random(-1 * shake_x, shake_x)
+                    local dy = math.random(-1 * shake_y, shake_y)
+                    if dy > 0 then
+                        update_ui_rectangle(0, 0, screen_w, dy, color_blk)
+                    else
+                        update_ui_rectangle(0, screen_h + dy, screen_w, dy * -1, color_blk)
+                    end
+                    if dx > 0 then
+                        update_ui_rectangle(0, 0, dx, screen_h, color_blk)
+                    else
+                        update_ui_rectangle(screen_w + dx, 0, dx * -1, screen_h, color_blk)
+                    end
+                    update_ui_push_offset(dx, dy)
+
+                    if elapsed % 30 < 15 then
+                        update_ui_text(screen_w / 3, (screen_h - 20) / 3, dmg_message, 120, 1, color_enemy, 0)
+                    end
+
+                end
+            end
+        end
+    end
+
+end
+
 function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, vehicle, map_data)
     g_screen_w = screen_w
     g_screen_h = screen_h
+    local now = update_get_logic_tick()
+    g_update_delta = now - g_last_hud_update_tick
+    g_last_hud_update_tick = now
+
+    carrier_health(vehicle, screen_w, screen_h, now)
     update_animations(delta_time, vehicle)
     g_notification:update(delta_time, vehicle)
 
