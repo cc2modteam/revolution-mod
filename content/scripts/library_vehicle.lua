@@ -2043,41 +2043,8 @@ function add_marker_waypoint(team_id, marker_id)
     return add_special_waypoint(team_id, F_DRYDOCK_WPTX_MARKER, marker_id)
 end
 
-g_pending_marker_values = {}
-
-function ensure_marker_value(team_id, marker_id)
-    -- called early in the holomap update function only
-    if is_marker_value_pending(marker_id) then
-        -- is it set?
-        local expected = g_pending_marker_values[marker_id]
-        local wpt = get_marker_waypoint(team_id, marker_id)
-        if wpt ~= nil then
-            local current = wpt:get_altitude()
-            if current ~= expected then
-                -- try to set it (again)
-                local drydock = find_team_drydock(team_id)
-                drydock:set_waypoint_altitude(wpt:get_id(), expected)
-            else
-                -- it is correct
-                g_pending_marker_values[marker_id] = nil
-            end
-        end
-    end
-end
-
-function set_marker_pending(marker_id, value)
-    g_pending_marker_values[marker_id] = value
-end
-
-function is_marker_value_pending(marker_id)
-    local pending = g_pending_marker_values[marker_id]
-    return pending ~= nil
-end
 
 function get_marker_value(team_id, marker_id)
-    if is_marker_value_pending(marker_id) then
-        return g_pending_marker_values[marker_id]
-    end
     local marker = get_marker_waypoint(team_id, marker_id)
     if marker ~= nil then
         return marker:get_altitude()
@@ -2085,28 +2052,42 @@ function get_marker_value(team_id, marker_id)
     return 0
 end
 
+function dump_waypoints(vehicle)
+    if g_debug_enabled and vehicle and vehicle:get() then
+        local waypoint_count = vehicle:get_waypoint_count()
+        local_print("dump_waypoints:", "t=", update_get_logic_tick(), "id=", vehicle:get_id())
+        if waypoint_count > 0 then
+            for j = 0, waypoint_count - 1, 1 do
+                local waypoint = vehicle:get_waypoint(j)
+                local wpp = waypoint:get_position_xz()
+                local_print("w", j, wpp:x(), wpp:y(), waypoint:get_altitude())
+            end
+        end
+    end
+end
+
 function set_marker_waypoint(team_id, marker_id, x, y, force)
     if update_get_is_focus_local() or force then
-        if is_marker_value_pending(marker_id) then
-            return
-        end
-
+        local_print("set_marker_waypoint:", "t=", update_get_logic_tick(),  marker_id, x, y, force)
         local marker = get_marker_waypoint(team_id, marker_id)
         if marker ~= nil then
             local drydock = find_team_drydock(team_id)
             local packed = pack_alt_xy(x, y)
-            set_marker_pending(marker_id, packed)
             drydock:set_waypoint_altitude(marker:get_id(), packed)
+            dump_waypoints(drydock)
         end
     end
 end
 
 function unset_marker_waypoint(team_id, marker_id)
-    set_marker_pending(marker_id, 0)
-    local marker = get_marker_waypoint(team_id, marker_id)
-    if marker ~= nil then
-        local drydock = find_team_drydock(team_id)
-        drydock:set_waypoint_altitude(marker:get_id(), 0)
+    if update_get_is_focus_local() then
+        local_print("unset_marker_waypoint:", "t=", update_get_logic_tick(),  team_id, marker_id)
+        local marker = get_marker_waypoint(team_id, marker_id)
+        if marker ~= nil then
+            local drydock = find_team_drydock(team_id)
+            drydock:set_waypoint_altitude(marker:get_id(), 0)
+            dump_waypoints(drydock)
+        end
     end
 end
 

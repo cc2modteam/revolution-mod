@@ -9,6 +9,9 @@ local math_min = math.min
 local math_abs = math.abs
 local math_floor = math.floor
 
+local color_red = color8(255, 0, 0, 200)
+local color_yellow = color8(255, 255, 0, 200)
+
 g_is_connected = false
 g_selected_attachment_index = -1
 g_selected_target_id = -1
@@ -269,7 +272,6 @@ function carrier_health(screen_vehicle, screen_w, screen_h, now)
                     if elapsed % 30 < 15 then
                         update_ui_text(screen_w / 3, (screen_h - 20) / 3, dmg_message, 120, 1, color_enemy, 0)
                     end
-
                 end
             end
         end
@@ -2229,16 +2231,7 @@ function render_attachment_hud_tv_missile(screen_w, screen_h, map_data, vehicle,
                     hud_pos:x() - 100, hud_pos:y() + 60, 42, 4, col
             )
             -- add the compass mark for the aircraft
-            if g_compass_pos ~= nil then
-                render_compass_waypoint(
-                        g_compass_pos:x(),
-                        g_compass_pos:y(),
-                        150,
-                        vehicle_pos,
-                        color_white,
-                        3
-                )
-            end
+            render_extra_compass_waypoint(vehicle_pos, color_white, 3)
         end
 
         update_ui_image(hud_pos:x() - 100, hud_pos:y() + 50, atlas_icons.column_distance, col, 0)
@@ -2882,6 +2875,7 @@ function render_flight_hud(screen_w, screen_h, is_render_center, vehicle)
     local warning_y = hud_min:y() - 10
     local is_missile_tracking = vehicle:get_is_missile_tracking()
     local is_stall = vehicle:get_position():y() > 2050
+    local screen_team = vehicle:get_team_id()
     local waypoints = {}
     if vehicle.get_waypoint_path then
         waypoints = vehicle:get_waypoint_path()
@@ -2941,6 +2935,25 @@ function render_flight_hud(screen_w, screen_h, is_render_center, vehicle)
     
     if vehicle:get_control_mode() == "manual" and vehicle:get_is_controlling_peer() then
         render_mouse_flight_axis(hud_pos)
+    end
+
+
+    -- render team markers as yellow waypoints
+
+    local dd = find_team_drydock()
+    local mark_col = color_yellow
+    local vpos_2d = vec2(pos:x(), pos:z())
+    for i = 1, 4, 1 do
+        local m = get_marker_waypoint(screen_team, i)
+        if m then
+            local wx, wy = unpack_alt_xy(m:get_altitude())
+            local mp = vec3(wx, 0, wy)
+            local mname = get_marker_name(i)
+            local mdist = vec2_dist(vec2(wx, wy), vpos_2d) / 1000
+            local mtxt = string.format("%s %2.1fkm", mname, mdist)
+            render_ground_marker(mark_col, mp, screen_w, screen_h, mtxt)
+            render_extra_compass_waypoint(mp, mark_col, 0, mname)
+        end
     end
 
     -- render the next waypoints in view
@@ -4746,34 +4759,16 @@ function render_ground_marker_triangle(screen_pos, col, w, h)
     update_ui_end_triangles()
 end
 
-function render_ground_marker(col, wp, screen_w, screen_h)
+function render_ground_marker(col, wp, screen_w, screen_h, txt)
     local swpp, clamped = world_to_screen_clamped(wp, vec2(0, 0), vec2(screen_w, screen_h))
     if not clamped then
         render_ground_marker_triangle(swpp, col)
-    end
-end
-
-
-function render_compass_waypoint(x, y, w, mark, col, size)
-    if size == nil then
-        size = 4
-    end
-    local csc, csc_clamped = world_to_screen_clamped(mark,
-        vec2(x - w/2, 0),
-        vec2(x + w/2, 200)
-    )
-    if not csc_clamped then
-        update_ui_rectangle_outline(csc:x() - 2, y - 2, size, 4, col)
-    else
-        if csc:x() > x then
-            update_ui_line(csc:x() - 3, y - 3, csc:x(), y, col)
-            update_ui_line(csc:x() - 3, y + 3, csc:x(), y, col)
-        else
-            update_ui_line(csc:x(), y, csc:x() + 3, y - 3, col)
-            update_ui_line(csc:x(), y, csc:x() + 3, y + 3, col)
+        if txt ~= nil then
+            update_ui_text(swpp:x() + 8, swpp:y(), txt, 8 * #txt, 0, col, 0)
         end
     end
 end
+
 
 --------------------------------------------------------------------------------
 --
@@ -5080,8 +5075,8 @@ function render_snowstorm(vehicle, screen_w, screen_h, multi)
 end
 
 function render_bad_signal(vehicle, screen_w, screen_h)
-    local color_red = color8(255, 0, 0, 200)
-    local color_yellow = color8(255, 255, 0, 200)
+
+
     local x = 138
     local y = 120
     color = color_red
@@ -5291,7 +5286,7 @@ function stable_tick(period_ticks, active_ticks)
     return window < active_ticks
 end
 
-function render_compass_waypoint(x, y, w, mark, col, size)
+function render_compass_waypoint(x, y, w, mark, col, size, txt)
     if size == nil then
         size = 4
     end
@@ -5300,7 +5295,12 @@ function render_compass_waypoint(x, y, w, mark, col, size)
         vec2(x + w/2, 200)
     )
     if not csc_clamped then
-        update_ui_rectangle_outline(csc:x() - 2, y - 2, size, 4, col)
+        if size > 0 then
+            update_ui_rectangle_outline(csc:x() - 2, y - 2, size, 4, col)
+        end
+        if txt ~= nil then
+            update_ui_text(csc:x() - 4, y + 10, txt, 24, 0, col, 0)
+        end
     else
         -- update_ui_rectangle_outline(csc:x() - 2, y - 2, 4, 4, col)
         if csc:x() > x then
@@ -5311,7 +5311,19 @@ function render_compass_waypoint(x, y, w, mark, col, size)
             update_ui_line(csc:x(), y, csc:x() + 3, y + 3, col)
         end
     end
+end
 
+function render_extra_compass_waypoint(mark, col, size, txt)
+    if g_compass_pos ~= nil then
+        local w = 150
+        render_compass_waypoint(
+                g_compass_pos:x(),
+                g_compass_pos:y(),
+                w,
+                mark,
+                col,
+                size, txt)
+    end
 end
 
 -- bullet projection

@@ -114,6 +114,7 @@ g_focus_mode = 0
 
 g_markers_open = false
 g_setting_marker = 0
+g_setting_marker_last = 0
 
 g_markers_w = nil
 g_markers_x = nil
@@ -203,9 +204,21 @@ g_do_holomap_rwr = true
 g_enable_holomap_rwr = true
 g_disable_mini_text = false
 
+function on_marker_changed(new_value, prev_value)
+    if g_debug_enabled then
+        local_print("on_marker_changed:", "t=", update_get_logic_tick(),  prev_value, "to", new_value)
+    end
+end
+
 function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
     g_screen_h = screen_h
+
+    if g_setting_marker ~= g_setting_marker_last then
+        local prev = g_setting_marker_last
+        g_setting_marker_last = g_setting_marker
+        on_marker_changed(g_setting_marker, prev)
+    end
 
     g_ruler_toggle = g_is_ruler ~= g_is_ruler_last
     g_is_ruler_last = g_is_ruler
@@ -252,14 +265,6 @@ function _update(screen_w, screen_h, ticks)
         if unit_count > 400 then
             return
         end
-    else
-        local now = update_get_logic_tick()
-        if now % 30 == 0 then
-            ensure_marker_value(screen_team, 1)
-            ensure_marker_value(screen_team, 2)
-            ensure_marker_value(screen_team, 3)
-            ensure_marker_value(screen_team, 4)
-        end
     end
     
     local world_x = 0
@@ -276,7 +281,9 @@ function _update(screen_w, screen_h, ticks)
 
         world_x, world_y = get_world_from_holomap( g_pointer_pos_x, g_pointer_pos_y, screen_w, screen_h )
         if drydock ~= nil then
-            update_team_holomap_cursor(screen_team, world_x, world_y)
+            if not g_setting_marker then
+                update_team_holomap_cursor(screen_team, world_x, world_y)
+            end
         end
     else
         world_x, world_y = get_team_holomap_cursor(screen_team)
@@ -1324,13 +1331,11 @@ function _update(screen_w, screen_h, ticks)
                                 end
                                 local value = get_marker_value(screen_team, i)
                                 local btn_enabled = g_setting_marker == 0
-                                if is_marker_value_pending(i) then
-                                    btn_enabled = false
-                                end
+
                                 if is_waypoint_value_enabled(value) then
                                     if ui:button(string.format("Del %s", mname), btn_enabled, 1) then
-                                        unset_marker_waypoint(screen_team, i)
                                         g_setting_marker = 0
+                                        unset_marker_waypoint(screen_team, i)
                                     end
                                 else
                                     if ui:button(string.format("Set %s %d", mname, i), btn_enabled, 1) then
@@ -1356,6 +1361,9 @@ function _update(screen_w, screen_h, ticks)
                                 if ui:button("c timer", g_trigger_call_timer ~= true, 1) then
                                     g_trigger_call_timer = true
                                     print("timer armed")
+                                end
+                                if ui:button("w dump", true, 1) then
+                                    dump_waypoints(find_team_drydock(update_get_screen_team_id()))
                                 end
                             end
                         end)
