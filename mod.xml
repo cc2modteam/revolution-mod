@@ -8,16 +8,16 @@ other features.
 
 Recent changes:
 [list]
-[*] Next generation aircraft RWR sensor
-[*] Reduce lag when there are many hundreds of units (when unmodded does not lag)
-[*] Fix Stutter when walking around the bridge after joining or loading a game.
-[*] Reduce unnecessary extra computation for radars by using a proxy object
-[*] Walrus can carry the 'small' low damage turret as well as a main attachment.
+[*] Reduces network traffic/congestion sent by shared holomap cursor
+[*] Fixed captian's holomap markers
 [/list]
 
 v1.5:
 [list]
+[*] Various performance/lag tweaks
+[*] Walrus can carry the 'small' low damage turret as well as a main attachment.
 [*] EW - Electronic Warfare target fuzzing
+[*] Next generation aircraft RWR sensor
 [*] HUD assistance for guided/cruise missile operation
 [*] HUD horizon ladder can now be togged off/on by double tapping the map
 [*] HUD 20mm gun-sight less cluttered when horizon ladder hidden

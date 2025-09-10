@@ -15,11 +15,20 @@ As well as the fantastic solid basis from UI Enhancer, Révolution adds the foll
 
 ### Stealth and Radar
 
-Aircraft now have a "RADAR cross-section" value, this gets bigger if you fit large attachments to them (cameras, bombs, etc). 
-The Manta is now modelled as a stealth aircraft.
+Aircraft now have a RWR that can now also pickup emmissions from nearby hostile RADARs and give you a HUD indication of 
+the approximate direction of the source.
 
-Mantas and Razorbills can now also pickup emmissions from nearby hostile RADARs and give you a HUD indication of 
-the approximate direction of the source. 
+Aircraft can also fit an EW (Electronic Warfare) pod that will partially mask
+them and some nearby friendly units from hostile sensors.
+
+### Helicopter Automation
+
+You can order helicopters to land on airfields (set two waypoints at either end of the runway and click 'LAND HERE' on 
+the second waypoint) or to automatically pick up the nearest friendly unit.
+
+### HUD Waypoints
+
+You now see a green triangle on the surface for the next few waypoints in view and on the tab-map.
 
 ### Evolved Weapons
 
@@ -53,26 +62,16 @@ different ranges.
 This unlocks the needlefish both as a viable sensor picket ship for early warning, and, when working together in
 groups as a deadly independant naval strike force against ships and to a lesser extent land and air targets.
 
-### Electronic Warfare
-
-Aircraft can now carry an ECM pod. A Manta carrying one of these will be harder to detect on Radar and 
-show up a few seconds later than without one.  In practice, an aircraft heading to your carrier will appear on
-operator screens around 8-10 seconds later than normal if it has an ECM pod.
-
-![CC2 Inventory Screen ECM Item](stock-ecm.jpg "Order an ECM")
-
-If you fit an ECM to an AWACS aircraft, the pod and AWACS work together to generate an extra ghost contact. Making
-your single AWACS appear to be two aircraft.
-
-Just as with some real Radar Jamming, an opposing crew can with skill and attention work out they are being jammed
-by carefully watching how the spoofed contacts behave and by checking using the Holomap's additional sensor power.
-
 ### Basic QoL changes
 
 I've made a handful of extra changes, some of these may be backported to [UI Enhancer](https://github.com/Quantx/CC2-UI-Enhancer/) in time.
 
+* If your carrier is damaged while you are in control of a
+  ground unit or aircraft you now get a visual shake and a
+  warning when it takes significant damage
 * HUD CCIP bomb fall line now actually always goes "down".
-* Basic CCRP bombing HUD symbology for level bombing of locked targets (sill a work in progress really)
+* Basic CCRP bombing HUD symbology for level bombing of locked
+  targets (sill a work in progress really)
 * Fix for the ["Attack Waypoint Tracking exploit"](https://github.com/Quantx/CC2-UI-Enhancer/commit/33ba2dace04e2cb90b787fd4c8d9d94ac5920469) 
 
 ![CC2 CCRP Bombing](ccrp-bombing.jpg "CC2 Bombing Hud")
@@ -82,4 +81,4 @@ I've made a handful of extra changes, some of these may be backported to [UI Enh
 Over the course of time I intend to add more features to Révolution.  Some may turn out to work as stand-alone mods
 but others definitely will have to be part of Révolution as they will touch too much of the UI Enahncer scripting.
 
-For more about the future see the ["FUTURE.md"](FUTURE.md) file.
+For more about the future see ["https://cc2maps.com"](https://cc2maps.com).
