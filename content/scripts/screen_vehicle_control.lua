@@ -1552,8 +1552,18 @@ function _update(screen_w, screen_h, ticks)
                                 force_revealed_unit_count = force_revealed_unit_count + 1
                             end
                         end
+                        local v_hover = vehicle_attached_parent_id == 0
+                        if g_camera_size < 600 then
+                            if not v_hover then
+                                if vehicle_team == screen_team then
+                                    if get_is_vehicle_land(vehicle_definition_index) or get_is_vehicle_air(vehicle_definition_index) then
+                                        v_hover = true
+                                    end
+                                end
+                            end
+                        end
 
-                        if vehicle_attached_parent_id == 0 and ( visible and revealed ) then
+                        if v_hover and ( visible and revealed ) then
                             local vehicle_pos_xz = vehicle:get_position_xz()
                             local screen_pos_x, screen_pos_y = get_screen_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                             local vehicle_distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
@@ -2001,6 +2011,13 @@ function _update(screen_w, screen_h, ticks)
                 local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                 local vehicle_definition_index = vehicle:get_definition_index()
                 local is_render_vehicle_icon = vehicle_attached_parent_id == 0
+                local is_docked = vehicle_attached_parent_id ~= 0
+
+                if g_camera_size < 600 then
+                    if get_is_vehicle_air(vehicle_definition_index) or get_is_vehicle_land(vehicle_definition_index) then
+                        is_render_vehicle_icon = true
+                    end
+                end
 
                 if vehicle_definition_index == e_game_object_type.drydock then
                     -- draw the drydock as grey
@@ -2384,6 +2401,11 @@ function _update(screen_w, screen_h, ticks)
                             -- render vehicle icon
                             local region_vehicle_icon, icon_offset = get_icon_data_by_definition_index(vehicle_definition_index)
                             local element_color = get_vehicle_team_color(vehicle_team)
+
+                            if is_docked then
+                                element_color = color8(element_color:r(), element_color:g(), element_color:b(), 18)
+                            end
+
                             local is_highlight = false
 
                             if is_air then
@@ -2481,8 +2503,6 @@ function _update(screen_w, screen_h, ticks)
                                             screen_pos_y - fl_y,
                                             outline_col
                                     )
-
-
                                 end
                             end
                             local radar_state = draw_map_radar_state_indicator(vehicle, screen_pos_x, screen_pos_y, g_animation_time)
