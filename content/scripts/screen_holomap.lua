@@ -280,8 +280,9 @@ function _update(screen_w, screen_h, ticks)
         end
 
         world_x, world_y = get_world_from_holomap( g_pointer_pos_x, g_pointer_pos_y, screen_w, screen_h )
+
         if drydock ~= nil then
-            if not g_setting_marker then
+            if g_setting_marker == 0 then
                 update_team_holomap_cursor(screen_team, world_x, world_y)
             end
         end

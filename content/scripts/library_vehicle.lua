@@ -1807,27 +1807,19 @@ end
 --
 -- it's easy to create waypoints, but we can't efficiently use the x,y as if we need
 -- to move the waypoint we have to clear all and replace them which is slow and expensive.
---
+-- we use the x,y value of the waypoint as way for us to identify the waypoint type
+
+--- NOTE - I originally coded these as bitflags, hence the F_ names
+F_DRYDOCK_WPTX_CURSOR          = 1
+F_DRYDOCK_WPTX_MARKER          = 2
 -- for the holomap waypoint, we transmit the location to the nearest 16m (1m accuracy is useless)
--- we do this by packing x/y into the 32bit unsigned altitude value
+-- we do this by packing x and y into the 32bit unsigned altitude value
 
--- we use the x,y value of the waypoint as a flag value for us to identify the waypoint
+F_DRYDOCK_WPTX_SETTING         = 4
+F_DRYDOCK_WPTX_FACTORY_DAMAGED = 8
+F_DRYDOCK_WPTX_SCOUTED         = 16
 
-F_DRYDOCK_WPTX_CURSOR   = 0x01
-F_DRYDOCK_WPTX_MARKER   = 0x02
-F_DRYDOCK_WPTX_SETTING  = 0x04
-F_DRYDOCK_WPTX_FACTORY_DAMAGED = 0x08
 
-F_DRYDOCK_WPTX_SCOUTED  = 0x10
-
--- y() values for settings waypoints
-WPT_SETTING_RADAR_X1   = 1  -- no multiplier
-WPT_SETTING_RADAR_X1_5 = 2  -- x1.5
-WPT_SETTING_RADAR_X2   = 3  -- x2
-
-MARKER_WPT_OFFSET = 80000
-
-MASK_DRYDOCK_WPTX_FLAGS = 0x00000000FF
 
 g_team_drydocks = {}
 
@@ -1928,9 +1920,9 @@ function get_nearest_friendly_airliftable_id(vehicle, max_range, force)
     return -1, 0
 end
 
-function waypoint_flag_isset(waypoint, flag)
+function is_wptx_type(waypoint, value)
     local position = waypoint:get_position_xz()
-    if math_floor(position:x()) & flag ~= 0 then
+    if math_floor(position:x()) == value then
         return true
     end
     return false
@@ -1943,6 +1935,8 @@ function is_waypoint_value_enabled(value)
     return value ~= 0
 end
 
+
+MARKER_WPT_OFFSET = 80000
 function unpack_alt_xy(altitude)
     if altitude > 0 then
         local shifted_x = math_floor((altitude / 0x10000)) & 0xffff
@@ -1973,7 +1967,7 @@ function get_team_holomap_cursor_waypoint(team_id)
         local waypoint_count = drydock:get_waypoint_count()
         for i = 0, waypoint_count - 1, 1 do
             local waypoint = drydock:get_waypoint(i)
-            if waypoint_flag_isset(waypoint, F_DRYDOCK_WPTX_CURSOR) then
+            if is_wptx_type(waypoint, F_DRYDOCK_WPTX_CURSOR) then
                 return waypoint
             end
         end
@@ -1997,14 +1991,14 @@ function get_marker_name(marker_id)
     return ""
 end
 
-function get_special_waypoint(team_id, flag, special_id)
+function get_special_waypoint(team_id, wtype, special_id)
     local drydock = find_team_drydock(team_id)
     if drydock then
         local waypoint_count = drydock:get_waypoint_count()
         for i = 0, waypoint_count - 1, 1 do
             local waypoint = drydock:get_waypoint(i)
             if waypoint ~= nil then
-                if waypoint_flag_isset(waypoint, flag) then
+                if is_wptx_type(waypoint, wtype) then
                     local pos = waypoint:get_position_xz()
                     if math_floor(pos:y()) == special_id then
                         return waypoint
@@ -2098,14 +2092,26 @@ function update_team_holomap_cursor(team_id, x, y)
     end
 end
 
+g_last_hm_cursor_update = 0
 g_last_hm_cursor_team = 0
 g_last_hm_cursor_x = 0
 g_last_hm_cursor_y = 0
 
 function _update_team_holomap_cursor(team_id, x, y)
+    x = math_floor(x)
+    y = math_floor(y)
+
     if g_last_hm_cursor_team == team and g_last_hm_cursor_x == x and g_last_hm_cursor_y == y then
         return
     end
+
+    local now = update_get_logic_tick()
+    -- we really don't need to update this more than 2-3 times a second
+    if now - g_last_hm_cursor_update < 10 then
+        return
+    end
+    g_last_hm_cursor_update = now
+
     g_last_hm_cursor_team = team_id
     g_last_hm_cursor_x = x
     g_last_hm_cursor_y = y
