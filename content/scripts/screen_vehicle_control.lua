@@ -995,9 +995,6 @@ function render_selection_map(screen_w, screen_h)
         ui:header(update_get_loc(e_loc.upp_actions))
 
         if g_dev_options then
-            if ui:list_item("settings test") then
-                update_ui_event("set_game_setting gfx_resolution", 2^31, 876543)
-            end
 
             if ui:list_item("start call timer", true) then
                 if not g_trigger_call_timer then
@@ -1020,6 +1017,12 @@ function render_selection_map(screen_w, screen_h)
                     debug.sethook(profiler_func, "cr")
                     return
                 end
+            end
+        end
+
+        if get_is_spectator_mode_real() then
+            if ui:list_item("TOGGLE SPECTATOR MODE", true) then
+                g_revolution_is_spectator_enabled = not g_revolution_is_spectator_enabled
             end
         end
 
@@ -2053,6 +2056,9 @@ function _update(screen_w, screen_h, ticks)
                             end
                         end
                         is_render_vehicle_icon = is_visible and is_revealed
+                    end
+                    if not is_render_vehicle_icon then
+                        is_render_vehicle_icon = get_is_spectator_mode()
                     end
 
                     local is_render_vehicle_wpts = is_render_vehicle_icon

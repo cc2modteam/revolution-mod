@@ -995,8 +995,9 @@ if g_revolution_hide_island_difficulty == nil then
 end
 
 g_revolution_is_spectator = nil
+g_revolution_is_spectator_enabled = true
 
-function get_is_spectator_mode()
+function get_is_spectator_mode_real()
     if g_revolution_is_spectator == nil then
         g_revolution_is_spectator = false
         if g_revolution_spectator_team ~= nil then
@@ -1004,6 +1005,10 @@ function get_is_spectator_mode()
         end
     end
     return g_revolution_is_spectator
+end
+
+function get_is_spectator_mode()
+    return get_is_spectator_mode_real() and g_revolution_is_spectator_enabled
 end
 
 function get_team_name(team_id)
