@@ -5362,8 +5362,3 @@ function project_bullet_future(tick, vehicle, tick_fraction)
     return p
 end
 
-
-function get_2d_unitvector(v)
-    local mag = fast_sqrt( v:x() * v:x() + v:y() * v:y())
-    return vec2_normal()
-end
