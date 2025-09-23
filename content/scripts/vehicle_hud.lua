@@ -2946,13 +2946,16 @@ function render_flight_hud(screen_w, screen_h, is_render_center, vehicle)
     for i = 1, 4, 1 do
         local m = get_marker_waypoint(screen_team, i)
         if m then
-            local wx, wy = unpack_alt_xy(m:get_altitude())
-            local mp = vec3(wx, 0, wy)
-            local mname = get_marker_name(i)
-            local mdist = vec2_dist(vec2(wx, wy), vpos_2d) / 1000
-            local mtxt = string.format("%s %2.1fkm", mname, mdist)
-            render_ground_marker(mark_col, mp, screen_w, screen_h, mtxt)
-            render_extra_compass_waypoint(mp, mark_col, 0, mname)
+            local mv = m:get_altitude()
+            if is_waypoint_value_enabled(mv) then
+                local wx, wy = unpack_alt_xy(mv)
+                local mp = vec3(wx, 0, wy)
+                local mname = get_marker_name(i)
+                local mdist = vec2_dist(vec2(wx, wy), vpos_2d) / 1000
+                local mtxt = string.format("%s %2.1fkm", mname, mdist)
+                render_ground_marker(mark_col, mp, screen_w, screen_h, mtxt)
+                render_extra_compass_waypoint(mp, mark_col, 0, mname)
+            end
         end
     end
 
