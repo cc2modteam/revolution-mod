@@ -1684,7 +1684,7 @@ end
 
 g_rev_major = 1
 g_rev_minor = 5
-g_rev_patch = "beta"
+g_rev_patch = 14
 
 g_rev_mods = {
 
