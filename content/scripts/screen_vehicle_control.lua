@@ -1561,6 +1561,13 @@ function _update(screen_w, screen_h, ticks)
                                 if vehicle_team == screen_team then
                                     if get_is_vehicle_land(vehicle_definition_index) or get_is_vehicle_air(vehicle_definition_index) then
                                         v_hover = true
+                                        local parent = update_get_map_vehicle_by_id(vehicle_attached_parent_id)
+                                        if parent and parent:get() then
+                                            if parent:get_definition_index() == e_game_object_type.chassis_air_rotor_heavy then
+                                                -- dont allow mouse highlight for stuff carried by a petrel
+                                                v_hover = false
+                                            end
+                                        end
                                     end
                                 end
                             end
