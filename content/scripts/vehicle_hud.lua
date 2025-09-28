@@ -190,7 +190,7 @@ end
 
 function carrier_health(screen_vehicle, screen_w, screen_h, now)
     local health_tick_delta = now - g_last_carrier_health_tick
-    if health_tick_delta > 5 then
+    if health_tick_delta > 5 and screen_vehicle:get() then
         local our_team = screen_vehicle:get_team_id()
         -- every 1 sec
         g_last_carrier_health_tick = now
@@ -226,7 +226,6 @@ function carrier_health(screen_vehicle, screen_w, screen_h, now)
                 end
             end
         end
-
     end
 
     -- render carrier damage message
@@ -303,7 +302,6 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
     g_last_map_overlay = g_is_map_overlay
     if g_map_toggle then
         -- detect double taps
-        local now = update_get_logic_tick()
         local diff = now - g_toggle_map_last_tick
         g_toggle_map_last_tick = now
         if diff < 10 then
@@ -4684,7 +4682,6 @@ function iter_tiles(filter)
 end
 
 function iter_vehicles(filter)
-    local vehicle_count = update_get_map_vehicle_count()
     local index = 0
 
     local skip = function(v)
@@ -4693,11 +4690,7 @@ function iter_vehicles(filter)
 
     return function()
         local vehicle = nil
-
-        while index < vehicle_count do
-            vehicle = update_get_map_vehicle_by_index(index)
-            index = index + 1
-
+        for index, vehicle in pairs(get_vehicles_table()) do
             if skip(vehicle) then
                 vehicle = nil
             else

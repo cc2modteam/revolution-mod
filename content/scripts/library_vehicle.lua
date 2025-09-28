@@ -3752,7 +3752,7 @@ function VProxy.new(real)
 end
 
 function VProxy:get()
-    if self.v then
+    if self.v ~= nil then
         return true
     end
     return false
@@ -3763,7 +3763,7 @@ function VProxy:get_id()
 end
 
 function VProxy:get_is_hud()
-    return self.v and self.v.get_position ~= nil
+    return g_is_hud == true
 end
 
 function VProxy:get_definition_index()
