@@ -93,7 +93,7 @@ g_notification = {
     update = function(self, delta_time, vehicle)
         self.time = self.time + delta_time
 
-        if vehicle:get() and g_is_connected then
+        if g_is_connected and vehicle:get() then
             local vehicle_id = vehicle:get_id()
             local vehicle_control_mode = vehicle:get_control_mode()
             local attachment_control_mode = ""
@@ -317,173 +317,171 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
         return
     end
 
-    if vehicle:get() == nil or g_is_connected == false then
+    if g_is_connected == false or vehicle:get() == nil then
         update_add_ui_interaction(update_get_loc(e_loc.interaction_cancel), e_game_input.back)
     elseif g_is_map_overlay == false then
         update_add_ui_interaction(update_get_loc(e_loc.interaction_exit), e_game_input.back)
     end
 
-    if vehicle:get() then
-        if g_is_connected then
-            g_nearest_hostile_ew_radar = nil
-            g_nearest_hostile_ew_radar_range = 0
-            local v_def = vehicle:get_definition_index()
-            if get_is_vehicle_air(v_def) then
-                g_render_rwr = get_has_rwr(vehicle)
-                update_modded_radar_list(true)
-                local nearest_radar, radar_dist = get_nearest_hostile_radar(vehicle:get_id())
-                if nearest_radar ~= nil then
-                    if radar_dist > get_rwr_range() then
-                        nearest_radar = nil
-                        radar_dist = 0
-                    end
-                    g_nearest_hostile_ew_radar_range = radar_dist
-                    g_nearest_hostile_ew_radar = nearest_radar
+    if g_is_connected and vehicle:get() then
+        g_nearest_hostile_ew_radar = nil
+        g_nearest_hostile_ew_radar_range = 0
+        local v_def = vehicle:get_definition_index()
+        if get_is_vehicle_air(v_def) then
+            g_render_rwr = get_has_rwr(vehicle)
+            update_modded_radar_list(true)
+            local nearest_radar, radar_dist = get_nearest_hostile_radar(vehicle:get_id())
+            if nearest_radar ~= nil then
+                if radar_dist > get_rwr_range() then
+                    nearest_radar = nil
+                    radar_dist = 0
                 end
-            else
-                g_render_rwr = false
+                g_nearest_hostile_ew_radar_range = radar_dist
+                g_nearest_hostile_ew_radar = nearest_radar
+            end
+        else
+            g_render_rwr = false
+        end
+
+        if do_comms_error(vehicle, screen_w, screen_h) then
+            return
+        end
+
+        Variometer:update(vehicle)
+        local attachment = vehicle:get_attachment(g_selected_attachment_index)
+        local is_attachment_render_center = false
+        local is_render_awacs = false
+
+        if attachment and (
+                attachment:get_definition_index() == e_game_object_type.attachment_radar_awacs
+                or
+                attachment:get_definition_index() == e_game_object_type.attachment_radar_golfball
+        ) then
+            is_render_awacs = true
+        end
+
+        if not is_render_awacs and not g_is_map_overlay then
+            if vehicle:get_attachment_count() > 1 and vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
+                if update_get_active_input_type() == e_active_input.gamepad then
+                    update_add_ui_interaction(update_get_loc(e_loc.interaction_select_attachment), e_game_input.select_attachment_prev)
+                elseif update_get_active_input_type() == e_active_input.keyboard then
+                    update_add_ui_interaction(update_get_loc(e_loc.interaction_select_attachment), e_game_input.select_attachment_1)
+                end
             end
 
-            if do_comms_error(vehicle, screen_w, screen_h) then
-                return
-            end
+            update_add_ui_interaction(update_get_loc(e_loc.interaction_show_map), e_game_input.map_overlay)
 
-            Variometer:update(vehicle)
-            local attachment = vehicle:get_attachment(g_selected_attachment_index)
-            local is_attachment_render_center = false
-            local is_render_awacs = false
+            if attachment:get() then
+                if attachment:get_is_controllable() then
+                    local control_mode = attachment:get_control_mode()
 
-            if attachment and (
-                    attachment:get_definition_index() == e_game_object_type.attachment_radar_awacs
-                    or
-                    attachment:get_definition_index() == e_game_object_type.attachment_radar_golfball
-            ) then
-                is_render_awacs = true
-            end
+                    if control_mode == "auto" then
+                        update_add_ui_interaction(update_get_loc(e_loc.interaction_manual), e_game_input.toggle_control_mode)
+                    elseif control_mode == "manual" then
+                        update_add_ui_interaction(update_get_loc(e_loc.interaction_auto), e_game_input.toggle_control_mode)
 
-            if not is_render_awacs and not g_is_map_overlay then
-                if vehicle:get_attachment_count() > 1 and vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
-                    if update_get_active_input_type() == e_active_input.gamepad then
-                        update_add_ui_interaction(update_get_loc(e_loc.interaction_select_attachment), e_game_input.select_attachment_prev)
-                    elseif update_get_active_input_type() == e_active_input.keyboard then
-                        update_add_ui_interaction(update_get_loc(e_loc.interaction_select_attachment), e_game_input.select_attachment_1)
-                    end
-                end
-                
-                update_add_ui_interaction(update_get_loc(e_loc.interaction_show_map), e_game_input.map_overlay)
-
-                if attachment:get() then
-                    if attachment:get_is_controllable() then
-                        local control_mode = attachment:get_control_mode()
-
-                        if control_mode == "auto" then
-                            update_add_ui_interaction(update_get_loc(e_loc.interaction_manual), e_game_input.toggle_control_mode)
-                        elseif control_mode == "manual" then
-                            update_add_ui_interaction(update_get_loc(e_loc.interaction_auto), e_game_input.toggle_control_mode)
-                            
-                            if attachment:get_is_controlling_peer() and attachment:get_definition_index() == e_game_object_type.attachment_hardpoint_missile_tv and attachment:get_is_viewing_sub_camera() then
-                                update_add_ui_interaction_special(update_get_loc(e_loc.interaction_throttle), e_ui_interaction_special.air_throttle)
-                                update_add_ui_interaction_special(update_get_loc(e_loc.interaction_roll), e_ui_interaction_special.air_roll)
-                                update_add_ui_interaction_special(update_get_loc(e_loc.interaction_pitch), e_ui_interaction_special.air_pitch)
-                                update_add_ui_interaction_special(update_get_loc(e_loc.interaction_yaw), e_ui_interaction_special.air_yaw)
-                            end
-                            
-                            if attachment:get_ammo_capacity() > 0 then
-                                update_add_ui_interaction(update_get_loc(e_loc.interaction_fire), e_game_input.attachment_fire)
-                            end
-                        end
-                    end
-                end
-
-                local attachment_control_camera = vehicle:get_attachment(0)
-
-                if attachment_control_camera:get() and attachment_control_camera:get_definition_index() == e_game_object_type.attachment_camera_vehicle_control then
-                    if vehicle:get_control_mode() == "manual" and attachment_control_camera:get_controlling_peer_id() == local_peer_id then
-                        if get_is_vehicle_air(vehicle:get_definition_index()) then
+                        if attachment:get_is_controlling_peer() and attachment:get_definition_index() == e_game_object_type.attachment_hardpoint_missile_tv and attachment:get_is_viewing_sub_camera() then
                             update_add_ui_interaction_special(update_get_loc(e_loc.interaction_throttle), e_ui_interaction_special.air_throttle)
                             update_add_ui_interaction_special(update_get_loc(e_loc.interaction_roll), e_ui_interaction_special.air_roll)
                             update_add_ui_interaction_special(update_get_loc(e_loc.interaction_pitch), e_ui_interaction_special.air_pitch)
                             update_add_ui_interaction_special(update_get_loc(e_loc.interaction_yaw), e_ui_interaction_special.air_yaw)
-                        else
-                            update_add_ui_interaction_special(update_get_loc(e_loc.interaction_throttle), e_ui_interaction_special.land_throttle)
-                            update_add_ui_interaction_special(update_get_loc(e_loc.interaction_steer), e_ui_interaction_special.land_steer)
+                        end
+
+                        if attachment:get_ammo_capacity() > 0 then
+                            update_add_ui_interaction(update_get_loc(e_loc.interaction_fire), e_game_input.attachment_fire)
                         end
                     end
                 end
-            else
-                update_add_ui_interaction(update_get_loc(e_loc.interaction_hide_map), e_game_input.map_overlay)
             end
-            
-            if not is_render_awacs and not g_is_map_overlay then
-                if attachment:get() then       
-                    if attachment:get_definition_index() < e_game_object_type.count then
-                        render_attachment_info(vec2(10, screen_h / 2 - 80), map_data, vehicle, attachment, 255, screen_w, screen_h)
-                        is_render_center = render_attachment_hud(screen_w, screen_h, map_data, tick_fraction, vehicle, attachment, local_peer_id)
+
+            local attachment_control_camera = vehicle:get_attachment(0)
+
+            if attachment_control_camera:get() and attachment_control_camera:get_definition_index() == e_game_object_type.attachment_camera_vehicle_control then
+                if vehicle:get_control_mode() == "manual" and attachment_control_camera:get_controlling_peer_id() == local_peer_id then
+                    if get_is_vehicle_air(vehicle:get_definition_index()) then
+                        update_add_ui_interaction_special(update_get_loc(e_loc.interaction_throttle), e_ui_interaction_special.air_throttle)
+                        update_add_ui_interaction_special(update_get_loc(e_loc.interaction_roll), e_ui_interaction_special.air_roll)
+                        update_add_ui_interaction_special(update_get_loc(e_loc.interaction_pitch), e_ui_interaction_special.air_pitch)
+                        update_add_ui_interaction_special(update_get_loc(e_loc.interaction_yaw), e_ui_interaction_special.air_yaw)
+                    else
+                        update_add_ui_interaction_special(update_get_loc(e_loc.interaction_throttle), e_ui_interaction_special.land_throttle)
+                        update_add_ui_interaction_special(update_get_loc(e_loc.interaction_steer), e_ui_interaction_special.land_steer)
                     end
                 end
-            
-                local def = vehicle:get_definition_index()
-                
-                if def == e_game_object_type.chassis_air_wing_light
-                or def == e_game_object_type.chassis_air_wing_heavy
-                or def == e_game_object_type.chassis_air_rotor_light 
-                or def == e_game_object_type.chassis_air_rotor_heavy 
-                then
-                    render_flight_hud(screen_w, screen_h, is_render_center == false, vehicle)
-                end
-
-                if def == e_game_object_type.chassis_land_wheel_light
-                or def == e_game_object_type.chassis_land_wheel_medium
-                or def == e_game_object_type.chassis_land_wheel_heavy 
-                or def == e_game_object_type.chassis_land_wheel_mule 
-                or def == e_game_object_type.chassis_deployable_droid
-                then
-                    render_ground_hud(screen_w, screen_h, vehicle)
-                end
-
-                if def == e_game_object_type.chassis_sea_barge
-                or def == e_game_object_type.chassis_sea_ship_light
-                or def == e_game_object_type.chassis_sea_ship_heavy
-                then
-                    render_barge_hud(screen_w, screen_h, vehicle)
-                end
-
-                if def == e_game_object_type.chassis_carrier then
-                    render_turret_hud(screen_w, screen_h, vehicle)
-                end
-                
-                if def == e_game_object_type.chassis_land_turret then
-                    render_turret_hud(screen_w, screen_h, vehicle)
-                end
-            end
-
-            render_attachment_hotbar(screen_w, screen_h, vehicle)
-            render_notification(screen_w, screen_h)
-
-            -- render_vehicle_info(vec2(screen_w - 100, screen_h - 65), vehicle)
-
-            update_set_screen_background_type(0)
-
-            if g_is_map_overlay or is_render_awacs then
-                local map_x = 12
-                local map_y = 32
-                local map_w = screen_w - 25
-                local map_h = screen_h - 63
-
-                update_set_screen_background_clip(map_x, screen_h - map_y - map_h, map_w, map_h)
-                update_set_screen_background_type(8)
-                update_set_screen_background_tile_color_custom(color8(64, 64, 64, 255))
-                update_set_screen_background_color(color8(0, 0, 0, 64))
-
-                update_ui_push_clip(map_x, map_y, map_w, map_h)
-                render_map_details(map_x, map_y, map_w, map_h, screen_w, screen_h, vehicle, attachment)
-                update_ui_pop_clip()
-
-                update_ui_rectangle_outline(map_x, map_y, map_w, map_h, color8(0, 255, 0, 255))
             end
         else
-            render_connecting_overlay(screen_w, screen_h)
+            update_add_ui_interaction(update_get_loc(e_loc.interaction_hide_map), e_game_input.map_overlay)
         end
+
+        if not is_render_awacs and not g_is_map_overlay then
+            if attachment:get() then
+                if attachment:get_definition_index() < e_game_object_type.count then
+                    render_attachment_info(vec2(10, screen_h / 2 - 80), map_data, vehicle, attachment, 255, screen_w, screen_h)
+                    is_render_center = render_attachment_hud(screen_w, screen_h, map_data, tick_fraction, vehicle, attachment, local_peer_id)
+                end
+            end
+
+            local def = vehicle:get_definition_index()
+
+            if def == e_game_object_type.chassis_air_wing_light
+            or def == e_game_object_type.chassis_air_wing_heavy
+            or def == e_game_object_type.chassis_air_rotor_light
+            or def == e_game_object_type.chassis_air_rotor_heavy
+            then
+                render_flight_hud(screen_w, screen_h, is_render_center == false, vehicle)
+            end
+
+            if def == e_game_object_type.chassis_land_wheel_light
+            or def == e_game_object_type.chassis_land_wheel_medium
+            or def == e_game_object_type.chassis_land_wheel_heavy
+            or def == e_game_object_type.chassis_land_wheel_mule
+            or def == e_game_object_type.chassis_deployable_droid
+            then
+                render_ground_hud(screen_w, screen_h, vehicle)
+            end
+
+            if def == e_game_object_type.chassis_sea_barge
+            or def == e_game_object_type.chassis_sea_ship_light
+            or def == e_game_object_type.chassis_sea_ship_heavy
+            then
+                render_barge_hud(screen_w, screen_h, vehicle)
+            end
+
+            if def == e_game_object_type.chassis_carrier then
+                render_turret_hud(screen_w, screen_h, vehicle)
+            end
+
+            if def == e_game_object_type.chassis_land_turret then
+                render_turret_hud(screen_w, screen_h, vehicle)
+            end
+        end
+
+        render_attachment_hotbar(screen_w, screen_h, vehicle)
+        render_notification(screen_w, screen_h)
+
+        -- render_vehicle_info(vec2(screen_w - 100, screen_h - 65), vehicle)
+
+        update_set_screen_background_type(0)
+
+        if g_is_map_overlay or is_render_awacs then
+            local map_x = 12
+            local map_y = 32
+            local map_w = screen_w - 25
+            local map_h = screen_h - 63
+
+            update_set_screen_background_clip(map_x, screen_h - map_y - map_h, map_w, map_h)
+            update_set_screen_background_type(8)
+            update_set_screen_background_tile_color_custom(color8(64, 64, 64, 255))
+            update_set_screen_background_color(color8(0, 0, 0, 64))
+
+            update_ui_push_clip(map_x, map_y, map_w, map_h)
+            render_map_details(map_x, map_y, map_w, map_h, screen_w, screen_h, vehicle, attachment)
+            update_ui_pop_clip()
+
+            update_ui_rectangle_outline(map_x, map_y, map_w, map_h, color8(0, 255, 0, 255))
+        end
+    else
+        render_connecting_overlay(screen_w, screen_h)
     end
 end
 

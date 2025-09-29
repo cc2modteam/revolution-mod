@@ -1830,9 +1830,7 @@ function find_team_drydock(team_id)
     local drydock = nil
     local drydock_id = g_team_drydocks[team_id]
     if drydock_id == nil then
-        local vehicle_count = update_get_map_vehicle_count()
-        for i = 0, vehicle_count - 1, 1 do
-            local vehicle = update_get_map_vehicle_by_index(i)
+        for _, vehicle in pairs(get_vehicles_table()) do
             if vehicle:get() then
                 local vehicle_definition_index = vehicle:get_definition_index()
                 if vehicle_definition_index == e_game_object_type.drydock then
