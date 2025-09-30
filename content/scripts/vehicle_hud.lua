@@ -25,7 +25,7 @@ g_render_rwr = false
 g_hide_horizon_ladder = false
 g_active_attachment_time = 0
 g_is_hud = true
-g_nearest_hostile_ew_radar = nil
+g_nearest_hostile_ew_radar_id = -1
 g_nearest_hostile_ew_radar_range = 99999
 
 g_attachment_factors = {}
@@ -188,6 +188,16 @@ function update(screen_w, screen_h, tick_fraction, delta_time, local_peer_id, ve
     end
 end
 
+function get_nearest_hostile_ew_radar()
+    if g_nearest_hostile_ew_radar_id > -1 then
+        local v = update_get_map_vehicle_by_id(g_nearest_hostile_ew_radar_id)
+        if v and v:get() then
+           return v
+        end
+    end
+    return nil
+end
+
 function carrier_health(screen_vehicle, screen_w, screen_h, now)
     local health_tick_delta = now - g_last_carrier_health_tick
     if health_tick_delta > 5 and screen_vehicle:get() then
@@ -324,7 +334,6 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
     end
 
     if g_is_connected and vehicle:get() then
-        g_nearest_hostile_ew_radar = nil
         g_nearest_hostile_ew_radar_range = 0
         local v_def = vehicle:get_definition_index()
         if get_is_vehicle_air(v_def) then
@@ -335,9 +344,10 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
                 if radar_dist > get_rwr_range() then
                     nearest_radar = nil
                     radar_dist = 0
+                else
+                    g_nearest_hostile_ew_radar_id = nearest_radar:get_id()
                 end
                 g_nearest_hostile_ew_radar_range = radar_dist
-                g_nearest_hostile_ew_radar = nearest_radar
             end
         else
             g_render_rwr = false
@@ -1954,21 +1964,25 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
         end
     end
 
-    if g_nearest_hostile_ew_radar ~= nil then
-        local rtype = g_nearest_hostile_ew_radar:get_definition_index()
-        if get_is_vehicle_sea(rtype) or get_is_vehicle_land(rtype) then
-            rinfo = "S"
-        elseif get_is_vehicle_air(rtype)  then
-            rinfo = "A"
-        end
-
-        if g_nearest_hostile_ew_radar_range < 10000 then
-            show_spike = true
-            show_alert = true
-            local mrr = get_modded_radar_range(g_nearest_hostile_ew_radar)
-            if g_nearest_hostile_ew_radar_range < mrr or rinfo == "A" then
-                show_nails = true
+    if g_nearest_hostile_ew_radar_id > -1 then
+        local hrdr = get_nearest_hostile_ew_radar()
+        if hrdr then
+            local rtype = hrdr:get_definition_index()
+            if get_is_vehicle_sea(rtype) or get_is_vehicle_land(rtype) then
+                rinfo = "S"
+            elseif get_is_vehicle_air(rtype)  then
+                rinfo = "A"
             end
+
+            if g_nearest_hostile_ew_radar_range < 10000 then
+                show_spike = true
+                show_alert = true
+                local mrr = get_modded_radar_range(hrdr)
+                if g_nearest_hostile_ew_radar_range < mrr or rinfo == "A" then
+                    show_nails = true
+                end
+            end
+
         end
     end
 
@@ -1980,7 +1994,7 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
     end
 
     if tick % 60 < 30 then
-        if g_nearest_hostile_ew_radar ~= nil then
+        if g_nearest_hostile_ew_radar_id > -1 then
             -- change color
             show_alert = true
         end
