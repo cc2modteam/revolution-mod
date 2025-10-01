@@ -591,7 +591,16 @@ camera_modes = {
 
 function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, attachment)
     local screen_vehicle_def = screen_vehicle:get_definition_index()
-    local camera_pos = update_get_camera_position()
+    local camera_pos = screen_vehicle:get_position()
+    local adef = nil
+
+    if attachment:get() then
+        adef = attachment:get_definition_index()
+        if adef == e_game_object_type.attachment_hardpoint_missile_tv then
+            camera_pos = update_get_camera_position()
+        end
+    end
+
     local camera_x = camera_pos:x()
     local camera_y = camera_pos:z()
     local is_viewing_sub_camera = false
@@ -602,7 +611,6 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local radar_name = ""
 
     if attachment:get() then
-        local adef = attachment:get_definition_index()
         attachment:get_is_viewing_sub_camera()
         is_awacs = adef == e_game_object_type.attachment_radar_awacs
         is_golfball = adef == e_game_object_type.attachment_radar_golfball
@@ -3122,7 +3130,13 @@ function render_compass(screen_vehicle, pos, col)
     local total_w = 4 * spacing
 
     local labels = { update_get_loc(e_loc.upp_compass_n), update_get_loc(e_loc.upp_compass_e), update_get_loc(e_loc.upp_compass_s), update_get_loc(e_loc.upp_compass_w) }
-    local v_pos = update_get_camera_position()
+    local v_pos = screen_vehicle:get_position()
+    local attachment = screen_vehicle:get_attachment(g_selected_attachment_index)
+    if attachment and attachment:get() then
+        if attachment:get_definition_index() == e_game_object_type.attachment_hardpoint_missile_tv then
+            v_pos = update_get_camera_position()
+        end
+    end
 
     if screen_vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
         local nearest_crr = find_nearest_vehicle_types(screen_vehicle, {e_game_object_type.chassis_carrier}, false, nil, -10)
@@ -3228,7 +3242,6 @@ function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     --update_ui_push_clip(pos:x() - size:x() / 2, pos:y() - size:y() / 2, size:x(), size:y())
 
     local scale = 1
-
     local position = update_get_camera_position()
     local project_dist = 500
 
@@ -3922,8 +3935,11 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
     end
 
     -- get all relevant targets and their data
-    local cam_pos = update_get_camera_position()
+    local cam_pos = screen_vehicle:get_position()
     local show_target_dist_to_launcher = attachment_def == e_game_object_type.attachment_hardpoint_missile_tv
+    if show_target_dist_to_launcher then
+        cam_pos = update_get_camera_position()
+    end
 
     for v in iter_vision(map_data, filter_target) do
         local pos = v:get_position()
