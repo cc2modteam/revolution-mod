@@ -3935,7 +3935,7 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
     end
 
     -- get all relevant targets and their data
-    local cam_pos = screen_vehicle:get_position()
+    local cam_pos = vehicle:get_position()
     local show_target_dist_to_launcher = attachment_def == e_game_object_type.attachment_hardpoint_missile_tv
     if show_target_dist_to_launcher then
         cam_pos = update_get_camera_position()
