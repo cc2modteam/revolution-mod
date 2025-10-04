@@ -1044,7 +1044,7 @@ function get_modded_radar_range(vehicle)
 end
 
 function _get_modded_radar_range(vehicle)
-    if vehicle:get() then
+    if vehicle and vehicle:get() then
 
         if g_revolution_override_radar_range ~= nil then
             local r_range = g_revolution_override_radar_range(vehicle)
@@ -3630,14 +3630,14 @@ function get_vehicles_table()
         for i = 0, vehicle_count - 1, 1 do
             local vehicle = update_get_map_vehicle_by_index(i)
 
-            if vehicle:get() then
-                --table.insert(vt, vehicle)
+            if vehicle and vehicle:get() then
                 local proxy = VProxy_get(vehicle)
                 table.insert(vt, proxy)
 
                 if vehicle:get_definition_index() == e_game_object_type.chassis_carrier then
                     table.insert(ct, proxy)
                 end
+
             end
         end
     end
@@ -3820,14 +3820,11 @@ end
 
 function VProxy:get_position_xz()
     if self.get_position_xz_ == nil and self.v then
-        if self.v.get_position_xz then
-            self.get_position_xz_ = self.v:get_position_xz()
+        if self:get_is_hud() then
+            local pos3 = self.v:get_position()
+            self.get_position_xz_ = vec2(pos3:x(), pos3:z())
         else
-            -- HUD
-            local pos = self:get_position()
-            if pos then
-                self.get_position_xz_ = vec2(pos:x(), pos:z())
-            end
+            self.get_position_xz_ = self.v:get_position_xz()
         end
     end
     return self.get_position_xz_

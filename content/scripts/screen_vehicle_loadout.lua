@@ -188,7 +188,7 @@ function _update(screen_w, screen_h, ticks)
         end
         if get_vehicle_docked(this_vehicle) then
             local drydock = find_team_drydock(this_vehicle:get_team())
-            if drydock ~= nil then
+            if drydock and drydock.set_attached_vehicle_attachment then
                 -- attach the VLS
                 local slots = this_vehicle:get_attachment_count()
                 if slots >= 18 then

@@ -200,7 +200,7 @@ end
 
 function carrier_health(screen_vehicle, screen_w, screen_h, now)
     local health_tick_delta = now - g_last_carrier_health_tick
-    if health_tick_delta > 5 and screen_vehicle:get() then
+    if screen_vehicle and health_tick_delta > 5 and screen_vehicle:get() then
         local our_team = screen_vehicle:get_team_id()
         -- every 1 sec
         g_last_carrier_health_tick = now
@@ -224,7 +224,7 @@ function carrier_health(screen_vehicle, screen_w, screen_h, now)
 
         g_carrier_health = {}
         for _, vehicle in iter_vehicles(nil) do
-            if vehicle:get() then
+            if vehicle and vehicle:get() then
                 local vteam = vehicle:get_team_id()
                 if vteam == our_team then
                     local vdef = vehicle:get_definition_index()
@@ -327,13 +327,13 @@ function real_update(screen_w, screen_h, tick_fraction, delta_time, local_peer_i
         return
     end
 
-    if g_is_connected == false or vehicle:get() == nil then
+    if not g_is_connected or not vehicle or not vehicle:get() then
         update_add_ui_interaction(update_get_loc(e_loc.interaction_cancel), e_game_input.back)
     elseif g_is_map_overlay == false then
         update_add_ui_interaction(update_get_loc(e_loc.interaction_exit), e_game_input.back)
     end
 
-    if g_is_connected and vehicle:get() then
+    if g_is_connected and vehicle and vehicle:get() then
         g_nearest_hostile_ew_radar_range = 0
         local v_def = vehicle:get_definition_index()
         if get_is_vehicle_air(v_def) then
@@ -594,7 +594,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local camera_pos = screen_vehicle:get_position()
     local adef = nil
 
-    if attachment:get() then
+    if attachment and attachment:get() then
         adef = attachment:get_definition_index()
         if adef == e_game_object_type.attachment_hardpoint_missile_tv then
             camera_pos = update_get_camera_position()
@@ -610,8 +610,8 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local awacs_mode = false
     local radar_name = ""
 
-    if attachment:get() then
-        attachment:get_is_viewing_sub_camera()
+    if attachment and attachment:get() then
+        -- attachment:get_is_viewing_sub_camera()
         is_awacs = adef == e_game_object_type.attachment_radar_awacs
         is_golfball = adef == e_game_object_type.attachment_radar_golfball
         awacs_mode = is_golfball or is_awacs
@@ -2958,7 +2958,6 @@ function render_flight_hud(screen_w, screen_h, is_render_center, vehicle)
 
     -- render team markers as yellow waypoints
 
-    local dd = find_team_drydock()
     local mark_col = color_yellow
     local vpos_2d = vec2(pos:x(), pos:z())
     for i = 1, 4, 1 do
