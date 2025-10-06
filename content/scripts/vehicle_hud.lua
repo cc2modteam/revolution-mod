@@ -594,15 +594,6 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local camera_pos = screen_vehicle:get_position()
     local adef = nil
 
-    if attachment and attachment:get() then
-        adef = attachment:get_definition_index()
-        if adef == e_game_object_type.attachment_hardpoint_missile_tv then
-            camera_pos = update_get_camera_position()
-        end
-    end
-
-    local camera_x = camera_pos:x()
-    local camera_y = camera_pos:z()
     local is_viewing_sub_camera = false
     local col = color8(0, 255, 0, 255)
     local is_awacs = false
@@ -611,7 +602,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local radar_name = ""
 
     if attachment and attachment:get() then
-        -- attachment:get_is_viewing_sub_camera()
+        is_viewing_sub_camera = attachment:get_is_viewing_sub_camera()
         is_awacs = adef == e_game_object_type.attachment_radar_awacs
         is_golfball = adef == e_game_object_type.attachment_radar_golfball
         awacs_mode = is_golfball or is_awacs
@@ -629,9 +620,11 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     end
 
     if is_viewing_sub_camera then
-        camera_x = update_get_camera_position():x()
-        camera_y = update_get_camera_position():z()
+        camera_pos = update_get_camera_position()
     end
+
+    local camera_x = camera_pos:x()
+    local camera_y = camera_pos:z()
 
     local camera_size = 5000
     if screen_vehicle_def == e_game_object_type.chassis_carrier then
@@ -1990,7 +1983,6 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
                     show_nails = true
                 end
             end
-
         end
     end
 
@@ -4709,6 +4701,7 @@ function iter_tiles(filter)
 end
 
 function iter_vehicles(filter)
+    local vehicle_count = update_get_map_vehicle_count()
     local index = 0
 
     local skip = function(v)
@@ -4717,7 +4710,11 @@ function iter_vehicles(filter)
 
     return function()
         local vehicle = nil
-        for index, vehicle in pairs(get_vehicles_table()) do
+
+        while index < vehicle_count do
+            vehicle = update_get_map_vehicle_by_index(index)
+            index = index + 1
+
             if skip(vehicle) then
                 vehicle = nil
             else
