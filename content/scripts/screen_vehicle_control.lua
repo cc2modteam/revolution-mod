@@ -1128,6 +1128,7 @@ function input_selection(event, action)
     if action == e_input_action.press and event == e_input.back then
         if g_command_center_ui.is_place_turret then
             g_command_center_ui.is_place_turret = false
+            g_command_center_ui.selected_item = -1
             return true
         elseif g_command_center_ui.selected_facility_queue_item ~= -1 then
             g_command_center_ui.selected_facility_queue_item = -1
@@ -4308,9 +4309,6 @@ function purchase_turret(item, island_id, turret_spawn_index)
 
         if is_valid then
             island:set_facility_add_production_queue_defense_item(item, marker_index)
-            g_command_center_ui.is_place_turret = false
-            g_command_center_ui.selected_item = -1
-            g_selection:clear()
         end
     else
         g_command_center_ui.is_place_turret = false
