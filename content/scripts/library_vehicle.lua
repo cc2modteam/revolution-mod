@@ -4270,6 +4270,11 @@ function VProxy:get_is_visible_by_hostile_modded_radar()
     return self.is_visible_by_hostile_modded_radar
 end
 
+function VProxy:set_attached_vehicle_attachment(vehicle_bay, attachment_index, attachment_type)
+    if self.v and self.v.set_attached_vehicle_attachment then
+        self.v:set_attached_vehicle_attachment(vehicle_bay, attachment_index, attachment_type)
+    end
+end
 
 -- factory
 
