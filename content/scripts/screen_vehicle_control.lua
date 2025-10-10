@@ -2836,8 +2836,23 @@ function _update(screen_w, screen_h, ticks)
                     local text = update_get_loc(e_loc.upp_construct)
                     local text_w = update_ui_get_text_size(text, 200, 0)
 
+                    local turret_gun_item_id = g_item_data[e_inventory_item.support_turret_gun].index
+                    local turret_ciws_item_id = g_item_data[e_inventory_item.support_turret_ciws].index
+                    local turret_msl_item_id = g_item_data[e_inventory_item.support_turret_missile].index
+                    local icon16 = atlas_icons.icon_chassis_16_land_turret
+
+                    if turret_gun_item_id == g_command_center_ui.selected_item then
+                        icon16 = atlas_icons.icon_attachment_16_turret_main_gun
+
+                    elseif turret_ciws_item_id == g_command_center_ui.selected_item then
+                        icon16 = atlas_icons.icon_attachment_16_turret_ciws
+
+                    elseif turret_msl_item_id == g_command_center_ui.selected_item then
+                        icon16 = atlas_icons.icon_attachment_16_turret_missile
+                    end
+
                     render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_cursor_pos_x, g_cursor_pos_y, text_w + 24, 17, 10, function(w, h)
-                        update_ui_image(2, 1, atlas_icons.icon_chassis_16_land_turret, iff(is_valid, color_status_ok, color_status_bad), 0)
+                        update_ui_image(2, 1, icon16, iff(is_valid, color_status_ok, color_status_bad), 0)
                         update_ui_text(20, 4, text, w, 0, iff(is_valid, color_white, color_grey_dark), 0)
                     end)
                 end
