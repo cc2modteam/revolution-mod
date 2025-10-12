@@ -602,6 +602,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local radar_name = ""
 
     if attachment and attachment:get() then
+        adef = attachment:get_definition_index()
         is_viewing_sub_camera = attachment:get_is_viewing_sub_camera()
         is_awacs = adef == e_game_object_type.attachment_radar_awacs
         is_golfball = adef == e_game_object_type.attachment_radar_golfball
