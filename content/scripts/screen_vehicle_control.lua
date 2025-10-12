@@ -6,6 +6,7 @@ g_highlighted = {
     island_id = 0,
     turret_spawn_index = -1,
     production_index = -1,
+    turret_cost = 0,
 
     clear = function(self)
         self.vehicle_id = 0
@@ -161,6 +162,69 @@ g_command_center_ui = {
 g_selected_vehicle_ui = {
     confirm_self_destruct = false,
 }
+
+--
+-- notes on turret system - inb
+-- marker_index values are global for the whole map, range 0 -> 100000
+-- spawn_index values are per island
+--
+-- get the size of the island turret build queue:
+--   island:get_facility_production_queue_defense_count() -> queue_size[int]
+
+-- get the turret type and marker for a turret in the island build queue:
+--   island:get_facility_production_queue_defense_item(queue_index[int]) -> type[enum], marker_index[int]
+
+-- get marker_index and buildable status of a turret spawn slot:
+--   island:get_turret_spawn(spawn_index[int]) -> marker_index[int], is_buildable[bool]
+
+-- build a turret:
+--   static method?
+--   island:set_facility_add_production_queue_defense_item(turret_item_type[enum], marker_index[int])
+
+-- cancel building a turret given a production queue index:
+--   static method?
+--   island:set_facility_remove_production_queue_defense_item(queue_index[int])
+--
+
+function get_island_turret_queue_number(island, marker_index)
+    local queue_count = island:get_facility_production_queue_defense_count()
+    for i = 0, queue_count - 1 do
+        local item_type, item_marker_index = island:get_facility_production_queue_defense_item(i)
+        if item_marker_index == marker_index then
+            return item_type, i
+        end
+    end
+    return nil, -1
+end
+
+function cancel_queued_island_turret(island, marker_index)
+    local mtype, queue_index = get_island_turret_queue_number(island, marker_index)
+    if mtype ~= nil then
+        island:set_facility_remove_production_queue_defense_item(queue_index)
+    end
+end
+
+--
+function get_island_turret_progress(island, turret_spawn_index)
+    local marker_index, is_valid = island:get_turret_spawn(turret_spawn_index)
+    local qtype, i = get_island_turret_queue_number(island, marker_index)
+    if qtype ~= nil then
+        if i == 0 then
+            -- currently building
+            return island:get_facility_production_factor_defense()
+        end
+        -- in queue
+        return 0
+    end
+    -- marker is not in production queue, if it's not a valid build
+    -- location, the turret is already built
+    if is_valid then
+        -- vacant
+        return -1
+    end
+    -- already built
+    return 1
+end
 
 g_camera_pos_x = 0
 g_camera_pos_y = 0
@@ -728,8 +792,18 @@ function render_selection_command_center(screen_w, screen_h, selected_island)
                     end
 
                     if ui:list_item(update_get_loc(e_loc.upp_construct), true, item.cost <= currency) then
+                        g_highlighted.turret_cost = item.cost
                         g_command_center_ui.is_place_turret = true
+                        g_command_center_ui.is_place_turret_many = false
                     end
+
+                    if ui:list_item(update_get_loc(e_loc.upp_construct) .. "++", true, item.cost <= currency) then
+                        g_highlighted.turret_cost = item.cost
+                        g_command_center_ui.is_place_turret = true
+                        g_command_center_ui.is_place_turret_many = true
+                    end
+
+
                 ui:end_window()
             else
                 g_command_center_ui.selected_item = -1
@@ -1128,7 +1202,9 @@ function input_selection(event, action)
     if action == e_input_action.press and event == e_input.back then
         if g_command_center_ui.is_place_turret then
             g_command_center_ui.is_place_turret = false
-            g_command_center_ui.selected_item = -1
+            if g_command_center_ui.is_place_turret_many then
+                g_command_center_ui.selected_item = -1
+            end
             return true
         elseif g_command_center_ui.selected_facility_queue_item ~= -1 then
             g_command_center_ui.selected_facility_queue_item = -1
@@ -2832,8 +2908,22 @@ function _update(screen_w, screen_h, ticks)
 
                 if highlighted_island:get() then
                     local marker_index, is_valid = highlighted_island:get_turret_spawn(g_highlighted.turret_spawn_index)
-
+                    local built = false
+                    local building = false
                     local text = update_get_loc(e_loc.upp_construct)
+                    local tooltip_h = 28
+                    local marker_progress = 0
+                    if not is_valid then
+                        marker_progress = get_island_turret_progress(highlighted_island, g_highlighted.turret_spawn_index)
+                        if marker_progress >= 0 and marker_progress < 1 then
+                            text = update_get_loc(e_loc.upp_cancel)
+                            building = true
+                            tooltip_h = tooltip_h + 11
+                        else
+                            text = update_get_loc(e_loc.upp_active)
+                            built = true
+                        end
+                    end
                     local text_w = update_ui_get_text_size(text, 200, 0)
 
                     local turret_gun_item_id = g_item_data[e_inventory_item.support_turret_gun].index
@@ -2851,9 +2941,32 @@ function _update(screen_w, screen_h, ticks)
                         icon16 = atlas_icons.icon_attachment_16_turret_missile
                     end
 
-                    render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_cursor_pos_x, g_cursor_pos_y, text_w + 24, 17, 10, function(w, h)
-                        update_ui_image(2, 1, icon16, iff(is_valid, color_status_ok, color_status_bad), 0)
-                        update_ui_text(20, 4, text, w, 0, iff(is_valid, color_white, color_grey_dark), 0)
+                    local turret_icon_color = iff(is_valid, color_status_ok, color_status_bad)
+                    local turret_text_color = iff(is_valid, color_white, color_grey_dark)
+                    if built then
+                        turret_icon_color = color_status_ok
+                    else
+                        if not is_valid then
+                            if marker_progress >= 0 then
+                                turret_text_color = color_status_bad
+                            end
+                        end
+                    end
+
+                    render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_cursor_pos_x, g_cursor_pos_y, text_w + 44, tooltip_h, 10, function(w, h)
+                        local team = update_get_team(update_get_screen_team_id())
+                        local currency = 0
+                        if team:get() then
+                            currency = team:get_currency()
+                            update_ui_image(2, 1, icon16, turret_icon_color, 0)
+                            update_ui_text(20, 4, text, w, 0, turret_text_color, 0)
+                            if not built then
+                                update_ui_text(20, 15, string.format("%d/%d CR", g_highlighted.turret_cost, currency) , w, 0, iff(g_highlighted.turret_cost < currency, color_status_ok, color_status_bad), 0)
+                            end
+                            if building then
+                                update_ui_text(20, 25, string.format("%d", math.floor(marker_progress * 100)) .. "%", w, 0, color_status_ok, 0)
+                            end
+                        end
                     end)
                 end
             end
@@ -4324,6 +4437,14 @@ function purchase_turret(item, island_id, turret_spawn_index)
 
         if is_valid then
             island:set_facility_add_production_queue_defense_item(item, marker_index)
+        else
+            cancel_queued_island_turret(island, marker_index)
+        end
+        if not g_command_center_ui.is_place_turret_many then
+            g_command_center_ui.is_place_turret = false
+            g_command_center_ui.is_place_turret_many = false
+            g_command_center_ui.selected_item = -1
+            g_selection:clear()
         end
     else
         g_command_center_ui.is_place_turret = false
