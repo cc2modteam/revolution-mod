@@ -186,6 +186,69 @@ g_selected_vehicle_ui = {
 --   island:set_facility_remove_production_queue_defense_item(queue_index[int])
 --
 
+function get_icon_by_turret_type_id(turret_item_id)
+    local icon = atlas_icons.icon_chassis_16_land_turret
+
+    if (turret_item_id == nil) then
+        return icon
+
+    elseif turret_item_id == e_inventory_item.support_turret_gun then
+        icon = atlas_icons.icon_attachment_16_turret_main_gun
+
+    elseif turret_item_id == e_inventory_item.support_turret_ciws then
+        icon = atlas_icons.icon_attachment_16_turret_ciws
+
+    elseif turret_item_id == e_inventory_item.support_turret_missile then
+        icon = atlas_icons.icon_attachment_16_turret_missile
+    end
+
+    return icon
+end
+
+function imgui_turret_button(self, item_data, label, is_enabled)
+    local window = self:get_window()
+    local x = window.cx
+    local y = window.cy
+    local w, h = self:get_region()
+    local is_selected = window.selected_index_y == window.index_y
+    local is_active = is_enabled and window.is_active
+    local is_action = false
+
+    local bx = x + 5
+    local by = y
+
+    local icon = get_icon_by_turret_type_id(item_data.index)
+    local icon_col = iff(is_active, iff(is_selected, color_white, color_grey_dark), color_grey_dark)
+    local text_col = iff(is_active, iff(is_selected, color_black, color_grey_dark), color_grey_dark)
+    local _, text_h = update_ui_get_text_size(label, w - bx - 23, 0)
+
+    if is_active and is_selected then
+        render_button_bg(x + 1, y, w - 2, text_h + 6, color_highlight)
+    end
+
+    update_ui_image(bx, by, icon, icon_col, 0)
+    update_ui_text(bx + 16 + 2, by + 3, label, w - bx - 23, 0, text_col, 0)
+    window.cy = window.cy + text_h + 7
+
+    local is_hovered = self:hoverable(x, y, w, window.cy - y, true)
+
+    if is_selected and is_active then
+        local is_clicked = is_hovered and self.input_pointer_1
+
+        if is_hovered or update_get_active_input_type() == e_active_input.gamepad then
+            update_add_ui_interaction(update_get_loc(e_loc.interaction_select), e_game_input.interact_a)
+        end
+
+        if self.input_action or is_clicked then
+            is_action = true
+            self.input_action = false
+            self.input_pointer_1 = false
+        end
+    end
+
+    return is_action
+end
+
 function get_island_turret_queue_number(island, marker_index)
     local queue_count = island:get_facility_production_queue_defense_count()
     for i = 0, queue_count - 1 do
@@ -204,11 +267,10 @@ function cancel_queued_island_turret(island, marker_index)
     end
 end
 
---
 function get_island_turret_progress(island, turret_spawn_index)
     local marker_index, is_valid = island:get_turret_spawn(turret_spawn_index)
-    local qtype, i = get_island_turret_queue_number(island, marker_index)
-    if qtype ~= nil then
+    local queued_type_id, i = get_island_turret_queue_number(island, marker_index)
+    if queued_type_id ~= nil then
         if i == 0 then
             -- currently building
             return island:get_facility_production_factor_defense()
@@ -665,7 +727,7 @@ function render_selection_command_center(screen_w, screen_h, selected_island)
     local win_x = 10
     local win_y = 10
     local win_w = 160
-    local win_h = 90
+    local win_h = 100
 
     local is_windows_active = g_command_center_ui.selected_item == -1 and g_command_center_ui.selected_facility_queue_item == -1
 
@@ -696,12 +758,13 @@ function render_selection_command_center(screen_w, screen_h, selected_island)
 
                 ui:header(update_get_loc(e_loc.upp_construct_defenses))
 
-                local column_widths = { 13, region_w - 13 }
-                local column_margins = { 5, 2 }
+                 local column_widths = { 16, region_w - 16 }
+                local column_margins = { 5, 5 }
 
                 for _, item in ipairs(purchase_items) do
+                    local icon = get_icon_by_turret_type_id(item.index)
                     columns = {
-                        { w=column_widths[1], margin=column_margins[1], value=atlas_icons.map_icon_turret, col=color_grey_mid, is_border=false },
+                        { w=column_widths[1], margin=column_margins[1], value=icon, col=color_grey_mid, is_border=false },
                         { w=column_widths[2], margin=column_margins[2], value=item.name }
                     }
 
@@ -738,24 +801,25 @@ function render_selection_command_center(screen_w, screen_h, selected_island)
                 local production_factor = selected_island:get_facility_production_factor_defense()
                 update_ui_rectangle(left_w, region_h / 2 - 2, production_factor * (right_w - 5), 4, color_status_bad)
 
-                local item_type, marker_index = selected_island:get_facility_production_queue_defense_item(0)
-                local item_data = g_item_data[item_type]
+                local item_type_id, marker_index = selected_island:get_facility_production_queue_defense_item(0)
+                local icon = get_icon_by_turret_type_id(item_type_id)
+                local color = color_white
 
-                if item_data ~= nil then
-                    update_ui_image_rot(left_w / 2, region_h / 2, item_data.icon, color_white, 0)
-                else
-                    update_ui_image_rot(left_w / 2, region_h / 2, atlas_icons.icon_attachment_16_unknown, color_grey_dark, 0)
+                if item_type_id == nil then
+                    color = color_grey_dark
                 end
+
+                update_ui_image_rot(left_w / 2, region_h / 2, icon, color, 0)
             end
         ui:end_window()
 
         ui:begin_window(update_get_loc(e_loc.upp_queue).."##queue", win_x, win_y + win_h + 28, win_w, win_h, atlas_icons.column_pending, is_windows_active and g_command_center_ui.selected_panel == 1, 2)
             for i = 0, queue_count - 1 do
-                local item_type, marker_index = selected_island:get_facility_production_queue_defense_item(i)
-                local item_data = g_item_data[item_type]
+                local item_type_id, marker_index = selected_island:get_facility_production_queue_defense_item(i)
+                local item_data = g_item_data[item_type_id]
 
                 if item_data ~= nil then
-                    if imgui_item_button(ui, item_data, item_data.name, true) then
+                    if imgui_turret_button(ui, item_data, item_data.name, true) then
                         g_command_center_ui.selected_facility_queue_item = i
                     end
 
@@ -815,8 +879,9 @@ function render_selection_command_center(screen_w, screen_h, selected_island)
             local queue_count = selected_island:get_facility_production_queue_defense_count()
 
             if g_command_center_ui.selected_facility_queue_item < queue_count then
-                local item_type, marker_index = selected_island:get_facility_production_queue_defense_item(g_command_center_ui.selected_facility_queue_item)
-                local item = g_item_data[item_type]
+                local item_type_id, marker_index = selected_island:get_facility_production_queue_defense_item(
+                g_command_center_ui.selected_facility_queue_item)
+                local item = g_item_data[item_type_id]
 
                 if item ~= nil then
                     local win_w = 220
@@ -2910,6 +2975,7 @@ function _update(screen_w, screen_h, ticks)
                     local marker_index, is_valid = highlighted_island:get_turret_spawn(g_highlighted.turret_spawn_index)
                     local built = false
                     local building = false
+                    local icon = get_icon_by_turret_type_id(g_command_center_ui.selected_item)
                     local text = update_get_loc(e_loc.upp_construct)
                     local tooltip_h = 28
                     local marker_progress = 0
@@ -2917,29 +2983,17 @@ function _update(screen_w, screen_h, ticks)
                         marker_progress = get_island_turret_progress(highlighted_island, g_highlighted.turret_spawn_index)
                         if marker_progress >= 0 and marker_progress < 1 then
                             text = update_get_loc(e_loc.upp_cancel)
+                            turret_item_id = get_island_turret_queue_number(highlighted_island, marker_index)
+                            icon = get_icon_by_turret_type_id(turret_item_id)
                             building = true
                             tooltip_h = tooltip_h + 11
                         else
+                            icon = atlas_icons.icon_chassis_16_land_turret
                             text = update_get_loc(e_loc.upp_active)
                             built = true
                         end
                     end
                     local text_w = update_ui_get_text_size(text, 200, 0)
-
-                    local turret_gun_item_id = g_item_data[e_inventory_item.support_turret_gun].index
-                    local turret_ciws_item_id = g_item_data[e_inventory_item.support_turret_ciws].index
-                    local turret_msl_item_id = g_item_data[e_inventory_item.support_turret_missile].index
-                    local icon16 = atlas_icons.icon_chassis_16_land_turret
-
-                    if turret_gun_item_id == g_command_center_ui.selected_item then
-                        icon16 = atlas_icons.icon_attachment_16_turret_main_gun
-
-                    elseif turret_ciws_item_id == g_command_center_ui.selected_item then
-                        icon16 = atlas_icons.icon_attachment_16_turret_ciws
-
-                    elseif turret_msl_item_id == g_command_center_ui.selected_item then
-                        icon16 = atlas_icons.icon_attachment_16_turret_missile
-                    end
 
                     local turret_icon_color = iff(is_valid, color_status_ok, color_status_bad)
                     local turret_text_color = iff(is_valid, color_white, color_grey_dark)
@@ -2958,7 +3012,7 @@ function _update(screen_w, screen_h, ticks)
                         local currency = 0
                         if team:get() then
                             currency = team:get_currency()
-                            update_ui_image(2, 1, icon16, turret_icon_color, 0)
+                            update_ui_image(2, 1, icon, turret_icon_color, 0)
                             update_ui_text(20, 4, text, w, 0, turret_text_color, 0)
                             if not built then
                                 update_ui_text(20, 15, string.format("%d/%d CR", g_highlighted.turret_cost, currency) , w, 0, iff(g_highlighted.turret_cost < currency, color_status_ok, color_status_bad), 0)
@@ -3123,18 +3177,19 @@ function _update(screen_w, screen_h, ticks)
             local highlighted_island = update_get_tile_by_id(g_highlighted.island_id)
 
             if highlighted_island:get() then
-                local item_type = highlighted_island:get_facility_production_queue_defense_item(g_highlighted.production_index)
-                local item = g_item_data[item_type]
+                local item_type_id = highlighted_island:get_facility_production_queue_defense_item(g_highlighted.production_index)
+                local item = g_item_data[item_type_id] -- do we need it?
 
                 if item ~= nil then
                     local text = iff(g_highlighted.production_index == 0, update_get_loc(e_loc.upp_constructing), update_get_loc(e_loc.upp_pending))
                     local dot_count = math.floor(g_animation_time / 10) % 4
                     for i = 1, 3 do text = text .. iff(i <= dot_count, ".", " ") end
 
+                    local icon = get_icon_by_turret_type_id(item_type_id)
                     local text_w = update_ui_get_text_size(text, 200, 0)
 
                     render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_cursor_pos_x, g_cursor_pos_y, text_w + 26, 19, 10, function(w, h)
-                        update_ui_image(4, 2, item.icon, iff(g_highlighted.production_index == 0, color_white, color_grey_dark), 0)
+                        update_ui_image(4, 2, icon, iff(g_highlighted.production_index == 0, color_white, color_grey_dark), 0)
                         update_ui_text(22, 5, text, w, 0, iff(g_highlighted.production_index == 0, color_status_ok, color_grey_dark), 0)
                     end)
                 end
