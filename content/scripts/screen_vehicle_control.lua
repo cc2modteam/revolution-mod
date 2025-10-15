@@ -553,12 +553,12 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                         local ammo_capacity = attachment:get_ammo_capacity()
                         local fuel_capacity = attachment:get_fuel_capacity()
 
-                        if ammo_capacity > 0 then
-                            local ammo_remaining = attachment:get_ammo_remaining()
-                            update_ui_text(21, cy + 4, ammo_remaining .. "/" .. ammo_capacity, 100, 0, iff(ammo_remaining == 0, color_status_bad, color_status_ok), 0)
-                        elseif fuel_capacity > 0 then
+                        if fuel_capacity > 0 then
                             local fuel_remaining = attachment:get_fuel_remaining()
                             update_ui_text(21, cy + 4, fuel_remaining  .. "/" .. fuel_capacity, 100, 0, iff(fuel_remaining == 0, color_status_bad, color_status_ok), 0)
+                        elseif ammo_capacity > 0 then
+                            local ammo_remaining = attachment:get_ammo_remaining()
+                            update_ui_text(21, cy + 4, ammo_remaining .. "/" .. ammo_capacity, 100, 0, iff(ammo_remaining == 0, color_status_bad, color_status_ok), 0)
                         end
 
                         cy = cy + 17
