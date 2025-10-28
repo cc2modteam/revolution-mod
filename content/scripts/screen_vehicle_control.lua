@@ -1857,7 +1857,20 @@ function _update(screen_w, screen_h, ticks)
 
                                 local turret_spawn_xz = island:get_marker_position(marker_index)
                                 local screen_pos_x, screen_pos_y = get_screen_from_world(turret_spawn_xz:x(), turret_spawn_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+
+
                                 local color = iff(is_highlighted, color_white, iff(is_valid, iff(g_blink_timer > 15, color_status_dark_green, color_grey_dark), color_status_dark_red))
+                                if not is_valid then
+                                    local prog = get_island_turret_progress(island, j)
+                                    if prog > 0 and prog < 1 then
+                                        color = color_status_dark_yellow
+                                        if g_blink_timer > 15 then
+                                            color = color_status_dark_red
+                                        end
+                                    elseif prog == 1 then
+                                        color = island_color
+                                    end
+                                end
 
                                 update_ui_image_rot(screen_pos_x, screen_pos_y, atlas_icons.map_icon_turret, color, 0)
                             end
