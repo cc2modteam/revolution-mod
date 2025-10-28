@@ -3020,7 +3020,7 @@ local st, _v = pcall(function()
             options = {
                 [1] = concat_lists(_std_land_turrets, {e_game_object_type.attachment_turret_heavy_cannon}),
                 [2] = concat_lists(_std_land_utils, {e_game_object_type.attachment_turret_15mm}),
-                [3] = concat_lists(_std_land_utils, {e_game_object_type.attachment_deployable_droid}),
+                [3] = concat_lists(_std_land_utils, {e_game_object_type.attachment_deployable_droid, g_ew_attachment_type}),
             },
         },
         -- bear
