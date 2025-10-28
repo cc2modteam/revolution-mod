@@ -4,17 +4,20 @@
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other features.
 
-Recent changes:
+v1.6 Beta:
+[list]
+[*] Nearby (6km) EW pod now jams aircraft HUD compass, RWR, GPS and targetting systems
+[*] Limit EW pod to petrel and walrus
+[*] Limit Manta centre hardpoint to medium bombs
+[/list]
+
+v1.5:
 [list]
 [*] Improved UI for turret deployment by Dr-RazdalByte
 [*] Reduces network traffic/congestion sent by shared holomap cursor
 [*] Fixed captian's holomap markers
 [*] TV missile minimap centres on the missile and not the launcher
 [*] TV missile shows distances to target and laucher and has compass marks
-[/list]
-
-v1.5:
-[list]
 [*] Various performance/lag tweaks
 [*] Walrus can carry the 'small' low damage turret as well as a main attachment.
 [*] EW - Electronic Warfare target fuzzing
@@ -27,13 +30,6 @@ v1.5:
 [/list]
 
 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3496283808]v1.4 available here[/url]
-[list]
-[*] Bear cannon now has a range guide for the current target
-[*] Carrier and Surface RADAR can now indicate the direction of the nearest hostile RADAR source on the holomap.
-[*] Carrier and other units carrying RADAR show a map symbol on holomap, control and nav screens.
-  If carrier radar is offline the symbol is red or damaged the symbol flashes red/grey.
-[*] Added support for the Resupply+ extension mod.
-[/list]
 
 [list]
 [*] Fog of war

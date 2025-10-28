@@ -772,7 +772,7 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     if awacs_mode then
         direction_len = screen_vehicle:get_linear_speed() / 5
     end
-    if not is_golfball then
+    if not is_golfball and not g_is_jammed then
         local p3 = vec2(math.sin(heading) * direction_len, -math.cos(heading) * direction_len)
         update_ui_line(screen_x, screen_y, screen_x + p1:x(), screen_y + p1:y(), color8(255, 255, 255, 64))
         update_ui_line(screen_x, screen_y, screen_x + p2:x(), screen_y + p2:y(), color8(255, 255, 255, 64))
@@ -786,11 +786,11 @@ function render_map_details(x, y, w, h, screen_w, screen_h, screen_vehicle, atta
     local vehicle_dir = screen_vehicle:get_forward()
     local vehicle_dir_xz = vec2_normal(vec2(vehicle_dir:x(), vehicle_dir:z()))
     local screen_x, screen_y = world_to_screen(screen_vehicle:get_position():x(), screen_vehicle:get_position():z())
-    if not is_golfball then
+    if not is_golfball and not g_is_jammed then
         update_ui_line(screen_x, screen_y, screen_x + vehicle_dir_xz:x() * direction_len, screen_y - vehicle_dir_xz:y() * direction_len, team_color)
     end
 
-    if screen_vehicle.get_waypoint_path ~= nil then
+    if not g_is_jammed and screen_vehicle.get_waypoint_path ~= nil then
         -- render next waypoint
         local waypoints = screen_vehicle:get_waypoint_path()
         if #waypoints > 0 then
@@ -1857,108 +1857,111 @@ function _render_hud_rwr(screen_w, screen_h, vehicle)
         aft = red
         stbd = red
     end
+
     local our_id = vehicle:get_id()
     local our_head = update_get_camera_heading()
     local our_team = get_vehicle_team_id(vehicle)
     local ourp = get_pos_xz(vehicle)
 
-    -- iterate all the targets and compute angles and threats
-    for _, v in pairs(get_vehicles_table()) do
-        -- hostile only please
-        local vid = v:get_id()
-        local vteam = get_vehicle_team_id(v)
-        local hostile = vteam ~= our_team
-        if hostile and not get_vehicle_docked(v) then
-            local vp = get_pos_xz(v)
-            local dist = fast_dist_sq2(vp, ourp, rwr_dist_sq)
+    if not g_is_jammed then
+        -- iterate all the targets and compute angles and threats
+        for _, v in pairs(get_vehicles_table()) do
+            -- hostile only please
+            local vid = v:get_id()
+            local vteam = get_vehicle_team_id(v)
+            local hostile = vteam ~= our_team
+            if hostile and not get_vehicle_docked(v) then
+                local vp = get_pos_xz(v)
+                local dist = fast_dist_sq2(vp, ourp, rwr_dist_sq)
 
-            if dist < rwr_dist_sq then
-                local vdef = v:get_definition_index()
-                local rdr = get_vehicle_radar(v)
-                local rdr_enabled = true
-                if vdef == e_game_object_type.chassis_carrier then
-                    rdr_enabled = get_awacs_radar_enabled(v)
-                end
-                if not rdr and get_is_vehicle_land(vdef) then
-                    if has_attachment(v, ciws_attachmennts) then
-                        rdr = e_game_object_type.attachment_turret_ciws
+                if dist < rwr_dist_sq then
+                    local vdef = v:get_definition_index()
+                    local rdr = get_vehicle_radar(v)
+                    local rdr_enabled = true
+                    if vdef == e_game_object_type.chassis_carrier then
+                        rdr_enabled = get_awacs_radar_enabled(v)
                     end
-                end
+                    if not rdr and get_is_vehicle_land(vdef) then
+                        if has_attachment(v, ciws_attachmennts) then
+                            rdr = e_game_object_type.attachment_turret_ciws
+                        end
+                    end
 
-                local offset = 26
-                local txt = ""
-                local threat = false
-                local locked = false
-                if rdr and rdr_enabled then
-                    if vdef == e_game_object_type.chassis_sea_ship_heavy then
-                        if dist < rwr_10k_sq then
+                    local offset = 26
+                    local txt = ""
+                    local threat = false
+                    local locked = false
+                    if rdr and rdr_enabled then
+                        if vdef == e_game_object_type.chassis_sea_ship_heavy then
+                            if dist < rwr_10k_sq then
+                                txt = "s"
+                                if dist < rwr_6k_sq then
+                                    threat = true
+                                    if dist < rwr_4k5_sq then
+                                        locked = true
+                                    end
+                                end
+                            end
+                        elseif vdef == e_game_object_type.chassis_carrier then
                             txt = "s"
-                            if dist < rwr_6k_sq then
+                            threat = true
+                            if dist < rwr_4k5_sq then
+                                locked = true
+                            end
+                        elseif rdr == e_game_object_type.attachment_turret_ciws then
+                            if dist < rwr_1k5_sq then
                                 threat = true
-                                if dist < rwr_4k5_sq then
+                                txt = "c"
+                                if dist < rwr_1k_sq then
                                     locked = true
                                 end
                             end
-                        end
-                    elseif vdef == e_game_object_type.chassis_carrier then
-                        txt = "s"
-                        threat = true
-                        if dist < rwr_4k5_sq then
-                            locked = true
-                        end
-                    elseif rdr == e_game_object_type.attachment_turret_ciws then
-                        if dist < rwr_1k5_sq then
+                        elseif rdr == e_game_object_type.attachment_radar_awacs then
+                            txt = "A"
                             threat = true
-                            txt = "c"
-                            if dist < rwr_1k_sq then
-                                locked = true
+                        elseif rdr == e_game_object_type.attachment_radar_golfball then
+                            txt = "s"
+                            threat = true
+                        end
+
+                        if txt ~= "" then
+                            if threat or locked then
+                                offset = 14
                             end
-                        end
-                    elseif rdr == e_game_object_type.attachment_radar_awacs then
-                        txt = "A"
-                        threat = true
-                    elseif rdr == e_game_object_type.attachment_radar_golfball then
-                        txt = "s"
-                        threat = true
-                    end
 
-                    if txt ~= "" then
-                        if threat or locked then
-                            offset = 14
-                        end
-
-                        local tvect = vec2(vp:x() - ourp:x(), vp:y() - ourp:y())
-                        local tnorm = vec2_normal(tvect)
-                        -- rotate
-                        local tx = (tnorm:x() * math_cos(our_head) - tnorm:y() * math_sin(our_head)) * offset
-                        local ty = 4 + ((tnorm:x() * math_sin(our_head) + tnorm:y() * math_cos(our_head)) * offset)
-                        -- print(dx, dz, our_team, vteam, hostile)
-                        update_ui_text(
-                                x + tx - 4,
-                                y - ty,
-                                txt, 10, 1, green, 0)
-                        if locked then
-                            -- draw diamond
-                            update_ui_line(
-                                    x + tx, y - ty,
-                                    x + tx + 6, y - ty + 6,
-                                    green
-                            )
-                            update_ui_line(
-                                    x + tx + 5, y - ty + 6,
-                                    x + tx, y - ty + 11,
-                                    green
-                            )
-                            update_ui_line(
-                                    x + tx + 1, y - ty,
-                                    x + tx - 5, y - ty + 6,
-                                    green
-                            )
-                            update_ui_line(
-                                    x + tx - 4, y - ty + 6,
-                                    x + tx + 1, y - ty + 11,
-                                    green
-                            )
+                            local tvect = vec2(vp:x() - ourp:x(), vp:y() - ourp:y())
+                            local tnorm = vec2_normal(tvect)
+                            -- rotate
+                            local tx = (tnorm:x() * math_cos(our_head) - tnorm:y() * math_sin(our_head)) * offset
+                            local ty = 4 + ((tnorm:x() * math_sin(our_head) + tnorm:y() * math_cos(our_head)) * offset)
+                            -- print(dx, dz, our_team, vteam, hostile)
+                            update_ui_text(
+                                    x + tx - 4,
+                                    y - ty,
+                                    txt, 10, 1, green, 0)
+                            if locked then
+                                -- draw diamond
+                                update_ui_line(
+                                        x + tx, y - ty,
+                                        x + tx + 6, y - ty + 6,
+                                        green
+                                )
+                                update_ui_line(
+                                        x + tx + 5, y - ty + 6,
+                                        x + tx, y - ty + 11,
+                                        green
+                                )
+                                update_ui_line(
+                                        x + tx + 1, y - ty,
+                                        x + tx - 5, y - ty + 6,
+                                        green
+                                )
+                                update_ui_line(
+                                        x + tx - 4, y - ty + 6,
+                                        x + tx + 1, y - ty + 11,
+                                        green
+                                )
+                            end
                         end
                     end
                 end
@@ -3116,7 +3119,12 @@ end
 function render_compass(screen_vehicle, pos, col)
     local width = 120
     g_compass_pos = pos
-    local heading = update_get_camera_heading() / math.pi / 2
+    local cam_heading = update_get_camera_heading()
+    if g_is_jammed then
+        cam_heading = cam_heading + (update_get_logic_tick() % 100) / 100
+    end
+
+    local heading = cam_heading / math.pi / 2
 
     local spacing = width / 2
     local total_w = 4 * spacing
@@ -3130,7 +3138,7 @@ function render_compass(screen_vehicle, pos, col)
         end
     end
 
-    if screen_vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
+    if not g_is_jammed and screen_vehicle:get_definition_index() ~= e_game_object_type.chassis_carrier then
         local nearest_crr = find_nearest_vehicle_types(screen_vehicle, {e_game_object_type.chassis_carrier}, false, nil, -10)
         if nearest_crr and nearest_crr:get() then
             render_compass_waypoint(pos:x(), pos:y(), width, nearest_crr:get_position(), color_friendly)
@@ -3179,7 +3187,7 @@ function render_compass(screen_vehicle, pos, col)
 
     local display_heading = math.floor(iff(heading < 0, 360 + heading * 360, heading * 360))
     update_ui_text(pos:x() - 50, pos:y() + 12, string.format("%03.0f", display_heading), 100, 1, col, 0)
-    if screen_vehicle and screen_vehicle.get_waypoint_path then
+    if screen_vehicle and screen_vehicle.get_waypoint_path and not g_is_jammed then
         local waypoints = screen_vehicle:get_waypoint_path()
         if #waypoints > 0 then
             render_compass_waypoint(pos:x(), pos:y(), width, vec3(waypoints[1]:x(), 0, waypoints[1]:y()), col, 3)
@@ -3875,6 +3883,11 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
 
     local range = 5000
     local range_ships = 10000
+
+    if g_is_jammed then
+        range = 1100
+        range_ships = 3900
+    end
 
     if attachment_def == e_game_object_type.attachment_camera_vehicle_control then
         colors.red = color8(64, 64, 64, 180)
@@ -4781,11 +4794,13 @@ function render_ground_marker_triangle(screen_pos, col, w, h)
 end
 
 function render_ground_marker(col, wp, screen_w, screen_h, txt)
-    local swpp, clamped = world_to_screen_clamped(wp, vec2(0, 0), vec2(screen_w, screen_h))
-    if not clamped then
-        render_ground_marker_triangle(swpp, col)
-        if txt ~= nil then
-            update_ui_text(swpp:x() + 8, swpp:y(), txt, 8 * #txt, 0, col, 0)
+    if not g_is_jammed then
+        local swpp, clamped = world_to_screen_clamped(wp, vec2(0, 0), vec2(screen_w, screen_h))
+        if not clamped then
+            render_ground_marker_triangle(swpp, col)
+            if txt ~= nil then
+                update_ui_text(swpp:x() + 8, swpp:y(), txt, 8 * #txt, 0, col, 0)
+            end
         end
     end
 end
@@ -5178,12 +5193,14 @@ end
 
 g_comms_snow_range = 380
 g_comms_error_range = 170
+g_is_jammed = false
 
 g_snow_remaining = 0
 g_last_health = 100
 g_last_vid = -1
 
 function do_comms_error(vehicle, screen_w, screen_h)
+    g_is_jammed = false
     if vehicle:get() then
         if (g_animation_time % 30) < 1 then
             local our_vid = vehicle:get_id()
@@ -5231,6 +5248,17 @@ function do_comms_error(vehicle, screen_w, screen_h)
                 stop_hud = true
                 if show_snowstorm then
                     multi = 8 - (math.max(math.floor(nearest_carrier_dist / 50), 1))
+                end
+            end
+        else
+            if get_is_vehicle_air(vdef) then
+                -- aircraft
+                local jammed = get_close_hostile_ew_vehicle(vehicle, "jammers")
+                if jammed then
+                    g_is_jammed = true
+                    --show_comms_error = true
+                    show_snowstorm = true
+                    multi = 0.2
                 end
             end
         end

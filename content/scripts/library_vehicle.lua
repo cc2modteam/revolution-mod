@@ -841,6 +841,7 @@ g_radar_seen_by_ours = {}
 g_radar_seen_by_hostile = {}
 g_all_hostile_ew = {}
 g_ew_range_sq = 10000 * 10000
+g_jammer_range_sq = 6000 * 6000
 
 g_radar_scanned = true
 -- every unit in detection range of a radar (of any team)
@@ -1215,10 +1216,13 @@ function iter_radars(func)
     end
 end
 
-function get_close_hostile_ew_vehicle(vself)
+function get_close_hostile_ew_vehicle(vself, mode)
     local vpos = get_pos_xz(vself)
     local vid = vself:get_id()
     local max_sq = g_ew_range_sq
+    if mode == "jammers" then
+        max_sq = g_jammer_range_sq
+    end
     for _, ewid in pairs(g_all_hostile_ew) do
         if ewid ~= vid then
             local ew = update_get_map_vehicle_by_id(ewid)
@@ -2933,13 +2937,13 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_fuel_tank_plane,
                     e_game_object_type.attachment_hardpoint_bomb_1,
                     e_game_object_type.attachment_hardpoint_bomb_2,
-                    e_game_object_type.attachment_hardpoint_bomb_3,
+                    -- e_game_object_type.attachment_hardpoint_bomb_3,
                     e_game_object_type.attachment_hardpoint_torpedo,
-                    g_ew_attachment_type,
+                    -- g_ew_attachment_type,
                 },
                 -- wings
-                [4] = _std_wing_attachments,
-                [5] = _std_wing_attachments,
+                [4] = _std_wing_weapons,
+                [5] = _std_wing_weapons,
 
                 -- utils
                 [6] = _std_wing_utils,
@@ -2973,7 +2977,7 @@ local st, _v = pcall(function()
                 },
                 -- wings
                 [2] = _std_wing_weapons,
-                [3] = concat_lists(_std_wing_weapons, { g_ew_attachment_type }),
+                [3] = _std_wing_weapons,
                 [4] = _std_wing_attachments,
                 [5] = _std_wing_attachments,
                 -- top
@@ -2991,7 +2995,6 @@ local st, _v = pcall(function()
                     { i=3, x=-16, y=12 },
                     { i=4, x=16, y=12 },
                     { i=2, x=16, y=-5 },
-                    { i=6, x=0, y=4 },
                 }
             },
             options = {
@@ -3004,9 +3007,6 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_flare_launcher,
                     e_game_object_type.attachment_sonic_pulse_generator,
                 },
-                [6] = {
-                    g_ew_attachment_type,
-                }
             }
         },
         -- seal
@@ -3045,7 +3045,7 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_turret_gimbal_30mm,
                     -- e_game_object_type.attachment_radar_golfball,   -- disables airlift ability when added
                 },
-                [2] = concat_lists(_std_wing_weapons, { g_ew_attachment_type })
+                [2] = concat_lists(_std_wing_attachments, { g_ew_attachment_type })
             },
         },
         -- turret
