@@ -4336,26 +4336,6 @@ function rev_before_add_attachment(
                     -- do nothing
                     g_screen_index = 0
                     return false
-                else
-                    -- if we are making a change
-
-                    -- handle special case when adding "flare" EW attachment to units
-                    if new_attachment_type == g_ew_attachment_type then
-                        local cost = carrier_vehicle:get_inventory_count_by_item_index(g_ew_discard_type)
-                        if cost < g_ew_discard_count then
-                            -- disallow, run out of bots
-                            g_no_stock_counter = 0
-                            return false
-                        end
-                        -- discard the cost
-                        carrier_vehicle:set_inventory_order(g_ew_discard_type, g_ew_discard_count, e_carrier_order_operation.delete)
-                    end
-
-                    -- if someone de-selects "carrier flare" then we need to destroy 10 flares from the inventory
-                    if current_attachment_def == g_ew_attachment_type then
-                        -- we should probably do this for cruise missile, aa and torps but nobody puts those on
-                        carrier_vehicle:set_inventory_order(e_inventory_item.ammo_flare, 10, e_carrier_order_operation.delete)
-                    end
                 end
             end
         end

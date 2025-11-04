@@ -6,8 +6,7 @@ other features.
 
 v1.6 Beta:
 [list]
-[*] Nearby (6km) EW pod now jams aircraft HUD compass, RWR, GPS and targetting systems
-[*] Limit EW pod to petrel and walrus
+[*] Remove the EW pod
 [*] Limit Manta centre hardpoint to medium bombs
 [/list]
 

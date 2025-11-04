@@ -672,24 +672,22 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
 
                 for _, attachment in ipairs(attachments) do
                     local adef = attachment:get_definition_index()
-                    if adef ~= g_ew_attachment_type then
-                        local attachment_data = get_attachment_data_by_definition_index(adef)
-                        update_ui_image(1, cy + 1, attachment_data.icon16, color_white, 0)
+                    local attachment_data = get_attachment_data_by_definition_index(adef)
+                    update_ui_image(1, cy + 1, attachment_data.icon16, color_white, 0)
 
-                        local ammo_capacity = attachment:get_ammo_capacity()
-                        local fuel_capacity = attachment:get_fuel_capacity()
+                    local ammo_capacity = attachment:get_ammo_capacity()
+                    local fuel_capacity = attachment:get_fuel_capacity()
 
-                        if fuel_capacity > 0 then
-                            local fuel_remaining = attachment:get_fuel_remaining()
-                            update_ui_text(21, cy + 4, fuel_remaining  .. "/" .. fuel_capacity, 100, 0, iff(fuel_remaining == 0, color_status_bad, color_status_ok), 0)
-                        elseif ammo_capacity > 0 then
-                            local ammo_remaining = attachment:get_ammo_remaining()
-                            update_ui_text(21, cy + 4, ammo_remaining .. "/" .. ammo_capacity, 100, 0, iff(ammo_remaining == 0, color_status_bad, color_status_ok), 0)
-                        end
-
-                        cy = cy + 17
-                        update_ui_rectangle(0, cy, region_w, 1, color8(255, 255, 255, 2))
+                    if fuel_capacity > 0 then
+                        local fuel_remaining = attachment:get_fuel_remaining()
+                        update_ui_text(21, cy + 4, fuel_remaining  .. "/" .. fuel_capacity, 100, 0, iff(fuel_remaining == 0, color_status_bad, color_status_ok), 0)
+                    elseif ammo_capacity > 0 then
+                        local ammo_remaining = attachment:get_ammo_remaining()
+                        update_ui_text(21, cy + 4, ammo_remaining .. "/" .. ammo_capacity, 100, 0, iff(ammo_remaining == 0, color_status_bad, color_status_ok), 0)
                     end
+
+                    cy = cy + 17
+                    update_ui_rectangle(0, cy, region_w, 1, color8(255, 255, 255, 2))
                 end
 
                 window.cy = cy + 1
@@ -2170,7 +2168,6 @@ function _update(screen_w, screen_h, ticks)
         -- render vehicles to the map
 
         if is_placing_turret == false then
-            local ew_detected = nil
             for x, vehicle in pairs(get_vehicles_table()) do
                 local vehicle_team = vehicle:get_team()
                 local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
@@ -2239,11 +2236,6 @@ function _update(screen_w, screen_h, ticks)
                                     if g_highlighted.vehicle_id == vehicle:get_id() then
                                         g_highlighted.vehicle_id = 0
                                     end
-                                    if ew_detected == nil then
-                                        if get_close_hostile_ew_cached(vehicle:get_id()) then
-                                            ew_detected = true
-                                        end
-                                    end
                                 end
                             end
                         end
@@ -2267,24 +2259,6 @@ function _update(screen_w, screen_h, ticks)
                         if screen_pos_x > 0 and screen_pos_x < screen_w then
                             if screen_pos_y > 0 and screen_pos_y < screen_h then
                                 in_screen = true
-                            end
-                        end
-
-
-                        if ew_detected == true then
-                            if g_camera_size < 24000 then
-                                if in_screen then
-                                    if g_animation_time % 40 > 20 then
-                                        update_ui_image(
-                                                15, screen_h - 48,
-                                                atlas_icons.column_power, color_white, 0)
-                                    end
-                                    update_ui_text(
-                                            25, screen_h - 48,
-                                            update_get_loc(e_loc.upp_interference),
-                                            96,
-                                            0, color_white, 0)
-                                end
                             end
                         end
 
@@ -2599,10 +2573,6 @@ function _update(screen_w, screen_h, ticks)
                                 end
                             end
 
-                            if vehicle_team ~= screen_team then
-                                vehicle_definition_index = ew_fuzz_unit_def(vehicle_definition_index, vehicle:get_id())
-                            end
-
                             if g_selection.vehicle_id == vehicle:get_id() then
                                 element_color = color8(255, 255, 255, 255)
                                 is_highlight = true
@@ -2852,11 +2822,11 @@ function _update(screen_w, screen_h, ticks)
                             end
 
                             -- draw a line from our nearest radar to the hostile it can see
-                            local nearest_ew, pwr = get_nearest_friendly_aew_radar(vid)
-                            if nearest_ew ~= nil and pwr > 0.00004 then
+                            local nearest_radar, pwr = get_nearest_friendly_aew_radar(vid)
+                            if nearest_radar ~= nil and pwr > 0.00004 then
                                 -- show very low power radar contacts
                                 -- we only expose 0.00002+
-                                local radar_pos = nearest_ew:get_position_xz()
+                                local radar_pos = nearest_radar:get_position_xz()
                                 local dist = vec2_dist(radar_pos, vehicle_pos_xz)
                                 local r_sx, r_sy = get_screen_from_world(radar_pos:x(), radar_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                                 update_ui_line(r_sx, r_sy, screen_pos_x, screen_pos_y, color_friendly)
@@ -4067,10 +4037,6 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
     local vehicle_pos_xz = vehicle:get_position_xz()
     local vehicle_definition_index = vehicle:get_definition_index()
     local vehicle_team = vehicle:get_team()
-    if vehicle_team ~= screen_team then
-        vehicle_definition_index = ew_fuzz_unit_def(vehicle_definition_index, vehicle:get_id())
-    end
-
     local vehicle_definition_name, vehicle_definition_region = get_chassis_data_by_definition_index(vehicle_definition_index)
     local vehicle_name = vehicle_definition_name
 

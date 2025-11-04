@@ -121,12 +121,6 @@ function get_chassis_data_by_definition_index_orig(index)
     return update_get_loc(e_loc.upp_unknown), atlas_icons.icon_chassis_16_wheel_small, "---", ""
 end
 
-g_ew_attachment_type = e_game_object_type.attachment_turret_carrier_flare_launcher
-g_ew_discard_type = e_inventory_item.virus_module
-g_ew_attachment_discard_type = e_game_object_type.attachment_turret_robot_dog_capsule
-g_ew_discard_loc = e_loc.virus_module
-g_ew_discard_count = 3
-
 function get_attachment_data_by_definition_index(index)
     compile_globals()
     local attachment_data = {
@@ -210,11 +204,6 @@ function get_attachment_data_by_definition_index(index)
             name = update_get_loc(e_loc.upp_naval_cruise_missile),
             icon16 = atlas_icons.icon_attachment_16_turret_missile,
             name_short = update_get_loc(e_loc.upp_crs_msl),
-        },
-        [g_ew_attachment_type] = {
-            name = update_get_loc(e_loc.upp_radar_golfball) .. " " .. update_get_loc(e_loc.countermeasures):upper(),
-            icon16 = atlas_icons.column_power,
-            name_short = "EW",
         },
         [e_game_object_type.attachment_turret_carrier_camera] = {
             name = update_get_loc(e_loc.upp_naval_camera),
@@ -801,7 +790,6 @@ function get_vehicle_capability(vehicle)
             local attachment_def = attachment:get_definition_index()
 
             if attachment_def ~= e_game_object_type.attachment_camera_vehicle_control
-                and attachment_def ~= g_ew_attachment_type
             then
                capabilities[attachment_def] = get_attachment_data_by_definition_index(attachment_def)
                capabilities[attachment_def].definition = attachment_def
@@ -839,16 +827,11 @@ end
 g_all_radars = {}
 g_radar_seen_by_ours = {}
 g_radar_seen_by_hostile = {}
-g_all_hostile_ew = {}
-g_ew_range_sq = 10000 * 10000
-g_jammer_range_sq = 6000 * 6000
 
 g_radar_scanned = true
 -- every unit in detection range of a radar (of any team)
 g_seen_by_hostile_radars = {}
 g_seen_by_friendly_radars = {}
--- every unit in range of a hostile EW
-g_fuzzed_by_hostile_ew = {}
 
 -- the id of the nearest enemy unit that can see our aircraft
 g_nearest_hostile_radar = {}
@@ -946,22 +929,6 @@ function has_attachment(vehicle, a_defs)
     return nil
 end
 
-local ew_attachment_defs = {
-    [e_game_object_type.attachment_turret_carrier_flare_launcher] = true
-}
-
-function _get_ew_attachment(vehicle)
-    local d = nil
-    if vehicle and vehicle:get() then
-        local vdef = vehicle:get_definition_index()
-        if get_is_vehicle_air(vdef) then
-            d = has_attachment(vehicle, ew_attachment_defs)
-        end
-    end
-    return d
-end
-
-
 local radar_attachment_defs = {
     [e_game_object_type.attachment_radar_golfball] = true,
     [e_game_object_type.attachment_radar_awacs] = true,
@@ -1014,12 +981,6 @@ function get_is_vehicle_masked(vehicle)
             local alt = get_unit_altitude(vehicle)
 
             local masked = alt < clutter_base
-            -- if under 100 and covered by an EW unit
-            if not masked then
-                if alt < 70 then
-                    masked = get_close_hostile_ew_cached(vehicle:get_id()) ~= nil
-                end
-            end
 
             if masked then
                 local nearest_friendly_crr, friendly_crr_dist = get_nearest_carrier(vehicle, true, update_get_screen_team_id())
@@ -1216,43 +1177,6 @@ function iter_radars(func)
     end
 end
 
-function get_close_hostile_ew_vehicle(vself, mode)
-    local vpos = get_pos_xz(vself)
-    local vid = vself:get_id()
-    local max_sq = g_ew_range_sq
-    if mode == "jammers" then
-        max_sq = g_jammer_range_sq
-    end
-    for _, ewid in pairs(g_all_hostile_ew) do
-        if ewid ~= vid then
-            local ew = update_get_map_vehicle_by_id(ewid)
-            if ew and ew:get() then
-                local ew_pos = get_pos_xz(ew)
-                local fuzzed = fast_dist_sq2(ew_pos, vpos, max_sq) < max_sq
-                return fuzzed
-            end
-        end
-    end
-    return nil
-end
-
-function get_close_hostile_ew(vid)
-    -- if there is an EW unit close by this unit, return true
-    local vself = update_get_map_vehicle_by_id(vid)
-    if vself and vself:get() then
-        return get_close_hostile_ew_vehicle(vself)
-    end
-    return false
-end
-
-function get_close_hostile_ew_cached(vid)
-    local result = g_fuzzed_by_hostile_ew[vid]
-    if result == nil then
-        result = get_close_hostile_ew(vid)
-    end
-    return result
-end
-
 function get_nearest_hostile_radar(vid)
     -- used by HUD RWR
     local rwr_vehicle = update_get_map_vehicle_by_id(vid)
@@ -1322,24 +1246,14 @@ function update_modded_radar_list(hostile_only)
         next_updated_radar_list = next_updated_radar_list + 20
     end
     g_all_radars = {}
-    g_all_hostile_ew = {}
 
     local screen_team = update_get_screen_team_id()
     local seen_by_friendly_radars = g_seen_by_friendly_radars
     local seen_by_hostile_radars = g_seen_by_hostile_radars
     local all_radars = g_all_radars
-    local all_hostile_ew = g_all_hostile_ew
 
     for _, vehicle in pairs(get_vehicles_table()) do
         local vehicle_team = get_vehicle_team_id(vehicle)
-        -- find hostile EWs
-        if screen_team ~= vehicle_team then
-            if _get_ew_attachment(vehicle) then
-                -- hostile unit has an EW capability
-                table.insert(all_hostile_ew, vehicle:get_id())
-            end
-        end
-
         if vehicle_team ~= screen_team or not hostile_only then
             local radar_type = _get_radar_attachment(vehicle)
             if radar_type ~= nil then
@@ -1468,7 +1382,6 @@ function do_radar_scan(update_air, update_sea)
     local seen_by_friendly_radars = g_seen_by_friendly_radars
     local nearest_hostile_radar = g_nearest_hostile_radar
     local seen_by_hostile_radars = g_seen_by_hostile_radars
-    local fuzzed_by_hostile_ew = {}
     local fdsq = fast_dist_sq
 
     for _, vehicle in pairs(get_vehicles_table()) do
@@ -1502,13 +1415,6 @@ function do_radar_scan(update_air, update_sea)
                 seen_by_friendly_radars[vid] = nil
                 nearest_hostile_radar[vid] = nil
                 seen_by_hostile_radars[vid] = nil
-
-                -- do EW
-                if not friendly then
-                    if fuzzed_by_hostile_ew[vid] == nil then
-                       fuzzed_by_hostile_ew[vid] = get_close_hostile_ew(vid)
-                    end
-                end
 
                 -- do radars
                 local radar_team = nil
@@ -1558,8 +1464,6 @@ function do_radar_scan(update_air, update_sea)
             end
         end
     end
-
-    g_fuzzed_by_hostile_ew = fuzzed_by_hostile_ew
 end
 
 function fast_dist_sq2(a, b, limsq)
@@ -2937,13 +2841,11 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_fuel_tank_plane,
                     e_game_object_type.attachment_hardpoint_bomb_1,
                     e_game_object_type.attachment_hardpoint_bomb_2,
-                    -- e_game_object_type.attachment_hardpoint_bomb_3,
                     e_game_object_type.attachment_hardpoint_torpedo,
-                    -- g_ew_attachment_type,
                 },
                 -- wings
-                [4] = _std_wing_weapons,
-                [5] = _std_wing_weapons,
+                [4] = _std_wing_attachments,
+                [5] = _std_wing_attachments,
 
                 -- utils
                 [6] = _std_wing_utils,
@@ -2995,6 +2897,7 @@ local st, _v = pcall(function()
                     { i=3, x=-16, y=12 },
                     { i=4, x=16, y=12 },
                     { i=2, x=16, y=-5 },
+                    { i=6, x=0, y=4 },
                 }
             },
             options = {
@@ -3020,7 +2923,7 @@ local st, _v = pcall(function()
             options = {
                 [1] = concat_lists(_std_land_turrets, {e_game_object_type.attachment_turret_heavy_cannon}),
                 [2] = concat_lists(_std_land_utils, {e_game_object_type.attachment_turret_15mm}),
-                [3] = concat_lists(_std_land_utils, {e_game_object_type.attachment_deployable_droid, g_ew_attachment_type}),
+                [3] = concat_lists(_std_land_utils, {e_game_object_type.attachment_deployable_droid}),
             },
         },
         -- bear
@@ -3045,7 +2948,6 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_turret_gimbal_30mm,
                     -- e_game_object_type.attachment_radar_golfball,   -- disables airlift ability when added
                 },
-                [2] = concat_lists(_std_wing_attachments, { g_ew_attachment_type })
             },
         },
         -- turret
@@ -3055,8 +2957,6 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_radar_golfball,
                     e_game_object_type.attachment_camera_observation,
                     e_game_object_type.attachment_camera,
-                    --e_game_object_type.attachment_turret_carrier_main_gun,
-                    --e_game_object_type.attachment_turret_carrier_missile_silo,
                 }
             },
         },
@@ -3588,24 +3488,6 @@ end
 
 function round_int(value)
     return math_floor(value + 0.5)
-end
-
-g_ew_def_downgrade = {
-    [e_game_object_type.chassis_carrier] = e_game_object_type.chassis_sea_barge,
-    [e_game_object_type.chassis_sea_barge] = e_game_object_type.chassis_sea_ship_light,
-    [e_game_object_type.chassis_sea_ship_heavy] = e_game_object_type.chassis_sea_ship_light,
-    [e_game_object_type.chassis_air_wing_heavy] = e_game_object_type.chassis_air_wing_light,
-    [e_game_object_type.chassis_air_rotor_heavy] = e_game_object_type.chassis_air_rotor_light,
-}
-
-function ew_fuzz_unit_def(def, vid)
-    local downgrade = g_ew_def_downgrade[def]
-    if downgrade ~= nil then
-        if get_close_hostile_ew_cached(vid) then
-            return downgrade
-        end
-    end
-    return def
 end
 
 g_vt = {}

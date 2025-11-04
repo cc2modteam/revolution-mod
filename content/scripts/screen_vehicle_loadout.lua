@@ -468,12 +468,6 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
                 local icon = item.region
                 local ammo_type = update_get_attachment_ammo_item_type(item.type)
                 local ammo_divide = 1
-                if item.type == g_ew_attachment_type then
-                    icon = atlas_icons.column_power
-                    txt = "E"
-                    ammo_type = e_inventory_item.virus_module
-                    ammo_divide = g_ew_discard_count
-                end
 
                 local icon_w = update_ui_get_image_size(icon)
                 update_ui_image((button_w - icon_w) / 2 + 1, 0, icon, iff(is_active, iff(is_selected, color_white, color_black), color_black), 0)
@@ -605,26 +599,11 @@ function render_ui_attachment_definition_description(x, y, w, h, vehicle, index)
 
     local ammo_type = update_get_attachment_ammo_item_type(index)
     local ammo_icon = atlas_icons.icon_ammo
-    --  if this is the EW flare launcher, show virus bots as ammo count
-    if index == g_ew_attachment_type then
-        ammo_type = update_get_attachment_ammo_item_type(g_ew_attachment_discard_type)
-        ammo_icon = atlas_icons.column_repair
-    end
 
     if ammo_type ~= -1 then
         local ammo_count = vehicle:get_inventory_count_by_item_index(ammo_type)
         update_ui_image(0, cy, ammo_icon, iff(is_in_stock, color_white, color_grey_dark), 0)
         cy = 2 + cy + update_ui_text(10, cy, ammo_count, w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
-
-        if index == g_ew_attachment_type then
-             cy = cy + update_ui_text(10, cy - 3, string.upper("destroy"), w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_dark_yellow, color_status_bad), color_grey_dark), 0)
-             cy = cy + update_ui_text(10, cy - 3,
-                     string.format("%s x%d",
-                             string.upper(update_get_loc(g_ew_discard_loc)),
-                             g_ew_discard_count
-                     ), w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
-        end
-
     end
 
     local item_mass = get_payload_weight(index)
