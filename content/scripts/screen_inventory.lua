@@ -258,7 +258,7 @@ function update_barge_cap(ticks)
         for _, tile in iter_tiles(function(t)
             return t:get_team_control() == team
         end) do
-            if tile:get_facility_category() == e_inventory_item.vehicle_barge then
+            if tile:get_facility_category() == e_island_category.barge then
                 g_barge_max = g_barge_max + 2
 
                 local queue_count = tile:get_facility_production_queue_count()
@@ -1042,6 +1042,41 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
         end
     end
 
+    -- render tile links
+    for _, tile in iter_tiles() do
+        local hovered = false
+        if g_tab_map.hovered_id == tile:get_id() then
+            hovered = true
+        end
+
+        if rev_show_island_icon(tile:get_id()) and tile:get_team_control() == vehicle_team then
+            local category = tile:get_facility_category()
+            if category == e_island_category.air or category == e_island_category.large_munitions then
+                local link_color = color8(0, 16, 8, 16)
+
+                if hovered then
+                    link_color = color8(0, 16, 8, 96)
+                end
+                -- show links to utility islands for heavy muns and air islands
+                local near_util = rev_get_team_type_islands(nil, e_island_category.utility)
+                local tile_position = get_command_center_position(tile:get_id())
+                local screen_pos_x, screen_pos_y = get_screen_from_world(tile_position:x(), tile_position:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
+                for _, other_tile in pairs(near_util) do
+                    if vehicle_team == other_tile:get_team_control() then
+                        local direct_link_col = link_color
+                        local tp = get_command_center_position(other_tile:get_id())
+                        local tx, ty = get_screen_from_world(tp:x(), tp:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
+                        if hovered and vehicle_team == tile:get_team_control() then
+                            direct_link_col = color_highlight
+                        end
+                        update_ui_line(tx, ty, screen_pos_x, screen_pos_y, direct_link_col)
+                    end
+                end
+
+            end
+        end
+    end
+
     -- render tiles
 
     for _, tile in iter_tiles() do 
@@ -1625,23 +1660,27 @@ function render_map_facility_ui(screen_w, screen_h, x, y, w, h, category_data, f
                     buy_number_buttons = { string.format("+1 (%d/%d max)", g_barge_count, g_barge_max) }
                 end
 
-                local result = ui:button_group(buy_number_buttons, true)
+                local item_locked = rev_get_island_locked_build_item(facility_tile, item.index)
+                if item_locked then
+                    ui:text_basic(item_locked, color_status_bad)
+                else
+                    local result = ui:button_group(buy_number_buttons, true)
 
-                if result == 0 then
-                    if order_barges and g_barge_count >= g_barge_max then
-                        g_tab_map.selected_facility_item = -1
-                    else
-                        g_barge_count = g_barge_count + 1
-                        facility_tile:set_facility_add_production_queue_item(item.index, 1)
+                    if result == 0 then
+                        if order_barges and g_barge_count >= g_barge_max then
+                            g_tab_map.selected_facility_item = -1
+                        else
+                            g_barge_count = g_barge_count + 1
+                            facility_tile:set_facility_add_production_queue_item(item.index, 1)
+                        end
+                    elseif result == 1 then
+                        facility_tile:set_facility_add_production_queue_item(item.index, 10)
+                    elseif result == 2 then
+                        facility_tile:set_facility_add_production_queue_item(item.index, 100)
+                    elseif result == 3 then
+                        facility_tile:set_facility_add_production_queue_item(item.index, 1000)
                     end
-                elseif result == 1 then
-                    facility_tile:set_facility_add_production_queue_item(item.index, 10)
-                elseif result == 2 then
-                    facility_tile:set_facility_add_production_queue_item(item.index, 100)
-                elseif result == 3 then
-                    facility_tile:set_facility_add_production_queue_item(item.index, 1000)
                 end
-
             end
 
             ui:end_window()
@@ -1797,6 +1836,7 @@ function render_node_tooltip(w, h, id, type)
         end
     elseif type == g_node_types.tile then
         local tile = update_get_tile_by_id(id)
+        print(tile:get_facility_category())
         local category_data = g_item_categories[tile:get_facility_category()]
 
         if tile:get() then

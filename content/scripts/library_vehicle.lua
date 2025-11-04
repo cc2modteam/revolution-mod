@@ -778,6 +778,39 @@ function begin_load_inventory_data()
     end
 end
 
+function rev_get_team_type_islands(team_id, island_type)
+    local tile_count = update_get_tile_count()
+    local found = {}
+    for i = 0, tile_count - 1 do
+        local tile = update_get_tile_by_index(i)
+        if tile and tile:get() then
+            if team_id == nil or tile:get_team_control() == team_id then
+                if tile:get_facility_category() == island_type then
+                    table.insert(found, tile)
+                end
+            end
+        end
+    end
+    return found
+end
+
+function rev_get_team_has_island_type(team_id, island_type)
+    local found = rev_get_team_type_islands(team_id, island_type)
+    return #found > 0
+end
+
+function rev_get_island_locked_build_item(tile, inventory_item)
+    if update_get_tile_count() > 9 then
+        -- manta and heavy bomb production requires a utility island
+        if inventory_item == e_inventory_item.vehicle_wing_heavy or inventory_item == e_inventory_item.hardpoint_bomb_3 then
+            if not rev_get_team_has_island_type(update_get_screen_team_id(), e_island_category.utility) then
+                return string.format("%s %s", update_get_loc(e_loc.upp_unavailable), update_get_loc(e_loc.factory_utility))
+            end
+        end
+    end
+    return nil
+end
+
 function get_vehicle_capability(vehicle)
     local attachment_count = vehicle:get_attachment_count()
 

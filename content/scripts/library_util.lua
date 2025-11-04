@@ -1759,3 +1759,16 @@ function dev_call_timer(screen_name, maxtime, delay, func)
     end
 
 end
+
+-- oddly this isnt in the enum library
+e_island_category = {
+    warehouse = 0,
+    small_munitions = 1,
+    large_munitions = 2,
+    turrets = 3,
+    utility = 4,
+    surface = 5,
+    air = 6,
+    fuel = 7,
+    barge = 8,
+}
