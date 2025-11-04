@@ -2953,10 +2953,21 @@ local st, _v = pcall(function()
         },
         -- walrus
         [e_game_object_type.chassis_land_wheel_medium] = {
+            rows = {
+                {
+                    { i=2, x=0, y=-15 },
+                    { i=1, x=0, y=0 },
+                    { i=3, x=0, y=15 },
+                    { i=4, x=-13, y=2 },
+                    { i=5, x=13, y=2 },
+                }
+            },
             options = {
                 [1] = concat_lists(_std_land_turrets, {e_game_object_type.attachment_turret_heavy_cannon}),
                 [2] = concat_lists(_std_land_utils, {e_game_object_type.attachment_turret_15mm}),
                 [3] = concat_lists(_std_land_utils, {e_game_object_type.attachment_deployable_droid}),
+                [4] = {e_game_object_type.attachment_hardpoint_missile_aa},
+                [5] = {e_game_object_type.attachment_hardpoint_missile_aa},
             },
         },
         -- bear

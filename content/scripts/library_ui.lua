@@ -2755,12 +2755,23 @@ function get_override_vehicle_loadout_rows(vehicle, current_rows)
             end
         end
     end
-    if replaced_rows ~= nil then
-        current_rows = replaced_rows
-    end
+
 
     if custom_dynamic_vehicle_loadout_rows ~= nil then
-        current_rows = custom_dynamic_vehicle_loadout_rows(vehicle, current_rows)
+        replaced_rows = custom_dynamic_vehicle_loadout_rows(vehicle, replaced_rows)
+    end
+
+    if replaced_rows ~= nil then
+        local acount = vehicle:get_attachment_count()
+        current_rows = {{}}
+        for _, xrow in pairs(replaced_rows) do
+            for __, row in pairs(xrow) do
+                print(xx)
+                if row.i < acount then
+                    table.insert(current_rows[1], row)
+                end
+            end
+        end
     end
 
     return current_rows
