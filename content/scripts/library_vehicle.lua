@@ -2930,7 +2930,7 @@ local st, _v = pcall(function()
                     { i=3, x=-16, y=12 },
                     { i=4, x=16, y=12 },
                     { i=2, x=16, y=-5 },
-                    { i=6, x=0, y=4 },
+                    -- { i=6, x=0, y=4 },
                 }
             },
             options = {
