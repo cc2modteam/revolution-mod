@@ -1772,3 +1772,15 @@ e_island_category = {
     fuel = 7,
     barge = 8,
 }
+
+e_island_category_loc = {
+    [e_island_category.warehouse] = e_loc.warehouse,
+    [e_island_category.small_munitions] = e_loc.small_munitions,
+    [e_island_category.large_munitions] = e_loc.large_munitions,
+    [e_island_category.turrets] = e_loc.turrets,
+    [e_island_category.utility] = e_loc.utility,
+    [e_island_category.surface] = e_loc.land_chassis,
+    [e_island_category.air] = e_loc.air_chassis,
+    [e_island_category.fuel] = e_loc.fuel,
+    [e_island_category.barge] = e_loc.barge,
+}

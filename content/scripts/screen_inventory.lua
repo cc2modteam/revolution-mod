@@ -1049,19 +1049,21 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
             hovered = true
         end
 
+
         if rev_show_island_icon(tile:get_id()) and tile:get_team_control() == vehicle_team then
             local category = tile:get_facility_category()
-            if category == e_island_category.air or category == e_island_category.large_munitions then
+            local needed = rev_get_island_needs_type(category)
+            if needed ~= nil then
                 local link_color = color8(0, 16, 8, 16)
 
                 if hovered then
                     link_color = color8(0, 16, 8, 96)
                 end
-                -- show links to utility islands for heavy muns and air islands
-                local near_util = rev_get_team_type_islands(nil, e_island_category.utility)
+                -- show links to control islands
+                local near_req = rev_get_team_type_islands(nil, needed)
                 local tile_position = get_command_center_position(tile:get_id())
                 local screen_pos_x, screen_pos_y = get_screen_from_world(tile_position:x(), tile_position:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
-                for _, other_tile in pairs(near_util) do
+                for _, other_tile in pairs(near_req) do
                     if vehicle_team == other_tile:get_team_control() then
                         local direct_link_col = link_color
                         local tp = get_command_center_position(other_tile:get_id())
@@ -1072,7 +1074,6 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
                         update_ui_line(tx, ty, screen_pos_x, screen_pos_y, direct_link_col)
                     end
                 end
-
             end
         end
     end

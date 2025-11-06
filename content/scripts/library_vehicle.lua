@@ -799,12 +799,30 @@ function rev_get_team_has_island_type(team_id, island_type)
     return #found > 0
 end
 
+function rev_get_island_needs_type(island_type)
+    if update_get_tile_count() > 0 then
+        if island_type == e_island_category.large_munitions then
+            return e_island_category.surface
+        elseif island_type == e_island_category.air then
+            return e_island_category.turrets
+        end
+    end
+    return nil
+end
+
 function rev_get_island_locked_build_item(tile, inventory_item)
-    if update_get_tile_count() > 9 then
-        -- manta and heavy bomb production requires a utility island
-        if inventory_item == e_inventory_item.vehicle_wing_heavy or inventory_item == e_inventory_item.hardpoint_bomb_3 then
-            if not rev_get_team_has_island_type(update_get_screen_team_id(), e_island_category.utility) then
-                return string.format("%s %s", update_get_loc(e_loc.upp_unavailable), update_get_loc(e_loc.factory_utility))
+    if update_get_tile_count() > 0 then
+        -- manta and heavy bomb production requires a special islands
+        local needed = nil
+        if inventory_item == e_inventory_item.hardpoint_bomb_3 then
+            needed = rev_get_island_needs_type(e_island_category.large_munitions)
+        elseif inventory_item == e_inventory_item.vehicle_wing_heavy then
+            needed = rev_get_island_needs_type(e_island_category.air)
+        end
+        if needed ~= nil then
+            if not rev_get_team_has_island_type(update_get_screen_team_id(), needed) then
+                print(needed, e_island_category_loc[needed])
+                return string.format("%s %s", update_get_loc(e_loc.upp_unavailable), update_get_loc(e_island_category_loc[needed]))
             end
         end
     end
