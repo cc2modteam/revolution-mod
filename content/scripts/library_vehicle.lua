@@ -821,7 +821,6 @@ function rev_get_island_locked_build_item(tile, inventory_item)
         end
         if needed ~= nil then
             if not rev_get_team_has_island_type(update_get_screen_team_id(), needed) then
-                print(needed, e_island_category_loc[needed])
                 return string.format("%s %s", update_get_loc(e_loc.upp_unavailable), update_get_loc(e_island_category_loc[needed]))
             end
         end
