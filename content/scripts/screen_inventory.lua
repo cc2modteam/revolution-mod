@@ -1044,41 +1044,6 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
 
     local controllers = rev_get_controller_islands()
 
-    -- render tile links
-    for _, tile in iter_tiles() do
-        local hovered = false
-        if g_tab_map.hovered_id == tile:get_id() then
-            hovered = true
-        end
-
-        if rev_show_island_icon(tile:get_id()) and tile:get_team_control() == vehicle_team then
-            local category = tile:get_facility_category()
-            local needed = rev_get_island_needs_type(category)
-            if needed ~= nil then
-                local link_color = color8(0, 16, 8, 16)
-
-                if hovered then
-                    link_color = color8(0, 16, 8, 96)
-                end
-                -- show links to control islands
-                local near_req = rev_get_team_type_islands(nil, needed)
-                local tile_position = get_command_center_position(tile:get_id())
-                local screen_pos_x, screen_pos_y = get_screen_from_world(tile_position:x(), tile_position:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
-                for _, other_tile in pairs(near_req) do
-                    if vehicle_team == other_tile:get_team_control() then
-                        local direct_link_col = link_color
-                        local tp = get_command_center_position(other_tile:get_id())
-                        local tx, ty = get_screen_from_world(tp:x(), tp:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
-                        if hovered and vehicle_team == tile:get_team_control() then
-                            direct_link_col = color_highlight
-                        end
-                        update_ui_line(tx, ty, screen_pos_x, screen_pos_y, direct_link_col)
-                    end
-                end
-            end
-        end
-    end
-
     -- render control icons
     for tid, _ in pairs(controllers) do
         local tile = update_get_tile_by_id(tid)
@@ -1677,7 +1642,7 @@ function render_map_facility_ui(screen_w, screen_h, x, y, w, h, category_data, f
                     buy_number_buttons = { string.format("+1 (%d/%d max)", g_barge_count, g_barge_max) }
                 end
 
-                local item_locked = rev_get_island_locked_build_item(facility_tile, item.index)
+                local item_locked = rev_get_island_locked_build_item(screen_vehicle:get_team(), item.index)
                 if item_locked then
                     ui:text_basic(item_locked, color_status_bad)
                 else

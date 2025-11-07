@@ -800,51 +800,38 @@ function rev_get_controller_islands()
     return g_rev_controller_islands
 end
 
--- Get all islands of a particular type for a team (or all)
-function rev_get_team_type_islands(team_id, island_type)
-    local tile_count = update_get_tile_count()
-    local found = {}
-    for i = 0, tile_count - 1 do
-        local tile = update_get_tile_by_index(i)
+
+function rev_get_team_control_islands(team_id)
+    local control_count = 0
+    for tid, _ in pairs(rev_get_controller_islands()) do
+        local tile = update_get_tile_by_id(tid)
         if tile and tile:get() then
-            if team_id == nil or tile:get_team_control() == team_id then
-                if tile:get_facility_category() == island_type then
-                    table.insert(found, tile)
-                end
+            if tile:get_team_control() == team_id then
+                control_count = control_count + 1
             end
         end
     end
-    return found
+    return control_count
 end
 
-function rev_get_team_has_island_type(team_id, island_type)
-    local found = rev_get_team_type_islands(team_id, island_type)
-    return #found > 0
-end
 
-function rev_get_island_needs_type(island_type)
+function rev_get_island_locked_build_item(team_id, inventory_item)
     if update_get_tile_count() > 0 then
-        if island_type == e_island_category.large_munitions then
-            return e_island_category.surface
-        elseif island_type == e_island_category.air then
-            return e_island_category.turrets
-        end
-    end
-    return nil
-end
+        -- manta and heavy bomb production requires control island
+        local available_controllers = rev_get_controller_islands()
+        if #available_controllers > 0 then
 
-function rev_get_island_locked_build_item(tile, inventory_item)
-    if update_get_tile_count() > 0 then
-        -- manta and heavy bomb production requires a special islands
-        local needed = nil
-        if inventory_item == e_inventory_item.hardpoint_bomb_3 then
-            needed = rev_get_island_needs_type(e_island_category.large_munitions)
-        elseif inventory_item == e_inventory_item.vehicle_wing_heavy then
-            needed = rev_get_island_needs_type(e_island_category.air)
-        end
-        if needed ~= nil then
-            if not rev_get_team_has_island_type(update_get_screen_team_id(), needed) then
-                return string.format("%s %s", update_get_loc(e_loc.upp_unavailable), update_get_loc(e_island_category_loc[needed]))
+            if rev_get_team_control_islands(team_id) == 0 then
+                local needed = false
+                if inventory_item == e_inventory_item.hardpoint_bomb_3 then
+                    needed = true
+                elseif inventory_item == e_inventory_item.vehicle_wing_heavy then
+                    needed = true
+                end
+                if needed then
+                    return string.format("%s %s",
+                            update_get_loc(e_loc.upp_unavailable), update_get_loc(e_loc.island_control):upper())
+                end
             end
         end
     end

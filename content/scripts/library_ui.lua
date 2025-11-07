@@ -2766,7 +2766,6 @@ function get_override_vehicle_loadout_rows(vehicle, current_rows)
         current_rows = {{}}
         for _, xrow in pairs(replaced_rows) do
             for __, row in pairs(xrow) do
-                print(xx)
                 if row.i < acount then
                     table.insert(current_rows[1], row)
                 end
