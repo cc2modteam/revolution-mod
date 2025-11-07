@@ -1837,7 +1837,6 @@ function render_node_tooltip(w, h, id, type)
         end
     elseif type == g_node_types.tile then
         local tile = update_get_tile_by_id(id)
-        print(tile:get_facility_category())
         local category_data = g_item_categories[tile:get_facility_category()]
 
         if tile:get() then

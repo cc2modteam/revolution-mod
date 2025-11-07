@@ -778,6 +778,7 @@ function begin_load_inventory_data()
     end
 end
 
+-- Get all islands of a particular type for a team (or all)
 function rev_get_team_type_islands(team_id, island_type)
     local tile_count = update_get_tile_count()
     local found = {}
