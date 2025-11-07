@@ -778,6 +778,28 @@ function begin_load_inventory_data()
     end
 end
 
+g_rev_controller_islands = {}
+function rev_get_controller_islands()
+    if #g_rev_controller_islands == 0 then
+        local tile_count = update_get_tile_count()
+        if tile_count > 9 then
+            local found = {}
+            -- find all the 4-shield islands for every 9 islands on the map
+            for i = 0, tile_count - 1 do
+                local tile = update_get_tile_by_index(i)
+                if tile and tile:get() then
+                    local diff = tile:get_difficulty_level()
+                    if diff == 4 then
+                        found[tile:get_id()] = true
+                    end
+                end
+            end
+            g_rev_controller_islands = found
+        end
+    end
+    return g_rev_controller_islands
+end
+
 -- Get all islands of a particular type for a team (or all)
 function rev_get_team_type_islands(team_id, island_type)
     local tile_count = update_get_tile_count()

@@ -310,7 +310,7 @@ function _update(screen_w, screen_h, ticks)
     end
 
     if g_debug_enabled then
-        st, err = pcall(update_barge_cap, ticks)
+        local st, err = pcall(update_barge_cap, ticks)
         if not st then
             print(err)
         end
@@ -1042,13 +1042,14 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
         end
     end
 
+    local controllers = rev_get_controller_islands()
+
     -- render tile links
     for _, tile in iter_tiles() do
         local hovered = false
         if g_tab_map.hovered_id == tile:get_id() then
             hovered = true
         end
-
 
         if rev_show_island_icon(tile:get_id()) and tile:get_team_control() == vehicle_team then
             local category = tile:get_facility_category()
@@ -1074,6 +1075,21 @@ function render_map_details(screen_vehicle, screen_w, screen_h, is_tab_active)
                         update_ui_line(tx, ty, screen_pos_x, screen_pos_y, direct_link_col)
                     end
                 end
+            end
+        end
+    end
+
+    -- render control icons
+    for tid, _ in pairs(controllers) do
+        local tile = update_get_tile_by_id(tid)
+        if tile and tile:get() then
+            local tile_position = get_command_center_position(tile:get_id())
+            local screen_pos_x, screen_pos_y = get_screen_from_world(tile_position:x(), tile_position:y(), g_tab_map.camera_pos_x, g_tab_map.camera_pos_y, g_tab_map.camera_size, screen_w, screen_h)
+            if is_collapse_icons then
+                update_ui_rectangle(screen_pos_x - 2, screen_pos_y - 2, 4, 4, color_status_dark_yellow)
+            else
+                update_ui_rectangle(screen_pos_x - 6, screen_pos_y - 4, 12, 8, color_status_dark_yellow)
+                update_ui_rectangle(screen_pos_x - 4, screen_pos_y - 6, 8, 12, color_status_dark_yellow)
             end
         end
     end
@@ -1836,6 +1852,7 @@ function render_node_tooltip(w, h, id, type)
 
         end
     elseif type == g_node_types.tile then
+        local controllers = rev_get_controller_islands()
         local tile = update_get_tile_by_id(id)
         local category_data = g_item_categories[tile:get_facility_category()]
 
@@ -1847,6 +1864,10 @@ function render_node_tooltip(w, h, id, type)
 
                 update_ui_image(5, cy, category_data.icon, g_map_colors.factory, 0)
                 update_ui_text(18, cy, category_data.name, 200, 0, color_white, 0)
+                if controllers[tile:get_id()] ~= nil then
+                    -- this is a control island
+                    update_ui_text(0, cy, update_get_loc(e_loc.island_control):upper(), w - 15, 2, color_status_dark_yellow, 0)
+                end
                 update_ui_image(w - 13, cy, atlas_icons.column_transit, color_highlight, 0)
 
                 cy = cy + 10
@@ -1887,36 +1908,41 @@ function render_node_tooltip(w, h, id, type)
                         unlocks = {}
                     end
                 end
-
-                if visible and #unlocks > 0 then
+                if visible then
                     local cy = 3
-                    update_ui_image(5, cy, tile_icon, color_grey_dark, 0)
-                    update_ui_text(18, cy, tile_text, 200, 0, color_grey_dark, 0)
+                    if #unlocks > 0 then
+                        update_ui_image(5, cy, tile_icon, color_grey_dark, 0)
+                        update_ui_text(18, cy, tile_text, 200, 0, color_grey_dark, 0)
 
-                    cy = cy + 10
-                    update_ui_image(8, cy + 4, atlas_icons.icon_tree_next, color_grey_dark, 0)
+                        cy = cy + 10
+                        update_ui_image(8, cy + 4, atlas_icons.icon_tree_next, color_grey_dark, 0)
 
-                    local cx = 18
+                        local cx = 18
 
-                    for i = 1, #unlocks do
-                        if g_animation_time % 40 > 20 then
-                            update_ui_image(cx, cy, unlocks[i].icon, color_button_bg_inactive, 0)
-                            update_ui_image(cx + 4, cy + 3, atlas_icons.column_locked, color_status_bad, 0)
-                        else
-                            update_ui_image(cx, cy, unlocks[i].icon, color_grey_mid, 0)
+                        for i = 1, #unlocks do
+                            if g_animation_time % 40 > 20 then
+                                update_ui_image(cx, cy, unlocks[i].icon, color_button_bg_inactive, 0)
+                                update_ui_image(cx + 4, cy + 3, atlas_icons.column_locked, color_status_bad, 0)
+                            else
+                                update_ui_image(cx, cy, unlocks[i].icon, color_grey_mid, 0)
+                            end
+
+                            cx = cx + 16
+
+                            if cx + 16 > w - 5 then
+                                cx = 18
+                                cy = cy + 16
+                            end
                         end
-
-                        cx = cx + 16
-
-                        if cx + 16 > w - 5 then
-                            cx = 18
-                            cy = cy + 16
-                        end
+                    else
+                        local cy = h / 2 - 4
+                        update_ui_image(5, cy, tile_icon, color_grey_dark, 0)
+                        update_ui_text(18, cy, tile_text, 200, 0, color_grey_dark, 0)
                     end
-                else
-                    local cy = h / 2 - 4
-                    update_ui_image(5, cy, tile_icon, color_grey_dark, 0)
-                    update_ui_text(18, cy, tile_text, 200, 0, color_grey_dark, 0)
+                    if controllers[tile:get_id()] ~= nil then
+                        -- this is a control island
+                        update_ui_text(0, 7, update_get_loc(e_loc.island_control):upper(), w - 15, 2, color_status_dark_yellow, 0)
+                    end
                 end
             end
         end
