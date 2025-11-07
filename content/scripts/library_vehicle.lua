@@ -778,9 +778,10 @@ function begin_load_inventory_data()
     end
 end
 
-g_rev_controller_islands = {}
+g_rev_controller_islands = nil
 function rev_get_controller_islands()
-    if #g_rev_controller_islands == 0 then
+    if g_rev_controller_islands == nil then
+        g_rev_controller_islands = {}
         local tile_count = update_get_tile_count()
         if tile_count > 9 then
             local found = {}
@@ -806,7 +807,7 @@ function rev_get_team_control_islands(team_id)
     for tid, _ in pairs(rev_get_controller_islands()) do
         local tile = update_get_tile_by_id(tid)
         if tile and tile:get() then
-            if tile:get_team_control() == team_id then
+            if team_id == nil or tile:get_team_control() == team_id then
                 control_count = control_count + 1
             end
         end
@@ -818,9 +819,8 @@ end
 function rev_get_island_locked_build_item(team_id, inventory_item)
     if update_get_tile_count() > 0 then
         -- manta and heavy bomb production requires control island
-        local available_controllers = rev_get_controller_islands()
-        if #available_controllers > 0 then
-
+        local available_controllers = rev_get_team_control_islands(nil)
+        if available_controllers > 0 then
             if rev_get_team_control_islands(team_id) == 0 then
                 local needed = false
                 if inventory_item == e_inventory_item.hardpoint_bomb_3 then
