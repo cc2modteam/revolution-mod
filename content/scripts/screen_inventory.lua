@@ -1356,7 +1356,7 @@ function render_map_ui(screen_w, screen_h, x, y, w, h, screen_vehicle, is_tab_ac
             if g_tab_map.hovered_id ~= 0 then
                 local tooltip_w = 128
                 local tooltip_h = get_node_tooltip_h(tooltip_w, g_tab_map.hovered_id, g_tab_map.hovered_type)
-                render_tooltip(x + 10, y, w - 20, h - 10, g_tab_map.cursor_pos_x, g_tab_map.cursor_pos_y, tooltip_w, tooltip_h, 10, function(w, h) render_node_tooltip(w, h, g_tab_map.hovered_id, g_tab_map.hovered_type) end)
+                render_tooltip(x + 5, y, w - 20, h - 10, -20, screen_h + 8, screen_w - 10, tooltip_h, 10, function(w, h) render_node_tooltip(w, h, g_tab_map.hovered_id, g_tab_map.hovered_type) end)
             end
         end
     end
