@@ -69,12 +69,6 @@
 			</boxes>
 			<spheres/>
 		</body>
-		<body mass="1.00000000e+00" name="fwd_deck_box" is_static="false">
-			<transform m00="-4.37113883e-08" m01="0.00000000e+00" m02="1.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-1.00000000e+00" m21="0.00000000e+00" m22="-4.37113883e-08" tx="3.62718315e+01" ty="1.93053322e+01" tz="2.61806202e+01"/>
-			<meshes/>
-			<boxes/>
-			<spheres/>
-		</body>
 	</bodies>
 	<constraints>
 		<constraint name="lift_constraint" type="0" body_0="0" body_1="1" is_limits="true" limit_min="-9.00000000e+00" limit_max="0.00000000e+00" drive_stiffness="8.00000000e+03" drive_damping="1.60000000e+04" drive_max_delta_position="5.00000000e-01" drive_max_delta_velocity="1.00000001e-01">
@@ -630,30 +624,6 @@
 		</mesh>
 		<mesh file="meshes/aircraft_carrier/terminal.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="1.05774086e-02" m01="0.00000000e+00" m02="-9.99944031e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="9.99944031e-01" m21="0.00000000e+00" m22="1.05774086e-02" tx="-2.34058495e+01" ty="2.88416157e+01" tz="-2.61210041e+01"/>
-		</mesh>
-		<mesh file="meshes/aircraft_carrier/aircraft_carrier_shell/aircraft_carrier_lift.mesh" name="ramp_1" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="-4.37113883e-08" m01="-1.24789111e-01" m02="-9.92183268e-01" m10="0.00000000e+00" m11="9.92183268e-01" m12="-1.24789111e-01" m20="1.00000000e+00" m21="-5.45470513e-09" m22="-4.33697096e-08" tx="3.12224064e+01" ty="4.44315767e+00" tz="1.14590294e+02"/>
-		</mesh>
-		<mesh file="meshes/aircraft_carrier/aircraft_carrier_shell/aircraft_carrier_lift.mesh" name="ramp_2" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="-4.37113883e-08" m01="-1.24789111e-01" m02="-9.92183268e-01" m10="0.00000000e+00" m11="9.92183268e-01" m12="-1.24789111e-01" m20="1.00000000e+00" m21="-5.45470513e-09" m22="-4.33697096e-08" tx="3.12224064e+01" ty="5.90939760e+00" tz="1.26163467e+02"/>
-		</mesh>
-		<mesh file="meshes/vehicles/vehicle_lods/barge_low.mesh" name="mesh" lod="1" body="0" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="9.61528670e-08" m02="7.77181413e-08" m10="8.87051073e-08" m11="-9.95875716e-01" m12="9.07278359e-02" m20="8.61213607e-08" m21="-9.07278359e-02" m22="-9.95875716e-01" tx="-1.60154331e+00" ty="1.47105846e+01" tz="7.11311493e+01"/>
-		</mesh>
-		<mesh file="meshes/vehicles/attachment_lods/cruise_missile_silo_top_low001.mesh" name="fwd_box_b" lod="0" body="4" is_paint_dirt="false">
-			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="4.37113883e-08" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="1.00000000e+00" m21="-4.37113883e-08" m22="1.91068547e-15" tx="0.00000000e+00" ty="-2.62500000e+00" tz="-5.03101397e+00"/>
-		</mesh>
-		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/cruise_missile_silo_top.mesh" name="fwd_box_r" lod="0" body="4" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="3.51204705e+00" ty="-8.50426555e-01" tz="-3.62080336e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/attachment_lods/cruise_missile_silo_top_low001.mesh" name="fwd_box_l" lod="0" body="4" is_paint_dirt="false">
-			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="-4.37113883e-08" m10="1.00000000e+00" m11="-4.37113883e-08" m12="4.37113883e-08" m20="-4.37113954e-08" m21="-4.37113883e-08" m22="1.00000000e+00" tx="-3.02603531e+00" ty="-2.79616404e+00" tz="-3.33089799e-01"/>
-		</mesh>
-		<mesh file="meshes/vehicles/attachment_lods/cruise_missile_silo_top_low001.mesh" name="fwd_box_base" lod="0" body="4" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="3.41965723e+00" ty="-2.62500000e+00" tz="-4.19261932e-01"/>
-		</mesh>
-		<mesh file="meshes/vehicles/attachment_lods/cruise_missile_silo_top_low001.mesh" name="fwd_box_base" lod="0" body="4" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="7.73313046e-02" ty="-2.62500000e+00" tz="-4.19261932e-01"/>
 		</mesh>
 	</meshes>
 	<wheels/>
