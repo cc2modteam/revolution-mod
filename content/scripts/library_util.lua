@@ -1691,11 +1691,89 @@ g_rev_mods = {
 
 
 function get_island_name(tile)
-    if g_override_get_tile_name ~= nil then
-        return g_override_get_tile_name(tile:get_id())
-    end
-    return tile:get_name()
+    return island_name_get(tile:get_id())
 end
+
+function _get_original_island_names()
+    local names = {}
+    local tile_count = update_get_tile_count()
+    for i = 0, tile_count - 1, 1 do
+        local tile = update_get_tile_by_index(i)
+        local tid = tile:get_id()
+        local original_name = tile:get_name()
+        local_print("# ", tid, original_name)
+        names[tid] = original_name
+    end
+    return names
+end
+
+function _generate_island_names()
+    local selected = {}
+    if g_island_names == nil then
+        print("# get default island names..")
+        g_island_names = _get_original_island_names()
+        -- perhaps add some extra names here
+        table.insert(g_island_names, "CRAGGY")
+        table.insert(g_island_names, "SODOR")
+        table.insert(g_island_names, "KYOSHI")
+        table.insert(g_island_names, "TRACY")
+    end
+    local tile_count = update_get_tile_count()
+    local offset = (math.floor(update_get_tile_by_index(1):get_position_xz():x())) % #g_island_names
+    local selected_count = 0
+    local used = {}
+    local_print("start seeding island names..")
+    local stride = math.min(7, tile_count - 1)
+    local attempts = 0
+    for i = 0, tile_count -1, 1 do
+        local tile = update_get_tile_by_index(i)
+        if tile and tile:get() then
+            local prn = offset + i * stride
+            local tile_id = tile:get_id()
+            local used_name = true
+            while used_name do
+                attempts = attempts + 1
+                local name_idx = 1 + ( prn % #g_island_names)
+                local new_name = g_island_names[name_idx]
+                if used[new_name] == nil then
+                    -- use this name
+                    local_print("i=", tile_id, "prn=", prn, "new=", name_idx, "old=", g_island_names[tile_id], "new=", g_island_names[name_idx])
+                    selected[tile_id] = new_name
+                    used[new_name] = 1
+                    used_name = false
+                    selected_count = selected_count + 1
+                else
+                    prn = prn + 3
+                end
+                if attempts > 1000 then
+                    print("name prng stuck - oops")
+                    return selected
+                end
+            end
+        end
+    end
+
+    local_print("island name generation done")
+    return selected
+end
+
+-- we will generate a pseudo random set of island names on-load
+g_island_name_selection = {}
+g_island_names_generated = false
+
+function island_name_get(island_id)
+    if not g_island_names_generated then
+        g_island_name_selection = _generate_island_names()
+        g_island_names_generated = true
+    end
+
+    if g_island_name_selection[island_id] ~= nil then
+        return string.upper(g_island_name_selection[island_id])
+    end
+    -- should not happen!
+    return string.format("Island %d", island_id)
+end
+
 
 function _wait_until_next_second()
     local now = update_get_time_since_epoch()
