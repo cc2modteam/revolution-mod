@@ -779,23 +779,26 @@ function begin_load_inventory_data()
 end
 
 g_rev_controller_islands = nil
+g_rev_controller_islands_enabled = false
 function rev_get_controller_islands()
     if g_rev_controller_islands == nil then
         g_rev_controller_islands = {}
-        local tile_count = update_get_tile_count()
-        if tile_count > 9 then
-            local found = {}
-            -- find all the 4-shield islands for every 9 islands on the map
-            for i = 0, tile_count - 1 do
-                local tile = update_get_tile_by_index(i)
-                if tile and tile:get() then
-                    local diff = tile:get_difficulty_level()
-                    if diff == 4 then
-                        found[tile:get_id()] = true
+        if g_rev_controller_islands_enabled then
+            local tile_count = update_get_tile_count()
+            if tile_count > 9 then
+                local found = {}
+                -- find all the 4-shield islands for every 9 islands on the map
+                for i = 0, tile_count - 1 do
+                    local tile = update_get_tile_by_index(i)
+                    if tile and tile:get() then
+                        local diff = tile:get_difficulty_level()
+                        if diff == 4 then
+                            found[tile:get_id()] = true
+                        end
                     end
                 end
+                g_rev_controller_islands = found
             end
-            g_rev_controller_islands = found
         end
     end
     return g_rev_controller_islands
