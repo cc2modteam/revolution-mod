@@ -928,7 +928,7 @@ lib_imgui = {
         return is_action
     end,
 
-    button = function(self, label, is_enabled, align)
+    button = function(self, label, is_enabled, align, active_col)
         local window = self:get_window()
         local x = window.cx
         local y = window.cy
@@ -960,6 +960,10 @@ lib_imgui = {
         else
             local text_col = iff(is_active, iff(is_selected, iff(self.input_action_held or self.input_pointer_1_held, color_white, color_white), color_black), color_black)
             local back_col = iff(is_active, iff(is_selected, iff(self.input_action_held or self.input_pointer_1_held, color_highlight, color_highlight), color_button_bg), iff(is_selected, color_grey_dark, color_button_bg_inactive))
+
+            if is_active and active_col ~= nil then
+                back_col = active_col
+            end
 
             render_button_bg(bx, by, bw, bh, back_col)
             update_ui_text(bx, by + 2, label, math.floor(bw / 2) * 2, 1, text_col, 0)

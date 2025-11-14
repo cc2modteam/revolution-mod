@@ -1790,7 +1790,8 @@ F_DRYDOCK_WPTX_SETTING         = 4
 F_DRYDOCK_WPTX_FACTORY_DAMAGED = 8
 F_DRYDOCK_WPTX_SCOUTED         = 16
 
-
+-- values for F_DRYDOCK_WPTX_SETTING wpts
+DRYDOCK_WPTX_SETTING_READY     = 1
 
 g_team_drydocks = {}
 
@@ -1983,7 +1984,7 @@ function get_marker_waypoint(team_id, marker_id)
     return get_special_waypoint(team_id, F_DRYDOCK_WPTX_MARKER, marker_id)
 end
 
-function add_special_waypoint(team_id, flag, special_id)
+function add_special_waypoint(team_id, flag, special_id, set_altitude_value)
     local current = get_special_waypoint(team_id, flag, special_id)
     local drydock = find_team_drydock(team_id)
 
@@ -1996,11 +1997,21 @@ function add_special_waypoint(team_id, flag, special_id)
         local w_id = drydock:add_waypoint(flag, special_id)
         drydock:set_waypoint_altitude(w_id, 0)
         current = drydock:get_waypoint_by_id(w_id)
-        return w_id
     end
+    local w_id = current:get_id()
 
-    return current:get_id()
+    if set_altitude_value ~= nil then
+        local_print("setting", flag, w_id, set_altitude_value)
+        drydock:set_waypoint_altitude(w_id, set_altitude_value)
+        local_print("got", current:get_altitude())
+    end
+    return w_id
 end
+
+function set_special_waypoint(team_id, flag, special_id, set_altitude_value)
+    add_special_waypoint(team_id, flag, special_id, set_altitude_value)
+end
+
 
 function add_marker_waypoint(team_id, marker_id)
     return add_special_waypoint(team_id, F_DRYDOCK_WPTX_MARKER, marker_id)
@@ -2052,6 +2063,22 @@ function unset_marker_waypoint(team_id, marker_id)
             dump_waypoints(drydock)
         end
     end
+end
+
+function rev_set_team_ready(team_id, is_ready)
+    local value = 0
+    if is_ready then
+        value = 1
+    end
+    set_special_waypoint(team_id, F_DRYDOCK_WPTX_SETTING, DRYDOCK_WPTX_SETTING_READY, value)
+end
+
+function rev_get_team_ready(team_id)
+    local w = get_special_waypoint(team_id, F_DRYDOCK_WPTX_SETTING, DRYDOCK_WPTX_SETTING_READY)
+    if w then
+        return w:get_altitude() > 0
+    end
+    return false
 end
 
 function update_team_holomap_cursor(team_id, x, y)
