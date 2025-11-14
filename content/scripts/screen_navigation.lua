@@ -851,21 +851,19 @@ function helm_hud_update_prelaunch(vehicle, screen_w, screen_h)
             if v:get_definition_index() == e_game_object_type.chassis_carrier then
                 -- is a carrier
                 local v_team = v:get_team()
+                local docked = get_vehicle_docked(v)
+                local vname = get_ship_name(v)
+                update_ui_text(cx, cy, string.format("%d %s", v_team, vname), screen_w, 0, update_get_team_color(v_team), 0)
                 if get_team_has_humans(v_team) then
-                    local docked = get_vehicle_docked(v)
                     local ready = rev_get_team_ready(v_team)
-                    local vname = get_ship_name(v)
-                    update_ui_text(cx, cy, string.format("%d %s", v_team, vname), screen_w, 0, update_get_team_color(v_team), 0)
                     if ready then
                         update_ui_text(screen_w // 3, cy, update_get_loc(e_loc.upp_ready), screen_w, 0, color_status_dark_red, 0)
                     end
-
-                    if docked then
-                        update_ui_text( 2 * screen_w // 3, cy, update_get_loc(e_loc.upp_docked), screen_w, 0, color_white, 0)
-                    end
-
-                    cy = cy + 10
                 end
+                if docked then
+                    update_ui_text( 2 * screen_w // 3, cy, update_get_loc(e_loc.upp_docked), screen_w, 0, color_white, 0)
+                end
+                cy = cy + 10
             end
         end
     end
