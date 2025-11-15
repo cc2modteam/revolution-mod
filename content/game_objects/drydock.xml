@@ -144,6 +144,39 @@
 		<mesh file="meshes/vehicles/lifeboat/lifeboat.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="8.60704243e-01" m01="0.00000000e+00" m02="5.09105265e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-5.09105265e-01" m21="0.00000000e+00" m22="8.60704243e-01" tx="6.52873154e+01" ty="1.83131390e+01" tz="2.21448700e+02"/>
 		</mesh>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/cruise_missile_silo_cap.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.97740865e-01" m01="0.00000000e+00" m02="8.67325783e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-8.67325783e-01" m21="0.00000000e+00" m22="4.97740865e-01" tx="6.22450829e+01" ty="1.78096313e+01" tz="2.11839081e+02"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/cruise_missile_silo_top.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-8.60877633e-01" m01="-2.22408829e-08" m02="5.08812070e-01" m10="-5.08812070e-01" m11="3.76301550e-08" m12="-8.60877633e-01" m20="0.00000000e+00" m21="-1.00000000e+00" m22="-4.37113883e-08" tx="6.30115585e+01" ty="1.82635708e+01" tz="2.10409119e+02"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/cruise_missile_silo_cap.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.97740865e-01" m01="0.00000000e+00" m02="8.67325783e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-8.67325783e-01" m21="0.00000000e+00" m22="4.97740865e-01" tx="6.14483223e+01" ty="1.78096313e+01" tz="2.10450699e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="4.95538292e+01" ty="1.92506351e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="4.95538292e+01" ty="1.84322186e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.03363419e+01" ty="1.84322186e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.11511497e+01" ty="1.84322186e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.14063683e+01" ty="1.84322186e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.14063683e+01" ty="1.92485943e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.03363419e+01" ty="1.92498589e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.11511497e+01" ty="1.92515488e+01" tz="2.20479691e+02"/>
+		</mesh>
 	</meshes>
 	<wheels/>
 	<attachments/>
@@ -234,7 +267,10 @@
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="6.40186727e-01" m12="-7.68219352e-01" m20="0.00000000e+00" m21="7.68219352e-01" m22="6.40186727e-01" tx="5.42871056e+01" ty="1.83646049e+01" tz="2.15037720e+02"/>
 		</screen>
 		<screen name="drydock-bar-large" display_name_loc="1388" script_file_name="scripts/screen_vehicle_control.lua" body_index="4294967295" seat_index="5" type="2" refresh_interval="2.00000000e+00" help_tag="">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.04701347e+01" ty="1.88267841e+01" tz="2.20409302e+02"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.04701347e+01" ty="1.88267841e+01" tz="2.20402847e+02"/>
+		</screen>
+		<screen name="screen_advert" display_name_loc="428" script_file_name="scripts/screen_landing.lua" body_index="0" seat_index="4294967295" type="4" refresh_interval="1.00000000e+00" help_tag="">
+			<transform m00="-9.93555486e-01" m01="1.13080695e-01" m02="7.76301883e-03" m10="1.13038912e-01" m11="9.83484924e-01" m12="1.41347080e-01" m20="8.34881421e-03" m21="1.41313717e-01" m22="-9.89929616e-01" tx="6.35734406e+01" ty="1.80653210e+01" tz="2.09248077e+02"/>
 		</screen>
 	</screens>
 	<doors>
