@@ -4434,7 +4434,7 @@ function call_custom_vehicle_loadout_update(screen_w, screen_h, ticks)
     end
     return false
 end
-g_advert_max = 4
+g_advert_max = 6
 g_advert = math.random(1, g_advert_max)
 g_last_advert_roll = 0
 
@@ -4446,6 +4446,7 @@ function do_advertising_update(screen_w, screen_h)
         math.randomseed(update_get_logic_tick())
         g_advert = math.random(1, g_advert_max)
     end
+
 
     local clock = now % 8
     if g_advert == 1 then
@@ -4611,6 +4612,52 @@ function do_advertising_update(screen_w, screen_h)
             update_ui_text_scale(2, 105, "1-800-SAGE-ADVICE", screen_w, 1, color_black, 0, 2)
             update_ui_text_scale(0, 102, "1-800-SAGE-ADVICE", screen_w, 1, color_white, 0, 2)
         end
+    elseif g_advert == 5 or g_advert == 6 then
+        -- CEEFAX
+        local now = update_get_logic_tick()
+        update_ui_push_offset(8, 5)
+        local page = now % 889
+        local title = string.format(" P%03d CC2FAX 1 100              %s", page, format_time(now / 30))
+        update_ui_text(0, 0, title, screen_w, 0, color_white, 0)
+
+        function box_letter(bx, by, txt, fg, bg)
+            local tw = update_ui_get_text_size(txt, screen_w, 0)
+            update_ui_rectangle(bx, by, tw * 2, 18, bg)
+            update_ui_text_scale(1 + bx, by, txt, tw + 2, 0, fg, 0, 2)
+        end
+
+        box_letter(0, 12, "C", color_black, color_white)
+        box_letter(14, 12, "C", color_black, color_white)
+        box_letter(28, 12, "2", color_black, color_white)
+
+        update_ui_rectangle( 42, 12, screen_w - 50, 18, color8(0, 0, 255, 255))
+
+        update_ui_text_scale( 45, 14, "TELOS NEWS", screen_w, 0, color_status_dark_yellow, 0, 1.5)
+
+        if now % 60 > 30 then
+            update_ui_text_scale( 160, 14, "UPDATE!", screen_w, 0, color_status_ok, 0, 1.5)
+        end
+
+        function get_nearest_island_name()
+            local name = "-"
+            local pos = update_get_screen_vehicle():get_position_xz()
+            local nearest = get_nearest_island_tile(pos:x(), pos:y())
+            name = get_island_name(nearest)
+            return name
+        end
+
+        update_ui_text(0, 34, "Island News", screen_w, 0, color_status_dark_yellow, 0)
+        update_ui_text(0, 44, string.format("P102 %s locals welcome %s visit", get_nearest_island_name(), "CRR" ), screen_w, 0, color_white, 0)
+
+        update_ui_text(0, 64, "Wildlife in focus", screen_w, 0, color_status_dark_yellow, 0)
+        update_ui_text(0, 74, "P213 Seal population decimated", screen_w, 0, color_white, 0)
+        update_ui_text(0, 84, "P214 Razorbill season approaches", screen_w, 0, color_white, 0)
+
+        update_ui_text(0, 104, "Headlines", screen_w, 0, color_enemy, 0)
+        update_ui_text(80, 104, "Sport", screen_w, 0, color_status_dark_green, 0)
+        update_ui_text(140, 104, "TV", screen_w, 0, color_status_dark_yellow, 0)
+        update_ui_text(170, 104, "A-Z Index", screen_w, 0, color_status_ok, 0)
+
     end
 end
 

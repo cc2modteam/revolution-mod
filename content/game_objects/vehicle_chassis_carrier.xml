@@ -625,6 +625,12 @@
 		<mesh file="meshes/aircraft_carrier/terminal.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="1.05774086e-02" m01="0.00000000e+00" m02="-9.99944031e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="9.99944031e-01" m21="0.00000000e+00" m22="1.05774086e-02" tx="-2.34058495e+01" ty="2.88416157e+01" tz="-2.61210041e+01"/>
 		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-2.71247119e-01" m12="9.62509751e-01" m20="0.00000000e+00" m21="-9.62509751e-01" m22="-2.71247119e-01" tx="-2.98126144e+01" ty="2.81419945e+01" tz="-4.36982079e+01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-2.71247119e-01" m12="9.62509751e-01" m20="0.00000000e+00" m21="-9.62509751e-01" m22="-2.71247119e-01" tx="-3.02853088e+01" ty="2.81419945e+01" tz="-4.36982079e+01"/>
+		</mesh>
 	</meshes>
 	<wheels/>
 	<attachments>
@@ -1280,6 +1286,9 @@
 		</seat>
 		<seat name="logistics_1" display_name_loc="0" type="0" help_tag="">
 			<transform m00="7.07106709e-01" m01="0.00000000e+00" m02="7.07106829e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-7.07106829e-01" m21="0.00000000e+00" m22="7.07106709e-01" tx="-3.09786053e+01" ty="2.90019665e+01" tz="-2.56821423e+01"/>
+		</seat>
+		<seat name="mess-seat" display_name_loc="403" type="1" help_tag="">
+			<transform m00="-9.99996424e-01" m01="2.68539554e-03" m02="8.74227837e-08" m10="2.68539577e-03" m11="9.99996543e-01" m12="0.00000000e+00" m20="-8.74224639e-08" m21="2.34764735e-10" m22="-1.00000000e+00" tx="-2.98264961e+01" ty="2.59840775e+01" tz="-4.03743668e+01"/>
 		</seat>
 	</seats>
 	<button_panels>
@@ -3412,6 +3421,9 @@
 		</screen>
 		<screen name="screen_helm_hud" display_name_loc="791" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="4294967295" type="2" refresh_interval="2.00000000e+00" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.30605623e-01" m12="-9.91434395e-01" m20="0.00000000e+00" m21="9.91434395e-01" m22="1.30605623e-01" tx="-2.77235680e+01" ty="3.07140617e+01" tz="-2.19244423e+01"/>
+		</screen>
+		<screen name="screen_advert" display_name_loc="109" script_file_name="scripts/screen_landing.lua" body_index="0" seat_index="14" type="1" refresh_interval="4.00000000e+00" help_tag="">
+			<transform m00="-9.99997675e-01" m01="2.08288548e-03" m02="5.58108266e-04" m10="1.73472348e-18" m11="-2.58819193e-01" m12="9.65925872e-01" m20="2.15636357e-03" m21="9.65923607e-01" m22="2.58818567e-01" tx="-3.00472088e+01" ty="2.81419945e+01" tz="-4.36251259e+01"/>
 		</screen>
 	</screens>
 	<doors>
