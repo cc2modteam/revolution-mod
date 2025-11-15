@@ -1019,7 +1019,7 @@ function get_team_name(team_id)
 end
 
 function local_print(...)
-    if update_get_is_focus_local() then
+    if g_debug_enabled and update_get_is_focus_local() then
         print(...)
     end
 end
