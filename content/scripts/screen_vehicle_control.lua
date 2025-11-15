@@ -1341,7 +1341,7 @@ function begin()
     g_ui = lib_imgui:create_ui()
     local screen_name = begin_get_screen_name()
     g_screen_name = screen_name
-    g_is_big_display = screen_name == "holomap_screen_2"
+    g_is_big_display = screen_name == "holomap_screen2"
 end
 
 function err_handler(arg)
@@ -1358,6 +1358,9 @@ function draw_aircraft_vector(vehicle, screen_pos_x, screen_pos_y)
     end
 end
 
+g_revolution_control_units = true
+g_revolution_control_drydock_mode = false
+
 function update(screen_w, screen_h, ticks)
     if update_get_is_focus_local() then
         g_last_input_tick = update_get_logic_tick()
@@ -1366,9 +1369,32 @@ function update(screen_w, screen_h, ticks)
     if call_func_override("screen_vehicle_control__update", screen_w, screen_h, ticks) then
         return
     end
-
+    g_revolution_control_drydock_mode = false
     if do_screensaver(screen_w, screen_h, e_loc.upp_vehicle_control) then
         return
+    else
+        if string.match(g_screen_name, "drydock") then
+            if team_eliminated(update_get_screen_team_id()) then
+                -- how around to the action on the big screen
+                g_revolution_control_drydock_mode = true
+            end
+        end
+    end
+
+    if g_revolution_control_drydock_mode then
+        g_revolution_is_spectator = true
+        g_revolution_control_units = false
+
+        -- center on last destroyed vehicle
+        local destroyed_vehicle_count = update_get_map_destroyed_vehicle_count()
+        if destroyed_vehicle_count > 0 then
+            local destroyed_vehicle = update_get_map_destroyed_vehicle(destroyed_vehicle_count - 1)
+            if destroyed_vehicle:get() then
+                local destroyed_vehicle_position = destroyed_vehicle:get_position_xz(destroyed_vehicle_count - 1)
+                g_camera_pos_x = destroyed_vehicle_position:x()
+                g_camera_pos_y = destroyed_vehicle_position:y()
+            end
+        end
     end
 
     if g_trigger_call_timer then
@@ -4273,6 +4299,10 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 end
 
 function get_is_vehicle_enterable(vehicle)
+    if not g_revolution_control_units then
+        return false
+    end
+
     local screen_vehicle = update_get_screen_vehicle()
 
     if screen_vehicle:get() and vehicle:get() then
@@ -4505,6 +4535,9 @@ function render_currency_display(x, y, is_active)
 end
 
 function get_is_vehicle_waypoint_available(vehicle)
+    if not g_revolution_control_units then
+        return false
+    end
     if (vehicle:get_dock_state() == e_vehicle_dock_state.docking and vehicle:get_attached_parent_id() ~= 0) or vehicle:get_dock_state() == e_vehicle_dock_state.docking_taxi then
         return false
     end

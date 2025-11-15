@@ -230,10 +230,10 @@
 	<achievements/>
 	<dials/>
 	<screens>
-		<screen name="screen" display_name_loc="0" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="4" type="3" refresh_interval="1.00000000e+00" help_tag="">
+		<screen name="drydock-bar-table" display_name_loc="1388" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="4" type="3" refresh_interval="2.00000000e+00" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="6.40186727e-01" m12="-7.68219352e-01" m20="0.00000000e+00" m21="7.68219352e-01" m22="6.40186727e-01" tx="5.42871056e+01" ty="1.83646049e+01" tz="2.15037720e+02"/>
 		</screen>
-		<screen name="screen" display_name_loc="0" script_file_name="scripts/screen_vehicle_control.lua" body_index="4294967295" seat_index="5" type="2" refresh_interval="1.00000000e+00" help_tag="">
+		<screen name="drydock-bar-large" display_name_loc="1388" script_file_name="scripts/screen_vehicle_control.lua" body_index="4294967295" seat_index="5" type="2" refresh_interval="2.00000000e+00" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.04701347e+01" ty="1.88267841e+01" tz="2.20409302e+02"/>
 		</screen>
 	</screens>

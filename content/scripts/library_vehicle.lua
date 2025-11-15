@@ -659,6 +659,9 @@ function render_ui_chassis_definition_description(x, y, vehicle, index)
 end
 
 function get_is_vehicle_type_waypoint_capable(vehicle_definition_index)
+    if not g_revolution_control_units then
+        return false
+    end
     if vehicle_definition_index == e_game_object_type.chassis_carrier then
         return false
     elseif vehicle_definition_index == e_game_object_type.chassis_land_wheel_light then
@@ -3544,6 +3547,28 @@ function do_screensaver(screen_w, screen_h, screen_enum)
             expired = true
         end
     end
+    local drydock = false
+    local eliminated = false
+    if string.match(g_screen_name, "drydock") then
+        drydock = true
+        eliminated = team_eliminated(update_get_screen_team_id())
+        if not eliminated then
+            -- always show the drydock screensaver if the team still has a carrier
+            expired = true
+        else
+            expired = false
+        end
+    end
+
+    if expired and drydock then
+        if screen_w == 256 then
+            local st, err = pcall(do_advertising_update, screen_w, screen_h)
+            if not st then
+                print(err)
+            end
+            return true
+        end
+    end
 
     local abbr = "ACC"
     local screen_vehicle = update_get_screen_vehicle()
@@ -3555,27 +3580,40 @@ function do_screensaver(screen_w, screen_h, screen_enum)
     if expired then
         update_set_screen_background_type(0)
         local y = screen_h / 4
-        update_ui_text(
-                50, y,
-                abbr .. get_ship_name(screen_vehicle),
-                100, 1, color_grey_mid, 0)
-        update_ui_line(
-                50, y + 11,
-                200, y + 11,
-                color_grey_dark
-        )
 
-        update_ui_text(
-                58, y + 13,
-                update_get_loc(screen_enum),
-                100, 1, color_grey_mid, 0)
+        if drydock then
+            -- the drydock bar screens
+            if not eliminated then
+                local size = 1
+                if screen_w > 256 then
+                    size = 4
+                end
+                local tx = screen_w * -1
+                local tx = tx + now % (screen_w * 2)
+                update_ui_text_scale(tx, y, "Drydock Bar & Grill", screen_w, 0, color_status_ok, 0, size)
+            end
+        else
+            update_ui_text(
+                    50, y,
+                    abbr .. get_ship_name(screen_vehicle),
+                    100, 1, color_grey_mid, 0)
+            update_ui_line(
+                    50, y + 11,
+                    200, y + 11,
+                    color_grey_dark
+            )
 
-        if now % 30 < 15 then
-           update_ui_text(
-                50, y + 13,
-                ">",
-                12, 1, color_grey_mid, 0)
+            update_ui_text(
+                    58, y + 13,
+                    update_get_loc(screen_enum),
+                    100, 1, color_grey_mid, 0)
 
+            if now % 30 < 15 then
+                update_ui_text(
+                        50, y + 13,
+                        ">",
+                        12, 1, color_grey_mid, 0)
+            end
         end
 
         update_ui_text(12, screen_h - 25, string.format("%d total units", total_units), screen_w, 0, color_grey_mid, 0)
@@ -3650,6 +3688,17 @@ function get_nearest_carrier(vehicle, friendly, current_team)
         end
     end
     return nearest, nearest_dist_sq^0.5
+end
+
+function team_eliminated(team_id)
+    for _, crr in pairs(get_carriers_table()) do
+        if crr and crr:get() then
+            if crr:get_team() == team_id then
+                return false
+            end
+        end
+    end
+    return true
 end
 
 function fast_sqrt(x)
