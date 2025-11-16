@@ -3745,9 +3745,10 @@ function render_tooltip(region_x, region_y, region_w, region_h, x, y, w, h, rad,
     y = pos_y - h - math.floor(rad)
 
     col = col or color_black
-
+    local above = true
     if y < region_y then
         y = pos_y + math.floor(rad)
+        above = false
         update_ui_image(clamp(x - 3, region_x, region_x + region_w - 6), y - 3, atlas_icons.text_back, col, 1)
     else
         update_ui_image(clamp(x - 4, region_x - 2, region_x + region_w - 8), y + h - 2, atlas_icons.text_back, col, 3)
@@ -3763,6 +3764,13 @@ function render_tooltip(region_x, region_y, region_w, region_h, x, y, w, h, rad,
 
     update_ui_pop_clip()
     update_ui_pop_offset()
+    return {
+        ["x"] = x,
+        ["y"] = y,
+        ["w"] = w,
+        ["h"] = h,
+        ["a"] = above
+    }
 end
 
 function render_button_bg(x, y, w, h, col, rad)

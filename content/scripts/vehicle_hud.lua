@@ -2984,6 +2984,7 @@ function render_barge_hud(screen_w, screen_h, vehicle)
     local hud_pos = vec2(hud_min:x() + hud_size:x() / 2, hud_min:y() + hud_size:y() / 2)
     local col = color8(0, 255, 0, 255)
     local col_red = color8(255, 0, 0, 255)
+    local v_def = vehicle:get_definition_index()
 
     render_airspeed_meter(vec2(hud_min:x(), hud_min:y() + (hud_size:y() - 110) / 2), vehicle, 1, col)
     render_compass(vehicle, vec2(hud_pos:x(), hud_min:y() + hud_size:y()), col)
@@ -2993,6 +2994,12 @@ function render_barge_hud(screen_w, screen_h, vehicle)
 
     if get_is_damage_warning(vehicle) then
         render_warning_text(hud_pos:x(), hud_min:y() - 10, update_get_loc(e_loc.upp_dmg_critical), col_red)
+    end
+
+    if v_def == e_game_object_type.chassis_sea_barge then
+        local name = rev_get_unit_name(vehicle)
+        -- bottom left
+        update_ui_text(15, screen_h - 30, name, screen_w, 0, col, 0)
     end
 end
 

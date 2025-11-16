@@ -2296,6 +2296,59 @@ function get_ship_name(vehicle)
     return v
 end
 
+local l_rev_unit_names = {
+    [e_game_object_type.chassis_sea_barge] = {
+        "Deliverance",
+        "It was like this when I got here",
+        "Ocean Trucker",
+        "Type 9 of the seas",
+        "Argos",
+        "Courier",
+        "InterBox",
+        "Walrus-R-Us",
+    },
+    [e_game_object_type.chassis_land_robot_dog] = {
+        "Acid Burn",
+        "Zero Cool",
+        "Cereal Killer",
+        "Lord Nikon",
+        "Crash Override",
+        "Joey",
+        "Razor",
+        "Blade",
+    },
+}
+
+g_rev_unit_name_cache = {}
+function rev_get_unit_name(vehicle)
+    if vehicle and vehicle:get() then
+        local vdef = vehicle:get_definition_index()
+
+        if vdef == e_game_object_type.chassis_carrier then
+            return get_ship_name(vehicle)
+        end
+
+        local vid = vehicle:get_id()
+        local cached = g_rev_unit_name_cache[vid]
+        if cached then
+            return cached
+        end
+
+        local pool = l_rev_unit_names[vdef]
+        if pool ~= nil then
+            local poolsize = #pool
+            local name_idx = vid % poolsize
+            local name = pool[name_idx]
+            if name then
+                local fullname = string.format("%s %d", name, vid)
+                g_rev_unit_name_cache[vid] = fullname
+                return fullname
+            end
+        end
+    end
+    return nil
+end
+
 function _get_ship_name(vehicle)
     set_ship_names()
     if vehicle ~= nil and vehicle:get() then
