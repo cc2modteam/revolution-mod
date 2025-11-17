@@ -3299,13 +3299,13 @@
 		<screen name="screen_veh_r" display_name_loc="680" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="0" type="3" refresh_interval="1.00000000e+00" help_tag="veh_con_screen_vehicle_control">
 			<transform m00="-3.09086197e-08" m01="-3.09086161e-08" m02="-1.00000000e+00" m10="-4.99999940e-01" m11="8.66025269e-01" m12="-1.13133396e-08" m20="8.66025329e-01" m21="4.99999970e-01" m22="-4.22219593e-08" tx="-2.34894943e+01" ty="2.99608688e+01" tz="-2.90030422e+01"/>
 		</screen>
-		<screen name="screen_nav_m" display_name_loc="672" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="1" type="0" refresh_interval="1.00000000e+00" help_tag="helm_screen_navigation">
+		<screen name="screen_nav_m" display_name_loc="672" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="1" type="3" refresh_interval="1.00000000e+00" help_tag="helm_screen_navigation">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="8.66138279e-01" m12="-4.99804467e-01" m20="0.00000000e+00" m21="4.99804467e-01" m22="8.66138279e-01" tx="-2.77134991e+01" ty="3.00015221e+01" tz="-2.26931210e+01"/>
 		</screen>
-		<screen name="screen_nav_l" display_name_loc="672" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="1" type="0" refresh_interval="2.50000000e+00" help_tag="helm_screen_navigation">
+		<screen name="screen_nav_l" display_name_loc="672" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="1" type="3" refresh_interval="2.50000000e+00" help_tag="helm_screen_navigation">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="8.69290233e-01" m12="-4.94302064e-01" m20="0.00000000e+00" m21="4.94302064e-01" m22="8.69290233e-01" tx="-2.85681229e+01" ty="3.00021000e+01" tz="-2.26930561e+01"/>
 		</screen>
-		<screen name="screen_nav_r" display_name_loc="672" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="1" type="0" refresh_interval="2.50000000e+00" help_tag="helm_screen_navigation">
+		<screen name="screen_nav_r" display_name_loc="672" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="1" type="3" refresh_interval="2.50000000e+00" help_tag="helm_screen_navigation">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="8.69095445e-01" m12="-4.94644552e-01" m20="0.00000000e+00" m21="4.94644552e-01" m22="8.69095445e-01" tx="-2.68795662e+01" ty="3.00021248e+01" tz="-2.26930714e+01"/>
 		</screen>
 		<screen name="screen_inv_l_large" display_name_loc="666" script_file_name="scripts/screen_inventory.lua" body_index="0" seat_index="5" type="1" refresh_interval="2.00000000e+00" help_tag="inventory_screen_inventory">
@@ -3338,7 +3338,7 @@
 		<screen name="screen_wep_top_r" display_name_loc="678" script_file_name="scripts/screen_weapons_support.lua" body_index="0" seat_index="7" type="0" refresh_interval="2.00000000e+00" help_tag="sup_wep_screen_support">
 			<transform m00="7.07106709e-01" m01="0.00000000e+00" m02="-7.07106709e-01" m10="-4.99999940e-01" m11="-7.07106829e-01" m12="-4.99999940e-01" m20="-5.00000000e-01" m21="7.07106709e-01" m22="-5.00000000e-01" tx="-2.46192589e+01" ty="3.13177414e+01" tz="-2.46293716e+01"/>
 		</screen>
-		<screen name="screen_wep" display_name_loc="679" script_file_name="scripts/screen_vision_radar.lua" body_index="0" seat_index="7" type="0" refresh_interval="3.00000012e-01" help_tag="nav_wep_screen_radar">
+		<screen name="screen_wep" display_name_loc="679" script_file_name="scripts/screen_vision_radar.lua" body_index="0" seat_index="7" type="3" refresh_interval="4.00000006e-01" help_tag="nav_wep_screen_radar">
 			<transform m00="7.06481099e-01" m01="1.52288377e-03" m02="-7.07730293e-01" m10="-3.56028497e-01" m11="8.65016937e-01" m12="-3.53538692e-01" m20="6.11660242e-01" m21="5.01740456e-01" m22="6.11660242e-01" tx="-2.50619869e+01" ty="2.99701195e+01" tz="-2.39646111e+01"/>
 		</screen>
 		<screen name="screen_veh_m" display_name_loc="680" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="2" type="3" refresh_interval="1.00000000e+00" help_tag="veh_con_screen_vehicle_control">
