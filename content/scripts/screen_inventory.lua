@@ -1793,10 +1793,10 @@ function render_node_tooltip(w, h, id, type)
         local barge = update_get_map_vehicle_by_id(id)
 
         if barge:get() then
-            local display_id = barge:get_id()
+            --local display_id = barge:get_id()
             local cy = 3
             update_ui_image(2, h / 2 - 8, atlas_icons.icon_chassis_16_barge, color, 0)
-            update_ui_text(18, cy, name .. " " .. display_id, 200, 0, color_white, 0)
+            update_ui_text(18, cy, rev_get_unit_name(barge), 200, 0, color_white, 0)
             update_ui_image(w - 13, cy, atlas_icons.column_transit, color_highlight, 0)
 
             cy = cy + 10
