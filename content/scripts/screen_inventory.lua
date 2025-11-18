@@ -1793,16 +1793,24 @@ function render_node_tooltip(w, h, id, type)
         local barge = update_get_map_vehicle_by_id(id)
 
         if barge:get() then
-            --local display_id = barge:get_id()
+            local v_name, v_icon, v_abbr, v_desc = get_chassis_data_by_definition_index(e_game_object_type.chassis_sea_barge)
+            local weight = barge:get_inventory_weight()
+            local display_id = barge:get_id()
             local cy = 3
             update_ui_image(2, h / 2 - 8, atlas_icons.icon_chassis_16_barge, color, 0)
-            update_ui_text(18, cy, rev_get_unit_name(barge), 200, 0, color_white, 0)
+            local info_str = rev_rotate_tick_call(1, {
+                function() return rev_get_unit_name(barge) end,
+                function() return string.format("%d %s", barge:get_waypoint_count(), update_get_loc(e_loc.upp_waypoints)) end,
+                function() return string.format("%dkg", weight) end,
+            })
+            update_ui_text(2, cy, string.format("%s %d", v_abbr, display_id), 100, 0, color_white, 0)
+            update_ui_text(55, cy, info_str, 200, 0, color_grey_dark, 0)
             update_ui_image(w - 13, cy, atlas_icons.column_transit, color_highlight, 0)
 
             cy = cy + 10
 
             local capacity = barge:get_inventory_capacity()
-            local weight = barge:get_inventory_weight()
+
             update_ui_image(18, cy, atlas_icons.column_weight, color_grey_dark, 0)
             update_ui_text(31, cy, string.format("%.0f%%", (weight / capacity) * 100), 200, 0, color_grey_dark, 0)
 

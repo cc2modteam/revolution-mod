@@ -4699,3 +4699,11 @@ function call_func_override(name, ...)
     end
     return val
 end
+
+local ticks_per_sec = 30
+function rev_rotate_tick_call(interval_sec, funcs)
+    local now = update_get_logic_tick()
+    local tick_interval = ticks_per_sec * interval_sec
+    local selection = (now // tick_interval) % #funcs
+    return funcs[1 + selection]()
+end
