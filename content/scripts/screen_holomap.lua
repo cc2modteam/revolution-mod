@@ -252,8 +252,10 @@ function _update(screen_w, screen_h, ticks)
 
     g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
-    refresh_modded_radar_cache()
-    refresh_fow_islands()
+    if ticks < 2 then
+        refresh_modded_radar_cache()
+        refresh_fow_islands()
+    end
 
     local screen_vehicle = update_get_screen_vehicle()
 
