@@ -2299,7 +2299,7 @@ end
 local l_rev_unit_names = {
     [e_game_object_type.chassis_sea_barge] = {
         "Deliverance",
-        "It was like this when I got here",
+        "It's not mine officer",
         "Ocean Trucker",
         "Type 9 of the seas",
         "Argos",
@@ -2308,14 +2308,26 @@ local l_rev_unit_names = {
         "Walrus-R-Us",
     },
     [e_game_object_type.chassis_land_robot_dog] = {
-        "Acid Burn",
-        "Zero Cool",
-        "Cereal Killer",
-        "Lord Nikon",
-        "Crash Override",
-        "Joey",
-        "Razor",
-        "Blade",
+        -- somehow, giving the robot dogs hacker names seemed like a good idea
+        -- but they really don't "feel" right, so I've gone for cute little
+        -- bot names instead
+        "Pip",
+        "Chirpy",
+        "Buzz",
+        "Chip",
+        "Barney",
+        "Rover",
+        "Rudy",
+        "Ziggy"
+
+       -- "Acid Burn",
+       -- "Zero Cool",
+       -- "Cereal Killer",
+       -- "Lord Nikon",
+       -- "Crash Override",
+       -- "Joey",
+       -- "Razor",
+       -- "Blade",
     },
 }
 
@@ -2338,7 +2350,7 @@ function rev_get_unit_name(vehicle)
         if pool ~= nil then
             local poolsize = #pool
             local name_idx = vid % poolsize
-            local name = pool[name_idx]
+            local name = pool[1 + name_idx]
             if name then
                 local fullname = string.format("%s %d", name, vid)
                 g_rev_unit_name_cache[vid] = fullname
