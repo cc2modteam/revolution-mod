@@ -1342,6 +1342,7 @@ function tab_manual_render(screen_w, screen_h, x, y, w, h, delta_time, is_active
                 { "b", atlas_icons.help_button_grey, "Patreon", ""},
                 { "ic16", atlas_icons.column_difficulty, color_friendly, "Yoloplayer" },
                 { "ic16", atlas_icons.column_difficulty, color_friendly, "Pointclearius" },
+                { "ic16", atlas_icons.column_difficulty, color_friendly, "Jeffrey Nicar" },
 
             }
         },
