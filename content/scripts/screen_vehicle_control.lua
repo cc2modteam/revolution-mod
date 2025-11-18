@@ -1382,7 +1382,7 @@ function update(screen_w, screen_h, ticks)
     else
         if string.match(g_screen_name, "drydock") then
             if team_eliminated(update_get_screen_team_id()) then
-                -- how around to the action on the big screen
+                -- pan around to the action on the big screen
                 g_revolution_control_drydock_mode = true
             end
         end
