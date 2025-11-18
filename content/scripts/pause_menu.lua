@@ -185,7 +185,7 @@ function update(screen_w, screen_h, delta_time)
     g_tab_game.tab_title = update_get_loc(e_loc.upp_game)
     g_tab_options.tab_title = update_get_loc(e_loc.upp_options)
     g_tab_multiplayer.tab_title = update_get_loc(e_loc.upp_multiplayer)
-    g_tab_manual.tab_title = update_get_loc(e_loc.upp_manual)
+    g_tab_manual.tab_title = update_get_loc(e_loc.upp_help)
 
     g_is_mouse_mode = g_is_pointer_hovered and update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + delta_time
@@ -587,12 +587,7 @@ function tab_map_render(screen_w, screen_h, x, y, w, h, delta_time, is_active)
     update_ui_push_offset(x, y)
     update_ui_text(
             3, 2,
-            "Revolution "
-                    .. g_rev_major
-                    .. "."
-                    .. g_rev_minor
-                    .. "-"
-                    .. g_rev_patch,
+            g_rev_ver_str,
             220, 0, color_grey_dark, 0)
 
     for mod_i, mod_name in pairs(g_rev_mods) do
@@ -1322,6 +1317,35 @@ function tab_manual_render(screen_w, screen_h, x, y, w, h, delta_time, is_active
     ui:begin_ui(delta_time)
 
     local manual_sections = {
+        {
+            title = "Revolution",
+            content = {
+                { "h", "Next level PvP and PvE"},
+                g_rev_ver_str .. " " ..
+                "brings you more depth in single-player, PvE and PvP games.",
+                { "s", "Website", "Find out more at https://cc2maps.com"},
+                { "h", update_get_loc(e_loc.upp_credits)},
+                "Revolution would not be what it is today without the work and support of so many others.",
+                { "b", atlas_icons.help_button_red, "UI Enhancher", "QuantX's original UI mod"},
+                { "b", atlas_icons.help_button_blue, "GRNO", "Grim Reapers Naval Ops"},
+                { "ic16", atlas_icons.map_icon_ship, color_friendly, "Cylindrical Bobcat" },
+                { "ic16", atlas_icons.map_icon_carrier, color_friendly, "Kazzik" },
+                { "ic16", atlas_icons.map_icon_robot_dog, color_friendly, "Thumblegudget" },
+                { "ic16", atlas_icons.map_icon_barge, color_friendly, "RolandLoop" },
+                { "ic16", atlas_icons.map_icon_air, color_friendly, "Pupboy1000" },
+                { "b", atlas_icons.help_button_green, "CC2 Community", ""},
+                { "ic16", atlas_icons.map_icon_factory_chassis_land, color_friendly, "Pointclearius" },
+                { "ic16", atlas_icons.map_icon_loop, color_friendly, "Yoloplayer" },
+                { "ic16", atlas_icons.map_icon_factory_turrets, color_friendly, "Turbo" },
+                { "ic16", atlas_icons.map_icon_factory_chassis_air, color_friendly, "Trench1936" },
+                { "ic16", atlas_icons.map_icon_factory_barge, color_friendly, "Ludendus" },
+                { "b", atlas_icons.help_button_grey, "Patreon", ""},
+                { "ic16", atlas_icons.column_difficulty, color_friendly, "Yoloplayer" },
+                { "ic16", atlas_icons.column_difficulty, color_friendly, "Pointclearius" },
+
+            }
+        },
+
         { 
             title = update_get_loc(e_loc.upp_game_objectives),
             content = {
