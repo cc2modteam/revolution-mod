@@ -1,3 +1,5 @@
+local math_rand = math.random
+
 -- highlighted map item state
 g_highlighted = {
     vehicle_id = 0,
@@ -1364,6 +1366,11 @@ g_revolution_control_drydock_mode = false
 function update(screen_w, screen_h, ticks)
     if update_get_is_focus_local() then
         g_last_input_tick = update_get_logic_tick()
+    end
+
+    if ticks > 4 then
+        -- player too far away
+        return
     end
 
     if call_func_override("screen_vehicle_control__update", screen_w, screen_h, ticks) then
