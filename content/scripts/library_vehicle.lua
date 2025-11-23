@@ -2926,6 +2926,14 @@ local st, _v = pcall(function()
         e_game_object_type.attachment_hardpoint_torpedo_decoy,
         e_game_object_type.attachment_fuel_tank_plane
     }
+    _light_wing_weapons = {
+        e_game_object_type.attachment_turret_plane_chaingun,
+        e_game_object_type.attachment_hardpoint_bomb_1,
+        e_game_object_type.attachment_hardpoint_missile_ir,
+        e_game_object_type.attachment_hardpoint_missile_laser,
+        e_game_object_type.attachment_hardpoint_missile_aa,
+        e_game_object_type.attachment_hardpoint_missile_tv,
+    }
     _std_wing_weapons = {
         e_game_object_type.attachment_turret_plane_chaingun,
         e_game_object_type.attachment_turret_rocket_pod,
@@ -2999,11 +3007,12 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_fuel_tank_plane,
                     e_game_object_type.attachment_hardpoint_bomb_1,
                     e_game_object_type.attachment_hardpoint_bomb_2,
+                    e_game_object_type.attachment_hardpoint_bomb_3,
                     e_game_object_type.attachment_hardpoint_torpedo,
                 },
                 -- wings
-                [4] = _std_wing_attachments,
-                [5] = _std_wing_attachments,
+                [4] = _light_wing_weapons,
+                [5] = _light_wing_weapons,
 
                 -- utils
                 [6] = _std_wing_utils,
@@ -3426,12 +3435,38 @@ function get_payload_weight(definition_index)
                 value = value + g_item_data[e_inventory_item.fuel_barrel].mass
             elseif definition_index == e_game_object_type.attachment_turret_rocket_pod then
                 -- 19 rockets
-                value = value + (19 * g_item_data[e_inventory_item.ammo_rocket].mass)
+                value = value + 200 + (19 * g_item_data[e_inventory_item.ammo_rocket].mass)
             end
         end
     end
+
+    -- inventory masses of these are excessive, set more game-friendly values here
+    if definition_index == e_game_object_type.attachment_turret_droid then
+        value = 180
+    elseif definition_index == e_game_object_type.attachment_turret_plane_chaingun then
+        value = 265
+    elseif definition_index == e_game_object_type.attachment_hardpoint_torpedo then
+        value = 800
+    elseif definition_index == e_game_object_type.attachment_hardpoint_bomb_2 then
+        value = 630
+    elseif definition_index == e_game_object_type.attachment_hardpoint_missile_aa then
+        value = 184
+    elseif definition_index == e_game_object_type.attachment_hardpoint_missile_tv then
+        value = 293
+    end
+    if value < 1 then
+        value = 80
+    end
+
     return value
 end
+
+g_rev_aircraft_max_payload = {
+    [e_game_object_type.chassis_air_wing_heavy] = 1500,
+    [e_game_object_type.chassis_air_rotor_heavy] = 8000,
+    [e_game_object_type.chassis_air_rotor_light] = 2600,
+    [e_game_object_type.chassis_air_wing_light] = 3500,
+}
 
 function get_aircraft_payload_weight(vehicle)
     local value = 0
@@ -3442,7 +3477,7 @@ function get_aircraft_payload_weight(vehicle)
             if attachment and attachment:get() then
                 local def = attachment:get_definition_index()
                 if def ~= -1 then
-                    value = value + get_payload_weight(attachment:get_definition_index())
+                    value = value + get_payload_weight(def)
                 end
             end
         end
@@ -3450,6 +3485,38 @@ function get_aircraft_payload_weight(vehicle)
     return value
 end
 
+function rev_get_payload_remaining(vehicle)
+    local definition_index = vehicle:get_definition_index()
+    local payload_max = g_rev_aircraft_max_payload[definition_index]
+    if payload_max == nil then
+        payload_max = 50000 -- probably not an aircraft, let everything use normal rules
+    end
+    local payload_mass = get_aircraft_payload_weight(vehicle)
+    local payload_remain = payload_max - payload_mass
+    return payload_remain
+end
+
+function rev_can_replace_attachment(vehicle, attachment_index, attachment_definition)
+    local payload_remain = rev_get_payload_remaining(vehicle)
+    print(payload_remain)
+    if attachment_definition > -1 then
+        local replace_mass = get_payload_weight(attachment_definition)
+        local current = vehicle:get_attachment(attachment_index)
+        if current and current:get() then
+            local current_def = current:get_definition_index()
+            if current_def > -1 then
+                local current_mass = get_payload_weight(current_def)
+                if current_mass > 0 then
+                    payload_remain = payload_remain + current_mass -- ignore whatever is in this slot
+                end
+            end
+            print(payload_remain, replace_mass)
+            return payload_remain >= replace_mass
+        end
+    end
+
+    return true
+end
 
 -- vehicle history class and data
 VehicleHistory = {}

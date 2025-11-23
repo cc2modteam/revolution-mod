@@ -292,11 +292,11 @@ function _update(screen_w, screen_h, ticks)
                 update_ui_image(4, cy, atlas_icons.column_difficulty, color_grey_mid, 0)
                 update_ui_text(13, cy, armour, 64, 0, color_grey_dark, 0)
                 cy = cy + 10
-
-                if get_is_vehicle_air(attached_vehicle:get_definition_index()) then
-                    local payload_mass = get_aircraft_payload_weight(attached_vehicle)
+                local av_definition_index = attached_vehicle:get_definition_index()
+                if get_is_vehicle_air(av_definition_index) then
+                    local payload_remain = rev_get_payload_remaining(attached_vehicle)
                     update_ui_image(4, cy, atlas_icons.column_weight, color_grey_mid, 0)
-                    update_ui_text(13, cy, payload_mass .. update_get_loc(e_loc.upp_kg), 64, 0, color_grey_dark, 0)
+                    update_ui_text(13, cy, string.format("%d %s", payload_remain, update_get_loc(e_loc.upp_kg)), 64, 0, color_grey_dark, 0)
                     cy = cy + 11
                 end
 
@@ -462,7 +462,12 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
             local button_w = iff(attachment_type == e_game_object_attachment_type.plate_logistics_container, 20, 16)
 
             local function render_attachment_option(item, is_active, is_selected)
-                render_button_bg(1, 0, button_w, 25, iff(is_active, iff(is_selected, color_highlight, color_button_bg), color_button_bg_inactive), 1)
+                local btn_bg_col = color_button_bg
+                if not rev_can_replace_attachment(attached_vehicle, g_selected_attachment_index, item.type) then
+                    btn_bg_col = color_status_dark_red
+                end
+
+                render_button_bg(1, 0, button_w, 25, iff(is_active, iff(is_selected, color_highlight, btn_bg_col), color_button_bg_inactive), 1)
 
                 local txt = nil
                 local icon = item.region
@@ -491,7 +496,7 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
 
             if is_active then
                 if selection_options[g_selected_option_index + 1] ~= nil and selection_options[g_selected_option_index + 1].type > -1 then
-                    render_ui_attachment_definition_description(4, 17, screen_w - 8, screen_h, this_vehicle, selection_options[g_selected_option_index + 1].type)
+                    render_ui_attachment_definition_description(4, 17, screen_w - 8, screen_h, this_vehicle, selection_options[g_selected_option_index + 1].type, attached_vehicle)
                 else
                     update_ui_text(4, 17, update_get_loc(e_loc.upp_clear), 60, 0, color_white, 0)
                 end
@@ -578,7 +583,7 @@ function render_screen_chassis(screen_w, screen_h, this_vehicle, is_active)
     render_no_stock_indicator(4, 79, screen_w - 8)
 end
 
-function render_ui_attachment_definition_description(x, y, w, h, vehicle, index)
+function render_ui_attachment_definition_description(x, y, w, h, vehicle, index, attached_vehicle)
     local attachment_data = get_attachment_data_by_definition_index(index)
     update_ui_push_offset(x, y)
     
@@ -608,8 +613,20 @@ function render_ui_attachment_definition_description(x, y, w, h, vehicle, index)
 
     local item_mass = get_payload_weight(index)
     if item_mass then
+        local col = color_white
+        local excess = false
+        if not rev_can_replace_attachment(attached_vehicle, g_selected_attachment_index, index) then
+            excess = true
+            col = rev_rotate_tick_call(0.3, {
+                function() return color_status_dark_red end,
+                function() return color_status_ok  end
+            })
+        end
         update_ui_image(0, cy, atlas_icons.column_weight, iff(is_in_stock, color_white, color_grey_dark), 0)
-        update_ui_text(10, cy, item_mass .. update_get_loc(e_loc.upp_kg) , w - 10, 0, color_white, 0)
+        update_ui_text(10, cy, string.format("%d %s", item_mass, update_get_loc(e_loc.upp_kg)), w - 10, 0, col, 0)
+        if excess then
+            update_ui_text(10, cy + 32, string.format("%s", update_get_loc(e_loc.upp_payload)), w - 10, 0, color_status_dark_red, 0)
+        end
     end
     update_ui_pop_offset()
 end

@@ -4355,10 +4355,14 @@ function rev_before_add_attachment(
             if attachment and attachment:get() then
                 local current_attachment_def = attachment:get_definition_index()
                 if current_attachment_def == new_attachment_type then
-                    -- do nothing
-                    g_screen_index = 0
+                    -- no change, return to chassis display
+                    g_screen_index = 1
                     return false
                 end
+            end
+            -- if payload exceeded, do nothing
+            if not rev_can_replace_attachment(attached_vehicle, attachment_index, new_attachment_type) then
+                return false
             end
         end
     end
