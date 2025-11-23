@@ -1343,6 +1343,7 @@ function tab_manual_render(screen_w, screen_h, x, y, w, h, delta_time, is_active
                 { "ic16", atlas_icons.column_difficulty, color_friendly, "Yoloplayer" },
                 { "ic16", atlas_icons.column_difficulty, color_friendly, "Pointclearius" },
                 { "ic16", atlas_icons.column_difficulty, color_friendly, "Jeffrey Nicar" },
+                { "ic16", atlas_icons.column_difficulty, color_friendly, "TheFrommie86" },
 
             }
         },
