@@ -3115,7 +3115,7 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_camera,
                     e_game_object_type.attachment_hardpoint_missile_tv,
                 })
-            }
+            },
         },
         -- petrel
         [e_game_object_type.chassis_air_rotor_heavy] = {
@@ -3124,9 +3124,29 @@ local st, _v = pcall(function()
                 [1] = {
                     e_game_object_type.attachment_camera_plane,
                     e_game_object_type.attachment_turret_gimbal_30mm,
-                    -- e_game_object_type.attachment_radar_golfball,   -- disables airlift ability when added
                 },
+               -- [7] = {
+               --     e_game_object_type.attachment_deployable_droid,
+               -- },
+                [8] = {
+                    e_game_object_type.attachment_smoke_launcher_explosive,
+                }
             },
+            rows = {
+                {
+                    { i=1, x=0, y=-22 }
+                },
+                {
+                    { i=2, x=-23, y=0 },
+                    { i=4, x=-14, y=0 },
+                    { i=5, x=14, y=0 },
+                    { i=3, x=23, y=0 }
+                },
+                {
+                --    { i=7, x=0, y=10},
+                    { i=8, x=0, y=23}
+                }
+            }
         },
         -- turret
         [e_game_object_type.chassis_land_turret] = {
