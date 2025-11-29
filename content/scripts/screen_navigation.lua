@@ -875,7 +875,7 @@ function helm_hud_update(screen_w, screen_h, ticks)
     local now = update_get_logic_tick()
     local total_units = update_get_map_vehicle_count()
 
-    if ticks > 4 then
+    if ticks > 8 then
         return
     end
 

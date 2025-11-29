@@ -3338,7 +3338,7 @@
 		<screen name="screen_wep_top_r" display_name_loc="678" script_file_name="scripts/screen_weapons_support.lua" body_index="0" seat_index="7" type="0" refresh_interval="2.00000000e+00" help_tag="sup_wep_screen_support">
 			<transform m00="7.07106709e-01" m01="0.00000000e+00" m02="-7.07106709e-01" m10="-4.99999940e-01" m11="-7.07106829e-01" m12="-4.99999940e-01" m20="-5.00000000e-01" m21="7.07106709e-01" m22="-5.00000000e-01" tx="-2.46192589e+01" ty="3.13177414e+01" tz="-2.46293716e+01"/>
 		</screen>
-		<screen name="screen_wep" display_name_loc="679" script_file_name="scripts/screen_vision_radar.lua" body_index="0" seat_index="7" type="3" refresh_interval="1.70000005e+00" help_tag="nav_wep_screen_radar">
+		<screen name="screen_wep" display_name_loc="679" script_file_name="scripts/screen_vision_radar.lua" body_index="0" seat_index="7" type="3" refresh_interval="1.20000005e+00" help_tag="nav_wep_screen_radar">
 			<transform m00="7.06481099e-01" m01="1.52288377e-03" m02="-7.07730293e-01" m10="-3.56028497e-01" m11="8.65016937e-01" m12="-3.53538692e-01" m20="6.11660242e-01" m21="5.01740456e-01" m22="6.11660242e-01" tx="-2.50619869e+01" ty="2.99701195e+01" tz="-2.39646111e+01"/>
 		</screen>
 		<screen name="screen_veh_m" display_name_loc="680" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="2" type="3" refresh_interval="1.04999995e+00" help_tag="veh_con_screen_vehicle_control">
