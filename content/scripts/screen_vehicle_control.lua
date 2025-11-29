@@ -572,6 +572,17 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     if is_modified then vehicle:set_is_hold_fire(is_hold_fire) end
                 end
 
+                if vehicle.get_is_low_light ~= nil then
+                    -- low light support available
+                    if vehicle_definition_index ~= e_game_object_type.chassis_carrier and def_index ~= e_game_object_type.chassis_land_robot_dog then
+                        local is_vehicle_low_light = vehicle:get_is_low_light()
+                        local is_low_light, is_modified = ui:checkbox(update_get_loc(e_loc.low_light), is_vehicle_low_light)
+                        if is_modified then
+                            vehicle:set_is_low_light(is_low_light)
+                        end
+                    end
+                end
+
                 if ui:list_item(update_get_loc(e_loc.upp_center_to_vehicle), true) then
                     g_camera_pos_x = vehicle:get_position_xz():x()
                     g_camera_pos_y = vehicle:get_position_xz():y()
