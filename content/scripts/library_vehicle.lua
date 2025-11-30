@@ -1836,7 +1836,7 @@ function set_airdrop_now(petrel)
     local pos = petrel:get_position_xz()
     petrel:clear_waypoints()
     petrel:clear_attack_target()
-    local wid = petrel:add_waypoint(pos:x(), pos:y() - 10)
+    local wid = petrel:add_waypoint(pos:x(), pos:y())
     petrel:set_waypoint_type_deploy(wid, true)
 end
 
@@ -2885,6 +2885,33 @@ function get_loadout_attachment_hidden(vehicle, attachment_index)
     return true
 end
 
+function rev_remove_all_docked_attachments(carrier, bay_index)
+    local attached_vehicle = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(bay_index))
+    if attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
+        local slots = attached_vehicle:get_attachment_count()
+        for i = 1, slots do
+            carrier:set_attached_vehicle_attachment(g_selected_bay_index, i, -1)
+        end
+        return attached_vehicle
+    end
+    return nil
+end
+
+function rev_set_preconfigure_attachments(carrier, bay_index, preset)
+    local attached_vehicle = rev_remove_all_docked_attachments(carrier, bay_index)
+    if attached_vehicle then
+        local presets = g_revolution_loadout_preset[attached_vehicle:get_definition_index()]
+        if presets then
+            local attachments = presets[preset]
+            if attachments then
+                for attachment_index, attachment_definition in pairs(attachments) do
+                    carrier:set_attached_vehicle_attachment(g_selected_bay_index, attachment_index, attachment_definition)
+                end
+            end
+        end
+    end
+end
+
 function sanitise_loadout(carrier, bay_index)
     local vehicle = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(bay_index))
     -- remove weapons from hidden
@@ -3011,8 +3038,8 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_hardpoint_torpedo,
                 },
                 -- wings
-                [4] = _light_wing_weapons,
-                [5] = _light_wing_weapons,
+                [4] = concat_lists(_light_wing_weapons, {e_game_object_type.attachment_hardpoint_bomb_2}),
+                [5] = concat_lists(_light_wing_weapons, {e_game_object_type.attachment_hardpoint_bomb_2}),
 
                 -- utils
                 [6] = _std_wing_utils,
@@ -3045,8 +3072,8 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_turret_gimbal_30mm,
                 },
                 -- wings
-                [2] = _std_wing_weapons,
-                [3] = _std_wing_weapons,
+                [2] = _std_wing_attachments,
+                [3] = _std_wing_attachments,
                 [4] = _std_wing_attachments,
                 [5] = _std_wing_attachments,
                 -- top
@@ -3098,7 +3125,7 @@ local st, _v = pcall(function()
             },
             options = {
                 [1] = concat_lists(_std_land_turrets, {e_game_object_type.attachment_turret_heavy_cannon}),
-                [2] = concat_lists(_std_land_utils, {e_game_object_type.attachment_turret_15mm}),
+                [2] = _std_land_utils,
                 [3] = concat_lists(_std_land_utils, {e_game_object_type.attachment_deployable_droid}),
                 [4] = {e_game_object_type.attachment_hardpoint_missile_aa},
                 [5] = {e_game_object_type.attachment_hardpoint_missile_aa},
@@ -3107,11 +3134,11 @@ local st, _v = pcall(function()
         -- bear
         [e_game_object_type.chassis_land_wheel_heavy] = {
             options = {
-                [1] = concat_lists(_std_wing_utils, {
+                [3] = concat_lists(_std_wing_utils, {
                     e_game_object_type.attachment_camera,
                     e_game_object_type.attachment_hardpoint_missile_tv,
                 }),
-                [3] = concat_lists(_std_wing_utils, {
+                [1] = concat_lists(_std_wing_utils, {
                     e_game_object_type.attachment_camera,
                     e_game_object_type.attachment_hardpoint_missile_tv,
                 })
@@ -3215,6 +3242,62 @@ if not st then
 else
     g_revolution_attachment_defaults = _v
 end
+
+g_revolution_loadout_preset = {
+    [e_game_object_type.chassis_air_wing_heavy] = {
+        defender = {
+            [2] = e_game_object_type.attachment_turret_plane_chaingun,
+            [4] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [5] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [6] = e_game_object_type.attachment_flare_launcher,
+        },
+        strike = {
+            [3] = e_game_object_type.attachment_hardpoint_bomb_2,
+            [4] = e_game_object_type.attachment_hardpoint_bomb_1,
+            [5] = e_game_object_type.attachment_hardpoint_bomb_1,
+        }
+    },
+    [e_game_object_type.chassis_air_wing_light] = {
+        defender = {
+            [2] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [3] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [4] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [5] = e_game_object_type.attachment_hardpoint_missile_aa,
+        },
+        strike = {
+            [2] = e_game_object_type.attachment_hardpoint_missile_ir,
+            [3] = e_game_object_type.attachment_hardpoint_missile_ir,
+            [4] = e_game_object_type.attachment_hardpoint_missile_ir,
+            [5] = e_game_object_type.attachment_hardpoint_missile_ir,
+        }
+    },
+    [e_game_object_type.chassis_air_rotor_light] = {
+        defender = {
+            [1] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [2] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [3] = e_game_object_type.attachment_flare_launcher,
+        },
+        strike = {
+            [1] = e_game_object_type.attachment_turret_plane_chaingun,
+            [2] = e_game_object_type.attachment_turret_plane_chaingun,
+            [5] = e_game_object_type.attachment_turret_droid,
+        }
+    },
+    [e_game_object_type.chassis_air_rotor_heavy] = {
+        defender = {
+            [2] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [3] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [4] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [5] = e_game_object_type.attachment_hardpoint_missile_aa,
+        },
+        strike = {
+            [2] = e_game_object_type.attachment_turret_plane_chaingun,
+            [3] = e_game_object_type.attachment_turret_plane_chaingun,
+            [4] = e_game_object_type.attachment_hardpoint_missile_ir,
+            [5] = e_game_object_type.attachment_hardpoint_missile_ir,
+        }
+    }
+}
 
 function insert_sea_mule_options(vehicle)
     -- also mk2 mule
@@ -3473,6 +3556,8 @@ function get_payload_weight(definition_index)
         value = 184
     elseif definition_index == e_game_object_type.attachment_hardpoint_missile_tv then
         value = 293
+    elseif definition_index == e_game_object_type.attachment_turret_gimbal_30mm then
+        value = 190
     end
     if value < 1 then
         value = 80
@@ -3485,7 +3570,7 @@ g_rev_aircraft_max_payload = {
     [e_game_object_type.chassis_air_wing_heavy] = 1500,
     [e_game_object_type.chassis_air_rotor_heavy] = 8000,
     [e_game_object_type.chassis_air_rotor_light] = 2600,
-    [e_game_object_type.chassis_air_wing_light] = 3500,
+    [e_game_object_type.chassis_air_wing_light] = 2675,
 }
 
 function get_aircraft_payload_weight(vehicle)
@@ -3518,7 +3603,6 @@ end
 
 function rev_can_replace_attachment(vehicle, attachment_index, attachment_definition)
     local payload_remain = rev_get_payload_remaining(vehicle)
-    print(payload_remain)
     if attachment_definition > -1 then
         local replace_mass = get_payload_weight(attachment_definition)
         local current = vehicle:get_attachment(attachment_index)
@@ -3530,7 +3614,6 @@ function rev_can_replace_attachment(vehicle, attachment_index, attachment_defini
                     payload_remain = payload_remain + current_mass -- ignore whatever is in this slot
                 end
             end
-            print(payload_remain, replace_mass)
             return payload_remain >= replace_mass
         end
     end

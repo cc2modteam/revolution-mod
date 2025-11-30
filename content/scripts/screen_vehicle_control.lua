@@ -596,7 +596,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     end
                     if ui:list_item("HOLD HERE", true) then
                         vehicle:clear_waypoints()
-                        local alt = math.floor(math.max(0, get_unit_altitude(vehicle) - 5))
+                        local alt = math.floor(math.max(0, get_unit_altitude(vehicle) - 10))
                         add_altitude_waypoint(vehicle, vehicle:get_position_xz(), alt, 3)
                         g_selection:clear()
                         g_is_ignore_tap = 1

@@ -258,7 +258,48 @@ function _update(screen_w, screen_h, ticks)
          -- title
 
         update_ui_rectangle(0, 0, screen_w, 14, color_white)
-        update_ui_text(0, 4, get_bay_name(g_selected_bay_index), screen_w, 1, color_black, 0)
+        update_ui_text(4, 4, get_bay_name(g_selected_bay_index), screen_w, 0, color_black, 0)
+
+        -- mini toolbar
+        local attached_vehicle = update_get_map_vehicle_by_id(this_vehicle:get_attached_vehicle_id(g_selected_bay_index))
+        if attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
+            local attached_vehicle_def = attached_vehicle:get_definition_index()
+            local toolbar_w = 64
+            local bs = 8
+
+            ui:begin_window("##tb", screen_w - 3 - toolbar_w, 3, toolbar_w, 18, nil, true, 1)
+
+            if ui:img_button(
+                    atlas_icons.map_icon_unload,
+                    toolbar_w - bs, 0,
+                    bs, bs,
+                    true, color_status_dark_green, "Remove Attachments"
+            ) then
+                -- remove all non-driver seat attachments
+                rev_remove_all_docked_attachments(this_vehicle, g_selected_bay_index)
+            end
+
+            if get_is_vehicle_air(attached_vehicle_def) then
+                if ui:img_button(
+                        atlas_icons.column_difficulty,
+                        toolbar_w - bs*2, 0,
+                        bs, bs,
+                        true, color_status_dark_green, "Defender"
+                ) then
+                    rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "defender")
+                end
+                if ui:img_button(
+                        atlas_icons.column_laser,
+                        toolbar_w - bs*3, 0,
+                        bs, bs,
+                        true, color_status_dark_green, "Strike"
+                ) then
+                    rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "strike")
+                end
+            end
+
+            ui:end_window()
+        end
 
         -- dividers
 

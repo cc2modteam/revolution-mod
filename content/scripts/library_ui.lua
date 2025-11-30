@@ -1056,6 +1056,49 @@ lib_imgui = {
         return button_action
     end,
 
+    img_button = function(self, img, dx, dy, w, h, is_enabled, active_col, tooltip)
+        local window = self:get_window()
+        local x = dx + window.cx
+        local y = dy + window.cy - 2
+
+        local is_hovered, is_selected = self:hoverable(x, y, w, h, true)
+        local is_active = is_enabled and window.is_active
+        local is_action = false
+
+        if is_enabled == false then
+            local back_col = iff(is_active, iff(is_selected, color_white, color_button_bg_inactive), iff(is_selected, color_grey_mid, color_button_bg_inactive))
+            update_ui_image(x, 2 + y, img, back_col, 0)
+        else
+            local back_col = iff(is_active, iff(is_selected, iff(self.input_action_held or self.input_pointer_1_held, color_highlight, color_highlight), color_button_bg), iff(is_selected, color_grey_dark, color_button_bg_inactive))
+            if is_active and active_col ~= nil then
+                back_col = active_col
+            end
+
+            update_ui_image(x, 2 + y, img, back_col, 0)
+        end
+
+        if is_selected and is_active then
+            local is_button_hovered = self:is_hovered(x, y, w, h)
+            local is_clicked = is_hovered and self.input_pointer_1 and is_button_hovered
+
+            if is_button_hovered or update_get_active_input_type() == e_active_input.gamepad then
+                local msg = update_get_loc(e_loc.interaction_select)
+                if tooltip ~= nil then
+                    msg = string.format("%s %s", msg, tooltip)
+                end
+                update_add_ui_interaction(msg, e_game_input.interact_a)
+            end
+
+            if self.input_action or is_clicked then
+                is_action = true
+                self.input_action = false
+                self.input_pointer_1 = false
+            end
+        end
+
+        return is_action
+    end,
+
     divider = function(self, space_top, space_bottom)
         local window = self:get_window()
         local x = window.cx
@@ -3012,7 +3055,7 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
 
     if selected_bay_index ~= nil then
         local bay_name = get_carrier_bay_name(selected_bay_index)
-        update_ui_text(cx, cy, bay_name, 200, 0, color_grey_dark, 0)
+        update_ui_text(cx, cy, bay_name, 200, 0, color_grey_dark, 0, 1)
     end
 
     -- chassis background image
@@ -3020,7 +3063,7 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
     local chassis_image = get_chassis_image_by_definition_index(vehicle_definition_index)
     local chassis_color = iff(chassis_image == atlas_icons.icon_chassis_unknown, color_grey_dark, color_white)
     update_ui_image(cx, cy, chassis_image, chassis_color, 0)
-            
+
     -- hardpoint buttons
 
     local attachment_rows = get_ui_vehicle_chassis_attachments(vehicle)
