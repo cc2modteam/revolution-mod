@@ -266,36 +266,53 @@ function _update(screen_w, screen_h, ticks)
             local attached_vehicle_def = attached_vehicle:get_definition_index()
             local toolbar_w = 64
             local bs = 8
+            local bcount = 0
 
             ui:begin_window("##tb", screen_w - 3 - toolbar_w, 3, toolbar_w, 18, nil, true, 1)
 
-            if ui:img_button(
-                    atlas_icons.map_icon_unload,
-                    toolbar_w - bs, 0,
+            function add_preset_btn(icon, tooltip, callback)
+                bcount = bcount + 1
+                if ui:img_button(
+                    icon,
+                    toolbar_w - bs*(bcount), 0,
                     bs, bs,
-                    true, color_status_dark_green, "Remove Attachments"
-            ) then
-                -- remove all non-driver seat attachments
-                rev_remove_all_docked_attachments(this_vehicle, g_selected_bay_index)
+                    true, color_status_dark_green, tooltip
+                ) then
+                    callback()
+                end
             end
 
-            if get_is_vehicle_air(attached_vehicle_def) then
-                if ui:img_button(
-                        atlas_icons.column_difficulty,
-                        toolbar_w - bs*2, 0,
-                        bs, bs,
-                        true, color_status_dark_green, "Defender"
-                ) then
+            add_preset_btn(atlas_icons.map_icon_unload, "Remove Attachments",
+                    function()
+                        rev_remove_all_docked_attachments(this_vehicle, g_selected_bay_index)
+                    end)
+
+            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "defender") then
+                add_preset_btn(atlas_icons.column_difficulty, "Defender",
+                function()
                     rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "defender")
-                end
-                if ui:img_button(
-                        atlas_icons.column_laser,
-                        toolbar_w - bs*3, 0,
-                        bs, bs,
-                        true, color_status_dark_green, "Strike"
-                ) then
+                end)
+            end
+
+            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "strike") then
+                add_preset_btn(atlas_icons.column_laser, "Strike",
+                function()
                     rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "strike")
-                end
+                end)
+            end
+
+            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "refuel") then
+                add_preset_btn(atlas_icons.icon_fuel, "Refuel",
+                function()
+                    rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "refuel")
+                end)
+            end
+
+            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "capture") then
+                add_preset_btn(atlas_icons.column_team_control, "Capture",
+                function()
+                    rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "capture")
+                end)
             end
 
             ui:end_window()

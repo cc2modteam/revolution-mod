@@ -2890,7 +2890,7 @@ function rev_remove_all_docked_attachments(carrier, bay_index)
     if attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
         local slots = attached_vehicle:get_attachment_count()
         for i = 1, slots do
-            carrier:set_attached_vehicle_attachment(g_selected_bay_index, i, -1)
+            carrier:set_attached_vehicle_attachment(bay_index, i, -1)
         end
         return attached_vehicle
     end
@@ -2905,11 +2905,24 @@ function rev_set_preconfigure_attachments(carrier, bay_index, preset)
             local attachments = presets[preset]
             if attachments then
                 for attachment_index, attachment_definition in pairs(attachments) do
-                    carrier:set_attached_vehicle_attachment(g_selected_bay_index, attachment_index, attachment_definition)
+                    carrier:set_attached_vehicle_attachment(bay_index, attachment_index, attachment_definition)
                 end
             end
         end
     end
+end
+
+function rev_has_preconfigure_preset(carrier, bay_index, preset)
+    local attached_vehicle = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(bay_index))
+    if attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
+        local presets = g_revolution_loadout_preset[attached_vehicle:get_definition_index()]
+        if presets then
+            if presets[preset] then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 function sanitise_loadout(carrier, bay_index)
@@ -3269,6 +3282,10 @@ g_revolution_loadout_preset = {
             [3] = e_game_object_type.attachment_hardpoint_missile_ir,
             [4] = e_game_object_type.attachment_hardpoint_missile_ir,
             [5] = e_game_object_type.attachment_hardpoint_missile_ir,
+        },
+        refuel = {
+            [4] = e_game_object_type.attachment_fuel_tank_plane,
+            [5] = e_game_object_type.attachment_fuel_tank_plane,
         }
     },
     [e_game_object_type.chassis_air_rotor_light] = {
@@ -3281,6 +3298,9 @@ g_revolution_loadout_preset = {
             [1] = e_game_object_type.attachment_turret_plane_chaingun,
             [2] = e_game_object_type.attachment_turret_plane_chaingun,
             [5] = e_game_object_type.attachment_turret_droid,
+        },
+        refuel = {
+            [1] = e_game_object_type.attachment_fuel_tank_plane,
         }
     },
     [e_game_object_type.chassis_air_rotor_heavy] = {
@@ -3295,6 +3315,11 @@ g_revolution_loadout_preset = {
             [3] = e_game_object_type.attachment_turret_plane_chaingun,
             [4] = e_game_object_type.attachment_hardpoint_missile_ir,
             [5] = e_game_object_type.attachment_hardpoint_missile_ir,
+        }
+    },
+    [e_game_object_type.chassis_land_wheel_light] = {
+        capture = {
+            [1] = e_game_object_type.attachment_turret_robot_dog_capsule
         }
     }
 }
