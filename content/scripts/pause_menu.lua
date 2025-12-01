@@ -110,7 +110,7 @@ g_screens = {
 
 g_focused_screen = g_screens.menu
 g_hovered_screen = g_screens.menu
-g_active_tab = g_tabs.map
+g_active_tab = g_tabs.manual
 g_hovered_tab = -1
 g_input_axis = { x = 0, y = 0, z = 0, w = 0 }
 
@@ -137,7 +137,7 @@ g_tut_is_help_tab_selected = false
 function begin()
     begin_load()
     reset()
-
+    print("begin pause")
     g_tab_map.render = tab_map_render
     g_tab_map.input_event = tab_map_input_event
     g_tab_map.input_pointer = tab_map_input_pointer
@@ -174,13 +174,17 @@ function begin()
     g_tab_manual.input_scroll = tab_manual_input_scroll
     g_tab_manual.tab_title = update_get_loc(e_loc.upp_manual)
     g_tab_manual.ui_container = lib_imgui:create_ui()
+
+    if custom_extend_man_pages ~= nil then
+        custom_extend_man_pages()
+    end
 end
 
 function reset()
     g_tab_map.is_map_pos_initialised = false
 end
 
-function update(screen_w, screen_h, delta_time)
+function _update(screen_w, screen_h, delta_time)
     g_tab_map.tab_title = update_get_loc(e_loc.upp_map)
     g_tab_game.tab_title = update_get_loc(e_loc.upp_game)
     g_tab_options.tab_title = update_get_loc(e_loc.upp_options)
@@ -214,8 +218,8 @@ function update(screen_w, screen_h, delta_time)
         end
     end
 
-    update_ui_rectangle(0, 0, screen_w, 14, color_black)
-    update_ui_line(0, 14, screen_w, 14, iff(is_hoverable, iff(g_focused_screen == g_screens.active_tab, color_white, color_highlight), color_grey_dark))
+    update_ui_rectangle(0, 0, screen_w, 11, color_black)
+    update_ui_line(0, 11, screen_w, 11, iff(is_hoverable, iff(g_focused_screen == g_screens.active_tab, color_white, color_highlight), color_grey_dark))
     
     local cx = 10
 
@@ -224,9 +228,9 @@ function update(screen_w, screen_h, delta_time)
     for i = 0, #g_tabs do
         if get_is_tab_visible(i) then
             local tx = cx
-            local ty = 4
+            local ty = 1
             local tw = update_ui_get_text_size(g_tabs[i].tab_title, 10000, 0) + 8
-            local th = 11
+            local th = 7
 
             local is_hovered = g_is_mouse_mode and g_is_pointer_hovered and point_in_rect(tx, ty, tw, th, g_pointer_pos_x, g_pointer_pos_y) and is_hoverable
 
@@ -239,8 +243,8 @@ function update(screen_w, screen_h, delta_time)
         end
     end
 
-    update_ui_push_clip(0, 15, screen_w, screen_h - 15)
-    g_tabs[g_active_tab].render(screen_w, screen_h, 0, 15, screen_w, screen_h - 15, delta_time, g_focused_screen == g_screens.active_tab)
+    update_ui_push_clip(0, 12, screen_w, screen_h - 15)
+    g_tabs[g_active_tab].render(screen_w, screen_h, 0, 10, screen_w, screen_h - 15, delta_time, g_focused_screen == g_screens.active_tab)
     update_ui_pop_clip()
 
     update_set_is_text_input_mode(get_is_text_input_mode())
@@ -248,6 +252,13 @@ function update(screen_w, screen_h, delta_time)
     g_pointer_scroll = 0
     g_pointer_pos_x_prev = g_pointer_pos_x
     g_pointer_pos_y_prev = g_pointer_pos_y
+end
+
+function update(screen_w, screen_h, delta_time)
+    local st, err = pcall(_update, screen_w, screen_h, delta_time)
+    if not st then
+        print(err)
+    end
 end
 
 function update_interaction_ui()
@@ -1300,10 +1311,10 @@ function tab_manual_render(screen_w, screen_h, x, y, w, h, delta_time, is_active
     g_tab_manual.highlighted_section.timer = math.max(g_tab_manual.highlighted_section.timer - delta_time, 0)
 
     local ui = g_tab_manual.ui_container
-    local lx = 5
+    local lx = 1
     local lw = 82
-    local lh = h - 15
-    local rx = lx + lw + 5
+    local lh = h - 10
+    local rx = lx + lw + 1
     local rw = w - rx - lx
 
     if g_is_mouse_mode and g_is_pointer_hovered and ui:get_is_scroll_drag() == false then
@@ -1316,38 +1327,7 @@ function tab_manual_render(screen_w, screen_h, x, y, w, h, delta_time, is_active
 
     ui:begin_ui(delta_time)
 
-    local manual_sections = {
-        {
-            title = "Revolution",
-            content = {
-                { "h", "Next level PvP and PvE"},
-                g_rev_ver_str .. " " ..
-                "brings you more depth in single-player, PvE and PvP games.",
-                { "s", "Website", "Find out more at https://cc2maps.com"},
-                { "h", update_get_loc(e_loc.upp_credits)},
-                "Revolution would not be what it is today without the work and support of so many others.",
-                { "b", atlas_icons.help_button_red, "UI Enhancher", "QuantX's original UI mod"},
-                { "b", atlas_icons.help_button_blue, "GRNO", "Grim Reapers Naval Ops"},
-                { "ic16", atlas_icons.map_icon_ship, color_friendly, "Cylindrical Bobcat" },
-                { "ic16", atlas_icons.map_icon_carrier, color_friendly, "Kazzik" },
-                { "ic16", atlas_icons.map_icon_robot_dog, color_friendly, "Thumblegudget" },
-                { "ic16", atlas_icons.map_icon_barge, color_friendly, "RolandLoop" },
-                { "ic16", atlas_icons.map_icon_air, color_friendly, "Pupboy1000" },
-                { "b", atlas_icons.help_button_green, "CC2 Community", ""},
-                { "ic16", atlas_icons.map_icon_factory_chassis_land, color_friendly, "Pointclearius" },
-                { "ic16", atlas_icons.map_icon_loop, color_friendly, "Yoloplayer" },
-                { "ic16", atlas_icons.map_icon_factory_turrets, color_friendly, "Turbo" },
-                { "ic16", atlas_icons.map_icon_factory_chassis_air, color_friendly, "Trench1936" },
-                { "ic16", atlas_icons.map_icon_factory_barge, color_friendly, "Ludendus" },
-                { "b", atlas_icons.help_button_grey, "Patreon", ""},
-                { "ic16", atlas_icons.column_difficulty, color_friendly, "Yoloplayer" },
-                { "ic16", atlas_icons.column_difficulty, color_friendly, "Pointclearius" },
-                { "ic16", atlas_icons.column_difficulty, color_friendly, "Jeffrey Nicar" },
-                { "ic16", atlas_icons.column_difficulty, color_friendly, "TheFrommie86" },
-
-            }
-        },
-
+    local builtin_manual_sections = {
         { 
             title = update_get_loc(e_loc.upp_game_objectives),
             content = {
@@ -1763,6 +1743,14 @@ function tab_manual_render(screen_w, screen_h, x, y, w, h, delta_time, is_active
         },
     }
 
+    local manual_sections = {}
+    for _, bb in pairs(g_man_pages) do
+        table.insert(manual_sections, bb)
+    end
+    for _, bb in pairs(builtin_manual_sections) do
+        table.insert(manual_sections, bb)
+    end
+
     local function find_section(tag)
         for section_key, section in pairs(manual_sections) do
             for content_key, content in pairs(section.content) do
@@ -1795,7 +1783,7 @@ function tab_manual_render(screen_w, screen_h, x, y, w, h, delta_time, is_active
     local is_panel_0_highlight = is_active and g_tab_manual.selected_panel == 0
     local is_panel_1_highlight = is_active and g_tab_manual.selected_panel == 1
 
-    local win_main = ui:begin_window(update_get_loc(e_loc.upp_contents).."##main", lx, 5, lw, lh, atlas_icons.column_pending, is_panel_0_selected, 0, true, is_panel_0_highlight)
+    local win_main = ui:begin_window(update_get_loc(e_loc.upp_contents).."##main", lx, 1, lw, lh, atlas_icons.column_pending, is_panel_0_selected, 0, true, is_panel_0_highlight)
         for k, v in pairs(manual_sections) do
             local item_y = win_main.cy
             ui:list_item_wrap(v.title)
@@ -1817,7 +1805,7 @@ function tab_manual_render(screen_w, screen_h, x, y, w, h, delta_time, is_active
         local highlighted_content_y = nil
         local highlighted_content_h = nil
 
-        local content_win = ui:begin_window(section.title, rx, 5, rw, lh, nil, is_panel_1_selected, 0, true, is_panel_1_highlight)
+        local content_win = ui:begin_window(section.title, rx, 1, rw, lh, nil, is_panel_1_selected, 0, true, is_panel_1_highlight)
             local prev_item_type = ""
 
             for k, v in pairs(section.content) do
@@ -2114,4 +2102,42 @@ end
 
 function get_is_text_input_mode()
     return g_edit_text ~= nil
+end
+
+-- browser
+
+function custom_extend_man_pages()
+    if g_man_pages == nil then
+        g_man_pages = {
+            {
+                title = "Revolution",
+                content = {
+                    { "h", "Next level PvP and PvE"},
+                    g_rev_ver_str .. " " ..
+                            "brings you more depth in single-player, PvE and PvP games.",
+                    { "s", "Website", "Find out more at https://cc2maps.com"},
+                    { "h", update_get_loc(e_loc.upp_credits)},
+                    "Revolution would not be what it is today without the work and support of so many others.",
+                    { "b", atlas_icons.help_button_red, "UI Enhancher", "QuantX's original UI mod"},
+                    { "b", atlas_icons.help_button_blue, "GRNO", "Grim Reapers Naval Ops"},
+                    { "ic16", atlas_icons.map_icon_ship, color_friendly, "Cylindrical Bobcat" },
+                    { "ic16", atlas_icons.map_icon_carrier, color_friendly, "Kazzik" },
+                    { "ic16", atlas_icons.map_icon_robot_dog, color_friendly, "Thumblegudget" },
+                    { "ic16", atlas_icons.map_icon_barge, color_friendly, "RolandLoop" },
+                    { "ic16", atlas_icons.map_icon_air, color_friendly, "Pupboy1000" },
+                    { "b", atlas_icons.help_button_green, "CC2 Community", ""},
+                    { "ic16", atlas_icons.map_icon_factory_chassis_land, color_friendly, "Pointclearius" },
+                    { "ic16", atlas_icons.map_icon_loop, color_friendly, "Yoloplayer" },
+                    { "ic16", atlas_icons.map_icon_factory_turrets, color_friendly, "Turbo" },
+                    { "ic16", atlas_icons.map_icon_factory_chassis_air, color_friendly, "Trench1936" },
+                    { "ic16", atlas_icons.map_icon_factory_barge, color_friendly, "Ludendus" },
+                    { "b", atlas_icons.help_button_grey, "Patreon", ""},
+                    { "ic16", atlas_icons.column_difficulty, color_friendly, "Yoloplayer" },
+                    { "ic16", atlas_icons.column_difficulty, color_friendly, "Pointclearius" },
+                    { "ic16", atlas_icons.column_difficulty, color_friendly, "Jeffrey Nicar" },
+                    { "ic16", atlas_icons.column_difficulty, color_friendly, "TheFrommie86" },
+                }
+            },
+        }
+    end
 end
