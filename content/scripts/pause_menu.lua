@@ -189,7 +189,7 @@ function _update(screen_w, screen_h, delta_time)
     g_tab_game.tab_title = update_get_loc(e_loc.upp_game)
     g_tab_options.tab_title = update_get_loc(e_loc.upp_options)
     g_tab_multiplayer.tab_title = update_get_loc(e_loc.upp_multiplayer)
-    g_tab_manual.tab_title = update_get_loc(e_loc.upp_help)
+    g_tab_manual.tab_title = "*" --update_get_loc(e_loc.upp_help)
 
     g_is_mouse_mode = g_is_pointer_hovered and update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + delta_time
@@ -2108,7 +2108,10 @@ end
 
 function custom_extend_man_pages()
     if g_man_pages == nil then
-        g_man_pages = {
+        g_man_pages = {}
+    end
+
+    table.insert(g_man_pages,
             {
                 title = "Revolution",
                 content = {
@@ -2131,13 +2134,13 @@ function custom_extend_man_pages()
                     { "ic16", atlas_icons.map_icon_factory_turrets, color_friendly, "Turbo" },
                     { "ic16", atlas_icons.map_icon_factory_chassis_air, color_friendly, "Trench1936" },
                     { "ic16", atlas_icons.map_icon_factory_barge, color_friendly, "Ludendus" },
-                    { "b", atlas_icons.help_button_grey, "Patreon", ""},
+                    { "ic16", atlas_icons.map_icon_factory_utility, color_friendly, "NexusQuile" },
+                    { "b", atlas_icons.help_button_grey, "Patreon Patrons!", ""},
                     { "ic16", atlas_icons.column_difficulty, color_friendly, "Yoloplayer" },
                     { "ic16", atlas_icons.column_difficulty, color_friendly, "Pointclearius" },
                     { "ic16", atlas_icons.column_difficulty, color_friendly, "Jeffrey Nicar" },
                     { "ic16", atlas_icons.column_difficulty, color_friendly, "TheFrommie86" },
                 }
-            },
-        }
-    end
+            })
+
 end
