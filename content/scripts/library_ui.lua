@@ -3118,29 +3118,35 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
                 local attachment_definition_index = attachment:get_definition_index()
 
                 if attachment_definition_index > 0 then
-                    local total_capacity = 0
-                    local resupply_factor = 0
-
-                    if attachment:get_ammo_capacity() > 0 then
-                        total_capacity = total_capacity + 1
-                        resupply_factor = resupply_factor + attachment:get_ammo_factor()
-                    end
+                    local total_capacity = 1
+                    local resupply_factor = 1
+                    local empty_color = color_status_bad
+                    local draw_capacity_bar = true
 
                     if attachment:get_fuel_capacity() > 0 then
-                        total_capacity = total_capacity + 1
-                        resupply_factor = resupply_factor + attachment:get_fuel_factor()
+                        total_capacity = attachment:get_fuel_capacity()
+                        resupply_factor = attachment:get_fuel_factor()
                     end
 
-                    resupply_factor = iff(total_capacity == 0, 1, resupply_factor / total_capacity)
-                    
+                    if attachment_definition_index == e_game_object_type.attachment_fuel_tank_plane then
+                        if attachment:get_ammo_factor() == 0 then
+                            empty_color = color_grey_dark
+                            draw_capacity_bar = false
+                        end
+                    elseif attachment:get_ammo_capacity() > 0 then
+                        total_capacity = attachment:get_ammo_capacity()
+                        resupply_factor = attachment:get_ammo_factor()
+                    end
+
                     local attachment_icon_region, attachment_16_icon_region = get_attachment_icons(attachment_definition_index)
                     local icon_w, icon_h = update_ui_get_image_size(attachment_icon_region)
 
                     if resupply_factor < 1.0 then
-                        update_ui_image(x + (attachment_w - icon_w) / 2, y + (attachment_h - icon_h) / 2, attachment_icon_region, color_status_bad, 0)
-
-                        update_ui_rectangle(x + 1, y + (attachment_h / 2) - 2, attachment_w - 2, 4, color_black)
-                        update_ui_rectangle(x + 1, y + (attachment_h / 2) - 2, (attachment_w - 2) * resupply_factor, 4, color_white)
+                        update_ui_image(x + (attachment_w - icon_w) / 2, y + (attachment_h - icon_h) / 2, attachment_icon_region, empty_color, 0)
+                        if draw_capacity_bar then
+                            update_ui_rectangle(x + 1, y + (attachment_h / 2) - 2, attachment_w - 2, 4, color_black)
+                            update_ui_rectangle(x + 1, y + (attachment_h / 2) - 2, (attachment_w - 2) * resupply_factor, 4, color_white)
+                        end
                     else
                         update_ui_image(x + (attachment_w - icon_w) / 2, y + (attachment_h - icon_h) / 2, attachment_icon_region, color_status_ok, 0)
                     end
