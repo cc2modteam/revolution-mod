@@ -3157,6 +3157,7 @@ function _update(screen_w, screen_h, ticks)
                             if ttp["a"] then
                                 ny = ttp["y"] - 10
                             end
+                            update_ui_rectangle(ttp["x"], ny-1, ttp["w"], 11, color_shadow)
                             update_ui_text(ttp["x"] + 1, ny, custom_name, 200, 0, color_status_dark_green, 0)
                         end
                     end

@@ -2348,8 +2348,9 @@ function rev_get_unit_name(vehicle)
 
         local pool = l_rev_unit_names[vdef]
         if pool ~= nil then
+            local factor = math_floor(update_get_tile_by_index(1):get_position_xz():x()) % 500
             local poolsize = #pool
-            local name_idx = vid % poolsize
+            local name_idx = (factor + vid) % poolsize
             local name = pool[1 + name_idx]
             if name then
                 local fullname = string.format("%s %d", name, vid)
