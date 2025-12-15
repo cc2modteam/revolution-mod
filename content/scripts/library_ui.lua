@@ -1,3 +1,5 @@
+local math_floor = math.floor
+
 lib_imgui = {
     create_ui = function(self)
         local o = {}
@@ -4420,14 +4422,58 @@ end
 
 g_terrain_render_size = 14000
 
+function rev_render_simple_fog(cam_x, cam_y, cam_size, screen_w, screen_h)
+    local show_fog = cam_size < 64000
+    -- render simplified fog, 1 blob every 5km blob every 5km
+    if show_fog then
+        local function floor_to(x, y)
+            return math_floor(x // y) * y
+        end
+
+        local grid_spacing = 700
+        local fog_radius = 1200
+
+        local screen_min_x, screen_min_y = get_world_from_screen(0, 0, cam_x, cam_y, cam_size, screen_w, screen_h)
+        local screen_max_x, screen_max_y = get_world_from_screen(screen_w, screen_h, cam_x, cam_y, cam_size, screen_w, screen_h)
+
+        local grid_min_x = floor_to(screen_min_x, grid_spacing)
+        local grid_min_y = floor_to(screen_min_y, grid_spacing)
+        local grid_max_x = floor_to(screen_max_x, grid_spacing) + grid_spacing
+        local grid_max_y = floor_to(screen_max_y, grid_spacing) + grid_spacing
+
+        update_ui_text(10, 10, string.format("fog %6d > x > %6d", grid_min_x, grid_max_x), 256, 0, color_white, 0)
+        update_ui_text(10, 20, string.format("fog %6d > y > %6d", grid_min_y, grid_max_y), 256, 0, color_white, 0)
+        update_ui_text(10, 30, string.format("fog radius %6d", fog_radius), 256, 0, color_white, 0)
+
+
+        local fw = (screen_w * fog_radius // cam_size)
+        -- update_ui_circle(screen_w / 2, screen_h / 2, fw, 5, color_skyblue)
+
+        for x = grid_min_x, grid_max_x, grid_spacing do
+            for y = grid_min_y, grid_max_y, -grid_spacing do
+                local fog_factor = 1 - update_get_weather_fog_factor(x, y)
+                if fog_factor > 0.5 then
+                    local alpha = math_floor(fog_factor * 2.55)
+                    if alpha > 0 then
+                        local fc = color8(200, 200, 255, alpha)
+                        local sx, sy = get_screen_from_world(x, y, cam_x, cam_y, cam_size, screen_w, screen_h)
+                        -- update_ui_text(sx, sy, string.format("%0.2f %s", fog_factor, fw), 64, 0, color_white, 0)
+                        update_ui_circle(sx, sy, fw, 5, fc)
+                    end
+                end
+            end
+        end
+    end
+end
+
 function rev_render_islands(cam_x, cam_y, cam_size, screen_w, screen_h)
+
+    local show_terrain = cam_size < g_terrain_render_size
     -- replace drawing the raster/3d images of islands
     if g_revolution_full_fow then
         update_set_screen_background_is_render_islands(true)
-
         if g_revolution_full_fow_island_blobs then
             -- disabled by default
-            local show_terrain = cam_size < g_terrain_render_size
             update_set_screen_background_is_render_islands(false)
             local island_count = update_get_tile_count()
             for i = 0, island_count - 1, 1 do

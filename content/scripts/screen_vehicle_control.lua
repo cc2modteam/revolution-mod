@@ -1517,47 +1517,6 @@ function _update(screen_w, screen_h, ticks)
         end
     end
 
-    if g_enable_hud_waypoints then
-        --
-        -- IMPORTANT
-        -- only test g_viewing_vehicle_id after the first input event
-        -- or the game crashes!
-        --
-        if g_last_input_tick and g_viewing_vehicle_id ~= "" and g_viewing_vehicle_id > 0 then
-            -- viewing a unit camera directly
-            local now = update_get_logic_tick()
-            if now - g_last_waypoint_send > 30 then
-                g_last_waypoint_send = now
-                local camera = update_get_map_vehicle_by_id(g_viewing_vehicle_id)
-                if get_is_vehicle_type_waypoint_capable(camera:get_definition_index()) then
-                    local next_wpt = nil
-                    local do_airlift = false
-                    local attack_target_attack_type = camera:get_attack_target_type()
-                    if attack_target_attack_type == e_attack_type.airlift then
-                        next_wpt = camera:get_attack_target_position_xz()
-                        do_airlift = true
-                    else
-                        next_wpt = get_next_waypoint_xz(camera)
-                    end
-                    if next_wpt ~= nil then
-                        local x = math.floor(next_wpt:x()) | 1
-                        local y = math.floor(next_wpt:y())
-                        if do_airlift then
-                            y = y | 1
-                        else
-                            if y % 2 == 1 then
-                                y = y + 1
-                            end
-                        end
-                        set_settings_pending_gfx(x, y)
-                    else
-                        reset_settings_pending_gfx()
-                    end
-                end
-            end
-        end
-    end -- g_enable_hud_waypoints
-
     local screen_vehicle = update_get_screen_vehicle()
     local screen_team = update_get_screen_team_id()
     g_screen_vehicle_pos = screen_vehicle:get_position_xz()
@@ -1966,6 +1925,12 @@ function _update(screen_w, screen_h, ticks)
         end
 
         -- render grid
+
+        if g_map_render_mode == 1 then
+            if g_render_fog_debug then
+                rev_render_simple_fog(g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+            end
+        end
 
         if g_is_render_grid and g_map_render_mode == 1 then
             local function floor_to(x, y)
