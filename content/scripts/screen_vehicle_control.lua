@@ -570,6 +570,17 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     if is_modified then vehicle:set_is_hold_fire(is_hold_fire) end
                 end
 
+                if vehicle.get_is_low_light ~= nil then
+                    -- low light support available
+                    if vehicle_definition_index ~= e_game_object_type.chassis_carrier and def_index ~= e_game_object_type.chassis_land_robot_dog then
+                        local is_vehicle_low_light = vehicle:get_is_low_light()
+                        local is_low_light, is_modified = ui:checkbox(update_get_loc(e_loc.low_light), is_vehicle_low_light)
+                        if is_modified then
+                            vehicle:set_is_low_light(is_low_light)
+                        end
+                    end
+                end
+
                 if ui:list_item(update_get_loc(e_loc.upp_center_to_vehicle), true) then
                     g_camera_pos_x = vehicle:get_position_xz():x()
                     g_camera_pos_y = vehicle:get_position_xz():y()
@@ -583,7 +594,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     end
                     if ui:list_item("HOLD HERE", true) then
                         vehicle:clear_waypoints()
-                        local alt = math.floor(math.max(0, get_unit_altitude(vehicle) - 5))
+                        local alt = math.floor(math.max(0, get_unit_altitude(vehicle) - 10))
                         add_altitude_waypoint(vehicle, vehicle:get_position_xz(), alt, 3)
                         g_selection:clear()
                         g_is_ignore_tap = 1
@@ -1365,6 +1376,11 @@ function update(screen_w, screen_h, ticks)
         g_last_input_tick = update_get_logic_tick()
     end
 
+    if ticks > 4 then
+        -- player too far away
+        return
+    end
+
     if call_func_override("screen_vehicle_control__update", screen_w, screen_h, ticks) then
         return
     end
@@ -1474,47 +1490,6 @@ function _update(screen_w, screen_h, ticks)
             g_tactical_vid = 0
         end
     end
-
-    if g_enable_hud_waypoints then
-        --
-        -- IMPORTANT
-        -- only test g_viewing_vehicle_id after the first input event
-        -- or the game crashes!
-        --
-        if g_last_input_tick and g_viewing_vehicle_id ~= "" and g_viewing_vehicle_id > 0 then
-            -- viewing a unit camera directly
-            local now = update_get_logic_tick()
-            if now - g_last_waypoint_send > 30 then
-                g_last_waypoint_send = now
-                local camera = update_get_map_vehicle_by_id(g_viewing_vehicle_id)
-                if get_is_vehicle_type_waypoint_capable(camera:get_definition_index()) then
-                    local next_wpt = nil
-                    local do_airlift = false
-                    local attack_target_attack_type = camera:get_attack_target_type()
-                    if attack_target_attack_type == e_attack_type.airlift then
-                        next_wpt = camera:get_attack_target_position_xz()
-                        do_airlift = true
-                    else
-                        next_wpt = get_next_waypoint_xz(camera)
-                    end
-                    if next_wpt ~= nil then
-                        local x = math.floor(next_wpt:x()) | 1
-                        local y = math.floor(next_wpt:y())
-                        if do_airlift then
-                            y = y | 1
-                        else
-                            if y % 2 == 1 then
-                                y = y + 1
-                            end
-                        end
-                        set_settings_pending_gfx(x, y)
-                    else
-                        reset_settings_pending_gfx()
-                    end
-                end
-            end
-        end
-    end -- g_enable_hud_waypoints
 
     local screen_vehicle = update_get_screen_vehicle()
     local screen_team = update_get_screen_team_id()

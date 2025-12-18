@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Revolution 1.5-19" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Dr-RazdalByte + Others" description="
+<data name="Revolution 1.5-20" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Dr-RazdalByte + Others" description="
 
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other features.
@@ -8,7 +8,7 @@ Recent changes:
 [list]
 [*] Improved UI for turret deployment by Dr-RazdalByte
 [*] Reduces network traffic/congestion sent by shared holomap cursor
-[*] Fixed captian's holomap markers
+[*] Fixed captain's holomap markers
 [*] TV missile minimap centres on the missile and not the launcher
 [*] TV missile shows distances to target and laucher and has compass marks
 [/list]
