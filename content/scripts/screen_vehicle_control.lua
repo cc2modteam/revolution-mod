@@ -1,4 +1,5 @@
 local math_rand = math.random
+local math_floor = math.floor
 
 -- highlighted map item state
 g_highlighted = {
@@ -1934,7 +1935,7 @@ function _update(screen_w, screen_h, ticks)
 
         if g_is_render_grid and g_map_render_mode == 1 then
             local function floor_to(x, y)
-                return math.floor(x / y) * y
+                return math_floor(x / y) * y
             end
 
             local screen_min_x, screen_min_y = get_world_from_screen(0, 0, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)

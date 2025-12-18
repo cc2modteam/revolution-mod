@@ -4422,6 +4422,10 @@ end
 
 g_terrain_render_size = 14000
 
+--
+-- Dear self, this prints very slow simple visual "fog" using the real fog weather data
+-- It was fun to write but not very useful - you.
+--
 function rev_render_simple_fog(cam_x, cam_y, cam_size, screen_w, screen_h)
     local show_fog = cam_size < 64000
     -- render simplified fog, 1 blob every 5km blob every 5km
