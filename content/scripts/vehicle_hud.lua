@@ -2281,17 +2281,6 @@ function render_attachment_hud_tv_missile(screen_w, screen_h, map_data, vehicle,
 end
 
 function render_attachment_hud_fuel_tank(screen_w, screen_h, attachment)
-    if e_loc.interaction_toggle_refuel ~= nil then
-        local hud_pos = vec2(screen_w / 2, screen_h / 2)
-        local col = color8(0, 255, 0, 255)
-
-        if attachment:get_stabilisation_mode() == "stabilised" then
-            render_warning_text(hud_pos:x(), hud_pos:y() - 10, update_get_loc(e_loc.upp_refuel), col)
-        end
-
-        update_add_ui_interaction(update_get_loc(e_loc.interaction_toggle_refuel), e_game_input.toggle_stabilisation_mode)
-    end
-
     return false
 end
 
