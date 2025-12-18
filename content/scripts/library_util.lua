@@ -1684,7 +1684,9 @@ end
 
 g_rev_major = 1
 g_rev_minor = 5
-g_rev_patch = 19
+g_rev_patch = 20
+
+g_rev_ver_str = string.format("%d.%d-%d", g_rev_major, g_rev_minor, g_rev_patch)
 
 g_rev_mods = {
 
