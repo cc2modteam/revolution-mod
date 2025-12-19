@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <data display_name_loc="0" bounding_radius="1.00000000e+01" lod_scale="1.00000000e+00" ai_type="2">
 	<bodies>
-		<body mass="1.00000000e+03" name="body" is_static="false">
+		<body mass="900" name="body" is_static="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="2.00000000e+00" tz="0.00000000e+00"/>
 			<meshes/>
 			<boxes>

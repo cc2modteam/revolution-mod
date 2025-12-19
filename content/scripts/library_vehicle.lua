@@ -3596,7 +3596,7 @@ g_rev_aircraft_max_payload = {
     [e_game_object_type.chassis_air_wing_heavy] = 2500,
     [e_game_object_type.chassis_air_rotor_heavy] = 8000,
     [e_game_object_type.chassis_air_rotor_light] = 2600,
-    [e_game_object_type.chassis_air_wing_light] = 2675,
+    [e_game_object_type.chassis_air_wing_light] = 2800,
 }
 
 function get_aircraft_payload_weight(vehicle)
