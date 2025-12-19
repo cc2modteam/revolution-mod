@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Revolution 1.5-20" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Dr-RazdalByte + Others" description="
+<data name="Revolution 1.5-21" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Dr-RazdalByte + Others" description="
 
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other features.
 
 Recent changes:
 [list]
+[*] Mini fix for ALB not being able to fly at 2000m fully loaded
+[*] Support for 'low light' mode
 [*] Improved UI for turret deployment by Dr-RazdalByte
 [*] Reduces network traffic/congestion sent by shared holomap cursor
 [*] Fixed captain's holomap markers
