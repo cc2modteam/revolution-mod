@@ -521,8 +521,8 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
 
             local function render_attachment_option(item, is_active, is_selected)
                 local btn_bg_col = color_button_bg
-                if not rev_can_replace_attachment(attached_vehicle, g_selected_attachment_index, item.type) then
-                    btn_bg_col = color_status_dark_red
+                if not rev_check_attachment_exceeds_payload(attached_vehicle, g_selected_attachment_index, item.type) then
+                    btn_bg_col = color_status_orange
                 end
 
                 render_button_bg(1, 0, button_w, 25, iff(is_active, iff(is_selected, color_highlight, btn_bg_col), color_button_bg_inactive), 1)
@@ -673,7 +673,7 @@ function render_ui_attachment_definition_description(x, y, w, h, vehicle, index,
     if item_mass then
         local col = color_white
         local excess = false
-        if not rev_can_replace_attachment(attached_vehicle, g_selected_attachment_index, index) then
+        if not rev_check_attachment_exceeds_payload(attached_vehicle, g_selected_attachment_index, index) then
             excess = true
             col = rev_rotate_tick_call(0.3, {
                 function() return color_status_dark_red end,

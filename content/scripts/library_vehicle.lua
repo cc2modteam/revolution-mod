@@ -3627,7 +3627,7 @@ function rev_get_payload_remaining(vehicle)
     return payload_remain
 end
 
-function rev_can_replace_attachment(vehicle, attachment_index, attachment_definition)
+function rev_check_attachment_exceeds_payload(vehicle, attachment_index, attachment_definition)
     local payload_remain = rev_get_payload_remaining(vehicle)
     if attachment_definition > -1 then
         local replace_mass = get_payload_weight(attachment_definition)
