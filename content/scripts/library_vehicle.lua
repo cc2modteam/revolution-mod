@@ -3052,8 +3052,8 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_hardpoint_torpedo,
                 },
                 -- wings
-                [4] = concat_lists(_light_wing_weapons, {e_game_object_type.attachment_hardpoint_bomb_2}),
-                [5] = concat_lists(_light_wing_weapons, {e_game_object_type.attachment_hardpoint_bomb_2}),
+                [4] = _std_wing_attachments,
+                [5] = _std_wing_attachments,
 
                 -- utils
                 [6] = _std_wing_utils,
