@@ -2289,6 +2289,9 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
     local col = color8(0, 255, 0, 255)
     local target_locked = false
     render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachment)
+    local show_crosshair = true
+    local gun_funnel_side_dist = 5
+    local gun_funnel_forward_dist = 30
 
     if g_selected_target_type == 1 and g_selected_target_id ~= 0 then
         local selected_target = update_get_map_vehicle_by_id(g_selected_target_id)
@@ -2299,54 +2302,67 @@ function render_attachment_hud_chaingun(screen_w, screen_h, map_data, tick_fract
             local lead_position = attachment:get_gun_lead_position(selected_target:get_position(), selected_target:get_linear_velocity())
             local lead_position_screen, is_clamped = update_world_to_screen(lead_position)
 
+            if g_debug_enabled then
+                draw_world_screen_circle(screen_w, lead_position, 5.5)
+            end
+
             if is_clamped == false then
                 local target_pos_screen, is_target_clamped = update_world_to_screen(selected_target:get_position())
 
                 if is_target_clamped == false then
                     local lead_col = color8(255, 0, 0, 200)
-                    update_ui_line(target_pos_screen:x(), target_pos_screen:y(), lead_position_screen:x(), lead_position_screen:y(), lead_col)
+                    -- update_ui_line(target_pos_screen:x(), target_pos_screen:y(), lead_position_screen:x(), lead_position_screen:y(), lead_col)
                     if get_is_vehicle_air(target_def) then
-                        local dist = vec3_dist(lead_position, vehicle:get_position())
-                        local smx = screen_w / 2
-
-                        local lead_dx = lead_position_screen:x() - target_pos_screen:x()
-                        if math_abs(lead_dx) < smx then
-                            local lead_dy = lead_position_screen:y() - target_pos_screen:y()
-
-                            local label_x = lead_dx * 2
-                            local label_y = lead_dy * 2
-
-                            if label_x > 0 then
-                                label_x = math_max(40, math_min(60, label_x))
-                            elseif label_x < 1 then
-                                label_x = math_min(-40, math_max(-60, label_x))
-                            end
-                            if label_y > 60 then
-                                label_y = 60
-                            elseif label_y < -60 then
-                                label_y = -60
-                            end
-                            local lead_radius = 16
-                            local dist_col = col
-                            if dist < 400 then
-                                dist_col = color_status_dark_yellow
-                            end
-                            update_ui_text(lead_position_screen:x() + label_x - lead_radius, lead_position_screen:y() + label_y,
-                                    string.format("%dm", math.floor(dist)), 42, 1, dist_col, 0)
-
-                            -- update_ui_line(lead_position_screen:x() - lead_radius + 3, lead_position_screen:y(), lead_position_screen:x() - lead_radius - 3, lead_position_screen:y(), lead_col)
-                            -- update_ui_line(lead_position_screen:x() + 2, lead_position_screen:y() + lead_radius - 1, lead_position_screen:x() + 2, lead_position_screen:y() + lead_radius + 4, lead_col)
-                            --render_circle(lead_position_screen, lead_radius, 8, lead_col)
+                        if g_rev_gun_funnel then
+                            update_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist)
+                            render_gun_funnel(tick_fraction, vehicle, gun_funnel_side_dist, gun_funnel_forward_dist, color8(0, 255, 0, 255), lead_position)
+                            show_crosshair = false
                         end
 
-                        update_ui_image_rot(lead_position_screen:x(), lead_position_screen:y(), atlas_icons.crosshair, lead_col, 0)
+                        if show_crosshair then
+                            local dist = vec3_dist(lead_position, vehicle:get_position())
+                            local smx = screen_w / 2
+
+                            local lead_dx = lead_position_screen:x() - target_pos_screen:x()
+                            if math_abs(lead_dx) < smx then
+                                local lead_dy = lead_position_screen:y() - target_pos_screen:y()
+
+                                local label_x = lead_dx * 2
+                                local label_y = lead_dy * 2
+
+                                if label_x > 0 then
+                                    label_x = math_max(40, math_min(60, label_x))
+                                elseif label_x < 1 then
+                                    label_x = math_min(-40, math_max(-60, label_x))
+                                end
+                                if label_y > 60 then
+                                    label_y = 60
+                                elseif label_y < -60 then
+                                    label_y = -60
+                                end
+                                local lead_radius = 16
+                                local dist_col = col
+                                if dist < 400 then
+                                    dist_col = color_status_dark_yellow
+                                end
+                                update_ui_text(lead_position_screen:x() + label_x - lead_radius, lead_position_screen:y() + label_y,
+                                        string.format("%dm", math.floor(dist)), 42, 1, dist_col, 0)
+
+                                -- update_ui_line(lead_position_screen:x() - lead_radius + 3, lead_position_screen:y(), lead_position_screen:x() - lead_radius - 3, lead_position_screen:y(), lead_col)
+                                -- update_ui_line(lead_position_screen:x() + 2, lead_position_screen:y() + lead_radius - 1, lead_position_screen:x() + 2, lead_position_screen:y() + lead_radius + 4, lead_col)
+                                --render_circle(lead_position_screen, lead_radius, 8, lead_col)
+                            end
+
+                            update_ui_image_rot(lead_position_screen:x(), lead_position_screen:y(), atlas_icons.crosshair, lead_col, 0)
+                        end
                     end
                 end
             end
         end
     end
-
-    render_gun_crosshair(hud_pos:x(), hud_pos:y(), col, 20)
+    if show_crosshair then
+        render_gun_crosshair(hud_pos:x(), hud_pos:y(), col, 20)
+    end
 
     return false
 end
@@ -3220,6 +3236,26 @@ function render_ground_hints(screen_w, screen_h, is_render_center, vehicle)
     end
 end
 
+function draw_world_screen_circle(screen_w, world_pos, world_radius)
+    local cam_position = update_get_camera_position()
+    local dist = vec3_dist(cam_position, world_pos)
+    if dist < 1500 then
+        local sp, behind = update_world_to_screen(world_pos)
+        if not behind then
+            local steps = 6
+            if dist < 800 then
+                if dist < 400 then
+                    steps = 12
+                else
+                    steps = 8
+                end
+            end
+            local sr = get_object_size_on_screen(screen_w, world_pos, world_radius)
+            render_circle(sp, sr, steps, color_status_orange)
+        end
+    end
+end
+
 function render_artificial_horizion(screen_w, screen_h, pos, size, vehicle, col)
     --update_ui_push_clip(pos:x() - size:x() / 2, pos:y() - size:y() / 2, size:x(), size:y())
 
@@ -3614,10 +3650,10 @@ function get_gun_funnel_spawn_pos(tick_fraction, vehicle, side_dist, forward_dis
 end
 
 function update_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist)
-    local sample_interval_ticks = 1
-    local sample_history_ticks = 30
+    local sample_interval_ticks = 2
+    local sample_history_ticks = 96
 
-    local projectile_speed = 10
+    local projectile_speed = 20
 
     local tick = update_get_logic_tick()
 
@@ -3655,9 +3691,9 @@ function update_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist)
     end
 end
 
-function render_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist, col)
-    local projectile_gravity = 0.2 / 30
-
+function render_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist, col, target_pos)
+    local projectile_gravity = 0 --0.2 / 30
+    local normal_col = col
     local get_bullet_pos = function(time, start_pos, start_vel, gravity)
         local t_sq = time * time
 
@@ -3705,7 +3741,15 @@ function render_gun_funnel(tick_fraction, vehicle, side_dist, forward_dist, col)
             local pos_next_left = get_bullet_pos(time_next, next.left.start_pos, next.left.start_vel)
             local screen_prev_left, is_behind_left_prev = update_world_to_screen(pos_prev_left)
             local screen_next_left, is_behind_left_next = update_world_to_screen(pos_next_left)
-            
+            if target_pos then
+                local dist = vec3_dist_sq(target_pos, pos_next_left)
+                if dist < 2500 then -- 50m
+                    col = color_status_orange
+                else
+                    col = normal_col
+                end
+            end
+
             if is_behind_left_next == false then
                 render_line(screen_prev_left, screen_next_left, col)
             end
