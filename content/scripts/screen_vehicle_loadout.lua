@@ -350,8 +350,7 @@ function _update(screen_w, screen_h, ticks)
                 update_ui_image(4, cy, atlas_icons.column_difficulty, color_grey_mid, 0)
                 update_ui_text(13, cy, armour, 64, 0, color_grey_dark, 0)
                 cy = cy + 10
-                local av_definition_index = attached_vehicle:get_definition_index()
-                if get_is_vehicle_air(av_definition_index) then
+                if rev_get_unit_has_payload_limit(attached_vehicle) then
                     local payload_remain = rev_get_payload_remaining(attached_vehicle)
                     update_ui_image(4, cy, atlas_icons.column_weight, color_grey_mid, 0)
                     update_ui_text(13, cy, string.format("%d %s", payload_remain, update_get_loc(e_loc.upp_kg)), 64, 0, color_grey_dark, 0)
@@ -511,6 +510,7 @@ end
 
 function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_vehicle, is_active)   
     local ui = g_ui
+    local block_attachment = false
 
     if attached_vehicle:get() then
         if g_selected_attachment_index ~= -1 then
@@ -523,6 +523,9 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
                 local btn_bg_col = color_button_bg
                 if not rev_check_attachment_exceeds_payload(attached_vehicle, g_selected_attachment_index, item.type) then
                     btn_bg_col = color_status_orange
+                    if rev_get_unit_has_hard_payload_limit(attached_vehicle) then
+                        btn_bg_col = color_status_dark_red
+                    end
                 end
 
                 render_button_bg(1, 0, button_w, 25, iff(is_active, iff(is_selected, color_highlight, btn_bg_col), color_button_bg_inactive), 1)

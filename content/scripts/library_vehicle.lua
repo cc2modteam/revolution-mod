@@ -3165,13 +3165,14 @@ local st, _v = pcall(function()
                 [1] = {
                     e_game_object_type.attachment_camera_plane,
                     e_game_object_type.attachment_turret_gimbal_30mm,
+                    e_game_object_type.attachment_radar_golfball,
                 },
                -- [7] = {
                --     e_game_object_type.attachment_deployable_droid,
                -- },
-                [8] = {
-                    e_game_object_type.attachment_smoke_launcher_explosive,
-                }
+               -- [8] = {
+               --     e_game_object_type.attachment_smoke_launcher_explosive,
+               -- }
             },
             rows = {
                 {
@@ -3584,6 +3585,16 @@ function get_payload_weight(definition_index)
         value = 293
     elseif definition_index == e_game_object_type.attachment_turret_gimbal_30mm then
         value = 190
+    elseif definition_index == e_game_object_type.attachment_turret_30mm then
+        value = 400
+    elseif definition_index == e_game_object_type.attachment_turret_40mm then
+        value = 600
+    elseif definition_index == e_game_object_type.attachment_turret_ciws then
+        value = 650
+    elseif definition_index == e_game_object_type.attachment_radar_golfball then
+        value = 650
+    elseif definition_index == e_game_object_type.attachment_turret_missile then
+        value = 750
     end
     if value < 1 then
         value = 80
@@ -3597,9 +3608,14 @@ g_rev_unit_max_payload = {
     [e_game_object_type.chassis_air_rotor_heavy] = 8000,
     [e_game_object_type.chassis_air_rotor_light] = 2600,
     [e_game_object_type.chassis_air_wing_light] = 2800,
+    [e_game_object_type.chassis_land_wheel_medium] = 980,
 }
 
-function get_aircraft_payload_weight(vehicle)
+g_rev_unit_hard_payload_limit = {
+    [e_game_object_type.chassis_land_wheel_medium] = true,
+}
+
+function get_unit_payload_weight(vehicle)
     local value = 0
     if vehicle and vehicle:get() then
         local attachment_count = vehicle:get_attachment_count()
@@ -3616,13 +3632,29 @@ function get_aircraft_payload_weight(vehicle)
     return value
 end
 
+function rev_get_unit_has_payload_limit(vehicle)
+    if vehicle and vehicle:get() then
+        local definition_index = vehicle:get_definition_index()
+        return g_rev_unit_max_payload[definition_index] ~= nil
+    end
+    return false
+end
+
+function rev_get_unit_has_hard_payload_limit(vehicle)
+    if vehicle and vehicle:get() then
+        local definition_index = vehicle:get_definition_index()
+        return g_rev_unit_hard_payload_limit[definition_index] ~= nil
+    end
+    return false
+end
+
 function rev_get_payload_remaining(vehicle)
     local definition_index = vehicle:get_definition_index()
     local payload_max = g_rev_unit_max_payload[definition_index]
     if payload_max == nil then
         payload_max = 50000 -- probably not an aircraft, let everything use normal rules
     end
-    local payload_mass = get_aircraft_payload_weight(vehicle)
+    local payload_mass = get_unit_payload_weight(vehicle)
     local payload_remain = payload_max - payload_mass
     return payload_remain
 end

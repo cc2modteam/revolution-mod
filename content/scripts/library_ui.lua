@@ -4412,7 +4412,7 @@ function rev_before_add_attachment(
                 end
             end
             -- if payload exceeded, do nothing
-            if g_rev_payload_hard_limits then
+            if g_rev_payload_hard_limits or rev_get_unit_has_hard_payload_limit(attached_vehicle) then
                 if not rev_check_attachment_exceeds_payload(attached_vehicle, attachment_index, new_attachment_type) then
                     return false
                 end
