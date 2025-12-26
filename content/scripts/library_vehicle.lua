@@ -3592,7 +3592,7 @@ function get_payload_weight(definition_index)
     return value
 end
 
-g_rev_aircraft_max_payload = {
+g_rev_unit_max_payload = {
     [e_game_object_type.chassis_air_wing_heavy] = 2500,
     [e_game_object_type.chassis_air_rotor_heavy] = 8000,
     [e_game_object_type.chassis_air_rotor_light] = 2600,
@@ -3618,7 +3618,7 @@ end
 
 function rev_get_payload_remaining(vehicle)
     local definition_index = vehicle:get_definition_index()
-    local payload_max = g_rev_aircraft_max_payload[definition_index]
+    local payload_max = g_rev_unit_max_payload[definition_index]
     if payload_max == nil then
         payload_max = 50000 -- probably not an aircraft, let everything use normal rules
     end
