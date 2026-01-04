@@ -3196,8 +3196,6 @@ local st, _v = pcall(function()
         [e_game_object_type.chassis_land_turret] = {
             options = {
                 [0] = {
-                    e_game_object_type.attachment_radar_golfball,
-                    e_game_object_type.attachment_camera_observation,
                     e_game_object_type.attachment_camera,
                 }
             },
@@ -3613,6 +3611,7 @@ g_rev_unit_max_payload = {
     [e_game_object_type.chassis_land_wheel_medium] = 980,
 }
 
+-- g_rev_allow_carrier_land_turrets = false
 g_rev_unit_hard_payload_limit = {
     [e_game_object_type.chassis_land_wheel_medium] = true,
 }

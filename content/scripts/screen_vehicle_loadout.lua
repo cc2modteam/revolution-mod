@@ -1090,6 +1090,27 @@ example_g_revolution_crafting_items = {
 }
 
 if g_revolution_crafting_items == nil then
-    g_revolution_crafting_items = {}
+    g_revolution_crafting_items = {
+        {
+            name="OBST",
+            details="Observation Post",
+            chassis=e_game_object_type.chassis_land_turret,
+            min_attachments=1,
+            attachments={
+                [0] = e_game_object_type.attachment_camera_observation
+            },
+            options={
+                [0] = {e_game_object_type.attachment_camera_observation},
+            },
+            rows={
+                {
+                    { i=0, x=0, y=0 },
+                }
+            },
+            cost={
+                [e_inventory_item.fuel_barrel] = 1,
+            }
+        },
+    }
 end
 
