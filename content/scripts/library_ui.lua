@@ -3070,10 +3070,12 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
                     end
 
                     if attachment:get_fuel_capacity() > 0 then
-                        total_capacity = total_capacity + 1
-                        resupply_factor = resupply_factor + attachment:get_fuel_factor()
-                    end
-
+						--fuel tanks have an ammo capacity of 1 so do not increment the total capacity by 1 otherwise the renormalisation goes wrong below.
+                        --total_capacity = total_capacity + 1
+                        --resupply_factor = resupply_factor + attachment:get_fuel_factor()
+						resupply_factor = attachment:get_fuel_remaining() / attachment:get_fuel_capacity()
+					end
+					--renormalisation of capacity to account for fuel tanks having ammo count, not strickly needed now but kept to match basse game code.
                     resupply_factor = iff(total_capacity == 0, 1, resupply_factor / total_capacity)
                     
                     local attachment_icon_region, attachment_16_icon_region = get_attachment_icons(attachment_definition_index)
