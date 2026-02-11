@@ -2085,9 +2085,13 @@ function rev_get_team_ready(team_id)
 end
 
 function update_team_holomap_cursor(team_id, x, y)
-    local st, err = pcall(_update_team_holomap_cursor, team_id, x, y)
-    if not st then
-        print(err)
+    if g_debug_enabled then
+        local st, err = pcall(_update_team_holomap_cursor, team_id, x, y)
+        if not st then
+            print(err)
+        end
+    else
+        _update_team_holomap_cursor(team_id, x, y)
     end
 end
 
