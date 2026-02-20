@@ -1792,9 +1792,16 @@ F_DRYDOCK_WPTX_MARKER          = 2
 F_DRYDOCK_WPTX_SETTING         = 4
 F_DRYDOCK_WPTX_FACTORY_DAMAGED = 8
 F_DRYDOCK_WPTX_SCOUTED         = 16
+F_DRYDOCK_WPTX_VEH_SETTING     = 20
 
--- values for F_DRYDOCK_WPTX_SETTING wpts
-DRYDOCK_WPTX_SETTING_READY     = 1
+-- values for F_DRYDOCK_WPTX_SETTING
+TEAM_SETTING_FLAG_READY        = 1
+TEAM_SETTING_FLAG_SHOW_ISLANDS = 2
+
+-- values for F_DRYDOCK_WPTX_VEH_SETTING
+CRR_SETTING_FLAG_HUD_ENABLED = 1
+
+
 
 g_team_drydocks = {}
 
@@ -2073,16 +2080,48 @@ function rev_set_team_ready(team_id, is_ready)
     if is_ready then
         value = 1
     end
-    set_special_waypoint(team_id, F_DRYDOCK_WPTX_SETTING, DRYDOCK_WPTX_SETTING_READY, value)
+    set_special_waypoint(team_id, F_DRYDOCK_WPTX_SETTING, TEAM_SETTING_FLAG_READY, value)
 end
 
 function rev_get_team_ready(team_id)
-    local w = get_special_waypoint(team_id, F_DRYDOCK_WPTX_SETTING, DRYDOCK_WPTX_SETTING_READY)
+    local w = get_special_waypoint(team_id, F_DRYDOCK_WPTX_SETTING, TEAM_SETTING_FLAG_READY)
     if w then
         return w:get_altitude() > 0
     end
     return false
 end
+
+function rev_get_veh_setting(team_id, vid)
+    local w = get_special_waypoint(team_id, F_DRYDOCK_WPTX_VEH_SETTING, vid)
+    if w then
+        return w:get_altitude()
+    end
+    return 0
+end
+
+local _this_veh_setting_value = 0
+local _this_veh_setting_tick = 0
+function rev_get_this_veh_setting_value()
+    local now = update_get_logic_tick()
+    if now > _this_veh_setting_tick + 60 then
+        _this_veh_setting_tick = now
+        _this_veh_setting_value = rev_get_veh_setting(update_get_screen_team_id(), update_get_screen_vehicle():get_id())
+    end
+    return _this_veh_setting_value
+end
+
+function rev_set_veh_setting_flag(team_id, vid, setflags)
+    local current = rev_get_veh_setting(team_id, vid)
+    local value = current | setflags
+    set_special_waypoint(team_id, F_DRYDOCK_WPTX_VEH_SETTING, vid, value)
+end
+
+function rev_clr_veh_setting_flag(team_id, vid, clrflags)
+    local current = rev_get_veh_setting(team_id, vid)
+    local value = current ~ clrflags
+    set_special_waypoint(team_id, F_DRYDOCK_WPTX_VEH_SETTING, vid, value)
+end
+
 
 function update_team_holomap_cursor(team_id, x, y)
     if g_debug_enabled then
@@ -3239,6 +3278,7 @@ local st, _v = pcall(function()
                 },
                 [8] = {
                     e_game_object_type.attachment_turret_carrier_missile_silo,
+                    e_game_object_type.attachment_turret_carrier_ciws,
                 },
                 [9] = {
                     e_game_object_type.attachment_turret_carrier_flare_launcher,

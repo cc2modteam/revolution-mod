@@ -509,12 +509,28 @@ function _update(screen_w, screen_h, ticks)
                 g_alt_mode = "helm"
             end
             ui:divider()
+            local is_hud_enabled = false
+            if not is_local then
+                is_hud_enabled = (rev_get_this_veh_setting_value() & CRR_SETTING_FLAG_HUD_ENABLED) ~= 0
+            else
+                is_hud_enabled = (rev_get_veh_setting(update_get_screen_team_id(), this_vehicle:get_id()) & CRR_SETTING_FLAG_HUD_ENABLED) ~= 0
+            end
 
             g_is_follow_carrier = ui:checkbox("FOLLOW CARRIER", g_is_follow_carrier)
             g_is_vehicle_team_colors = ui:checkbox(update_get_loc(e_loc.upp_vehicle_team_colors), g_is_vehicle_team_colors)
             g_is_island_team_colors = ui:checkbox(update_get_loc(e_loc.upp_island_team_colors), g_is_island_team_colors)
             g_is_island_names = ui:checkbox(update_get_loc(e_loc.upp_island_names), g_is_island_names)
             g_is_vehicle_links = ui:checkbox("VEHICLE LINKS", g_is_vehicle_links)
+            local is_hud_enabled_now = ui:checkbox("HELM HUD", is_hud_enabled)
+            if is_local then
+            if is_hud_enabled ~= is_hud_enabled_now then
+                if not is_hud_enabled then
+                    rev_set_veh_setting_flag(update_get_screen_team_id(), this_vehicle:get_id(), CRR_SETTING_FLAG_HUD_ENABLED)
+                else
+                    rev_clr_veh_setting_flag(update_get_screen_team_id(), this_vehicle:get_id(), CRR_SETTING_FLAG_HUD_ENABLED)
+                end
+            end
+        end
 
             ui:spacer(5)
     
@@ -830,10 +846,10 @@ end
 
 function helm_hud_update_prelaunch(vehicle, screen_w, screen_h)
     local crr_name = get_ship_name(vehicle)
-    update_ui_text_scale(0, screen_h / 7,
+    update_ui_text_scale(0, screen_h / 6,
             string.format("%s %s", update_get_loc(e_loc.upp_crr), crr_name),
             screen_w, 1, color_white, 0, 3)
-    local cy = screen_h // 4.1
+    local cy = screen_h // 3
     update_ui_line(50, cy, screen_w - 50, cy, color_white)
 
     -- show a table of teams who have players and ready states
@@ -853,6 +869,7 @@ function helm_hud_update_prelaunch(vehicle, screen_w, screen_h)
                 local v_team = v:get_team()
                 local docked = get_vehicle_docked(v)
                 local vname = get_ship_name(v)
+                update_ui_rectangle(cx -1, cy -1, screen_w - 22, 10, color_button_bg)
                 update_ui_text(cx, cy, string.format("%d %s", v_team, vname), screen_w, 0, update_get_team_color(v_team), 0)
                 if get_team_has_humans(v_team) then
                     local ready = rev_get_team_ready(v_team)
@@ -863,7 +880,7 @@ function helm_hud_update_prelaunch(vehicle, screen_w, screen_h)
                 if docked then
                     update_ui_text( 2 * screen_w // 3, cy, update_get_loc(e_loc.upp_docked), screen_w, 0, color_white, 0)
                 end
-                cy = cy + 10
+                cy = cy + 11
             end
         end
     end
@@ -897,6 +914,11 @@ function helm_hud_update(screen_w, screen_h, ticks)
     if this_vehicle:get() then
         if get_vehicle_docked(this_vehicle) then
             helm_hud_update_prelaunch(this_vehicle, screen_w, screen_h)
+            return
+        end
+
+        if (rev_get_this_veh_setting_value() & CRR_SETTING_FLAG_HUD_ENABLED) == 0 then
+            update_ui_text(5, screen_h - 40, "HUD disabled", 120, 0, hud_green, 0)
             return
         end
 

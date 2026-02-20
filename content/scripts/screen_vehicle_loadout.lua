@@ -42,6 +42,12 @@ function get_selected_chassis_options(bay_index)
                     { region=atlas_icons.icon_chassis_16_land_turret, type=e_game_object_type.chassis_land_turret })
         end
 
+        if get_is_spectator_mode() then
+            table.insert(
+                    selection_options,
+                    { region=atlas_icons.icon_chassis_16_carrier, type=e_game_object_type.chassis_carrier })
+        end
+
     else
         selection_options = {
             { region=atlas_icons.icon_attachment_16_none, type=-1 },
@@ -578,12 +584,13 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
                     if current_attachment and current_attachment:get() then
                         current_attachment_type = current_attachment:get_definition_index()
                     end
+                    local target_type = attached_vehicle:get_definition_index()
 
                     if rev_before_add_attachment(this_vehicle, g_selected_bay_index, g_selected_attachment_index, new_attachment_type) then
                         if g_selected_option_index == 0 then
                             this_vehicle:set_attached_vehicle_attachment(g_selected_bay_index, g_selected_attachment_index, -1)
                             g_screen_index = 1
-                        elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 then
+                        elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 or target_type == e_game_object_type.chassis_carrier then
                             this_vehicle:set_attached_vehicle_attachment(g_selected_bay_index, g_selected_attachment_index, new_attachment_type)
                             g_screen_index = 1
                         else
@@ -628,11 +635,12 @@ function render_screen_chassis(screen_w, screen_h, this_vehicle, is_active)
 
             local definition_index = selection_options[g_selected_option_index + 1].type
             local inventory_item_type = update_get_resource_item_for_definition(definition_index)
+            local parent_type = this_vehicle:get_definition_index()
 
             if g_selected_option_index == 0 or this_vehicle:get_definition_index() == e_game_object_type.drydock then
                 this_vehicle:set_attached_vehicle_chassis(g_selected_bay_index, selection_options[g_selected_option_index + 1].type)
                 g_screen_index = 1
-            elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 then
+            elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 or parent_type == e_game_object_type.drydock then
                 this_vehicle:set_attached_vehicle_chassis(g_selected_bay_index, selection_options[g_selected_option_index + 1].type)
                 g_screen_index = 1
             else
