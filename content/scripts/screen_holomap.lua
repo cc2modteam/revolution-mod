@@ -745,21 +745,25 @@ function _update(screen_w, screen_h, ticks)
 
             for i = 0, missile_count - 1 do
                 local missile = update_get_missile_by_index(i)
-                local fired_from_id = missile:get_fired_vehicle_id()
-                if fired_from_id then
-                    local launcher = update_get_map_vehicle_by_id(fired_from_id)
-                    local detected = launcher:get_is_observation_revealed() and launcher:get_is_visible()
-                    if not detected then
-                        --local def = missile:get_definition_index()
-                        --local wep_idx = missile:get_fired_attachment_index()
-                        --local wep = launcher:get_attachment(wep_idx)
-                        --local wep_def = wep:get_definition_index()
-                        local position_xz = missile:get_position_xz()
-                        -- render a shape/missile/bomb
-                        --local data = get_attachment_data_by_definition_index(wep_def)
-                        local icon = atlas_icons.map_icon_missile
-                        local screen_pos_x, screen_pos_y = get_holomap_from_world(position_xz:x(), position_xz:y(), screen_w, screen_h)
-                        update_ui_image_rot(screen_pos_x, screen_pos_y, icon, color_status_dark_red, 0)
+                if missile and missile:get() then
+                    local fired_from_id = missile:get_fired_vehicle_id()
+                    if fired_from_id then
+                        local launcher = update_get_map_vehicle_by_id(fired_from_id)
+                        if launcher and launcher:get() then
+                            local detected = launcher:get_is_observation_revealed() and launcher:get_is_visible()
+                            if not detected then
+                                --local def = missile:get_definition_index()
+                                --local wep_idx = missile:get_fired_attachment_index()
+                                --local wep = launcher:get_attachment(wep_idx)
+                                --local wep_def = wep:get_definition_index()
+                                local position_xz = missile:get_position_xz()
+                                -- render a shape/missile/bomb
+                                --local data = get_attachment_data_by_definition_index(wep_def)
+                                local icon = atlas_icons.map_icon_missile
+                                local screen_pos_x, screen_pos_y = get_holomap_from_world(position_xz:x(), position_xz:y(), screen_w, screen_h)
+                                update_ui_image_rot(screen_pos_x, screen_pos_y, icon, color_status_dark_red, 0)
+                            end
+                        end
                     end
                 end
 

@@ -2667,6 +2667,11 @@ function refresh_missile_data(visible_only)
 end
 
 function _refresh_missile_data(visible_only)
+
+    if not g_missile_tracking then
+        return
+    end
+
     local tick = update_get_logic_tick()
     if tick > g_missiles_last_update + 10 then
         g_missiles_last_update = tick
