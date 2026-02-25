@@ -2898,6 +2898,26 @@ function rev_remove_all_docked_attachments(carrier, bay_index)
     return nil
 end
 
+function rev_save_preconfigure_attachments(carrier, bay_index, preset)
+    local attached_vehicle = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(bay_index))
+    if attached_vehicle then
+        local presets = g_revolution_loadout_preset[attached_vehicle:get_definition_index()]
+        if presets then
+
+            custom_preset = {}
+            local slots = attached_vehicle:get_attachment_count()
+            for i = 0, slots do
+                attachment = attached_vehicle:get_attachment(i)
+                if attachment and attachment:get() then
+                    custom_preset[i] = attachment:get_definition_index()
+                end
+            end
+
+            presets[preset] = custom_preset
+        end
+    end
+end
+
 function rev_set_preconfigure_attachments(carrier, bay_index, preset)
     local attached_vehicle = rev_remove_all_docked_attachments(carrier, bay_index)
     if attached_vehicle then
@@ -3260,6 +3280,7 @@ end
 
 g_revolution_loadout_preset = {
     [e_game_object_type.chassis_air_wing_heavy] = {
+        custom = {},
         defender = {
             [2] = e_game_object_type.attachment_turret_plane_chaingun,
             [4] = e_game_object_type.attachment_hardpoint_missile_aa,
@@ -3273,6 +3294,7 @@ g_revolution_loadout_preset = {
         }
     },
     [e_game_object_type.chassis_air_wing_light] = {
+        custom = {},
         defender = {
             [2] = e_game_object_type.attachment_hardpoint_missile_aa,
             [3] = e_game_object_type.attachment_hardpoint_missile_aa,
@@ -3291,6 +3313,7 @@ g_revolution_loadout_preset = {
         }
     },
     [e_game_object_type.chassis_air_rotor_light] = {
+        custom = {},
         defender = {
             [1] = e_game_object_type.attachment_hardpoint_missile_aa,
             [2] = e_game_object_type.attachment_hardpoint_missile_aa,
@@ -3306,6 +3329,7 @@ g_revolution_loadout_preset = {
         }
     },
     [e_game_object_type.chassis_air_rotor_heavy] = {
+        custom = {},
         defender = {
             [2] = e_game_object_type.attachment_hardpoint_missile_aa,
             [3] = e_game_object_type.attachment_hardpoint_missile_aa,
@@ -3320,9 +3344,19 @@ g_revolution_loadout_preset = {
         }
     },
     [e_game_object_type.chassis_land_wheel_light] = {
+        custom = {},
         capture = {
             [1] = e_game_object_type.attachment_turret_robot_dog_capsule
         }
+    },
+    [e_game_object_type.chassis_land_wheel_medium] = {
+        custom = {}
+    },
+    [e_game_object_type.chassis_land_wheel_heavy] = {
+        custom = {}
+    },
+    [e_game_object_type.chassis_land_wheel_mule] = {
+        custom = {}
     }
 }
 
