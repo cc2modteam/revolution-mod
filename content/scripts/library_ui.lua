@@ -1067,21 +1067,10 @@ lib_imgui = {
         local is_hovered, is_selected = self:hoverable(x, y, w, h, true)
         local is_active = is_enabled and window.is_active
         local is_action = false
-
-        if is_enabled == false then
-            local back_col = iff(is_active, iff(is_selected, color_white, color_button_bg_inactive), iff(is_selected, color_grey_mid, color_button_bg_inactive))
-            update_ui_image(x, 2 + y, img, back_col, 0)
-        else
-            local back_col = iff(is_active, iff(is_selected, iff(self.input_action_held or self.input_pointer_1_held, color_highlight, color_highlight), color_button_bg), iff(is_selected, color_grey_dark, color_button_bg_inactive))
-            if is_active and active_col ~= nil then
-                back_col = active_col
-            end
-
-            update_ui_image(x, 2 + y, img, back_col, 0)
-        end
+        local is_button_hovered = false
 
         if is_selected and is_active then
-            local is_button_hovered = self:is_hovered(x, y, w, h)
+            is_button_hovered = self:is_hovered(x, y, w, h)
             local is_clicked = is_hovered and self.input_pointer_1 and is_button_hovered
 
             if is_button_hovered or update_get_active_input_type() == e_active_input.gamepad then
@@ -1100,6 +1089,21 @@ lib_imgui = {
                 self.input_action = false
                 self.input_pointer_1 = false
             end
+        end
+
+        if is_enabled == false then
+            local back_col = iff(is_active, iff(is_selected, color_white, color_button_bg_inactive), iff(is_selected, color_grey_mid, color_button_bg_inactive))
+            update_ui_image(x, 2 + y, img, back_col, 0)
+        else
+            local back_col = iff(is_active, iff(is_selected, iff(self.input_action_held or self.input_pointer_1_held, color_highlight, color_highlight), color_button_bg), iff(is_selected, color_grey_dark, color_button_bg_inactive))
+            if is_active and active_col ~= nil then
+                back_col = active_col
+            end
+            if is_button_hovered and is_active then
+                back_col = color_grey_dark
+            end
+
+            update_ui_image(x, 2 + y, img, back_col, 0)
         end
 
         return is_action

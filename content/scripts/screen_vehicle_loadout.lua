@@ -444,7 +444,7 @@ function _update(screen_w, screen_h, ticks)
                 ui:end_window()
             end
             local hover_data = ui:get_hover_data()
-            if hover_data then
+            if hover_data and update_get_is_focus_local() then
                 local tx = 8
                 local ty = 55
                 local th = 9
