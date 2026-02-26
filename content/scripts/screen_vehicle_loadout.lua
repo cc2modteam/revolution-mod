@@ -338,7 +338,7 @@ function _update(screen_w, screen_h, ticks)
 
         if g_screen_index == 1 then
             -- vehicle loadout
-            
+
             g_selected_option_index = 0
 
             if attached_vehicle:get() then
@@ -382,18 +382,18 @@ function _update(screen_w, screen_h, ticks)
                 call_custom_ui_vehicle_loadout_chassis(ui, attached_vehicle)
 
                 local window = ui:begin_window("##vehicle", screen_w / 2, 14, screen_w / 2, screen_h - 14, nil, true, 1)
-                    local region_w, region_h = ui:get_region()
+                local region_w, region_h = ui:get_region()
 
-                    if ui:button(vehicle_definition_name, true, 1) then
-                        g_screen_index = 3
-                    end
+                if ui:button(vehicle_definition_name, true, 1) then
+                    g_screen_index = 3
+                end
 
-                    window.cy = window.cy - 1
-                    g_selected_attachment_index, is_pressed = imgui_vehicle_chassis_loadout(ui, attached_vehicle)
-                    
-                    if is_pressed then
-                        g_screen_index = 2
-                    end
+                window.cy = window.cy - 1
+                g_selected_attachment_index, is_pressed = imgui_vehicle_chassis_loadout(ui, attached_vehicle)
+
+                if is_pressed then
+                    g_screen_index = 2
+                end
                 ui:end_window()
 
                 if g_hovered_attachment > -1 then
@@ -407,7 +407,7 @@ function _update(screen_w, screen_h, ticks)
                         end
                     end
                 end
-                
+
                 is_show_attachment_selector = window.selected_index_y > 0
 
                 -- update selected option to match current selection
@@ -438,11 +438,30 @@ function _update(screen_w, screen_h, ticks)
                 end
             else
                 ui:begin_window("##vehicle", 0, 14, screen_w, screen_h - 14, nil, true, 1)
-                    if ui:button(update_get_loc(e_loc.upp_select_chassis), true, 1) then
-                        g_screen_index = 3
-                    end
+                if ui:button(update_get_loc(e_loc.upp_select_chassis), true, 1) then
+                    g_screen_index = 3
+                end
                 ui:end_window()
             end
+            local hover_data = ui:get_hover_data()
+            if hover_data then
+                local tx = 8
+                local ty = 55
+                local th = 9
+                update_ui_rectangle(
+                        tx, ty + th, screen_w, 2, color8(0, 0, 0, 128)
+                )
+                update_ui_rectangle(
+                        tx, ty, screen_w, th, color_black
+                )
+                update_ui_rectangle_outline(
+                        tx, ty, screen_w, th, color_grey_mid
+                )
+                update_ui_text_mini(
+                        tx + 2, ty + 2, hover_data, screen_w, 0, color_grey_mid
+                )
+            end
+
 
             if is_show_attachment_selector then
                 render_screen_attachment(screen_w, screen_h, this_vehicle, attached_vehicle, false)

@@ -60,13 +60,14 @@ lib_imgui = {
 
         o.input_scroll_dy = 0
         o.input_scroll_gamepad_dy = 0
-
+        o.hover_context = nil
         return o
     end,
 
     begin_ui = function(self, delta_time)
         self.window_stack = {}
         self.region_stack = {}
+        self.hover_context = nil
         self.delta_time = 1
 
         if delta_time ~= nil then
@@ -1087,6 +1088,9 @@ lib_imgui = {
                 local msg = update_get_loc(e_loc.interaction_select)
                 if tooltip ~= nil then
                     msg = string.format("%s %s", msg, tooltip)
+                    if is_button_hovered then
+                        self.hover_context = tooltip
+                    end
                 end
                 update_add_ui_interaction(msg, e_game_input.interact_a)
             end
@@ -1099,6 +1103,10 @@ lib_imgui = {
         end
 
         return is_action
+    end,
+
+    get_hover_data = function(self)
+        return self.hover_context
     end,
 
     divider = function(self, space_top, space_bottom)
