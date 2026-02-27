@@ -1067,22 +1067,9 @@ lib_imgui = {
         local is_hovered, is_selected = self:hoverable(x, y, w, h, true)
         local is_active = is_enabled and window.is_active
         local is_action = false
-        local is_button_hovered = false
-
+        local is_button_hovered = self:is_hovered(x, y, w, h)
         if is_selected and is_active then
-            is_button_hovered = self:is_hovered(x, y, w, h)
             local is_clicked = is_hovered and self.input_pointer_1 and is_button_hovered
-
-            if is_button_hovered or update_get_active_input_type() == e_active_input.gamepad then
-                local msg = update_get_loc(e_loc.interaction_select)
-                if tooltip ~= nil then
-                    msg = string.format("%s %s", msg, tooltip)
-                    if is_button_hovered then
-                        self.hover_context = tooltip
-                    end
-                end
-                update_add_ui_interaction(msg, e_game_input.interact_a)
-            end
 
             if self.input_action or is_clicked then
                 is_action = true
@@ -1091,8 +1078,23 @@ lib_imgui = {
             end
         end
 
+        if is_button_hovered then
+            local msg = update_get_loc(e_loc.interaction_select)
+            if tooltip ~= nil then
+                msg = string.format("%s %s", msg, tooltip)
+                if is_button_hovered then
+                    self.hover_context = tooltip
+                end
+            end
+            if is_active then
+                if msg ~= nil then
+                    update_add_ui_interaction(msg, e_game_input.interact_a)
+                end
+            end
+        end
+
         if is_enabled == false then
-            local back_col = iff(is_active, iff(is_selected, color_white, color_button_bg_inactive), iff(is_selected, color_grey_mid, color_button_bg_inactive))
+            local back_col = iff(is_button_hovered, color_grey_mid, color8(0xbb, 0xbb, 0xbb, 0xff))
             update_ui_image(x, 2 + y, img, back_col, 0)
         else
             local back_col = iff(is_active, iff(is_selected, iff(self.input_action_held or self.input_pointer_1_held, color_highlight, color_highlight), color_button_bg), iff(is_selected, color_grey_dark, color_button_bg_inactive))
