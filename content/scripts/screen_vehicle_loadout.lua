@@ -276,61 +276,44 @@ function _update(screen_w, screen_h, ticks)
 
             ui:begin_window("##tb", screen_w - 3 - toolbar_w, 3, toolbar_w, 18, nil, true, 1)
 
-            function add_preset_btn(icon, tooltip, callback)
+            function add_toolbar_btn(icon, tooltip, callback, enabled)
+                if enabled == nil then
+                    enabled = true
+                end
+
                 bcount = bcount + 1
                 if ui:img_button(
                     icon,
                     toolbar_w - bs*(bcount), 0,
                     bs, bs,
-                    true, color_status_dark_green, tooltip
+                    enabled, color_status_dark_green, tooltip
                 ) then
                     callback()
                 end
             end
 
-            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "custom") then
-                add_preset_btn(atlas_icons.icon_ammo, "Paste loadout",
-                function()
-                    rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "custom")
-                end)
+            function add_preset_btn(preset, icon, tooltip, enabled)
+                if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, preset) then
+                    add_toolbar_btn(icon, tooltip,
+                            function()
+                                rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, preset)
+                            end, enabled)
+                end
+            end
 
-                add_preset_btn(atlas_icons.icon_health, "Copy loadout",
+            add_preset_btn("empty", atlas_icons.map_icon_unload, "Remove Attachments")
+            add_preset_btn("defender", atlas_icons.column_difficulty, "Defender")
+            add_preset_btn("strike", atlas_icons.column_laser, "Strike")
+            add_preset_btn("refuel", atlas_icons.icon_fuel, "Refuel")
+            add_preset_btn("capture", atlas_icons.column_team_control, "Capture")
+
+            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "custom") then
+                add_toolbar_btn(atlas_icons.icon_health, "Copy loadout",
                 function()
                     rev_save_preconfigure_attachments(this_vehicle, g_selected_bay_index, "custom")
                 end)
-            end
-
-            add_preset_btn(atlas_icons.map_icon_unload, "Remove Attachments",
-                    function()
-                        rev_remove_all_docked_attachments(this_vehicle, g_selected_bay_index)
-                    end)
-
-            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "defender") then
-                add_preset_btn(atlas_icons.column_difficulty, "Defender",
-                function()
-                    rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "defender")
-                end)
-            end
-
-            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "strike") then
-                add_preset_btn(atlas_icons.column_laser, "Strike",
-                function()
-                    rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "strike")
-                end)
-            end
-
-            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "refuel") then
-                add_preset_btn(atlas_icons.icon_fuel, "Refuel",
-                function()
-                    rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "refuel")
-                end)
-            end
-
-            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "capture") then
-                add_preset_btn(atlas_icons.column_team_control, "Capture",
-                function()
-                    rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "capture")
-                end)
+                local paste_enabled = #g_revolution_loadout_preset[attached_vehicle_def]["custom"] > 0
+                add_preset_btn("custom", atlas_icons.icon_ammo, "Paste loadout", paste_enabled)
             end
 
             ui:end_window()

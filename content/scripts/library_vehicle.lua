@@ -2986,11 +2986,14 @@ function rev_has_preconfigure_preset(carrier, bay_index, preset)
     if attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
         local presets = g_revolution_loadout_preset[attached_vehicle:get_definition_index()]
         if presets then
-            if presets[preset] then
+            print(preset, "=", presets[preset])
+            if presets[preset] ~= nil then
                 return true
             end
         end
     end
+    print("no " .. preset)
+
     return false
 end
 
@@ -3329,7 +3332,6 @@ end
 
 g_revolution_loadout_preset = {
     [e_game_object_type.chassis_air_wing_heavy] = {
-        custom = {},
         defender = {
             [2] = e_game_object_type.attachment_turret_plane_chaingun,
             [4] = e_game_object_type.attachment_hardpoint_missile_aa,
@@ -3343,7 +3345,6 @@ g_revolution_loadout_preset = {
         }
     },
     [e_game_object_type.chassis_air_wing_light] = {
-        custom = {},
         defender = {
             [2] = e_game_object_type.attachment_hardpoint_missile_aa,
             [3] = e_game_object_type.attachment_hardpoint_missile_aa,
@@ -3362,7 +3363,6 @@ g_revolution_loadout_preset = {
         }
     },
     [e_game_object_type.chassis_air_rotor_light] = {
-        custom = {},
         defender = {
             [1] = e_game_object_type.attachment_hardpoint_missile_aa,
             [2] = e_game_object_type.attachment_hardpoint_missile_aa,
@@ -3378,7 +3378,6 @@ g_revolution_loadout_preset = {
         }
     },
     [e_game_object_type.chassis_air_rotor_heavy] = {
-        custom = {},
         defender = {
             [2] = e_game_object_type.attachment_hardpoint_missile_aa,
             [3] = e_game_object_type.attachment_hardpoint_missile_aa,
@@ -3393,21 +3392,36 @@ g_revolution_loadout_preset = {
         }
     },
     [e_game_object_type.chassis_land_wheel_light] = {
-        custom = {},
         capture = {
             [1] = e_game_object_type.attachment_turret_robot_dog_capsule
         }
     },
-    [e_game_object_type.chassis_land_wheel_medium] = {
-        custom = {}
-    },
-    [e_game_object_type.chassis_land_wheel_heavy] = {
-        custom = {}
-    },
-    [e_game_object_type.chassis_land_wheel_mule] = {
-        custom = {}
-    }
 }
+local st, err = pcall(
+        function()
+
+            for _, definition_index in pairs( {
+                e_game_object_type.chassis_land_wheel_mule,
+                e_game_object_type.chassis_land_wheel_heavy,
+                e_game_object_type.chassis_land_wheel_medium,
+                e_game_object_type.chassis_land_wheel_light,
+                e_game_object_type.chassis_air_rotor_heavy,
+                e_game_object_type.chassis_air_rotor_light,
+                e_game_object_type.chassis_air_wing_heavy,
+                e_game_object_type.chassis_air_wing_light,
+            }) do
+
+                if g_revolution_loadout_preset[definition_index] == nil then
+                    g_revolution_loadout_preset[definition_index] = {}
+                end
+                g_revolution_loadout_preset[definition_index]["custom"] = {}
+                g_revolution_loadout_preset[definition_index]["empty"] = {}
+            end
+
+        end)
+if not st then
+    print(err)
+end
 
 function insert_sea_mule_options(vehicle)
     -- also mk2 mule
