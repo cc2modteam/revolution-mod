@@ -288,6 +288,18 @@ function _update(screen_w, screen_h, ticks)
                 end
             end
 
+            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "custom") then
+                add_preset_btn(atlas_icons.icon_ammo, "Paste loadout",
+                function()
+                    rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, "custom")
+                end)
+
+                add_preset_btn(atlas_icons.icon_health, "Copy loadout",
+                function()
+                    rev_save_preconfigure_attachments(this_vehicle, g_selected_bay_index, "custom")
+                end)
+            end
+
             add_preset_btn(atlas_icons.map_icon_unload, "Remove Attachments",
                     function()
                         rev_remove_all_docked_attachments(this_vehicle, g_selected_bay_index)
