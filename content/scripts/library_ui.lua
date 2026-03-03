@@ -1,3 +1,5 @@
+local math_floor = math.floor
+
 lib_imgui = {
     create_ui = function(self)
         local o = {}
@@ -58,13 +60,14 @@ lib_imgui = {
 
         o.input_scroll_dy = 0
         o.input_scroll_gamepad_dy = 0
-
+        o.hover_context = nil
         return o
     end,
 
     begin_ui = function(self, delta_time)
         self.window_stack = {}
         self.region_stack = {}
+        self.hover_context = nil
         self.delta_time = 1
 
         if delta_time ~= nil then
@@ -928,7 +931,7 @@ lib_imgui = {
         return is_action
     end,
 
-    button = function(self, label, is_enabled, align)
+    button = function(self, label, is_enabled, align, active_col)
         local window = self:get_window()
         local x = window.cx
         local y = window.cy
@@ -960,6 +963,10 @@ lib_imgui = {
         else
             local text_col = iff(is_active, iff(is_selected, iff(self.input_action_held or self.input_pointer_1_held, color_white, color_white), color_black), color_black)
             local back_col = iff(is_active, iff(is_selected, iff(self.input_action_held or self.input_pointer_1_held, color_highlight, color_highlight), color_button_bg), iff(is_selected, color_grey_dark, color_button_bg_inactive))
+
+            if is_active and active_col ~= nil then
+                back_col = active_col
+            end
 
             render_button_bg(bx, by, bw, bh, back_col)
             update_ui_text(bx, by + 2, label, math.floor(bw / 2) * 2, 1, text_col, 0)
@@ -1050,6 +1057,62 @@ lib_imgui = {
         self:end_nav_row(15)
 
         return button_action
+    end,
+
+    img_button = function(self, img, dx, dy, w, h, is_enabled, active_col, tooltip)
+        local window = self:get_window()
+        local x = dx + window.cx
+        local y = dy + window.cy - 2
+
+        local is_hovered, is_selected = self:hoverable(x, y, w, h, true)
+        local is_active = is_enabled and window.is_active
+        local is_action = false
+        local is_button_hovered = self:is_hovered(x, y, w, h)
+        if is_selected and is_active then
+            local is_clicked = is_hovered and self.input_pointer_1 and is_button_hovered
+
+            if self.input_action or is_clicked then
+                is_action = true
+                self.input_action = false
+                self.input_pointer_1 = false
+            end
+        end
+
+        if is_button_hovered then
+            local msg = update_get_loc(e_loc.interaction_select)
+            if tooltip ~= nil then
+                msg = string.format("%s %s", msg, tooltip)
+                if is_button_hovered then
+                    self.hover_context = tooltip
+                end
+            end
+            if is_active then
+                if msg ~= nil then
+                    update_add_ui_interaction(msg, e_game_input.interact_a)
+                end
+            end
+        end
+
+        if is_enabled == false then
+            local back_col = iff(is_button_hovered, color_grey_mid, color8(0xbb, 0xbb, 0xbb, 0xff))
+            update_ui_image(x, 2 + y, img, back_col, 0)
+        else
+            local back_col = iff(is_active, iff(is_selected, iff(self.input_action_held or self.input_pointer_1_held, color_highlight, color_highlight), color_button_bg), iff(is_selected, color_grey_dark, color_button_bg_inactive))
+            if is_active and active_col ~= nil then
+                back_col = active_col
+            end
+            if is_button_hovered and is_active then
+                back_col = color_grey_dark
+            end
+
+            update_ui_image(x, 2 + y, img, back_col, 0)
+        end
+
+        return is_action
+    end,
+
+    get_hover_data = function(self)
+        return self.hover_context
     end,
 
     divider = function(self, space_top, space_bottom)
@@ -2755,12 +2818,22 @@ function get_override_vehicle_loadout_rows(vehicle, current_rows)
             end
         end
     end
-    if replaced_rows ~= nil then
-        current_rows = replaced_rows
-    end
+
 
     if custom_dynamic_vehicle_loadout_rows ~= nil then
-        current_rows = custom_dynamic_vehicle_loadout_rows(vehicle, current_rows)
+        replaced_rows = custom_dynamic_vehicle_loadout_rows(vehicle, replaced_rows)
+    end
+
+    if replaced_rows ~= nil then
+        local acount = vehicle:get_attachment_count()
+        current_rows = {{}}
+        for _, xrow in pairs(replaced_rows) do
+            for __, row in pairs(xrow) do
+                if row.i < acount then
+                    table.insert(current_rows[1], row)
+                end
+            end
+        end
     end
 
     return current_rows
@@ -2998,7 +3071,7 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
 
     if selected_bay_index ~= nil then
         local bay_name = get_carrier_bay_name(selected_bay_index)
-        update_ui_text(cx, cy, bay_name, 200, 0, color_grey_dark, 0)
+        update_ui_text(cx, cy, bay_name, 200, 0, color_grey_dark, 0, 1)
     end
 
     -- chassis background image
@@ -3006,7 +3079,7 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
     local chassis_image = get_chassis_image_by_definition_index(vehicle_definition_index)
     local chassis_color = iff(chassis_image == atlas_icons.icon_chassis_unknown, color_grey_dark, color_white)
     update_ui_image(cx, cy, chassis_image, chassis_color, 0)
-            
+
     -- hardpoint buttons
 
     local attachment_rows = get_ui_vehicle_chassis_attachments(vehicle)
@@ -3061,29 +3134,35 @@ function imgui_vehicle_chassis_loadout(ui, vehicle, selected_bay_index)
                 local attachment_definition_index = attachment:get_definition_index()
 
                 if attachment_definition_index > 0 then
-                    local total_capacity = 0
-                    local resupply_factor = 0
-
-                    if attachment:get_ammo_capacity() > 0 then
-                        total_capacity = total_capacity + 1
-                        resupply_factor = resupply_factor + attachment:get_ammo_factor()
-                    end
+                    local total_capacity = 1
+                    local resupply_factor = 1
+                    local empty_color = color_status_bad
+                    local draw_capacity_bar = true
 
                     if attachment:get_fuel_capacity() > 0 then
-                        total_capacity = total_capacity + 1
-                        resupply_factor = resupply_factor + attachment:get_fuel_factor()
+                        total_capacity = attachment:get_fuel_capacity()
+                        resupply_factor = attachment:get_fuel_factor()
                     end
 
-                    resupply_factor = iff(total_capacity == 0, 1, resupply_factor / total_capacity)
-                    
+                    if attachment_definition_index == e_game_object_type.attachment_fuel_tank_plane then
+                        if attachment:get_ammo_factor() == 0 then
+                            empty_color = color_grey_dark
+                            draw_capacity_bar = false
+                        end
+                    elseif attachment:get_ammo_capacity() > 0 then
+                        total_capacity = attachment:get_ammo_capacity()
+                        resupply_factor = attachment:get_ammo_factor()
+                    end
+
                     local attachment_icon_region, attachment_16_icon_region = get_attachment_icons(attachment_definition_index)
                     local icon_w, icon_h = update_ui_get_image_size(attachment_icon_region)
 
                     if resupply_factor < 1.0 then
-                        update_ui_image(x + (attachment_w - icon_w) / 2, y + (attachment_h - icon_h) / 2, attachment_icon_region, color_status_bad, 0)
-
-                        update_ui_rectangle(x + 1, y + (attachment_h / 2) - 2, attachment_w - 2, 4, color_black)
-                        update_ui_rectangle(x + 1, y + (attachment_h / 2) - 2, (attachment_w - 2) * resupply_factor, 4, color_white)
+                        update_ui_image(x + (attachment_w - icon_w) / 2, y + (attachment_h - icon_h) / 2, attachment_icon_region, empty_color, 0)
+                        if draw_capacity_bar then
+                            update_ui_rectangle(x + 1, y + (attachment_h / 2) - 2, attachment_w - 2, 4, color_black)
+                            update_ui_rectangle(x + 1, y + (attachment_h / 2) - 2, (attachment_w - 2) * resupply_factor, 4, color_white)
+                        end
                     else
                         update_ui_image(x + (attachment_w - icon_w) / 2, y + (attachment_h - icon_h) / 2, attachment_icon_region, color_status_ok, 0)
                     end
@@ -3731,9 +3810,10 @@ function render_tooltip(region_x, region_y, region_w, region_h, x, y, w, h, rad,
     y = pos_y - h - math.floor(rad)
 
     col = col or color_black
-
+    local above = true
     if y < region_y then
         y = pos_y + math.floor(rad)
+        above = false
         update_ui_image(clamp(x - 3, region_x, region_x + region_w - 6), y - 3, atlas_icons.text_back, col, 1)
     else
         update_ui_image(clamp(x - 4, region_x - 2, region_x + region_w - 8), y + h - 2, atlas_icons.text_back, col, 3)
@@ -3749,6 +3829,13 @@ function render_tooltip(region_x, region_y, region_w, region_h, x, y, w, h, rad,
 
     update_ui_pop_clip()
     update_ui_pop_offset()
+    return {
+        ["x"] = x,
+        ["y"] = y,
+        ["w"] = w,
+        ["h"] = h,
+        ["a"] = above
+    }
 end
 
 function render_button_bg(x, y, w, h, col, rad)
@@ -4333,29 +4420,15 @@ function rev_before_add_attachment(
             if attachment and attachment:get() then
                 local current_attachment_def = attachment:get_definition_index()
                 if current_attachment_def == new_attachment_type then
-                    -- do nothing
-                    g_screen_index = 0
+                    -- no change, return to chassis display
+                    g_screen_index = 1
                     return false
-                else
-                    -- if we are making a change
-
-                    -- handle special case when adding "flare" EW attachment to units
-                    if new_attachment_type == g_ew_attachment_type then
-                        local cost = carrier_vehicle:get_inventory_count_by_item_index(g_ew_discard_type)
-                        if cost < g_ew_discard_count then
-                            -- disallow, run out of bots
-                            g_no_stock_counter = 0
-                            return false
-                        end
-                        -- discard the cost
-                        carrier_vehicle:set_inventory_order(g_ew_discard_type, g_ew_discard_count, e_carrier_order_operation.delete)
-                    end
-
-                    -- if someone de-selects "carrier flare" then we need to destroy 10 flares from the inventory
-                    if current_attachment_def == g_ew_attachment_type then
-                        -- we should probably do this for cruise missile, aa and torps but nobody puts those on
-                        carrier_vehicle:set_inventory_order(e_inventory_item.ammo_flare, 10, e_carrier_order_operation.delete)
-                    end
+                end
+            end
+            -- if payload exceeded, do nothing
+            if g_rev_payload_hard_limits or rev_get_unit_has_hard_payload_limit(attached_vehicle) then
+                if not rev_check_attachment_exceeds_payload(attached_vehicle, attachment_index, new_attachment_type) then
+                    return false
                 end
             end
         end
@@ -4365,14 +4438,62 @@ end
 
 g_terrain_render_size = 14000
 
+--
+-- Dear self, this prints very slow simple visual "fog" using the real fog weather data
+-- It was fun to write but not very useful - you.
+--
+function rev_render_simple_fog(cam_x, cam_y, cam_size, screen_w, screen_h)
+    local show_fog = cam_size < 64000
+    -- render simplified fog, 1 blob every 5km blob every 5km
+    if show_fog then
+        local function floor_to(x, y)
+            return math_floor(x // y) * y
+        end
+
+        local grid_spacing = 700
+        local fog_radius = 1200
+
+        local screen_min_x, screen_min_y = get_world_from_screen(0, 0, cam_x, cam_y, cam_size, screen_w, screen_h)
+        local screen_max_x, screen_max_y = get_world_from_screen(screen_w, screen_h, cam_x, cam_y, cam_size, screen_w, screen_h)
+
+        local grid_min_x = floor_to(screen_min_x, grid_spacing)
+        local grid_min_y = floor_to(screen_min_y, grid_spacing)
+        local grid_max_x = floor_to(screen_max_x, grid_spacing) + grid_spacing
+        local grid_max_y = floor_to(screen_max_y, grid_spacing) + grid_spacing
+
+        update_ui_text(10, 10, string.format("fog %6d > x > %6d", grid_min_x, grid_max_x), 256, 0, color_white, 0)
+        update_ui_text(10, 20, string.format("fog %6d > y > %6d", grid_min_y, grid_max_y), 256, 0, color_white, 0)
+        update_ui_text(10, 30, string.format("fog radius %6d", fog_radius), 256, 0, color_white, 0)
+
+
+        local fw = (screen_w * fog_radius // cam_size)
+        -- update_ui_circle(screen_w / 2, screen_h / 2, fw, 5, color_skyblue)
+
+        for x = grid_min_x, grid_max_x, grid_spacing do
+            for y = grid_min_y, grid_max_y, -grid_spacing do
+                local fog_factor = 1 - update_get_weather_fog_factor(x, y)
+                if fog_factor > 0.5 then
+                    local alpha = math_floor(fog_factor * 2.55)
+                    if alpha > 0 then
+                        local fc = color8(200, 200, 255, alpha)
+                        local sx, sy = get_screen_from_world(x, y, cam_x, cam_y, cam_size, screen_w, screen_h)
+                        -- update_ui_text(sx, sy, string.format("%0.2f %s", fog_factor, fw), 64, 0, color_white, 0)
+                        update_ui_circle(sx, sy, fw, 5, fc)
+                    end
+                end
+            end
+        end
+    end
+end
+
 function rev_render_islands(cam_x, cam_y, cam_size, screen_w, screen_h)
+
+    local show_terrain = cam_size < g_terrain_render_size
     -- replace drawing the raster/3d images of islands
     if g_revolution_full_fow then
         update_set_screen_background_is_render_islands(true)
-
         if g_revolution_full_fow_island_blobs then
             -- disabled by default
-            local show_terrain = cam_size < g_terrain_render_size
             update_set_screen_background_is_render_islands(false)
             local island_count = update_get_tile_count()
             for i = 0, island_count - 1, 1 do
@@ -4440,6 +4561,233 @@ function call_custom_vehicle_loadout_update(screen_w, screen_h, ticks)
     end
     return false
 end
+g_advert_max = 6
+g_advert = math.random(1, g_advert_max)
+g_last_advert_roll = 0
+
+function do_advertising_update(screen_w, screen_h)
+    local now = math.floor(update_get_logic_tick() / 30)  -- seconds since game start
+    if now - g_last_advert_roll > 10 then
+        -- new ad every 30 sec
+        g_last_advert_roll = now
+        math.randomseed(update_get_logic_tick())
+        g_advert = math.random(1, g_advert_max)
+    end
+
+
+    local clock = now % 8
+    if g_advert == 1 then
+        -- Dockyard Bar advert
+        update_ui_rectangle(0, 0, screen_w, screen_h / 2, color_skyblue)
+        update_ui_rectangle(0, 0, screen_w, screen_h / 4, color_skyblue)
+        update_ui_rectangle(0, 0, screen_w, screen_h / 8, color_skyblue)
+        update_ui_rectangle(0, screen_h / 2, screen_w, screen_h / 2, color_grey_dark)
+
+        -- parasol
+        update_ui_rectangle(
+                screen_w * 0.67, screen_h * 0.4,
+                2, 55,
+                color_black)
+        update_ui_rectangle(
+                screen_w * 0.6, screen_h * 0.4,
+                screen_w * 0.15, 4,
+                color_black)
+        update_ui_rectangle(
+                screen_w * 0.56, screen_h * 0.42,
+                screen_w * 0.23, 8,
+                color_black)
+        update_ui_rectangle(
+                screen_w * 0.65, screen_h * 0.4,
+                screen_w * 0.05, 8,
+                color_white)
+        if now % 5 > 1 then
+            update_ui_text_scale(15, 2, "Happy Hour!", screen_w, 1, color_enemy, 0, 6)
+        else
+            update_ui_text_scale(8, 8, "Drydock!", screen_w, 0, color_white, 0, 3)
+            update_ui_text_scale(0, screen_h - 22, "Bar & Grill", screen_w - 12, 2, color_white, 0, 2)
+        end
+    elseif g_advert == 2 then
+        -- no more nails
+
+        local left = screen_w / 3
+        update_ui_rectangle(left, 0, screen_w / 3, screen_h, color_grey_dark)
+        update_ui_rectangle(left, 0, screen_w / 3, screen_h / 5, color_white)
+        update_ui_rectangle(left, screen_h * 0.8, screen_w / 3, screen_h / 2, color_enemy)
+        update_ui_rectangle(left, 1 + (screen_h * 0.8), screen_w / 3, 1, color_status_dark_yellow)
+        update_ui_rectangle(left, 2 + (screen_h * 0.8), screen_w / 3, 1, color_status_dark_red)
+        update_ui_text(3 + left, 8, "GRNO!", math.floor(screen_w / 3), 1, color_enemy, 0)
+
+
+        if clock > 0 then
+            update_ui_text_scale(left, math.floor(screen_h / 5) - 3, "NO", math.floor(screen_w / 3), 1, color_status_dark_yellow, 0, 5)
+        end
+        if clock > 1  then
+            update_ui_text_scale(left, 40 + math.floor(screen_h / 5), "MORE", math.floor(screen_w / 3), 1, color_status_dark_yellow, 0, 2)
+        end
+        if clock > 2  then
+            update_ui_text_scale(left, 60 + math.floor(screen_h / 5), "NAILS", math.floor(screen_w / 3), 1, color_white, 0, 2)
+        end
+
+    elseif g_advert == 3 then
+        -- trickys
+        local left = math.floor(12)
+        update_ui_text_scale(left, 2, "T", 16, 0, color_skyblue, 0, 8)
+        update_ui_text_scale(left + 28, 2 + 16, "S", 16, 0, color_skyblue, 0, 6)
+
+        if clock % 2 == 0 then
+            update_ui_text_scale(screen_w / 3, 2 + 13, "The only game in town!", screen_w / 2, 2, color_white, 0, 2)
+        end
+        update_ui_text(left, screen_h - 16 * 2, "    www: trickys.gg", screen_w, 0, color_status_dark_green, 0)
+        -- https://discord.com/invite/trickys
+        update_ui_text(left, screen_h - 18, "discord: discord.com/invite/trickys", screen_w, 0, color_status_dark_green, 0)
+    elseif g_advert == 4 then
+        update_ui_rectangle(0, 0, screen_w, screen_h, color_grey_dark)
+        -- draw the delta triangle
+        local triangle_x = 64
+        local triangle_y = 10
+        local triangle_f = 0.7
+        local triangle_h = 64
+
+        -- triangle
+        for i=0, triangle_h do
+            local w = math.floor(i * triangle_f)
+            local c = color8(i, i * 2, triangle_h - i, 255)
+            update_ui_line( triangle_x - w, triangle_y + i, triangle_x + w, triangle_y + i, c)
+        end
+        update_ui_line(
+                triangle_x, triangle_y,
+                triangle_x - math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        update_ui_line(
+                triangle_x, triangle_y,
+                triangle_x + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        update_ui_line(
+                triangle_x + 1, triangle_y,
+                triangle_x + 1 + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        update_ui_line(
+                triangle_x + 2, triangle_y,
+                triangle_x + 2 + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        update_ui_line(
+                triangle_x - 1, triangle_y,
+                triangle_x - 1 + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+                update_ui_line(
+                triangle_x - 2, triangle_y,
+                triangle_x - 2 + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        update_ui_line(
+                triangle_x - math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                triangle_x + math.floor(triangle_h * triangle_f), triangle_y + triangle_h,
+                color_black)
+        -- alb
+        update_ui_rectangle(
+                triangle_x - 6, triangle_y + 19,
+                4, 7,
+                color_black
+        )
+        update_ui_rectangle(
+                triangle_x - 12, triangle_y + 21,
+                17, 2,
+                color_black
+        )
+        -- island
+        update_ui_text(triangle_x - 25, triangle_y + 52, "*", 1, 0, color_black, 0)
+        update_ui_text(triangle_x - 18, triangle_y + 53, "*", 1, 0, color_black, 0)
+        update_ui_rectangle(
+                triangle_x - 22, triangle_y + 59,
+                19, 3,
+                color_black
+        )
+        update_ui_rectangle(
+                triangle_x - 31, triangle_y + 62,
+                34, 2,
+                color_black
+        )
+        -- mnt
+        update_ui_rectangle(
+                triangle_x - 5, triangle_y + 45,
+                31, 2,
+                color_black
+        )
+        update_ui_rectangle(
+                triangle_x - 12, triangle_y + 44,
+                20, 1,
+                color_black
+        )
+        update_ui_rectangle(
+                triangle_x - 14, triangle_y + 43,
+                13, 1,
+                color_black
+        )
+        update_ui_rectangle(
+                triangle_x - 1, triangle_y + 46,
+                8, 4,
+                color_black
+        )
+        --- text
+        if clock % 5 > 0 or clock > 5 then
+            update_ui_text_scale(-10, 10, "Got Questions?", screen_w, 2, color_status_dark_yellow, 0, 2)
+        end
+        if clock % 5 > 1 or clock > 5 then
+            update_ui_text_scale(-10, 30, "Need Help?", screen_w, 2, color_friendly, 0, 2)
+        end
+        if clock % 5 > 2 or clock > 5 then
+            update_ui_text_scale(0, 77, "Call Delta Fleet!", screen_w, 1, color_white, 0, 2)
+            update_ui_text_scale(2, 105, "1-800-SAGE-ADVICE", screen_w, 1, color_black, 0, 2)
+            update_ui_text_scale(0, 102, "1-800-SAGE-ADVICE", screen_w, 1, color_white, 0, 2)
+        end
+    elseif g_advert == 5 or g_advert == 6 then
+        -- CEEFAX
+        local now = update_get_logic_tick()
+        update_ui_push_offset(8, 5)
+        local page = now % 889
+        local title = string.format(" P%03d CC2FAX 1 100              %s", page, format_time(now / 30))
+        update_ui_text(0, 0, title, screen_w, 0, color_white, 0)
+
+        function box_letter(bx, by, txt, fg, bg)
+            local tw = update_ui_get_text_size(txt, screen_w, 0)
+            update_ui_rectangle(bx, by, tw * 2, 18, bg)
+            update_ui_text_scale(1 + bx, by, txt, tw + 2, 0, fg, 0, 2)
+        end
+
+        box_letter(0, 12, "C", color_black, color_white)
+        box_letter(14, 12, "C", color_black, color_white)
+        box_letter(28, 12, "2", color_black, color_white)
+
+        update_ui_rectangle( 42, 12, screen_w - 50, 18, color8(0, 0, 255, 255))
+
+        update_ui_text_scale( 45, 14, "TELOS NEWS", screen_w, 0, color_status_dark_yellow, 0, 1.5)
+
+        if now % 60 > 30 then
+            update_ui_text_scale( 160, 14, "UPDATE!", screen_w, 0, color_status_ok, 0, 1.5)
+        end
+
+        function get_nearest_island_name()
+            local name = "-"
+            local pos = update_get_screen_vehicle():get_position_xz()
+            local nearest = get_nearest_island_tile(pos:x(), pos:y())
+            name = get_island_name(nearest)
+            return name
+        end
+
+        update_ui_text(0, 34, "Island News", screen_w, 0, color_status_dark_yellow, 0)
+        update_ui_text(0, 44, string.format("P102 %s locals welcome %s visit", get_nearest_island_name(), "CRR" ), screen_w, 0, color_white, 0)
+
+        update_ui_text(0, 64, "Wildlife in focus", screen_w, 0, color_status_dark_yellow, 0)
+        update_ui_text(0, 74, "P213 Seal population decimated", screen_w, 0, color_white, 0)
+        update_ui_text(0, 84, "P214 Razorbill season approaches", screen_w, 0, color_white, 0)
+
+        update_ui_text(0, 104, "Headlines", screen_w, 0, color_enemy, 0)
+        update_ui_text(80, 104, "Sport", screen_w, 0, color_status_dark_green, 0)
+        update_ui_text(140, 104, "TV", screen_w, 0, color_status_dark_yellow, 0)
+        update_ui_text(170, 104, "A-Z Index", screen_w, 0, color_status_ok, 0)
+
+    end
+end
+
 
 function call_custom_ui_vehicle_loadout_chassis(ui, vehicle)
     if custom_ui_vehicle_loadout_chassis ~= nil then
@@ -4469,4 +4817,12 @@ function call_func_override(name, ...)
         print(val)
     end
     return val
+end
+
+local ticks_per_sec = 30
+function rev_rotate_tick_call(interval_sec, funcs)
+    local now = update_get_logic_tick()
+    local tick_interval = ticks_per_sec * interval_sec
+    local selection = (now // tick_interval) % #funcs
+    return funcs[1 + selection]()
 end

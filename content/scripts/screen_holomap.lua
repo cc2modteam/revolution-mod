@@ -252,8 +252,10 @@ function _update(screen_w, screen_h, ticks)
 
     g_is_mouse_mode = update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
-    refresh_modded_radar_cache()
-    refresh_fow_islands()
+    if ticks < 2 then
+        refresh_modded_radar_cache()
+        refresh_fow_islands()
+    end
 
     local screen_vehicle = update_get_screen_vehicle()
 
@@ -743,21 +745,25 @@ function _update(screen_w, screen_h, ticks)
 
             for i = 0, missile_count - 1 do
                 local missile = update_get_missile_by_index(i)
-                local fired_from_id = missile:get_fired_vehicle_id()
-                if fired_from_id then
-                    local launcher = update_get_map_vehicle_by_id(fired_from_id)
-                    local detected = launcher:get_is_observation_revealed() and launcher:get_is_visible()
-                    if not detected then
-                        --local def = missile:get_definition_index()
-                        --local wep_idx = missile:get_fired_attachment_index()
-                        --local wep = launcher:get_attachment(wep_idx)
-                        --local wep_def = wep:get_definition_index()
-                        local position_xz = missile:get_position_xz()
-                        -- render a shape/missile/bomb
-                        --local data = get_attachment_data_by_definition_index(wep_def)
-                        local icon = atlas_icons.map_icon_missile
-                        local screen_pos_x, screen_pos_y = get_holomap_from_world(position_xz:x(), position_xz:y(), screen_w, screen_h)
-                        update_ui_image_rot(screen_pos_x, screen_pos_y, icon, color_status_dark_red, 0)
+                if missile and missile:get() then
+                    local fired_from_id = missile:get_fired_vehicle_id()
+                    if fired_from_id then
+                        local launcher = update_get_map_vehicle_by_id(fired_from_id)
+                        if launcher and launcher:get() then
+                            local detected = launcher:get_is_observation_revealed() and launcher:get_is_visible()
+                            if not detected then
+                                --local def = missile:get_definition_index()
+                                --local wep_idx = missile:get_fired_attachment_index()
+                                --local wep = launcher:get_attachment(wep_idx)
+                                --local wep_def = wep:get_definition_index()
+                                local position_xz = missile:get_position_xz()
+                                -- render a shape/missile/bomb
+                                --local data = get_attachment_data_by_definition_index(wep_def)
+                                local icon = atlas_icons.map_icon_missile
+                                local screen_pos_x, screen_pos_y = get_holomap_from_world(position_xz:x(), position_xz:y(), screen_w, screen_h)
+                                update_ui_image_rot(screen_pos_x, screen_pos_y, icon, color_status_dark_red, 0)
+                            end
+                        end
                     end
                 end
 
@@ -2571,24 +2577,23 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
 
             for _, attachment in ipairs(attachments) do
                 local adef = attachment:get_definition_index()
-                if adef ~= g_ew_attachment_type then
-                    local attachment_data = get_attachment_data_by_definition_index(attachment:get_definition_index())
-                    update_ui_image(1, cy + 1, attachment_data.icon16, color_white, 0)
+                local attachment_data = get_attachment_data_by_definition_index(adef)
+                update_ui_image(1, cy + 1, attachment_data.icon16, color_white, 0)
 
-                    local ammo_capacity = attachment:get_ammo_capacity()
-                    local fuel_capacity = attachment:get_fuel_capacity()
+                local ammo_capacity = attachment:get_ammo_capacity()
+                local fuel_capacity = attachment:get_fuel_capacity()
 
-                    if ammo_capacity > 0 then
-                        local ammo_remaining = attachment:get_ammo_remaining()
-                        update_ui_text(21, cy + 4, ammo_remaining .. "/" .. ammo_capacity, 100, 0, iff(ammo_remaining == 0, color_status_bad, color_status_ok), 0)
-                    elseif fuel_capacity > 0 then
-                        local fuel_remaining = attachment:get_fuel_remaining()
-                        update_ui_text(21, cy + 4, fuel_remaining  .. "/" .. fuel_capacity, 100, 0, iff(fuel_remaining == 0, color_status_bad, color_status_ok), 0)
-                    end
-
-                    cy = cy + 17
-                    update_ui_rectangle(0, cy, region_w, 1, color8(255, 255, 255, 2))
+                if ammo_capacity > 0 then
+                    local ammo_remaining = attachment:get_ammo_remaining()
+                    update_ui_text(21, cy + 4, ammo_remaining .. "/" .. ammo_capacity, 100, 0, iff(ammo_remaining == 0, color_status_bad, color_status_ok), 0)
+                elseif fuel_capacity > 0 then
+                    local fuel_remaining = attachment:get_fuel_remaining()
+                    update_ui_text(21, cy + 4, fuel_remaining  .. "/" .. fuel_capacity, 100, 0, iff(fuel_remaining == 0, color_status_bad, color_status_ok), 0)
                 end
+
+                cy = cy + 17
+                update_ui_rectangle(0, cy, region_w, 1, color8(255, 255, 255, 2))
+
             end
 
             window.cy = cy + 1

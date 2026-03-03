@@ -85,7 +85,7 @@
 			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.42817993e+01" ty="2.01887817e+01" tz="2.13324707e+02"/>
 		</mesh>
 		<mesh file="meshes/environment/trees/tree_full.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.06594391e+01" ty="1.63880463e+01" tz="1.98582535e+02"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.06594391e+01" ty="1.52128639e+01" tz="1.98582535e+02"/>
 		</mesh>
 		<mesh file="meshes/lava_biome_tiles/lava_biome_rocks_a.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.06594391e+01" ty="1.63880463e+01" tz="1.97948441e+02"/>
@@ -144,6 +144,60 @@
 		<mesh file="meshes/vehicles/lifeboat/lifeboat.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="8.60704243e-01" m01="0.00000000e+00" m02="5.09105265e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-5.09105265e-01" m21="0.00000000e+00" m22="8.60704243e-01" tx="6.52873154e+01" ty="1.83131390e+01" tz="2.21448700e+02"/>
 		</mesh>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/cruise_missile_silo_cap.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.97740865e-01" m01="0.00000000e+00" m02="8.67325783e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-8.67325783e-01" m21="0.00000000e+00" m22="4.97740865e-01" tx="6.22450829e+01" ty="1.78096313e+01" tz="2.11839081e+02"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/cruise_missile_silo_top.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-8.60877633e-01" m01="-2.22408829e-08" m02="5.08812070e-01" m10="-5.08812070e-01" m11="3.76301550e-08" m12="-8.60877633e-01" m20="0.00000000e+00" m21="-1.00000000e+00" m22="-4.37113883e-08" tx="6.30115585e+01" ty="1.82635708e+01" tz="2.10409119e+02"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/cruise_missile_silo_cap.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="4.97740865e-01" m01="0.00000000e+00" m02="8.67325783e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-8.67325783e-01" m21="0.00000000e+00" m22="4.97740865e-01" tx="6.14483223e+01" ty="1.78096313e+01" tz="2.10450699e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="4.95538292e+01" ty="1.92506351e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="4.95538292e+01" ty="1.84322186e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.03363419e+01" ty="1.84322186e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.11511497e+01" ty="1.84322186e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.14063683e+01" ty="1.84322186e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.14063683e+01" ty="1.92485943e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.03363419e+01" ty="1.92498589e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.11511497e+01" ty="1.92515488e+01" tz="2.20479691e+02"/>
+		</mesh>
+		<mesh file="meshes/spaceship/spaceship/spaceship_items_bag.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="6.07864761e+01" ty="1.72437057e+01" tz="2.01276993e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_tyre.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.95001564e+01" ty="1.72437057e+01" tz="2.00547775e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/chassis/tyre.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="9.08537567e-01" m01="0.00000000e+00" m02="-4.17803168e-01" m10="1.55563995e-01" m11="9.28097188e-01" m12="3.38283062e-01" m20="3.87761950e-01" m21="-3.72337997e-01" m22="8.43211174e-01" tx="6.11534767e+01" ty="1.74644508e+01" tz="2.00226700e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/attachments/ir_detector.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="8.99359643e-01" m01="0.00000000e+00" m02="-4.37209636e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="4.37209636e-01" m21="0.00000000e+00" m22="8.99359643e-01" tx="6.04481659e+01" ty="1.72068729e+01" tz="2.01122528e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/attachments/missile_4.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.90594101e+01" ty="1.72068729e+01" tz="1.99746445e+02"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/spotlight.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.96916122e+01" ty="1.79376984e+01" tz="1.98682510e+02"/>
+		</mesh>
+		<mesh file="meshes/vehicles/boston_dog/boston_dog_body.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="7.78008342e-01" m01="0.00000000e+00" m02="6.28253937e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-6.28253937e-01" m21="0.00000000e+00" m22="7.78008342e-01" tx="6.16047363e+01" ty="1.73604565e+01" tz="2.00800522e+02"/>
+		</mesh>
 	</meshes>
 	<wheels/>
 	<attachments/>
@@ -179,6 +233,84 @@
 		<light name="light_3" body_index="0" scale="3.00000000e+01" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="4.98023071e+01" ty="1.04376656e+02" tz="3.71732025e+02"/>
 			<color x="1.00000000e+00" y="1.00000000e+00" z="1.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="1.30000003e-02" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.06594391e+01" ty="2.86273155e+01" tz="1.98582535e+02"/>
+			<color x="1.00000000e+02" y="1.00000000e+02" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.18359375e+01" ty="2.58342838e+01" tz="1.98829315e+02"/>
+			<color x="1.00000000e+02" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.91492653e+01" ty="2.54165859e+01" tz="1.99088715e+02"/>
+			<color x="1.00000000e+02" y="0.00000000e+00" z="1.00000000e+02"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.10068626e+01" ty="2.49526215e+01" tz="2.00063828e+02"/>
+			<color x="0.00000000e+00" y="0.00000000e+00" z="1.00000000e+02"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.96252060e+01" ty="2.38485165e+01" tz="2.00063828e+02"/>
+			<color x="0.00000000e+00" y="1.00000000e+02" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.21753616e+01" ty="2.38485165e+01" tz="1.97046783e+02"/>
+			<color x="0.00000000e+00" y="1.00000000e+02" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.30591469e+01" ty="2.19312649e+01" tz="1.97990662e+02"/>
+			<color x="1.00000000e+02" y="1.00000000e+02" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.91503906e+01" ty="2.19312649e+01" tz="1.99387817e+02"/>
+			<color x="1.00000000e+02" y="1.00000000e+02" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.91503906e+01" ty="2.01920490e+01" tz="1.99387817e+02"/>
+			<color x="1.00000000e+02" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.23246231e+01" ty="2.06267700e+01" tz="1.99387817e+02"/>
+			<color x="1.00000000e+02" y="0.00000000e+00" z="1.00000000e+02"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.06290627e+01" ty="2.03213501e+01" tz="2.00628632e+02"/>
+			<color x="0.00000000e+00" y="1.00000000e+02" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="6.22460060e+01" ty="1.95429993e+01" tz="2.00047302e+02"/>
+			<color x="9.90000000e+01" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="light" body_index="0" scale="4.99999989e-03" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="5.84041214e+01" ty="1.95429993e+01" tz="2.00047302e+02"/>
+			<color x="0.00000000e+00" y="0.00000000e+00" z="9.90000000e+01"/>
 			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
 			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
 		</light>
@@ -230,11 +362,14 @@
 	<achievements/>
 	<dials/>
 	<screens>
-		<screen name="screen" display_name_loc="0" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="4" type="3" refresh_interval="1.00000000e+00" help_tag="">
+		<screen name="drydock-bar-table" display_name_loc="1388" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="4" type="3" refresh_interval="2.00000000e+00" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="6.40186727e-01" m12="-7.68219352e-01" m20="0.00000000e+00" m21="7.68219352e-01" m22="6.40186727e-01" tx="5.42871056e+01" ty="1.83646049e+01" tz="2.15037720e+02"/>
 		</screen>
-		<screen name="screen" display_name_loc="0" script_file_name="scripts/screen_vehicle_control.lua" body_index="4294967295" seat_index="5" type="2" refresh_interval="1.00000000e+00" help_tag="">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.04701347e+01" ty="1.88267841e+01" tz="2.20409302e+02"/>
+		<screen name="drydock-bar-large" display_name_loc="1388" script_file_name="scripts/screen_vehicle_control.lua" body_index="4294967295" seat_index="5" type="2" refresh_interval="2.00000000e+00" help_tag="">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="5.04701347e+01" ty="1.88267841e+01" tz="2.20402847e+02"/>
+		</screen>
+		<screen name="screen_advert" display_name_loc="428" script_file_name="scripts/screen_landing.lua" body_index="0" seat_index="4294967295" type="4" refresh_interval="1.00000000e+00" help_tag="">
+			<transform m00="-9.93555486e-01" m01="1.13080695e-01" m02="7.76301883e-03" m10="1.13038912e-01" m11="9.83484924e-01" m12="1.41347080e-01" m20="8.34881421e-03" m21="1.41313717e-01" m22="-9.89929616e-01" tx="6.35734406e+01" ty="1.80653210e+01" tz="2.09248077e+02"/>
 		</screen>
 	</screens>
 	<doors>

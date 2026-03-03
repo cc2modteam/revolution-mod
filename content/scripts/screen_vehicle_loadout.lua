@@ -25,7 +25,7 @@ end
 
 function get_selected_chassis_options(bay_index)
     local selection_options = {}
-    local is_ground = g_selected_bay_index < 8
+    local is_ground = bay_index < 8
 
     if is_ground then
         selection_options = {
@@ -40,6 +40,12 @@ function get_selected_chassis_options(bay_index)
             table.insert(
                     selection_options,
                     { region=atlas_icons.icon_chassis_16_land_turret, type=e_game_object_type.chassis_land_turret })
+        end
+
+        if get_is_spectator_mode() then
+            table.insert(
+                    selection_options,
+                    { region=atlas_icons.icon_chassis_16_carrier, type=e_game_object_type.chassis_carrier })
         end
 
     else
@@ -258,7 +264,60 @@ function _update(screen_w, screen_h, ticks)
          -- title
 
         update_ui_rectangle(0, 0, screen_w, 14, color_white)
-        update_ui_text(0, 4, get_bay_name(g_selected_bay_index), screen_w, 1, color_black, 0)
+        update_ui_text(4, 4, get_bay_name(g_selected_bay_index), screen_w, 0, color_black, 0)
+
+        -- mini toolbar
+        local attached_vehicle = update_get_map_vehicle_by_id(this_vehicle:get_attached_vehicle_id(g_selected_bay_index))
+        if attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
+            local attached_vehicle_def = attached_vehicle:get_definition_index()
+            local toolbar_w = 64
+            local bs = 8
+            local bcount = 0
+
+            ui:begin_window("##tb", screen_w - 3 - toolbar_w, 3, toolbar_w, 18, nil, true, 1)
+
+            function add_toolbar_btn(icon, tooltip, callback, enabled)
+                if enabled == nil then
+                    enabled = true
+                end
+
+                bcount = bcount + 1
+                if ui:img_button(
+                    icon,
+                    toolbar_w - bs*(bcount), 0,
+                    bs, bs,
+                    enabled, color_status_dark_green, tooltip
+                ) then
+                    callback()
+                end
+            end
+
+            function add_preset_btn(preset, icon, tooltip, enabled)
+                if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, preset) then
+                    add_toolbar_btn(icon, tooltip,
+                            function()
+                                rev_set_preconfigure_attachments(this_vehicle, g_selected_bay_index, preset)
+                            end, enabled)
+                end
+            end
+
+            add_preset_btn("empty", atlas_icons.map_icon_unload, "Remove Attachments")
+            add_preset_btn("defender", atlas_icons.column_difficulty, "Defender")
+            add_preset_btn("strike", atlas_icons.column_laser, "Strike")
+            add_preset_btn("refuel", atlas_icons.icon_fuel, "Refuel")
+            add_preset_btn("capture", atlas_icons.column_team_control, "Capture")
+
+            if rev_has_preconfigure_preset(this_vehicle, g_selected_bay_index, "custom") then
+                add_toolbar_btn(atlas_icons.icon_health, "Copy loadout",
+                function()
+                    rev_save_preconfigure_attachments(this_vehicle, g_selected_bay_index, "custom")
+                end)
+                local paste_enabled = #g_revolution_loadout_preset[attached_vehicle_def]["custom"] > 0
+                add_preset_btn("custom", atlas_icons.icon_ammo, "Paste loadout", paste_enabled)
+            end
+
+            ui:end_window()
+        end
 
         -- dividers
 
@@ -274,7 +333,7 @@ function _update(screen_w, screen_h, ticks)
 
         if g_screen_index == 1 then
             -- vehicle loadout
-            
+
             g_selected_option_index = 0
 
             if attached_vehicle:get() then
@@ -292,11 +351,10 @@ function _update(screen_w, screen_h, ticks)
                 update_ui_image(4, cy, atlas_icons.column_difficulty, color_grey_mid, 0)
                 update_ui_text(13, cy, armour, 64, 0, color_grey_dark, 0)
                 cy = cy + 10
-
-                if get_is_vehicle_air(attached_vehicle:get_definition_index()) then
-                    local payload_mass = get_aircraft_payload_weight(attached_vehicle)
+                if rev_get_unit_has_payload_limit(attached_vehicle) then
+                    local payload_remain = rev_get_payload_remaining(attached_vehicle)
                     update_ui_image(4, cy, atlas_icons.column_weight, color_grey_mid, 0)
-                    update_ui_text(13, cy, payload_mass .. update_get_loc(e_loc.upp_kg), 64, 0, color_grey_dark, 0)
+                    update_ui_text(13, cy, string.format("%d %s", payload_remain, update_get_loc(e_loc.upp_kg)), 64, 0, color_grey_dark, 0)
                     cy = cy + 11
                 end
 
@@ -319,18 +377,18 @@ function _update(screen_w, screen_h, ticks)
                 call_custom_ui_vehicle_loadout_chassis(ui, attached_vehicle)
 
                 local window = ui:begin_window("##vehicle", screen_w / 2, 14, screen_w / 2, screen_h - 14, nil, true, 1)
-                    local region_w, region_h = ui:get_region()
+                local region_w, region_h = ui:get_region()
 
-                    if ui:button(vehicle_definition_name, true, 1) then
-                        g_screen_index = 3
-                    end
+                if ui:button(vehicle_definition_name, true, 1) then
+                    g_screen_index = 3
+                end
 
-                    window.cy = window.cy - 1
-                    g_selected_attachment_index, is_pressed = imgui_vehicle_chassis_loadout(ui, attached_vehicle)
-                    
-                    if is_pressed then
-                        g_screen_index = 2
-                    end
+                window.cy = window.cy - 1
+                g_selected_attachment_index, is_pressed = imgui_vehicle_chassis_loadout(ui, attached_vehicle)
+
+                if is_pressed then
+                    g_screen_index = 2
+                end
                 ui:end_window()
 
                 if g_hovered_attachment > -1 then
@@ -344,7 +402,7 @@ function _update(screen_w, screen_h, ticks)
                         end
                     end
                 end
-                
+
                 is_show_attachment_selector = window.selected_index_y > 0
 
                 -- update selected option to match current selection
@@ -375,11 +433,30 @@ function _update(screen_w, screen_h, ticks)
                 end
             else
                 ui:begin_window("##vehicle", 0, 14, screen_w, screen_h - 14, nil, true, 1)
-                    if ui:button(update_get_loc(e_loc.upp_select_chassis), true, 1) then
-                        g_screen_index = 3
-                    end
+                if ui:button(update_get_loc(e_loc.upp_select_chassis), true, 1) then
+                    g_screen_index = 3
+                end
                 ui:end_window()
             end
+            local hover_data = ui:get_hover_data()
+            if hover_data and update_get_is_focus_local() then
+                local tx = 8
+                local ty = 55
+                local th = 9
+                update_ui_rectangle(
+                        tx, ty + th, screen_w, 2, color8(0, 0, 0, 128)
+                )
+                update_ui_rectangle(
+                        tx, ty, screen_w, th, color_black
+                )
+                update_ui_rectangle_outline(
+                        tx, ty, screen_w, th, color_grey_mid
+                )
+                update_ui_text_mini(
+                        tx + 2, ty + 2, hover_data, screen_w, 0, color_grey_mid
+                )
+            end
+
 
             if is_show_attachment_selector then
                 render_screen_attachment(screen_w, screen_h, this_vehicle, attached_vehicle, false)
@@ -453,6 +530,7 @@ end
 
 function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_vehicle, is_active)   
     local ui = g_ui
+    local block_attachment = false
 
     if attached_vehicle:get() then
         if g_selected_attachment_index ~= -1 then
@@ -462,18 +540,20 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
             local button_w = iff(attachment_type == e_game_object_attachment_type.plate_logistics_container, 20, 16)
 
             local function render_attachment_option(item, is_active, is_selected)
-                render_button_bg(1, 0, button_w, 25, iff(is_active, iff(is_selected, color_highlight, color_button_bg), color_button_bg_inactive), 1)
+                local btn_bg_col = color_button_bg
+                if not rev_check_attachment_exceeds_payload(attached_vehicle, g_selected_attachment_index, item.type) then
+                    btn_bg_col = color_status_orange
+                    if rev_get_unit_has_hard_payload_limit(attached_vehicle) then
+                        btn_bg_col = color_status_dark_red
+                    end
+                end
+
+                render_button_bg(1, 0, button_w, 25, iff(is_active, iff(is_selected, color_highlight, btn_bg_col), color_button_bg_inactive), 1)
 
                 local txt = nil
                 local icon = item.region
                 local ammo_type = update_get_attachment_ammo_item_type(item.type)
                 local ammo_divide = 1
-                if item.type == g_ew_attachment_type then
-                    icon = atlas_icons.column_power
-                    txt = "E"
-                    ammo_type = e_inventory_item.virus_module
-                    ammo_divide = g_ew_discard_count
-                end
 
                 local icon_w = update_ui_get_image_size(icon)
                 update_ui_image((button_w - icon_w) / 2 + 1, 0, icon, iff(is_active, iff(is_selected, color_white, color_black), color_black), 0)
@@ -497,7 +577,7 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
 
             if is_active then
                 if selection_options[g_selected_option_index + 1] ~= nil and selection_options[g_selected_option_index + 1].type > -1 then
-                    render_ui_attachment_definition_description(4, 17, screen_w - 8, screen_h, this_vehicle, selection_options[g_selected_option_index + 1].type)
+                    render_ui_attachment_definition_description(4, 17, screen_w - 8, screen_h, this_vehicle, selection_options[g_selected_option_index + 1].type, attached_vehicle)
                 else
                     update_ui_text(4, 17, update_get_loc(e_loc.upp_clear), 60, 0, color_white, 0)
                 end
@@ -518,12 +598,13 @@ function render_screen_attachment(screen_w, screen_h, this_vehicle, attached_veh
                     if current_attachment and current_attachment:get() then
                         current_attachment_type = current_attachment:get_definition_index()
                     end
+                    local target_type = attached_vehicle:get_definition_index()
 
                     if rev_before_add_attachment(this_vehicle, g_selected_bay_index, g_selected_attachment_index, new_attachment_type) then
                         if g_selected_option_index == 0 then
                             this_vehicle:set_attached_vehicle_attachment(g_selected_bay_index, g_selected_attachment_index, -1)
                             g_screen_index = 1
-                        elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 then
+                        elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 or target_type == e_game_object_type.chassis_carrier then
                             this_vehicle:set_attached_vehicle_attachment(g_selected_bay_index, g_selected_attachment_index, new_attachment_type)
                             g_screen_index = 1
                         else
@@ -568,11 +649,12 @@ function render_screen_chassis(screen_w, screen_h, this_vehicle, is_active)
 
             local definition_index = selection_options[g_selected_option_index + 1].type
             local inventory_item_type = update_get_resource_item_for_definition(definition_index)
+            local parent_type = this_vehicle:get_definition_index()
 
             if g_selected_option_index == 0 or this_vehicle:get_definition_index() == e_game_object_type.drydock then
                 this_vehicle:set_attached_vehicle_chassis(g_selected_bay_index, selection_options[g_selected_option_index + 1].type)
                 g_screen_index = 1
-            elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 then
+            elseif inventory_item_type == -1 or this_vehicle:get_inventory_count_by_definition_index(definition_index) > 0 or parent_type == e_game_object_type.drydock then
                 this_vehicle:set_attached_vehicle_chassis(g_selected_bay_index, selection_options[g_selected_option_index + 1].type)
                 g_screen_index = 1
             else
@@ -584,7 +666,7 @@ function render_screen_chassis(screen_w, screen_h, this_vehicle, is_active)
     render_no_stock_indicator(4, 79, screen_w - 8)
 end
 
-function render_ui_attachment_definition_description(x, y, w, h, vehicle, index)
+function render_ui_attachment_definition_description(x, y, w, h, vehicle, index, attached_vehicle)
     local attachment_data = get_attachment_data_by_definition_index(index)
     update_ui_push_offset(x, y)
     
@@ -605,32 +687,29 @@ function render_ui_attachment_definition_description(x, y, w, h, vehicle, index)
 
     local ammo_type = update_get_attachment_ammo_item_type(index)
     local ammo_icon = atlas_icons.icon_ammo
-    --  if this is the EW flare launcher, show virus bots as ammo count
-    if index == g_ew_attachment_type then
-        ammo_type = update_get_attachment_ammo_item_type(g_ew_attachment_discard_type)
-        ammo_icon = atlas_icons.column_repair
-    end
 
     if ammo_type ~= -1 then
         local ammo_count = vehicle:get_inventory_count_by_item_index(ammo_type)
         update_ui_image(0, cy, ammo_icon, iff(is_in_stock, color_white, color_grey_dark), 0)
         cy = 2 + cy + update_ui_text(10, cy, ammo_count, w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
-
-        if index == g_ew_attachment_type then
-             cy = cy + update_ui_text(10, cy - 3, string.upper("destroy"), w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_dark_yellow, color_status_bad), color_grey_dark), 0)
-             cy = cy + update_ui_text(10, cy - 3,
-                     string.format("%s x%d",
-                             string.upper(update_get_loc(g_ew_discard_loc)),
-                             g_ew_discard_count
-                     ), w - 10, 0, iff(is_in_stock, iff(ammo_count > 0, color_status_ok, color_status_bad), color_grey_dark), 0)
-        end
-
     end
 
     local item_mass = get_payload_weight(index)
     if item_mass then
+        local col = color_white
+        local excess = false
+        if not rev_check_attachment_exceeds_payload(attached_vehicle, g_selected_attachment_index, index) then
+            excess = true
+            col = rev_rotate_tick_call(0.3, {
+                function() return color_status_dark_red end,
+                function() return color_status_ok  end
+            })
+        end
         update_ui_image(0, cy, atlas_icons.column_weight, iff(is_in_stock, color_white, color_grey_dark), 0)
-        update_ui_text(10, cy, item_mass .. update_get_loc(e_loc.upp_kg) , w - 10, 0, color_white, 0)
+        update_ui_text(10, cy, string.format("%d %s", item_mass, update_get_loc(e_loc.upp_kg)), w - 10, 0, col, 0)
+        if excess then
+            update_ui_text(10, cy + 32, string.format("%s", update_get_loc(e_loc.upp_payload)), w - 10, 0, color_status_dark_red, 0)
+        end
     end
     update_ui_pop_offset()
 end
@@ -704,3 +783,356 @@ function render_screen_chooser(screen_w, screen_h, is_active)
 
     ui:end_window()
 end
+
+
+
+-- revolution crafting system
+--
+-- when you are near and/or control particular island types you will be able to
+-- unlock extra loadout options for some units, doing so will involve a "cost"
+-- to be paid in carrier inventory stock (dumped over the side).
+-- once fitted out in one of these special modes, if you remove anything
+-- added by the alternate loadout, you wont be permitted to re-add it.
+
+function custom_dynamic_vehicle_loadout_rows(vehicle, dynamic)
+	local opt, fitted = rev_get_custom_upgrade_option(vehicle)
+	local rows = {}
+	if opt and fitted then
+		for i, r in pairs(opt.rows) do
+			if r ~= nil then
+				rows[i] = r
+			end
+		end
+		return rows
+	end
+
+	return dynamic
+end
+
+function custom_dynamic_vehicle_loadout_options(vehicle, dynamic, attachment_index)
+	local replaced_opts = nil
+	local opt, fitted = rev_get_custom_upgrade_option(vehicle)
+	if opt and fitted then
+		replaced_opts = opt.options[attachment_index]
+	end
+
+	if replaced_opts ~= nil then
+		dynamic = replaced_opts
+	end
+
+	return dynamic
+end
+
+
+function rev_engineering_can_upgrade(vehicle)
+	local opt, fitted = rev_get_custom_upgrade_option(vehicle)
+	return opt and not fitted
+end
+
+g_prompt_upgrade_vehicle = nil
+
+function rev_get_custom_upgrade_option(vehicle)
+	if vehicle and vehicle:get() then
+		local def = vehicle:get_definition_index()
+		for _, value in pairs(g_revolution_crafting_items) do
+			if value.chassis == def then
+				-- if a special option isnt fitted
+				local fitted = false
+				local acount = vehicle:get_attachment_count()
+				if acount == value.min_attachments then
+					for anum, adef in pairs(value.attachments) do
+						local a = vehicle:get_attachment(anum)
+						if a and a:get() then
+							local a_fitted = a:get_definition_index()
+							if a_fitted == adef then
+								fitted = true
+							end
+						end
+					end
+					return value, fitted
+				end
+			end
+		end
+	end
+	return nil, nil
+end
+
+
+function custom_vehicle_input_event(event, action)
+	if g_prompt_upgrade_vehicle then
+		if event == e_input.back then
+			g_prompt_upgrade_vehicle = nil
+		end
+	end
+end
+
+function custom_vehicle_loadout_update(screen_w, screen_h, ticks)
+	if g_prompt_upgrade_vehicle then
+		local vehicle = update_get_map_vehicle_by_id(g_prompt_upgrade_vehicle)
+		local upgrade_option, fitted = rev_get_custom_upgrade_option(vehicle)
+
+		if upgrade_option ~= nil then
+			local carrier = get_managed_vehicle()
+			update_add_ui_interaction(update_get_loc(e_loc.interaction_back), e_game_input.back)
+			local ui = g_ui
+			ui:begin_ui()
+			local window = ui:begin_window("Engineering", 0, 0, screen_w, screen_h, nil, true, 1)
+			-- title
+			update_ui_rectangle(0, 0, screen_w, 14, color_white)
+			window.cy = 3 + update_ui_text(0, 4, "UPGRADE UNIT?", screen_w, 1, color_black, 0)
+			local v_def = vehicle:get_definition_index()
+
+			-- body
+			local v_name, v_icon, v_abbr, v_desc = get_chassis_data_by_definition_index(v_def)
+
+			ui:text_basic(v_name, color_white, color_white)
+			ui:text_basic("> " .. upgrade_option.name)
+			ui:text_basic(upgrade_option.details)
+			ui:text_basic("COST:")
+			local has_reqs = true
+			local costs = upgrade_option.cost
+			for inv_item, inv_count in pairs(costs) do
+				local has_count = carrier:get_inventory_count_by_item_index(inv_item)
+				local col = color_grey_dark
+				if has_count < inv_count then
+					col = color_status_dark_red
+					has_reqs = false
+				end
+				ui:text_basic(string.format("%dx %s", inv_count, g_item_data[inv_item].name), col)
+			end
+
+			if ui:button("APPLY", has_reqs, 1) then
+				g_prompt_upgrade_vehicle = nil
+				if update_get_is_focus_local() then
+					-- do the upgrade
+					for anum, _ in pairs(upgrade_option.options) do
+						carrier:set_attached_vehicle_attachment(g_selected_bay_index, anum, -1)
+					end
+					for anum, adef in pairs(upgrade_option.attachments) do
+						carrier:set_attached_vehicle_attachment(g_selected_bay_index, anum, adef)
+					end
+					-- "spend" the fuel
+					for inv_item, inv_count in pairs(upgrade_option.cost) do
+						if inv_item == e_inventory_item.fuel_barrel then
+							carrier:set_inventory_order(inv_item, inv_count, e_carrier_order_operation.delete)
+						end
+					end
+					sanitise_loadout(carrier, g_selected_bay_index)
+				end
+			end
+
+			ui:end_window()
+			ui:end_ui()
+			return true
+		else
+			g_prompt_upgrade_vehicle = nil
+		end
+	end
+
+	return false
+end
+
+function custom_ui_vehicle_loadout_chassis(ui, vehicle)
+	local opt, fitted = rev_get_custom_upgrade_option(vehicle)
+	if opt ~= nil then
+		if not fitted then
+			local carrier = get_managed_vehicle()
+			sanitise_loadout(carrier, g_selected_bay_index)
+		end
+		rev_custom_button(ui, "REFIT",
+				4, 72, 47, 18, not fitted, function()
+					if vehicle and vehicle:get() then
+						g_prompt_upgrade_vehicle = vehicle:get_id()
+					end
+				end)
+	else
+		g_prompt_upgrade_vehicle = nil
+	end
+end
+
+--
+
+
+local g__crafting_aa_reduced_wing = {
+	e_game_object_type.attachment_hardpoint_missile_aa,
+	e_game_object_type.attachment_hardpoint_missile_tv,
+}
+
+local g__crafting_aa_extra_wing = {
+	e_game_object_type.attachment_hardpoint_missile_aa,
+}
+
+example_g_revolution_crafting_items = {
+    {
+		name="Specops Petrel",
+		details="Flare & Virus",
+        chassis=e_game_object_type.chassis_air_rotor_heavy,
+		min_attachments=6,
+        attachments={
+            [4] = e_game_object_type.attachment_turret_robot_dog_capsule,
+		},
+		options={
+			[1] = {
+				e_game_object_type.attachment_camera_plane
+			},
+			[4] = {e_game_object_type.attachment_turret_robot_dog_capsule},
+			[2] = {
+				e_game_object_type.attachment_turret_plane_chaingun,
+				e_game_object_type.attachment_fuel_tank_plane,
+			},
+			[5] = {
+				e_game_object_type.attachment_flare_launcher,
+				e_game_object_type.attachment_smoke_launcher_explosive,
+			},
+			[3] = {
+				e_game_object_type.attachment_turret_plane_chaingun,
+				e_game_object_type.attachment_fuel_tank_plane,
+			},
+		},
+		rows={
+			{
+                { i=1, x=0, y=-22 }
+            },
+            {
+                { i=2, x=-20, y=0 },
+                { i=4, x=-10, y=0 },
+                { i=5, x=10, y=0 },
+                { i=3, x=20, y=0 }
+            }
+		},
+        cost={
+            [e_inventory_item.fuel_barrel] = 1,
+            [e_inventory_item.virus_module] = 1,
+        }
+    },
+	{
+		name="Manta F2",
+		details="Extra missiles",
+		chassis=e_game_object_type.chassis_air_wing_heavy,
+		min_attachments=11,
+		attachments={
+			[10] = e_game_object_type.attachment_camera_observation,
+		},
+		options={
+			[4] = g__crafting_aa_reduced_wing,
+			[5] = g__crafting_aa_reduced_wing,
+			[8] = g__crafting_aa_extra_wing,
+			[9] = g__crafting_aa_extra_wing,
+			[10] = {
+				e_game_object_type.attachment_camera_observation
+			}
+		},
+		rows={
+			{
+				{ i = 1, x = 0, y = -23 }, -- front camera slot
+				{ i = 2, x = 9, y = -4 }  -- internal gun
+			},
+			{
+				{ i = 3, x = 0, y = 7 },   -- centre
+				{ i = 4, x = -18, y = 7 }, -- left inner
+				{ i = 5, x = 18, y = 7 },  -- right inner
+			},
+			{
+				{ i = 6, x = -9, y = 24 }, -- left util
+				{ i = 7, x = 9, y = 24 }   -- right util
+			},
+		    {
+			   { i = 8, x = -26, y = 16 }, -- left wing
+			   { i = 9, x = 26, y = 16 },  -- right wing
+			   { i = 10, x = 0, y = 16 },  -- dorsal
+			}
+		},
+		cost={
+            [e_inventory_item.fuel_barrel] = 2,
+			[e_inventory_item.attachment_camera_observation] = 1
+        }
+	},
+	{
+		name="Koala",
+		details="Anti-Air system",
+		chassis=e_game_object_type.chassis_land_wheel_heavy,
+		min_attachments=9,
+		attachments={
+			[2] = e_game_object_type.attachment_radar_golfball
+		},
+		options={
+			[2] = {e_game_object_type.attachment_radar_golfball},
+			[4] = g__crafting_aa_reduced_wing,
+			[5] = g__crafting_aa_reduced_wing,
+			[6] = g__crafting_aa_reduced_wing,
+			[7] = g__crafting_aa_reduced_wing,
+			[8] = g__crafting_aa_reduced_wing,
+		},
+		rows={
+			{
+				{ i=2, x=0, y=-25 },
+				{ i=4, x=-14, y=-6 },
+				{ i=5, x=0, y=-6 },
+				{ i=6, x=14, y=-6 },
+				{ i=7, x=-14, y=20 },
+				{ i=8, x=14, y=20 },
+			}
+		},
+	    cost={
+            [e_inventory_item.fuel_barrel] = 4,
+			[e_inventory_item.attachment_radar_golfball] = 1,
+        }
+	},
+	{
+		name="Hinny",
+		details="Mobile LGM Silo",
+		chassis=e_game_object_type.chassis_land_wheel_mule,
+		min_attachments=7,
+		attachments={
+			[1] = e_game_object_type.attachment_camera_observation
+		},
+		options={
+			[1] = {e_game_object_type.attachment_camera_observation},
+			[2] = {e_game_object_type.attachment_hardpoint_missile_laser},
+			[3] = {e_game_object_type.attachment_hardpoint_missile_laser},
+			[4] = {e_game_object_type.attachment_hardpoint_missile_laser},
+			[5] = {e_game_object_type.attachment_hardpoint_missile_laser},
+			[6] = {e_game_object_type.attachment_hardpoint_missile_laser},
+		},
+		rows={
+			{
+				{ i=1, x=-10, y=-21 },
+				{ i=2, x=10, y=-21 },
+				{ i=3, x=-10, y=-5 },
+				{ i=4, x=10, y=-5 },
+				{ i=5, x=-10, y=11 },
+				{ i=6, x=10, y=11 },
+			}
+		},
+	    cost={
+            [e_inventory_item.fuel_barrel] = 2,
+			[e_inventory_item.attachment_camera_observation] = 1,
+        }
+	}
+}
+
+if g_revolution_crafting_items == nil then
+    g_revolution_crafting_items = {
+        {
+            name="OBST",
+            details="Observation Post",
+            chassis=e_game_object_type.chassis_land_turret,
+            min_attachments=1,
+            attachments={
+                [0] = e_game_object_type.attachment_camera_observation
+            },
+            options={
+                [0] = {e_game_object_type.attachment_camera_observation},
+            },
+            rows={
+                {
+                    { i=0, x=0, y=0 },
+                }
+            },
+            cost={
+                [e_inventory_item.fuel_barrel] = 1,
+            }
+        },
+    }
+end
+

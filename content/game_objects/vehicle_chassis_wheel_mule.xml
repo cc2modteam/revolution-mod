@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data display_name_loc="0" bounding_radius="3.00000000e+00" lod_scale="1.00000000e+00" ai_type="1">
+	<bodies>
+		<body mass="2.00000000e+03" name="body" is_static="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.00000000e+00" tz="0.00000000e+00"/>
+			<meshes/>
+			<boxes>
+				<box>
+					<size x="2.29999995e+00" y="1.10000002e+00" z="5.50000000e+00"/>
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.00000001e-01" tz="0.00000000e+00"/>
+				</box>
+			</boxes>
+			<spheres>
+				<sphere radius="5.00000000e-01">
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.14999998e+00" ty="-4.49999988e-01" tz="2.75000000e+00"/>
+				</sphere>
+				<sphere radius="5.00000000e-01">
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.14999998e+00" ty="-4.49999988e-01" tz="2.75000000e+00"/>
+				</sphere>
+				<sphere radius="5.00000000e-01">
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.14999998e+00" ty="-4.49999988e-01" tz="-2.75000000e+00"/>
+				</sphere>
+				<sphere radius="5.00000000e-01">
+					<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.14999998e+00" ty="-4.49999988e-01" tz="-2.75000000e+00"/>
+				</sphere>
+			</spheres>
+		</body>
+	</bodies>
+	<constraints/>
+	<meshes>
+		<mesh file="meshes/vehicles/mule_car/mule.mesh" name="main body" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="3.98746729e-01" tz="0.00000000e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_axle.mesh" name="front axle" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="-9.30716097e-02" tz="1.68529201e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_tyre.mesh" name="wheel_front_left" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="-1.55884778e+00" ty="-5.65342009e-02" tz="2.65292573e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_tyre.mesh" name="wheel_front_right" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="1.60270214e+00" ty="-7.04353452e-02" tz="2.64541197e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_axle.mesh" name="middle b axle" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="-7.38925263e-02" tz="-1.53846288e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_tyre.mesh" name="wheel_middle_b_left" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="-1.57955337e+00" ty="-5.15115783e-02" tz="-5.59741318e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_tyre.mesh" name="wheel_middle_b_right" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="1.60456026e+00" ty="-3.96964401e-02" tz="-5.64795136e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_axle_b.mesh" name="rear axle" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="-9.11838114e-02" tz="-1.69257963e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_tyre.mesh" name="wheel_back_left" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="-1.59300268e+00" ty="-4.55822386e-02" tz="-2.65953588e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_tyre.mesh" name="wheel_back_right" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="1.58831000e+00" ty="-5.09967022e-02" tz="-2.65633726e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_propeller.mesh" name="prop_left" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="-3.79262567e-01" ty="-2.57173255e-02" tz="-3.13329363e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_propeller.mesh" name="prop_right" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="2.98023224e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="2.98023224e-08" tx="3.60557735e-01" ty="-2.79946774e-02" tz="-3.10211277e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_spring.mesh" name="suspension_front_left_lower" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-9.77807403e-01" ty="-1.70586109e-02" tz="2.63107944e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_strut.mesh" name="suspension_front_left_upper" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-7.69999981e-01" ty="-9.59292985e-03" tz="2.40613556e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_spring.mesh" name="suspension_front_right_lower" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="9.77999985e-01" ty="-1.70000009e-02" tz="2.67261434e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_strut.mesh" name="suspension_front_right_upper" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="7.69999981e-01" ty="-9.99999978e-03" tz="2.42221665e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_spring.mesh" name="suspension_middle_b_left_lower" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-9.77999985e-01" ty="-1.70000009e-02" tz="-5.76692104e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_strut.mesh" name="suspension_middle_b_left_upper" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-7.69999981e-01" ty="-9.99999978e-03" tz="-8.62223566e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_spring.mesh" name="suspension_middle_b_right_lower" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="9.77999985e-01" ty="-1.70000009e-02" tz="-5.61839223e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_strut.mesh" name="suspension_middle_b_right_upper" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="7.69999981e-01" ty="-9.99999978e-03" tz="-8.56654763e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_spring.mesh" name="suspension_back_left_lower" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-9.77999985e-01" ty="-1.70000009e-02" tz="-2.69705534e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_strut.mesh" name="suspension_back_left_upper" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-7.69999981e-01" ty="-9.99999978e-03" tz="-2.30307555e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_spring.mesh" name="suspension_back_right_lower" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="9.77999985e-01" ty="-1.70000009e-02" tz="-2.65284467e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_strut.mesh" name="suspension_back_right_upper" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="7.69999981e-01" ty="-9.99999978e-03" tz="-2.20739222e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/attachments/vehicle_control_camera.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="6.72784925e-01" tz="2.36400008e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/vehicle_lods/mule_low.mesh" name="lod 1" lod="1" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_axle_b.mesh" name="middle axle" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="-9.30716097e-02" tz="1.68529201e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_tyre.mesh" name="wheel_middle_left" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="-4.37113883e-08" m01="1.00000000e+00" m02="0.00000000e+00" m10="-1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="-1.57955337e+00" ty="-5.15115783e-02" tz="7.35977411e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_tyre.mesh" name="wheel_middle_right" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="1.60877216e+00" ty="-3.96964401e-02" tz="7.38071144e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_lights_additive.mesh" name="lights_additive" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="3.98999989e-01" tz="0.00000000e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_strut.mesh" name="suspension_middle_left_upper" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-7.69999981e-01" ty="-9.99999978e-03" tz="1.02020514e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_strut.mesh" name="suspension_middle_right_upper" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="7.69999981e-01" ty="-9.99999978e-03" tz="1.00427139e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_spring.mesh" name="suspension_middle_left_lower" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-9.77999985e-01" ty="-1.70000009e-02" tz="6.73307896e-01"/>
+		</mesh>
+		<mesh file="meshes/vehicles/mule_car/mule_spring.mesh" name="suspension_middle_right_lower" lod="0" body="0" is_paint_dirt="true">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="9.77999985e-01" ty="-1.70000009e-02" tz="6.88160777e-01"/>
+		</mesh>
+	</meshes>
+	<wheels>
+		<wheel steerable="true" steering_magnitude="1.00000000e+00" stiffness="1.00000000e+01" damping="1.00000000e+02" suspension_length="6.49999976e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="5.74999988e-01" name="wheel_front_left" acceleration="2.00000003e-01">
+			<pos x="-1.62500000e+00" y="-6.00000024e-01" z="2.64499998e+00"/>
+		</wheel>
+		<wheel steerable="true" steering_magnitude="1.00000000e+00" stiffness="1.00000000e+01" damping="1.00000000e+02" suspension_length="6.49999976e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="5.74999988e-01" name="wheel_front_right" acceleration="2.00000003e-01">
+			<pos x="1.62500000e+00" y="-6.00000024e-01" z="2.64499998e+00"/>
+		</wheel>
+		<wheel steerable="true" steering_magnitude="5.00000000e-01" stiffness="1.00000000e+01" damping="1.00000000e+02" suspension_length="6.49999976e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="5.74999988e-01" name="wheel_middle_left" acceleration="2.00000003e-01">
+			<pos x="-1.62500000e+00" y="-6.00000024e-01" z="7.36000001e-01"/>
+		</wheel>
+		<wheel steerable="true" steering_magnitude="5.00000000e-01" stiffness="1.00000000e+01" damping="1.00000000e+02" suspension_length="6.49999976e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="5.74999988e-01" name="wheel_middle_right" acceleration="2.00000003e-01">
+			<pos x="1.62500000e+00" y="-6.00000024e-01" z="7.36000001e-01"/>
+		</wheel>
+		<wheel steerable="true" steering_magnitude="-1.00000000e+00" stiffness="1.00000000e+01" damping="1.00000000e+02" suspension_length="6.49999976e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="5.74999988e-01" name="wheel_back_left" acceleration="2.00000003e-01">
+			<pos x="-1.62500000e+00" y="-6.00000024e-01" z="-2.66000009e+00"/>
+		</wheel>
+		<wheel steerable="true" steering_magnitude="-1.00000000e+00" stiffness="1.00000000e+01" damping="1.00000000e+02" suspension_length="6.49999976e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="5.74999988e-01" name="wheel_back_right" acceleration="2.00000003e-01">
+			<pos x="1.62500000e+00" y="-6.00000024e-01" z="-2.66000009e+00"/>
+		</wheel>
+		<wheel steerable="true" steering_magnitude="-5.00000000e-01" stiffness="1.00000000e+01" damping="1.00000000e+02" suspension_length="6.49999976e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="5.74999988e-01" name="wheel_middle_b_left" acceleration="2.00000003e-01">
+			<pos x="-1.62500000e+00" y="-6.00000024e-01" z="-5.60000002e-01"/>
+		</wheel>
+		<wheel steerable="true" steering_magnitude="-5.00000000e-01" stiffness="1.00000000e+01" damping="1.00000000e+02" suspension_length="6.49999976e-01" relax_rate="5.00000007e-02" grip="1.00000000e+02" radius="5.74999988e-01" name="wheel_middle_b_right" acceleration="2.00000003e-01">
+			<pos x="1.62500000e+00" y="-6.00000024e-01" z="-5.60000002e-01"/>
+		</wheel>
+	</wheels>
+	<attachments>
+		<attachment name="vehicle_control" type="0">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="6.08071208e-01" tz="2.36429143e+00"/>
+		</attachment>
+		<attachment name="attachment_front_left" type="7">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-5.60000002e-01" ty="6.80000007e-01" tz="1.34987640e+00"/>
+		</attachment>
+		<attachment name="attachment_front_right" type="7">
+			<transform m00="-1.00000000e+00" m01="0.00000000e+00" m02="8.74227766e-08" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-8.74227766e-08" m21="0.00000000e+00" m22="-1.00000000e+00" tx="5.60000002e-01" ty="6.80000007e-01" tz="1.35000002e+00"/>
+		</attachment>
+		<attachment name="attachment_mid_left" type="7">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-5.60000002e-01" ty="6.80000007e-01" tz="-2.80000001e-01"/>
+		</attachment>
+		<attachment name="attachment_mid_right" type="7">
+			<transform m00="-1.00000000e+00" m01="0.00000000e+00" m02="-8.74227766e-08" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="8.74227766e-08" m21="0.00000000e+00" m22="-1.00000000e+00" tx="5.60000002e-01" ty="6.80000007e-01" tz="-2.80000001e-01"/>
+		</attachment>
+		<attachment name="attachment_back_left" type="7">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-5.60000002e-01" ty="6.80000007e-01" tz="-1.91999996e+00"/>
+		</attachment>
+		<attachment name="attachment_back_right" type="7">
+			<transform m00="-1.00000000e+00" m01="0.00000000e+00" m02="-8.74227766e-08" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="8.74227766e-08" m21="0.00000000e+00" m22="-1.00000000e+00" tx="5.60000002e-01" ty="6.80000007e-01" tz="-1.91999996e+00"/>
+		</attachment>
+	</attachments>
+	<force_emitters>
+		<force_emitter name="water" magnitude="3.70000000e+01">
+			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="-0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="0.00000000e+00" ty="0.00000000e+00" tz="-2.00000000e+00"/>
+		</force_emitter>
+		<force_emitter name="water_side" magnitude="4.00000000e+00">
+			<transform m00="-4.37113847e-08" m01="0.00000000e+00" m02="9.99999940e-01" m10="1.00000000e+00" m11="-4.37113847e-08" m12="4.37113883e-08" m20="4.37113883e-08" m21="9.99999940e-01" m22="1.91068547e-15" tx="0.00000000e+00" ty="0.00000000e+00" tz="-2.00000000e+00"/>
+		</force_emitter>
+	</force_emitters>
+	<control_surfaces>
+		<control_surface size="8.00000000e+00" max_angle="1.00000000e+00" water="true" name="control_surface">
+			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="0.00000000e+00" ty="-1.00000000e+00" tz="0.00000000e+00"/>
+		</control_surface>
+	</control_surfaces>
+	<projectile_emitters/>
+	<cameras/>
+	<buoyancys>
+		<buoyancy name="buoyancy" radius="1.00000000e+00" magnitude="3.20000005e+00">
+			<pos x="-1.50000000e+00" y="2.25000024e-01" z="1.50000000e+00"/>
+		</buoyancy>
+		<buoyancy name="buoyancy" radius="1.00000000e+00" magnitude="3.20000005e+00">
+			<pos x="1.50000000e+00" y="2.25000024e-01" z="1.50000000e+00"/>
+		</buoyancy>
+		<buoyancy name="buoyancy" radius="1.00000000e+00" magnitude="3.20000005e+00">
+			<pos x="-1.50000000e+00" y="2.25000024e-01" z="-1.50000000e+00"/>
+		</buoyancy>
+		<buoyancy name="buoyancy" radius="1.00000000e+00" magnitude="3.20000005e+00">
+			<pos x="1.50000000e+00" y="2.25000024e-01" z="-1.50000000e+00"/>
+		</buoyancy>
+		<buoyancy name="buoyancy" radius="3.00000000e+00" magnitude="2.50000000e-01">
+			<pos x="0.00000000e+00" y="4.99107409e+00" z="0.00000000e+00"/>
+		</buoyancy>
+	</buoyancys>
+	<vehicle_attachments/>
+	<lights>
+		<light name="front_spot_right" body_index="0" scale="2.00000000e+01" is_spotlight="true" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.88194644e-01" m12="1.53203607e-01" m20="0.00000000e+00" m21="-1.53203607e-01" m22="9.88194644e-01" tx="8.27815711e-01" ty="3.64646167e-01" tz="3.09999990e+00"/>
+			<color x="1.00000000e+00" y="1.00000000e+00" z="1.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="front_spot_left" body_index="0" scale="2.00000000e+01" is_spotlight="true" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.88194644e-01" m12="1.53203607e-01" m20="0.00000000e+00" m21="-1.53203607e-01" m22="9.88194644e-01" tx="-8.28000009e-01" ty="3.65000010e-01" tz="3.09999990e+00"/>
+			<color x="1.00000000e+00" y="1.00000000e+00" z="1.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="front_omni_right" body_index="0" scale="1.00000000e+00" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.88194644e-01" m12="1.53203607e-01" m20="0.00000000e+00" m21="-1.53203607e-01" m22="9.88194644e-01" tx="8.28000009e-01" ty="3.65000010e-01" tz="3.09999990e+00"/>
+			<color x="1.00000000e+00" y="1.00000000e+00" z="1.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+		<light name="front_omni_left" body_index="0" scale="1.00000000e+00" is_spotlight="false" is_bounds="false" is_volume="true" fov="7.85398185e-01">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.88194644e-01" m12="1.53203607e-01" m20="0.00000000e+00" m21="-1.53203607e-01" m22="9.88194644e-01" tx="-8.28000009e-01" ty="3.65000010e-01" tz="3.09999990e+00"/>
+			<color x="1.00000000e+00" y="1.00000000e+00" z="1.00000000e+00"/>
+			<bounds_min x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+			<bounds_max x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</light>
+	</lights>
+	<seats/>
+	<button_panels/>
+	<buttons/>
+	<indicators/>
+	<achievements/>
+	<dials/>
+	<screens/>
+	<doors/>
+	<graph_nodes/>
+	<graph_links/>
+	<foam_emitters>
+		<foam_emitter body_index="0" radius="1.00000000e+00" foam_scale="2.00000000e+00">
+			<position x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		</foam_emitter>
+	</foam_emitters>
+	<particle_emitters/>
+	<sensors/>
+	<splash_emitters/>
+	<holomaps/>
+	<damage_zones/>
+	<audio_zones/>
+	<nav_meshes/>
+</data>
+

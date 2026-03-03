@@ -121,12 +121,6 @@ function get_chassis_data_by_definition_index_orig(index)
     return update_get_loc(e_loc.upp_unknown), atlas_icons.icon_chassis_16_wheel_small, "---", ""
 end
 
-g_ew_attachment_type = e_game_object_type.attachment_turret_carrier_flare_launcher
-g_ew_discard_type = e_inventory_item.virus_module
-g_ew_attachment_discard_type = e_game_object_type.attachment_turret_robot_dog_capsule
-g_ew_discard_loc = e_loc.virus_module
-g_ew_discard_count = 3
-
 function get_attachment_data_by_definition_index(index)
     compile_globals()
     local attachment_data = {
@@ -210,11 +204,6 @@ function get_attachment_data_by_definition_index(index)
             name = update_get_loc(e_loc.upp_naval_cruise_missile),
             icon16 = atlas_icons.icon_attachment_16_turret_missile,
             name_short = update_get_loc(e_loc.upp_crs_msl),
-        },
-        [g_ew_attachment_type] = {
-            name = update_get_loc(e_loc.upp_radar_golfball) .. " " .. update_get_loc(e_loc.countermeasures):upper(),
-            icon16 = atlas_icons.column_power,
-            name_short = "EW",
         },
         [e_game_object_type.attachment_turret_carrier_camera] = {
             name = update_get_loc(e_loc.upp_naval_camera),
@@ -670,6 +659,9 @@ function render_ui_chassis_definition_description(x, y, vehicle, index)
 end
 
 function get_is_vehicle_type_waypoint_capable(vehicle_definition_index)
+    if not g_revolution_control_units then
+        return false
+    end
     if vehicle_definition_index == e_game_object_type.chassis_carrier then
         return false
     elseif vehicle_definition_index == e_game_object_type.chassis_land_wheel_light then
@@ -789,6 +781,69 @@ function begin_load_inventory_data()
     end
 end
 
+g_rev_controller_islands = nil
+g_rev_controller_islands_enabled = false
+function rev_get_controller_islands()
+    if g_rev_controller_islands == nil then
+        g_rev_controller_islands = {}
+        if g_rev_controller_islands_enabled then
+            local tile_count = update_get_tile_count()
+            if tile_count > 9 then
+                local found = {}
+                -- find all the 4-shield islands for every 9 islands on the map
+                for i = 0, tile_count - 1 do
+                    local tile = update_get_tile_by_index(i)
+                    if tile and tile:get() then
+                        local diff = tile:get_difficulty_level()
+                        if diff == 4 then
+                            found[tile:get_id()] = true
+                        end
+                    end
+                end
+                g_rev_controller_islands = found
+            end
+        end
+    end
+    return g_rev_controller_islands
+end
+
+
+function rev_get_team_control_islands(team_id)
+    local control_count = 0
+    for tid, _ in pairs(rev_get_controller_islands()) do
+        local tile = update_get_tile_by_id(tid)
+        if tile and tile:get() then
+            if team_id == nil or tile:get_team_control() == team_id then
+                control_count = control_count + 1
+            end
+        end
+    end
+    return control_count
+end
+
+
+function rev_get_island_locked_build_item(team_id, inventory_item)
+    if update_get_tile_count() > 0 then
+        -- manta and heavy bomb production requires control island
+        local available_controllers = rev_get_team_control_islands(nil)
+        if available_controllers > 0 then
+            if rev_get_team_control_islands(team_id) == 0 then
+                local needed = false
+                if inventory_item == e_inventory_item.hardpoint_bomb_3 then
+                    needed = true
+                elseif inventory_item == e_inventory_item.vehicle_wing_heavy then
+                    needed = true
+                end
+                if needed then
+                    return string.format("%s %s",
+                            update_get_loc(e_loc.upp_unavailable), update_get_loc(e_loc.island_control):upper())
+                end
+            end
+        end
+    end
+    return nil
+end
+
 function get_vehicle_capability(vehicle)
     local attachment_count = vehicle:get_attachment_count()
 
@@ -801,7 +856,6 @@ function get_vehicle_capability(vehicle)
             local attachment_def = attachment:get_definition_index()
 
             if attachment_def ~= e_game_object_type.attachment_camera_vehicle_control
-                and attachment_def ~= g_ew_attachment_type
             then
                capabilities[attachment_def] = get_attachment_data_by_definition_index(attachment_def)
                capabilities[attachment_def].definition = attachment_def
@@ -839,15 +893,11 @@ end
 g_all_radars = {}
 g_radar_seen_by_ours = {}
 g_radar_seen_by_hostile = {}
-g_all_hostile_ew = {}
-g_ew_range_sq = 10000 * 10000
 
 g_radar_scanned = true
 -- every unit in detection range of a radar (of any team)
 g_seen_by_hostile_radars = {}
 g_seen_by_friendly_radars = {}
--- every unit in range of a hostile EW
-g_fuzzed_by_hostile_ew = {}
 
 -- the id of the nearest enemy unit that can see our aircraft
 g_nearest_hostile_radar = {}
@@ -945,22 +995,6 @@ function has_attachment(vehicle, a_defs)
     return nil
 end
 
-local ew_attachment_defs = {
-    [e_game_object_type.attachment_turret_carrier_flare_launcher] = true
-}
-
-function _get_ew_attachment(vehicle)
-    local d = nil
-    if vehicle and vehicle:get() then
-        local vdef = vehicle:get_definition_index()
-        if get_is_vehicle_air(vdef) then
-            d = has_attachment(vehicle, ew_attachment_defs)
-        end
-    end
-    return d
-end
-
-
 local radar_attachment_defs = {
     [e_game_object_type.attachment_radar_golfball] = true,
     [e_game_object_type.attachment_radar_awacs] = true,
@@ -1013,12 +1047,6 @@ function get_is_vehicle_masked(vehicle)
             local alt = get_unit_altitude(vehicle)
 
             local masked = alt < clutter_base
-            -- if under 100 and covered by an EW unit
-            if not masked then
-                if alt < 70 then
-                    masked = get_close_hostile_ew_cached(vehicle:get_id()) ~= nil
-                end
-            end
 
             if masked then
                 local nearest_friendly_crr, friendly_crr_dist = get_nearest_carrier(vehicle, true, update_get_screen_team_id())
@@ -1215,40 +1243,6 @@ function iter_radars(func)
     end
 end
 
-function get_close_hostile_ew_vehicle(vself)
-    local vpos = get_pos_xz(vself)
-    local vid = vself:get_id()
-    local max_sq = g_ew_range_sq
-    for _, ewid in pairs(g_all_hostile_ew) do
-        if ewid ~= vid then
-            local ew = update_get_map_vehicle_by_id(ewid)
-            if ew and ew:get() then
-                local ew_pos = get_pos_xz(ew)
-                local fuzzed = fast_dist_sq2(ew_pos, vpos, max_sq) < max_sq
-                return fuzzed
-            end
-        end
-    end
-    return nil
-end
-
-function get_close_hostile_ew(vid)
-    -- if there is an EW unit close by this unit, return true
-    local vself = update_get_map_vehicle_by_id(vid)
-    if vself and vself:get() then
-        return get_close_hostile_ew_vehicle(vself)
-    end
-    return false
-end
-
-function get_close_hostile_ew_cached(vid)
-    local result = g_fuzzed_by_hostile_ew[vid]
-    if result == nil then
-        result = get_close_hostile_ew(vid)
-    end
-    return result
-end
-
 function get_nearest_hostile_radar(vid)
     -- used by HUD RWR
     local rwr_vehicle = update_get_map_vehicle_by_id(vid)
@@ -1318,24 +1312,14 @@ function update_modded_radar_list(hostile_only)
         next_updated_radar_list = next_updated_radar_list + 20
     end
     g_all_radars = {}
-    g_all_hostile_ew = {}
 
     local screen_team = update_get_screen_team_id()
     local seen_by_friendly_radars = g_seen_by_friendly_radars
     local seen_by_hostile_radars = g_seen_by_hostile_radars
     local all_radars = g_all_radars
-    local all_hostile_ew = g_all_hostile_ew
 
     for _, vehicle in pairs(get_vehicles_table()) do
         local vehicle_team = get_vehicle_team_id(vehicle)
-        -- find hostile EWs
-        if screen_team ~= vehicle_team then
-            if _get_ew_attachment(vehicle) then
-                -- hostile unit has an EW capability
-                table.insert(all_hostile_ew, vehicle:get_id())
-            end
-        end
-
         if vehicle_team ~= screen_team or not hostile_only then
             local radar_type = _get_radar_attachment(vehicle)
             if radar_type ~= nil then
@@ -1464,7 +1448,6 @@ function do_radar_scan(update_air, update_sea)
     local seen_by_friendly_radars = g_seen_by_friendly_radars
     local nearest_hostile_radar = g_nearest_hostile_radar
     local seen_by_hostile_radars = g_seen_by_hostile_radars
-    local fuzzed_by_hostile_ew = {}
     local fdsq = fast_dist_sq
 
     for _, vehicle in pairs(get_vehicles_table()) do
@@ -1498,13 +1481,6 @@ function do_radar_scan(update_air, update_sea)
                 seen_by_friendly_radars[vid] = nil
                 nearest_hostile_radar[vid] = nil
                 seen_by_hostile_radars[vid] = nil
-
-                -- do EW
-                if not friendly then
-                    if fuzzed_by_hostile_ew[vid] == nil then
-                       fuzzed_by_hostile_ew[vid] = get_close_hostile_ew(vid)
-                    end
-                end
 
                 -- do radars
                 local radar_team = nil
@@ -1554,8 +1530,6 @@ function do_radar_scan(update_air, update_sea)
             end
         end
     end
-
-    g_fuzzed_by_hostile_ew = fuzzed_by_hostile_ew
 end
 
 function fast_dist_sq2(a, b, limsq)
@@ -1818,6 +1792,14 @@ F_DRYDOCK_WPTX_MARKER          = 2
 F_DRYDOCK_WPTX_SETTING         = 4
 F_DRYDOCK_WPTX_FACTORY_DAMAGED = 8
 F_DRYDOCK_WPTX_SCOUTED         = 16
+F_DRYDOCK_WPTX_VEH_SETTING     = 20
+
+-- values for F_DRYDOCK_WPTX_SETTING
+TEAM_SETTING_FLAG_READY        = 1
+TEAM_SETTING_FLAG_SHOW_ISLANDS = 2
+
+-- values for F_DRYDOCK_WPTX_VEH_SETTING
+CRR_SETTING_FLAG_HUD_ENABLED = 1
 
 
 
@@ -1861,7 +1843,7 @@ function set_airdrop_now(petrel)
     local pos = petrel:get_position_xz()
     petrel:clear_waypoints()
     petrel:clear_attack_target()
-    local wid = petrel:add_waypoint(pos:x(), pos:y() - 10)
+    local wid = petrel:add_waypoint(pos:x(), pos:y())
     petrel:set_waypoint_type_deploy(wid, true)
 end
 
@@ -2012,7 +1994,7 @@ function get_marker_waypoint(team_id, marker_id)
     return get_special_waypoint(team_id, F_DRYDOCK_WPTX_MARKER, marker_id)
 end
 
-function add_special_waypoint(team_id, flag, special_id)
+function add_special_waypoint(team_id, flag, special_id, set_altitude_value)
     local current = get_special_waypoint(team_id, flag, special_id)
     local drydock = find_team_drydock(team_id)
 
@@ -2025,11 +2007,21 @@ function add_special_waypoint(team_id, flag, special_id)
         local w_id = drydock:add_waypoint(flag, special_id)
         drydock:set_waypoint_altitude(w_id, 0)
         current = drydock:get_waypoint_by_id(w_id)
-        return w_id
     end
+    local w_id = current:get_id()
 
-    return current:get_id()
+    if set_altitude_value ~= nil then
+        local_print("setting", flag, w_id, set_altitude_value)
+        drydock:set_waypoint_altitude(w_id, set_altitude_value)
+        local_print("got", current:get_altitude())
+    end
+    return w_id
 end
+
+function set_special_waypoint(team_id, flag, special_id, set_altitude_value)
+    add_special_waypoint(team_id, flag, special_id, set_altitude_value)
+end
+
 
 function add_marker_waypoint(team_id, marker_id)
     return add_special_waypoint(team_id, F_DRYDOCK_WPTX_MARKER, marker_id)
@@ -2083,10 +2075,62 @@ function unset_marker_waypoint(team_id, marker_id)
     end
 end
 
+function rev_set_team_ready(team_id, is_ready)
+    local value = 0
+    if is_ready then
+        value = 1
+    end
+    set_special_waypoint(team_id, F_DRYDOCK_WPTX_SETTING, TEAM_SETTING_FLAG_READY, value)
+end
+
+function rev_get_team_ready(team_id)
+    local w = get_special_waypoint(team_id, F_DRYDOCK_WPTX_SETTING, TEAM_SETTING_FLAG_READY)
+    if w then
+        return w:get_altitude() > 0
+    end
+    return false
+end
+
+function rev_get_veh_setting(team_id, vid)
+    local w = get_special_waypoint(team_id, F_DRYDOCK_WPTX_VEH_SETTING, vid)
+    if w then
+        return w:get_altitude()
+    end
+    return 0
+end
+
+local _this_veh_setting_value = 0
+local _this_veh_setting_tick = 0
+function rev_get_this_veh_setting_value()
+    local now = update_get_logic_tick()
+    if now > _this_veh_setting_tick + 60 then
+        _this_veh_setting_tick = now
+        _this_veh_setting_value = rev_get_veh_setting(update_get_screen_team_id(), update_get_screen_vehicle():get_id())
+    end
+    return _this_veh_setting_value
+end
+
+function rev_set_veh_setting_flag(team_id, vid, setflags)
+    local current = rev_get_veh_setting(team_id, vid)
+    local value = current | setflags
+    set_special_waypoint(team_id, F_DRYDOCK_WPTX_VEH_SETTING, vid, value)
+end
+
+function rev_clr_veh_setting_flag(team_id, vid, clrflags)
+    local current = rev_get_veh_setting(team_id, vid)
+    local value = current ~ clrflags
+    set_special_waypoint(team_id, F_DRYDOCK_WPTX_VEH_SETTING, vid, value)
+end
+
+
 function update_team_holomap_cursor(team_id, x, y)
-    local st, err = pcall(_update_team_holomap_cursor, team_id, x, y)
-    if not st then
-        print(err)
+    if g_debug_enabled then
+        local st, err = pcall(_update_team_holomap_cursor, team_id, x, y)
+        if not st then
+            print(err)
+        end
+    else
+        _update_team_holomap_cursor(team_id, x, y)
     end
 end
 
@@ -2293,6 +2337,72 @@ function get_ship_name(vehicle)
         return ""
     end
     return v
+end
+
+local l_rev_unit_names = {
+    [e_game_object_type.chassis_sea_barge] = {
+        "Deliverance",
+        "It's not mine officer",
+        "Ocean Trucker",
+        "Type 9 of the seas",
+        "Argos",
+        "Courier",
+        "InterBox",
+        "Walrus-R-Us",
+    },
+    [e_game_object_type.chassis_land_robot_dog] = {
+        -- somehow, giving the robot dogs hacker names seemed like a good idea
+        -- but they really don't "feel" right, so I've gone for cute little
+        -- bot names instead
+        "Pip",
+        "Chirpy",
+        "Buzz",
+        "Chip",
+        "Barney",
+        "Rover",
+        "Rudy",
+        "Ziggy"
+
+       -- "Acid Burn",
+       -- "Zero Cool",
+       -- "Cereal Killer",
+       -- "Lord Nikon",
+       -- "Crash Override",
+       -- "Joey",
+       -- "Razor",
+       -- "Blade",
+    },
+}
+
+g_rev_unit_name_cache = {}
+function rev_get_unit_name(vehicle)
+    if vehicle and vehicle:get() then
+        local vdef = vehicle:get_definition_index()
+
+        if vdef == e_game_object_type.chassis_carrier then
+            return get_ship_name(vehicle)
+        end
+
+        local vid = vehicle:get_id()
+        local cached = g_rev_unit_name_cache[vid]
+        if cached then
+            return cached
+        end
+
+        local pool = l_rev_unit_names[vdef]
+        if pool ~= nil then
+            local factor = math_floor(update_get_tile_by_index(1):get_position_xz():x()) % 500
+            local poolsize = #pool
+            local name_idx = (factor + vid) % poolsize
+            local name = pool[1 + name_idx]
+            if name then
+                local fullname = string.format("%s %d", name, vid)
+                g_rev_unit_name_cache[vid] = fullname
+                return fullname
+            end
+        end
+    end
+    return nil
 end
 
 function _get_ship_name(vehicle)
@@ -2557,6 +2667,11 @@ function refresh_missile_data(visible_only)
 end
 
 function _refresh_missile_data(visible_only)
+
+    if not g_missile_tracking then
+        return
+    end
+
     local tick = update_get_logic_tick()
     if tick > g_missiles_last_update + 10 then
         g_missiles_last_update = tick
@@ -2819,6 +2934,69 @@ function get_loadout_attachment_hidden(vehicle, attachment_index)
     return true
 end
 
+function rev_remove_all_docked_attachments(carrier, bay_index)
+    local attached_vehicle = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(bay_index))
+    if attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
+        local slots = attached_vehicle:get_attachment_count()
+        for i = 1, slots do
+            carrier:set_attached_vehicle_attachment(bay_index, i, -1)
+        end
+        return attached_vehicle
+    end
+    return nil
+end
+
+function rev_save_preconfigure_attachments(carrier, bay_index, preset)
+    local attached_vehicle = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(bay_index))
+    if attached_vehicle then
+        local presets = g_revolution_loadout_preset[attached_vehicle:get_definition_index()]
+        if presets then
+
+            custom_preset = {}
+            local slots = attached_vehicle:get_attachment_count()
+            for i = 0, slots do
+                attachment = attached_vehicle:get_attachment(i)
+                if attachment and attachment:get() then
+                    custom_preset[i] = attachment:get_definition_index()
+                end
+            end
+
+            presets[preset] = custom_preset
+        end
+    end
+end
+
+function rev_set_preconfigure_attachments(carrier, bay_index, preset)
+    local attached_vehicle = rev_remove_all_docked_attachments(carrier, bay_index)
+    if attached_vehicle then
+        local presets = g_revolution_loadout_preset[attached_vehicle:get_definition_index()]
+        if presets then
+            local attachments = presets[preset]
+            if attachments then
+                for attachment_index, attachment_definition in pairs(attachments) do
+                    carrier:set_attached_vehicle_attachment(bay_index, attachment_index, attachment_definition)
+                end
+            end
+        end
+    end
+end
+
+function rev_has_preconfigure_preset(carrier, bay_index, preset)
+    local attached_vehicle = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(bay_index))
+    if attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
+        local presets = g_revolution_loadout_preset[attached_vehicle:get_definition_index()]
+        if presets then
+            print(preset, "=", presets[preset])
+            if presets[preset] ~= nil then
+                return true
+            end
+        end
+    end
+    print("no " .. preset)
+
+    return false
+end
+
 function sanitise_loadout(carrier, bay_index)
     local vehicle = update_get_map_vehicle_by_id(carrier:get_attached_vehicle_id(bay_index))
     -- remove weapons from hidden
@@ -2859,6 +3037,14 @@ local st, _v = pcall(function()
         e_game_object_type.attachment_hardpoint_torpedo_noisemaker,
         e_game_object_type.attachment_hardpoint_torpedo_decoy,
         e_game_object_type.attachment_fuel_tank_plane
+    }
+    _light_wing_weapons = {
+        e_game_object_type.attachment_turret_plane_chaingun,
+        e_game_object_type.attachment_hardpoint_bomb_1,
+        e_game_object_type.attachment_hardpoint_missile_ir,
+        e_game_object_type.attachment_hardpoint_missile_laser,
+        e_game_object_type.attachment_hardpoint_missile_aa,
+        e_game_object_type.attachment_hardpoint_missile_tv,
     }
     _std_wing_weapons = {
         e_game_object_type.attachment_turret_plane_chaingun,
@@ -2935,7 +3121,6 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_hardpoint_bomb_2,
                     e_game_object_type.attachment_hardpoint_bomb_3,
                     e_game_object_type.attachment_hardpoint_torpedo,
-                    g_ew_attachment_type,
                 },
                 -- wings
                 [4] = _std_wing_attachments,
@@ -2972,8 +3157,8 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_turret_gimbal_30mm,
                 },
                 -- wings
-                [2] = _std_wing_weapons,
-                [3] = concat_lists(_std_wing_weapons, { g_ew_attachment_type }),
+                [2] = _std_wing_attachments,
+                [3] = _std_wing_attachments,
                 [4] = _std_wing_attachments,
                 [5] = _std_wing_attachments,
                 -- top
@@ -2991,7 +3176,7 @@ local st, _v = pcall(function()
                     { i=3, x=-16, y=12 },
                     { i=4, x=16, y=12 },
                     { i=2, x=16, y=-5 },
-                    { i=6, x=0, y=4 },
+                    -- { i=6, x=0, y=4 },
                 }
             },
             options = {
@@ -3004,9 +3189,6 @@ local st, _v = pcall(function()
                     e_game_object_type.attachment_flare_launcher,
                     e_game_object_type.attachment_sonic_pulse_generator,
                 },
-                [6] = {
-                    g_ew_attachment_type,
-                }
             }
         },
         -- seal
@@ -3017,46 +3199,75 @@ local st, _v = pcall(function()
         },
         -- walrus
         [e_game_object_type.chassis_land_wheel_medium] = {
+            rows = {
+                {
+                    { i=2, x=0, y=-15 },
+                    { i=1, x=0, y=0 },
+                    { i=3, x=0, y=15 },
+                    { i=4, x=-13, y=2 },
+                    { i=5, x=13, y=2 },
+                }
+            },
             options = {
                 [1] = concat_lists(_std_land_turrets, {e_game_object_type.attachment_turret_heavy_cannon}),
-                [2] = concat_lists(_std_land_utils, {e_game_object_type.attachment_turret_15mm}),
+                [2] = _std_land_utils,
                 [3] = concat_lists(_std_land_utils, {e_game_object_type.attachment_deployable_droid}),
+                [4] = {e_game_object_type.attachment_hardpoint_missile_aa},
+                [5] = {e_game_object_type.attachment_hardpoint_missile_aa},
             },
         },
         -- bear
         [e_game_object_type.chassis_land_wheel_heavy] = {
             options = {
-                [1] = concat_lists(_std_wing_utils, {
-                    e_game_object_type.attachment_camera,
+                [4] = {
+                    e_game_object_type.attachment_hardpoint_missile_aa,
                     e_game_object_type.attachment_hardpoint_missile_tv,
-                }),
-                [3] = concat_lists(_std_wing_utils, {
-                    e_game_object_type.attachment_camera,
-                    e_game_object_type.attachment_hardpoint_missile_tv,
-                })
-            }
-        },
-        -- petrel
-        [e_game_object_type.chassis_air_rotor_heavy] = {
-            options = {
-                -- nose slot
-                [1] = {
-                    e_game_object_type.attachment_camera_plane,
-                    e_game_object_type.attachment_turret_gimbal_30mm,
-                    -- e_game_object_type.attachment_radar_golfball,   -- disables airlift ability when added
                 },
-                [2] = concat_lists(_std_wing_weapons, { g_ew_attachment_type })
+                [5] = {
+                    e_game_object_type.attachment_hardpoint_missile_aa,
+                    e_game_object_type.attachment_hardpoint_missile_tv,
+                }
+            },
+            rows = {
+                {
+                    {i=1, x=-16, y=0},
+                    {i=2, x=0, y=-6},
+                    {i=3, x=16, y=0},
+                    {i=4, x=-8, y=12},
+                    {i=5, x=8, y=12},
+                }
             },
         },
+        ---- petrel
+        --[e_game_object_type.chassis_air_rotor_heavy] = {
+        --    options = {
+        --        -- nose slot
+        --        [1] = {
+        --            e_game_object_type.attachment_camera_plane,
+        --            e_game_object_type.attachment_turret_gimbal_30mm,
+        --        },
+        --    },
+        --    rows = {
+        --        {
+        --            { i=1, x=0, y=-22 }
+        --        },
+        --        {
+        --            { i=2, x=-23, y=0 },
+        --            { i=4, x=-14, y=0 },
+        --            { i=5, x=14, y=0 },
+        --            { i=3, x=23, y=0 }
+        --        },
+        --        {
+        --        --    { i=7, x=0, y=10},
+        --            { i=8, x=0, y=23}
+        --        }
+        --    }
+        --},
         -- turret
         [e_game_object_type.chassis_land_turret] = {
             options = {
                 [0] = {
-                    e_game_object_type.attachment_radar_golfball,
-                    e_game_object_type.attachment_camera_observation,
                     e_game_object_type.attachment_camera,
-                    --e_game_object_type.attachment_turret_carrier_main_gun,
-                    --e_game_object_type.attachment_turret_carrier_missile_silo,
                 }
             },
         },
@@ -3095,6 +3306,7 @@ local st, _v = pcall(function()
                 },
                 [8] = {
                     e_game_object_type.attachment_turret_carrier_missile_silo,
+                    e_game_object_type.attachment_turret_carrier_ciws,
                 },
                 [9] = {
                     e_game_object_type.attachment_turret_carrier_flare_launcher,
@@ -3116,6 +3328,99 @@ if not st then
     print(_v)
 else
     g_revolution_attachment_defaults = _v
+end
+
+g_revolution_loadout_preset = {
+    [e_game_object_type.chassis_air_wing_heavy] = {
+        defender = {
+            [2] = e_game_object_type.attachment_turret_plane_chaingun,
+            [4] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [5] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [6] = e_game_object_type.attachment_flare_launcher,
+        },
+        strike = {
+            [3] = e_game_object_type.attachment_hardpoint_bomb_2,
+            [4] = e_game_object_type.attachment_hardpoint_bomb_1,
+            [5] = e_game_object_type.attachment_hardpoint_bomb_1,
+        }
+    },
+    [e_game_object_type.chassis_air_wing_light] = {
+        defender = {
+            [2] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [3] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [4] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [5] = e_game_object_type.attachment_hardpoint_missile_aa,
+        },
+        strike = {
+            [2] = e_game_object_type.attachment_hardpoint_missile_ir,
+            [3] = e_game_object_type.attachment_hardpoint_missile_ir,
+            [4] = e_game_object_type.attachment_hardpoint_missile_ir,
+            [5] = e_game_object_type.attachment_hardpoint_missile_ir,
+        },
+        refuel = {
+            [4] = e_game_object_type.attachment_fuel_tank_plane,
+            [5] = e_game_object_type.attachment_fuel_tank_plane,
+        }
+    },
+    [e_game_object_type.chassis_air_rotor_light] = {
+        defender = {
+            [1] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [2] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [3] = e_game_object_type.attachment_flare_launcher,
+        },
+        strike = {
+            [1] = e_game_object_type.attachment_turret_plane_chaingun,
+            [2] = e_game_object_type.attachment_turret_plane_chaingun,
+            [5] = e_game_object_type.attachment_turret_droid,
+        },
+        refuel = {
+            [1] = e_game_object_type.attachment_fuel_tank_plane,
+        }
+    },
+    [e_game_object_type.chassis_air_rotor_heavy] = {
+        defender = {
+            [2] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [3] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [4] = e_game_object_type.attachment_hardpoint_missile_aa,
+            [5] = e_game_object_type.attachment_hardpoint_missile_aa,
+        },
+        strike = {
+            [2] = e_game_object_type.attachment_turret_plane_chaingun,
+            [3] = e_game_object_type.attachment_turret_plane_chaingun,
+            [4] = e_game_object_type.attachment_hardpoint_missile_ir,
+            [5] = e_game_object_type.attachment_hardpoint_missile_ir,
+        }
+    },
+    [e_game_object_type.chassis_land_wheel_light] = {
+        capture = {
+            [1] = e_game_object_type.attachment_turret_robot_dog_capsule
+        }
+    },
+}
+local st, err = pcall(
+        function()
+
+            for _, definition_index in pairs( {
+                e_game_object_type.chassis_land_wheel_mule,
+                e_game_object_type.chassis_land_wheel_heavy,
+                e_game_object_type.chassis_land_wheel_medium,
+                e_game_object_type.chassis_land_wheel_light,
+                e_game_object_type.chassis_air_rotor_heavy,
+                e_game_object_type.chassis_air_rotor_light,
+                e_game_object_type.chassis_air_wing_heavy,
+                e_game_object_type.chassis_air_wing_light,
+            }) do
+
+                if g_revolution_loadout_preset[definition_index] == nil then
+                    g_revolution_loadout_preset[definition_index] = {}
+                end
+                g_revolution_loadout_preset[definition_index]["custom"] = {}
+                g_revolution_loadout_preset[definition_index]["empty"] = {}
+            end
+
+        end)
+if not st then
+    print(err)
 end
 
 function insert_sea_mule_options(vehicle)
@@ -3357,14 +3662,58 @@ function get_payload_weight(definition_index)
                 value = value + g_item_data[e_inventory_item.fuel_barrel].mass
             elseif definition_index == e_game_object_type.attachment_turret_rocket_pod then
                 -- 19 rockets
-                value = value + (19 * g_item_data[e_inventory_item.ammo_rocket].mass)
+                value = value + 200 + (19 * g_item_data[e_inventory_item.ammo_rocket].mass)
             end
         end
     end
+
+    -- inventory masses of these are excessive, set more game-friendly values here
+    if definition_index == e_game_object_type.attachment_turret_droid then
+        value = 180
+    elseif definition_index == e_game_object_type.attachment_turret_plane_chaingun then
+        value = 265
+    elseif definition_index == e_game_object_type.attachment_hardpoint_torpedo then
+        value = 800
+    elseif definition_index == e_game_object_type.attachment_hardpoint_bomb_2 then
+        value = 630
+    elseif definition_index == e_game_object_type.attachment_hardpoint_missile_aa then
+        value = 184
+    elseif definition_index == e_game_object_type.attachment_hardpoint_missile_tv then
+        value = 293
+    elseif definition_index == e_game_object_type.attachment_turret_gimbal_30mm then
+        value = 190
+    elseif definition_index == e_game_object_type.attachment_turret_30mm then
+        value = 400
+    elseif definition_index == e_game_object_type.attachment_turret_40mm then
+        value = 600
+    elseif definition_index == e_game_object_type.attachment_turret_ciws then
+        value = 650
+    elseif definition_index == e_game_object_type.attachment_radar_golfball then
+        value = 650
+    elseif definition_index == e_game_object_type.attachment_turret_missile then
+        value = 750
+    end
+    if value < 1 then
+        value = 80
+    end
+
     return value
 end
 
-function get_aircraft_payload_weight(vehicle)
+g_rev_unit_max_payload = {
+    [e_game_object_type.chassis_air_wing_heavy] = 2500,
+    [e_game_object_type.chassis_air_rotor_heavy] = 8000,
+    [e_game_object_type.chassis_air_rotor_light] = 2600,
+    [e_game_object_type.chassis_air_wing_light] = 2800,
+    [e_game_object_type.chassis_land_wheel_medium] = 980,
+}
+
+-- g_rev_allow_carrier_land_turrets = false
+g_rev_unit_hard_payload_limit = {
+    [e_game_object_type.chassis_land_wheel_medium] = true,
+}
+
+function get_unit_payload_weight(vehicle)
     local value = 0
     if vehicle and vehicle:get() then
         local attachment_count = vehicle:get_attachment_count()
@@ -3373,7 +3722,7 @@ function get_aircraft_payload_weight(vehicle)
             if attachment and attachment:get() then
                 local def = attachment:get_definition_index()
                 if def ~= -1 then
-                    value = value + get_payload_weight(attachment:get_definition_index())
+                    value = value + get_payload_weight(def)
                 end
             end
         end
@@ -3381,6 +3730,52 @@ function get_aircraft_payload_weight(vehicle)
     return value
 end
 
+function rev_get_unit_has_payload_limit(vehicle)
+    if vehicle and vehicle:get() then
+        local definition_index = vehicle:get_definition_index()
+        return g_rev_unit_max_payload[definition_index] ~= nil
+    end
+    return false
+end
+
+function rev_get_unit_has_hard_payload_limit(vehicle)
+    if vehicle and vehicle:get() then
+        local definition_index = vehicle:get_definition_index()
+        return g_rev_unit_hard_payload_limit[definition_index] ~= nil
+    end
+    return false
+end
+
+function rev_get_payload_remaining(vehicle)
+    local definition_index = vehicle:get_definition_index()
+    local payload_max = g_rev_unit_max_payload[definition_index]
+    if payload_max == nil then
+        payload_max = 50000 -- probably not an aircraft, let everything use normal rules
+    end
+    local payload_mass = get_unit_payload_weight(vehicle)
+    local payload_remain = payload_max - payload_mass
+    return payload_remain
+end
+
+function rev_check_attachment_exceeds_payload(vehicle, attachment_index, attachment_definition)
+    local payload_remain = rev_get_payload_remaining(vehicle)
+    if attachment_definition > -1 then
+        local replace_mass = get_payload_weight(attachment_definition)
+        local current = vehicle:get_attachment(attachment_index)
+        if current and current:get() then
+            local current_def = current:get_definition_index()
+            if current_def > -1 then
+                local current_mass = get_payload_weight(current_def)
+                if current_mass > 0 then
+                    payload_remain = payload_remain + current_mass -- ignore whatever is in this slot
+                end
+            end
+            return payload_remain >= replace_mass
+        end
+    end
+
+    return true
+end
 
 -- vehicle history class and data
 VehicleHistory = {}
@@ -3543,6 +3938,28 @@ function do_screensaver(screen_w, screen_h, screen_enum)
             expired = true
         end
     end
+    local drydock = false
+    local eliminated = false
+    if string.match(g_screen_name, "drydock") then
+        drydock = true
+        eliminated = team_eliminated(update_get_screen_team_id())
+        if not eliminated then
+            -- always show the drydock screensaver if the team still has a carrier
+            expired = true
+        else
+            expired = false
+        end
+    end
+
+    if expired and drydock then
+        if screen_w == 256 then
+            local st, err = pcall(do_advertising_update, screen_w, screen_h)
+            if not st then
+                print(err)
+            end
+            return true
+        end
+    end
 
     local abbr = "ACC"
     local screen_vehicle = update_get_screen_vehicle()
@@ -3554,27 +3971,40 @@ function do_screensaver(screen_w, screen_h, screen_enum)
     if expired then
         update_set_screen_background_type(0)
         local y = screen_h / 4
-        update_ui_text(
-                50, y,
-                abbr .. get_ship_name(screen_vehicle),
-                100, 1, color_grey_mid, 0)
-        update_ui_line(
-                50, y + 11,
-                200, y + 11,
-                color_grey_dark
-        )
 
-        update_ui_text(
-                58, y + 13,
-                update_get_loc(screen_enum),
-                100, 1, color_grey_mid, 0)
+        if drydock then
+            -- the drydock bar screens
+            if not eliminated then
+                local size = 1
+                if screen_w > 256 then
+                    size = 4
+                end
+                local tx = screen_w * -1
+                local tx = tx + now % (screen_w * 2)
+                update_ui_text_scale(tx, y, "Drydock Bar & Grill", screen_w, 0, color_status_ok, 0, size)
+            end
+        else
+            update_ui_text(
+                    50, y,
+                    abbr .. get_ship_name(screen_vehicle),
+                    100, 1, color_grey_mid, 0)
+            update_ui_line(
+                    50, y + 11,
+                    200, y + 11,
+                    color_grey_dark
+            )
 
-        if now % 30 < 15 then
-           update_ui_text(
-                50, y + 13,
-                ">",
-                12, 1, color_grey_mid, 0)
+            update_ui_text(
+                    58, y + 13,
+                    update_get_loc(screen_enum),
+                    100, 1, color_grey_mid, 0)
 
+            if now % 30 < 15 then
+                update_ui_text(
+                        50, y + 13,
+                        ">",
+                        12, 1, color_grey_mid, 0)
+            end
         end
 
         update_ui_text(12, screen_h - 25, string.format("%d total units", total_units), screen_w, 0, color_grey_mid, 0)
@@ -3588,24 +4018,6 @@ end
 
 function round_int(value)
     return math_floor(value + 0.5)
-end
-
-g_ew_def_downgrade = {
-    [e_game_object_type.chassis_carrier] = e_game_object_type.chassis_sea_barge,
-    [e_game_object_type.chassis_sea_barge] = e_game_object_type.chassis_sea_ship_light,
-    [e_game_object_type.chassis_sea_ship_heavy] = e_game_object_type.chassis_sea_ship_light,
-    [e_game_object_type.chassis_air_wing_heavy] = e_game_object_type.chassis_air_wing_light,
-    [e_game_object_type.chassis_air_rotor_heavy] = e_game_object_type.chassis_air_rotor_light,
-}
-
-function ew_fuzz_unit_def(def, vid)
-    local downgrade = g_ew_def_downgrade[def]
-    if downgrade ~= nil then
-        if get_close_hostile_ew_cached(vid) then
-            return downgrade
-        end
-    end
-    return def
 end
 
 g_vt = {}
@@ -3667,6 +4079,17 @@ function get_nearest_carrier(vehicle, friendly, current_team)
         end
     end
     return nearest, nearest_dist_sq^0.5
+end
+
+function team_eliminated(team_id)
+    for _, crr in pairs(get_carriers_table()) do
+        if crr and crr:get() then
+            if crr:get_team() == team_id then
+                return false
+            end
+        end
+    end
+    return true
 end
 
 function fast_sqrt(x)
