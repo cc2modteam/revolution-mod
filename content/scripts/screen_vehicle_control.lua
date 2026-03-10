@@ -716,7 +716,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                 local a_row_h = 17
                 for adef, _ in pairs(capacity) do
                     local cx = 1
-                    if a_row % 2 == 0 then
+                    if a_row % 2 == 1 then
                         cx = left_w // 2
                     end
                     local attachment_data = get_attachment_data_by_definition_index(adef)
@@ -726,8 +726,8 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     update_ui_text(cx+ 18, cy + 4, remaining .. "/" .. full_capacity, left_w //2, 0, iff(remaining == 0, color_status_bad, color_status_ok), 0)
                     if a_row % 2 == 1 then
                         cy = cy + a_row_h
-                        update_ui_line(1, cy, region_w, cy, color_grey_dark)
                     end
+                    update_ui_line(1, cy + a_row_h, region_w, cy + a_row_h, color_grey_dark)
                     a_row = a_row + 1
                 end
 
