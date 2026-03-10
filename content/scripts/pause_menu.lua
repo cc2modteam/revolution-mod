@@ -137,7 +137,6 @@ g_tut_is_help_tab_selected = false
 function begin()
     begin_load()
     reset()
-    print("begin pause")
     g_tab_map.render = tab_map_render
     g_tab_map.input_event = tab_map_input_event
     g_tab_map.input_pointer = tab_map_input_pointer

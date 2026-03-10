@@ -108,6 +108,15 @@ function update(screen_w, screen_h, ticks)
     local hostile_warning_distance = 1000
     local hostile_missile_dist = hostile_warning_distance
     local hostile_missile_type = e_game_object_type.missile_1
+    local radar_sweep_col = color_white
+
+    if ticks > 1 then
+        if ticks > 2 then
+            radar_sweep_col = color_grey_dark
+        else
+            radar_sweep_col = color_grey_mid
+        end
+    end
 
     update_ui_push_offset(screen_w / 2, screen_h / 2 - 4)
 
@@ -140,7 +149,7 @@ function update(screen_w, screen_h, ticks)
 
         local angle = g_animation_time / sweep_interval * math_pi * 2
         local radar_dir = vec2(math_cos(angle), math_sin(angle))
-        update_ui_line(0, 0, radar_dir:x() * radius, radar_dir:y() * radius, color_white)
+        update_ui_line(0, 0, radar_dir:x() * radius, radar_dir:y() * radius, radar_sweep_col)
 
         local targets = get_radar_targets(range)
         local angle_fade_dist = torpedo_fade_dist

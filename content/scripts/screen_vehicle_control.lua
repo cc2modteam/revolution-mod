@@ -520,6 +520,9 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
             local ui = g_ui
             
             local loadout_w = 74
+            local left_top_h = 50
+            local left_mid_h = 118
+            local left_bot_h = 70
             local left_w = screen_w - loadout_w - 25
 
             local window = ui:begin_window(update_get_loc(e_loc.upp_loadout), 10 + left_w + 5, 10, loadout_w, 84, atlas_icons.column_stock, false, 2)
@@ -554,7 +557,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
             local title = vehicle_definition_name .. string.format( " ID %.0f", vehicle:get_id() )
             local is_window_active = g_selected_vehicle_ui.confirm_self_destruct == false
 
-            ui:begin_window(title, 10, 10, left_w, 104, atlas_icons.column_pending, is_window_active, 2)
+            ui:begin_window(title, 10, 10, left_w, left_top_h, atlas_icons.column_pending, is_window_active, 2)
                 ui:stat(update_get_loc(e_loc.hp), hitpoints .. "/" .. hitpoints_total, iff(damage_factor < 0.2, color_low, color_high))
 
                 if vehicle_definition_index == e_game_object_type.chassis_land_turret then
@@ -564,8 +567,9 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     ui:stat(update_get_loc(e_loc.upp_fuel), string.format("%.0f%%", fuel_factor * 100), iff(fuel_factor < 0.25, color_low, iff(fuel_factor < 0.5, color_mid, color_high)))
                     ui:stat(update_get_loc(e_loc.upp_ammo), string.format("%.0f%%", ammo_factor * 100), iff(ammo_factor < 0.25, color_low, iff(ammo_factor < 0.5, color_mid, color_high)))
                 end
+            ui:end_window()
 
-                ui:header(update_get_loc(e_loc.upp_actions))
+            ui:begin_window(update_get_loc(e_loc.upp_actions), 10, left_top_h + 9, left_w, left_mid_h, atlas_icons.column_pending, is_window_active, 2)
 
                 if vehicle_definition_index ~= e_game_object_type.chassis_carrier and vehicle_definition_index ~= e_game_object_type.chassis_sea_barge and def_index ~= e_game_object_type.chassis_land_robot_dog then
                     local is_vehicle_hold_fire = vehicle:get_is_hold_fire()
@@ -678,30 +682,53 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
             end
 
             if #attachments > 0 and vehicle:get_definition_index() ~= e_game_object_type.chassis_land_turret then
-                local window = ui:begin_window(update_get_loc(e_loc.upp_ammo), 10, 116, left_w, { max=130 }, atlas_icons.column_stock, false, 2)
+                local window = ui:begin_window(update_get_loc(e_loc.upp_ammo), 10, left_top_h + left_mid_h + 9, left_w, left_bot_h, atlas_icons.column_stock, true, 2)
                 local region_w, region_h = ui:get_region()
                 local cy = 0
 
-                update_ui_rectangle(18, 0, 1, region_h, color_grey_dark)
+                local capacity = {}
+                local totals = {}
 
                 for _, attachment in ipairs(attachments) do
-                    local adef = attachment:get_definition_index()
-                    local attachment_data = get_attachment_data_by_definition_index(adef)
-                    update_ui_image(1, cy + 1, attachment_data.icon16, color_white, 0)
-
                     local ammo_capacity = attachment:get_ammo_capacity()
                     local fuel_capacity = attachment:get_fuel_capacity()
 
-                    if fuel_capacity > 0 then
-                        local fuel_remaining = attachment:get_fuel_remaining()
-                        update_ui_text(21, cy + 4, fuel_remaining  .. "/" .. fuel_capacity, 100, 0, iff(fuel_remaining == 0, color_status_bad, color_status_ok), 0)
-                    elseif ammo_capacity > 0 then
-                        local ammo_remaining = attachment:get_ammo_remaining()
-                        update_ui_text(21, cy + 4, ammo_remaining .. "/" .. ammo_capacity, 100, 0, iff(ammo_remaining == 0, color_status_bad, color_status_ok), 0)
-                    end
+                    if fuel_capacity > 0 or ammo_capacity > 1 then
+                        local adef = attachment:get_definition_index()
+                        if capacity[adef] == nil then
+                            capacity[adef] = 0
+                            totals[adef] = 0
+                        end
 
-                    cy = cy + 17
-                    update_ui_rectangle(0, cy, region_w, 1, color8(255, 255, 255, 2))
+                        if fuel_capacity > 0 then
+                            capacity[adef] = fuel_capacity + capacity[adef]
+                            local fuel_remaining = attachment:get_fuel_remaining()
+                            totals[adef] = fuel_remaining + totals[adef]
+                        elseif ammo_capacity > 0 then
+                            capacity[adef] = ammo_capacity + capacity[adef]
+                            local ammo_remaining = attachment:get_ammo_remaining()
+                            totals[adef] = ammo_remaining + totals[adef]
+                        end
+                    end
+                end
+
+                local a_row = 0
+                local a_row_h = 17
+                for adef, _ in pairs(capacity) do
+                    local cx = 1
+                    if a_row % 2 == 0 then
+                        cx = left_w // 2
+                    end
+                    local attachment_data = get_attachment_data_by_definition_index(adef)
+                    local remaining = totals[adef]
+                    local full_capacity = capacity[adef]
+                    update_ui_image(cx + 1, cy + 1, attachment_data.icon16, color_white, 0)
+                    update_ui_text(cx+ 18, cy + 4, remaining .. "/" .. full_capacity, left_w //2, 0, iff(remaining == 0, color_status_bad, color_status_ok), 0)
+                    if a_row % 2 == 1 then
+                        cy = cy + a_row_h
+                        update_ui_line(1, cy, region_w, cy, color_grey_dark)
+                    end
+                    a_row = a_row + 1
                 end
 
                 window.cy = cy + 1
