@@ -2981,6 +2981,35 @@ function render_flight_hud(screen_w, screen_h, is_render_center, vehicle)
         end
         wp_col = color8(wp_col:r(), wp_col:g(), wp_col:b(), wp_col:a() - 35)
 	end
+
+    local wpc = vehicle:get_waypoint_count()
+    for j = 0, wpc - 1, 1 do
+        local waypoint = vehicle:get_waypoint(j)
+        if waypoint and waypoint:get() then
+            local waypoint_type = waypoint:get_type()
+            if waypoint_type == e_waypoint_type.deploy then
+                -- show cargo drop point
+                local p = waypoint:get_position_xz(j)
+                local p3 = vec3(p:x(), 24, p:y())
+                render_ground_marker(color_friendly, p3, screen_w, screen_h, update_get_loc(e_loc.deploy):upper())
+            else
+                -- sadly this crashes the game with any of these method calls after get_attack_target_count()
+                --local wpac = waypoint:get_attack_target_count()
+                --if wpac > 0 then
+                --    local wpvalid = waypoint:get_attack_target_is_valid(0)
+                --    if wpvalid then
+                --        local wpat = waypoint:get_attack_target_attack_type(0)
+                --        if wpat == e_attack_type.airlift then
+                --            local p = waypoint:get_attack_target_position_xz(0)
+                --            local p3 = vec3(p:x(), 40, p:y())
+                --            render_ground_marker(color_friendly, p3, screen_w, screen_h, update_get_loc(e_loc.airlift_waypoint):upper())
+                --        end
+                --    end
+                --end
+            end
+        end
+    end
+
 end
 
 function render_barge_hud(screen_w, screen_h, vehicle)
@@ -3970,7 +3999,6 @@ function render_attachment_vision(screen_w, screen_h, map_data, vehicle, attachm
     for v in iter_vision(map_data, filter_target) do
         local pos = v:get_position()
         local dist_sq = vec3_dist_sq(pos, cam_pos)
-        local is_manta = v:get_definition_index() == e_game_object_type.chassis_air_wing_heavy
         local observe_range_sq = iff(get_is_vehicle_sea(v:get_definition_index()), range_ships_sq, range_sq)
 
         if dist_sq < observe_range_sq then
