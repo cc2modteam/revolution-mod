@@ -5,6 +5,7 @@ local math_floor = math.floor
 g_highlighted = {
     vehicle_id = 0,
     waypoint_id = 0,
+    selection_point = 0,
     command_center_id = 0,
     island_id = 0,
     turret_spawn_index = -1,
@@ -18,6 +19,12 @@ g_highlighted = {
         self.island_id = 0
         self.turret_spawn_index = -1
         self.production_index = -1
+        self.selection_point = 0
+    end,
+
+    set_selection_point = function(self)
+        self:clear()
+        self.selection_point = 1
     end,
 
     set_vehicle = function(self, vehicle_id)
@@ -108,10 +115,12 @@ g_drag = {
     island_id = 0,
     turret_spawn_index = -1,
     production_index = -1,
+    selection_point = 0,
 
     clear = function(self)
         self.vehicle_id = 0
         self.waypoint_id = 0
+        self.selection_point = 0
         self.command_center_id = 0
         self.island_id = 0
         self.turret_spawn_index = -1
@@ -122,8 +131,14 @@ g_drag = {
         return self.vehicle_id > 0
             or self.waypoint_id > 0
             or self.command_center_id > 0
+            or self.selection_point > 0
             or (self.island_id > 0 and self.turret_spawn_index ~= -1)
             or (self.island_id > 0 and self.production_index ~= -1)
+    end,
+
+    set_selection_point = function(self)
+        self:clear()
+        self.selection_point = 1
     end,
 
     set_vehicle = function(self, vehicle_id)
@@ -1327,11 +1342,12 @@ function input_selection(event, action)
             g_selection:clear()
             return true
         end
-    else
+    end
+    local turrets = get_is_placing_turret()
+    if not turrets then
         g_ui:input_event(event, action)
     end
-
-    return get_is_placing_turret() == false
+    return turrets == false
 end
 
 function parse()
@@ -1639,6 +1655,23 @@ function _update(screen_w, screen_h, ticks)
 
         g_highlighted:clear()
 
+        -- draw selection box
+        if g_rev_box_start then
+            local nw = g_rev_box_start
+            local se = vec2(g_pointer_pos_x, g_pointer_pos_y)
+            local ne = vec2(se:x(), nw:y())
+            local sw = vec2(nw:x(), se:y())
+            render_dashed_line(nw:x(), nw:y(), ne:x(), ne:y(), color_grey_mid)
+            render_dashed_line(ne:x(), ne:y(), se:x(), se:y(), color_grey_mid)
+            render_dashed_line(se:x(), se:y(), sw:x(), sw:y(), color_grey_mid)
+            render_dashed_line(sw:x(), sw:y(), nw:x(), nw:y(), color_grey_mid)
+
+            -- render units in box
+            g_rev_box_selection, g_rev_selection_middle = rev_box_select(nw, se)
+            g_rev_box_selection_used = false
+
+        end
+
         if g_is_mouse_mode == false or g_is_drag_pan_map == false then
             local highlighted_distance_best = 10
 
@@ -1777,6 +1810,24 @@ function _update(screen_w, screen_h, ticks)
                             end
                         end
                     end
+                end
+
+                -- check hover virtual group
+                if g_rev_box_start == nil and #g_rev_box_selection > 0 then
+                    local sx, sy = get_screen_from_world(g_rev_selection_middle:x(), g_rev_selection_middle:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                    local dx = math.abs(sx - g_cursor_pos_x)
+                    local dy = math.abs(sy - g_cursor_pos_y)
+                    if dx < 12 and dy < 12 then
+                        g_highlighted:set_selection_point()
+                        -- treat as drag waypoint
+                        -- print("hover", update_get_logic_tick())
+                    end
+                end
+
+                if g_drag.selection_point > 0 then
+                    -- draw dotted from virt to drag point
+                    local sx, sy = get_screen_from_world(g_rev_selection_middle:x(), g_rev_selection_middle:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                    render_dashed_line(sx, sy, g_cursor_pos_x, g_cursor_pos_y, color_grey_mid)
                 end
             end
         end
@@ -2864,6 +2915,17 @@ function _update(screen_w, screen_h, ticks)
                     end
                 end
             end
+
+            -- render virtual group
+            if g_rev_box_start == nil and #g_rev_box_selection > 0 then
+                -- render a virtual unit icon
+                local sx, sy = get_screen_from_world(g_rev_selection_middle:x(), g_rev_selection_middle:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                update_ui_image(sx - 4, sy - 5, atlas_icons.column_locked, color_white, 0)
+            end
+
+            if #g_rev_box_selection then
+                rev_render_unit_selection(screen_w, screen_h, g_rev_box_selection)
+            end
         end
         if g_radar_debug then
             local_print(
@@ -3639,6 +3701,7 @@ function update_interaction_ui()
         end
     elseif g_selection:is_selection() == false then
         update_add_ui_interaction(update_get_loc(e_loc.interaction_map_options), e_game_input.interact_a)
+        update_add_ui_interaction(update_get_loc(e_loc.interaction_select), e_game_input.interact_b)
         update_add_ui_interaction_special(update_get_loc(e_loc.interaction_pan), e_ui_interaction_special.map_pan)
         update_add_ui_interaction_special(update_get_loc(e_loc.interaction_zoom), e_ui_interaction_special.map_zoom)
     elseif get_is_map_movement_allowed() then
@@ -3698,6 +3761,10 @@ function input_event(event, action)
         end
 
         if is_input_consumed == false then
+            is_input_consumed = float_btn_input_event(event, action)
+        end
+
+        if is_input_consumed == false then
             if action == e_input_action.press then
                 if event == e_input.action_a or event == e_input.pointer_1 then
                     if g_selected_child_vehicle_id ~= 0 then
@@ -3744,6 +3811,8 @@ function input_event(event, action)
                         if highlighted_island:get() and highlighted_island:get_team_control() == update_get_screen_team_id() then
                             g_drag:set_island_production(g_highlighted.island_id, g_highlighted.production_index)
                         end
+                    elseif g_highlighted.selection_point > 0 then
+                        g_drag:set_selection_point()
                     elseif event == e_input.pointer_1 and get_is_map_movement_allowed() then
                         g_is_drag_pan_map = true
                     end
@@ -3757,6 +3826,11 @@ function input_event(event, action)
                             g_viewing_vehicle_id = highlighted_vehicle:get_id()
                             g_screen_index = 1
                         end
+                    else
+                        -- begin bounding box
+                        if g_rev_box_start == nil then
+                            g_rev_box_start = vec2(g_cursor_pos_x, g_cursor_pos_y)
+                        end
                     end
                 elseif event == e_input.back then
                     if g_selected_child_vehicle_id ~= 0 then
@@ -3768,6 +3842,8 @@ function input_event(event, action)
                     end
                 end
             else
+                -- release
+
                 if event == e_input.action_a or event == e_input.pointer_1 then
 
                     if event == e_input.pointer_1 then
@@ -3932,9 +4008,31 @@ function input_event(event, action)
                                 end
                             end
                         end
+                        if g_drag.selection_point > 0 then
+                            local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+                            local dx = 10
+                            local dy = -20
+                            local count = 0
+
+                            for _, v in pairs(g_rev_box_selection) do
+                                if v and v:get() then
+                                    if not g_rev_box_selection_used then
+                                        v:clear_waypoints()
+                                        v:clear_attack_target()
+                                    end
+                                    v:add_waypoint(world_x + dx * count, world_y + dy * count)
+                                    count = count +1
+                                end
+                            end
+                            g_rev_box_selection_used = true
+                            g_rev_selection_middle = vec2(world_x, world_y)
+                        end
                     end
 
                     g_drag:clear()
+                elseif event == e_input.action_b then
+                    -- bounding box end
+                    g_rev_box_start = nil
                 end
             end
         end
@@ -3953,6 +4051,58 @@ function input_event(event, action)
         end
         g_ui:input_event(event, action)
     end
+end
+
+g_rev_box_start = nil
+g_rev_box_selection = {}
+g_rev_box_selection_used = false
+g_rev_selection_middle = nil
+
+function rev_box_select(nw, se)
+    -- select all the friendly units within the given world box
+    local selection = {}
+    local our_team = update_get_screen_team_id()
+    -- make new corners
+    local west = math.min(nw:x(), se:x())
+    local north = math.min(nw:y(), se:y())
+    local east = math.max(nw:x(), se:x())
+    local south = math.max(nw:y(), se:y())
+
+    local sum_x = 0
+    local sum_y = 0
+
+    local ww, wn = get_world_from_screen(west, north, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+    local we, ws = get_world_from_screen(east, south, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+
+    for _, vehicle in pairs(get_vehicles_table()) do
+        if vehicle and vehicle:get() then
+            local vehicle_team = vehicle:get_team()
+            if vehicle_team == our_team then
+                if not vehicle:get_is_docked() then
+                    if get_is_vehicle_type_waypoint_capable(vehicle:get_definition_index()) then
+                        local pos = vehicle:get_position_xz()
+                        local vx = pos:x()
+                        if vx < we and vx > ww then
+                            local vy = pos:y()
+                            if vy < wn and vy > ws then
+                                table.insert(selection, vehicle)
+                                sum_x = sum_x + vx
+                                sum_y = sum_y + vy
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    local count = #selection
+    local middle = nil
+
+    if count > 0 then
+        middle = vec2(sum_x / count, sum_y / count)
+    end
+
+    return selection, middle
 end
 
 function input_axis(x, y, z, w)
@@ -3991,11 +4141,40 @@ function input_pointer(is_hovered, x, y)
 
     if g_selection:is_selection() then
         g_ui:input_pointer(is_hovered, x, y)
+    else
+        float_btn_input_pointer(is_hovered, x, y)
+    end
+end
+
+function rev_render_unit_selection(screen_w, screen_h, selection)
+    local cy = 12
+    local cx = 8
+
+    if #selection > 0 then
+        for _, vehicle in pairs(selection) do
+            if vehicle and vehicle:get() then
+                local vdef = vehicle:get_definition_index()
+                local _, v_icon, _, _ = get_chassis_data_by_definition_index(vdef)
+                update_ui_image(cx, cy, v_icon, color_white, 0)
+                local dmg = clamp(vehicle:get_hitpoints() / vehicle:get_total_hitpoints(), 0, 1)
+                local bar_color = iff(dmg <= 0.2, color8(255, 0, 0, 255), color8(0, 255, 0, 255))
+                local back_color = color_black
+                local bar_w = 10
+                update_ui_rectangle(cx + 3, cy + 16, bar_w, 1, back_color)
+                update_ui_rectangle(cx + 3, cy + 16, math.floor(dmg * bar_w + 0.5), 1, bar_color)
+                cx = cx + 15
+            end
+        end
+
+        -- render the group buttons
+        if float_btn(update_get_loc(e_loc.upp_clear), 12, 32, true) then
+            g_rev_box_selection = {}
+        end
     end
 end
 
 function render_map_scale(screen_w, screen_h)
-    if g_is_render_grid then
+    if g_is_render_grid and g_rev_box_start == nil then
         local grid_spacing = get_grid_spacing()
         local text = iff( grid_spacing >= 1000, math.floor(grid_spacing / 1000) .. update_get_loc(e_loc.acronym_kilometers), math.floor(grid_spacing) .. update_get_loc(e_loc.acronym_meters) )
 
@@ -4037,13 +4216,15 @@ function render_cursor_info(screen_w, screen_h, world_pos_drag_start)
     local icon_col = color_grey_mid
     local text_col = color_grey_dark
 
-    update_ui_text(cx, cy, "X", 100, 0, icon_col, 0)
-    update_ui_text(cx + 15, cy, string.format("%.0f", world_x), 100, 0, text_col, 0)
-    cy = cy + 10
+    if #g_rev_box_selection == 0 then
+        update_ui_text(cx, cy, "X", 100, 0, icon_col, 0)
+        update_ui_text(cx + 15, cy, string.format("%.0f", world_x), 100, 0, text_col, 0)
+        cy = cy + 10
 
-    update_ui_text(cx, cy, "Y", 100, 0, icon_col, 0)
-    update_ui_text(cx + 15, cy, string.format("%.0f", world_y), 100, 0, text_col, 0)
-    cy = cy + 10
+        update_ui_text(cx, cy, "Y", 100, 0, icon_col, 0)
+        update_ui_text(cx + 15, cy, string.format("%.0f", world_y), 100, 0, text_col, 0)
+        cy = cy + 10
+    end
 
     if world_pos_drag_start then
         local dist =  vec2_dist(world_pos_drag_start, vec2(world_x, world_y))
@@ -4650,3 +4831,59 @@ function update_world_triangle(ax, ay, bx, by, cx, cy, col)
     update_ui_add_triangle(vec2(ax, ay), vec2(bx, by), vec2(cx, cy), col)
     update_ui_end_triangles()
 end
+
+
+-- floating buttons
+
+g_float_btns = {
+    mouse_x = 0,
+    mouse_y = 0,
+    mouse_over = false,
+    input_pointer_1 = false,
+    btns = {},
+}
+
+function float_btn(text, x, y, enabled)
+    local bg_color = color_button_bg_inactive
+    local fg_color = color_black
+    local w = 55
+    local h = 12
+    local mouse_over = false
+    local activated = false
+    local gfb = g_float_btns
+    if gfb.mouse_x > x and gfb.mouse_x < (x + w) then
+        mouse_over = gfb.mouse_y > y and gfb.mouse_y < (y + h)
+        gfb.mouse_over = mouse_over
+    end
+
+    if enabled then
+        bg_color = color_button_bg
+        if mouse_over then
+            bg_color = color_highlight
+            fg_color = color_white
+            activated = gfb.input_pointer_1
+        end
+    end
+    update_ui_rectangle(x, y - 1, w, h - 1, bg_color)
+    update_ui_text(x + 1, y, text, w, 1, fg_color, 0)
+
+    return activated
+end
+
+function float_btn_input_pointer(is_hovered, x, y)
+    g_float_btns.mouse_x = x
+    g_float_btns.mouse_y = y
+    g_float_btns.input_pointer_1 = false
+end
+
+function float_btn_input_event(event, action)
+    if g_float_btns.mouse_over then
+        if event == e_input.pointer_1 then
+            g_float_btns.input_pointer_1 = action == e_input_action.press
+        end
+        g_float_btns.mouse_over = false
+        return true
+    end
+    return false
+end
+
