@@ -2452,6 +2452,12 @@ function tab_stock_render(screen_w, screen_h, x, y, w, h, is_tab_active, screen_
 
             local is_active = is_tab_active and g_tab_stock.is_confirm_discard == false
             ui:begin_window(item_data.name .. "##item", 30, 10, w - 60, h - 28, atlas_icons.column_pending, is_active, 2)
+            imgui_item_description(ui, screen_vehicle, item_data, true, is_active)
+            ui:header(update_get_loc(e_loc.upp_order))
+
+            local total_modify_amount = g_tab_stock.selected_item_modify_amount + order_amount
+            total_modify_amount = ui:selector(update_get_loc(e_loc.quantity), total_modify_amount, -99999, 99999, 1, "%+d")
+            g_tab_stock.selected_item_modify_amount = total_modify_amount - order_amount
             local is_small_caliber = is_small_caliber(g_tab_stock.selected_item)
             local ammo_options_txt
             local ammo_options
