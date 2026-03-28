@@ -3320,7 +3320,7 @@
 		<screen name="screen_nav_top_m" display_name_loc="674" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="1" type="0" refresh_interval="3.00000000e+00" help_tag="helm_screen_compass">
 			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-7.07106829e-01" m12="-7.07106709e-01" m20="0.00000000e+00" m21="7.07106709e-01" m22="-7.07106829e-01" tx="-2.77511463e+01" ty="3.13671703e+01" tz="-2.28278427e+01"/>
 		</screen>
-		<screen name="holomap_screen" display_name_loc="517" script_file_name="scripts/screen_holomap.lua" body_index="0" seat_index="4" type="2" refresh_interval="1.00000000e+00" help_tag="holomap_screen_map">
+		<screen name="holomap_screen" display_name_loc="517" script_file_name="scripts/screen_holomap.lua" body_index="0" seat_index="4" type="2" refresh_interval="2" help_tag="holomap_screen_map">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-2.77694302e+01" ty="2.97049999e+01" tz="-2.68229847e+01"/>
 		</screen>
 		<screen name="screen_nav_top_l" display_name_loc="673" script_file_name="scripts/screen_propulsion.lua" body_index="0" seat_index="1" type="0" refresh_interval="2.02999997e+00" help_tag="helm_screen_propulsion">
