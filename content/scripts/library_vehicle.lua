@@ -3560,11 +3560,24 @@ g_hover_callback = nil
 
 function add_altitude_waypoint(vehicle, pos, alt, hold_grp)
     local wpt = vehicle:add_waypoint(pos:x(), pos:y())
-    vehicle:set_waypoint_altitude(wpt, math_floor(alt), 0)
+    vehicle:set_waypoint_altitude(wpt, math_floor(alt))
     if hold_grp ~= nil then
         vehicle:set_waypoint_wait_group(wpt, hold_grp, true)
     end
     return wpt
+end
+
+function rev_set_vehicle_waypoint_altitudes(vehicle, altitdue)
+    if vehicle and vehicle:get() then
+        local waypoint_count = vehicle:get_waypoint_count()
+        for j = 0, waypoint_count - 1, 1 do
+            local w = vehicle:get_waypoint(j)
+            if w and w:get() then
+
+                vehicle:set_waypoint_altitude(w:get_id(), altitdue)
+            end
+        end
+    end
 end
 
 get_internal_fuel_sizes = {
@@ -4698,6 +4711,20 @@ function VProxy:set_attached_vehicle_attachment(vehicle_bay, attachment_index, a
         self.v:set_attached_vehicle_attachment(vehicle_bay, attachment_index, attachment_type)
     end
 end
+
+function VProxy:get_is_low_light()
+    if self.v and self.v.get_is_low_light then
+        return self.v:get_is_low_light()
+    end
+    return false
+end
+
+function VProxy:set_is_low_light(enabled)
+    if self.v and self.v.set_is_low_light then
+        self.v:set_is_low_light(enabled)
+    end
+end
+
 
 -- factory
 

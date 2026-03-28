@@ -614,62 +614,66 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                         g_viewing_vehicle_id = vehicle:get_id()
                         g_screen_index = 1
                     end
-                    if ui:list_item("HOLD HERE", true) then
-                        vehicle:clear_waypoints()
-                        local alt = math.floor(math.max(0, get_unit_altitude(vehicle) - 10))
-                        add_altitude_waypoint(vehicle, vehicle:get_position_xz(), alt, 3)
-                        g_selection:clear()
-                        g_is_ignore_tap = 1
-                    end
-                    if get_can_autoland(vehicle:get_definition_index()) then
-                        if ui:list_item("LAND HERE", true) then
-                            setup_autoland(vehicle)
+                    if not get_vehicle_docked(vehicle) then
+                        local vdef = vehicle:get_definition_index()
+                        if ui:list_item("HOLD HERE", true) then
+                            vehicle:clear_waypoints()
+                            local alt = math.floor(math.max(0, get_unit_altitude(vehicle) - 10))
+                            add_altitude_waypoint(vehicle, vehicle:get_position_xz(), alt, 3)
                             g_selection:clear()
                             g_is_ignore_tap = 1
                         end
-                    end
 
-                    if vehicle_can_airlift(vehicle) then
-                        local ptr_vid = vehicle:get_id()
-                        if ptr_vid ~= g_tactical_vid then
-                            if ui:list_item("SET TACTICAL MODE", true) then
-                                vehicle:clear_waypoints()
-                                vehicle:clear_attack_target()
-                                g_tactical_vid = vehicle:get_id()
-
-                                g_tactical_dropping = vehicle_has_cargo(vehicle)
-                                g_tactical_lifting = not g_tactical_dropping
-
-                            end
-                        else
-                            if ui:list_item("UNSET TACTICAL MODE", true) then
-                                vehicle:clear_waypoints()
-                                vehicle:clear_attack_target()
-                                g_tactical_vid = 0
-                            end
-                        end
-
-                        if vehicle_has_cargo(vehicle) then
-                            if ui:list_item(update_get_loc(e_loc.upp_deploy_vehicle), true) then
-                                set_airdrop_now(vehicle)
+                        if get_can_autoland(vdef) then
+                            if ui:list_item("LAND HERE", true) then
+                                setup_autoland(vehicle)
                                 g_selection:clear()
                                 g_is_ignore_tap = 1
                             end
-                            if ui:list_item("CARGO " .. update_get_loc(e_loc.upp_camera), true) then
-                                local cargo_id = get_vehicle_cargo_id(vehicle)
-                                g_selection:set_vehicle(cargo_id)
-                                update_set_screen_vehicle_control_id(cargo_id)
-                                g_viewing_vehicle_id = cargo_id
-                                g_screen_index = 1
+                        end
+
+                        if vehicle_can_airlift(vehicle) then
+                            local ptr_vid = vehicle:get_id()
+                            if ptr_vid ~= g_tactical_vid then
+                                if ui:list_item("SET TACTICAL MODE", true) then
+                                    vehicle:clear_waypoints()
+                                    vehicle:clear_attack_target()
+                                    g_tactical_vid = vehicle:get_id()
+
+                                    g_tactical_dropping = vehicle_has_cargo(vehicle)
+                                    g_tactical_lifting = not g_tactical_dropping
+
+                                end
+                            else
+                                if ui:list_item("UNSET TACTICAL MODE", true) then
+                                    vehicle:clear_waypoints()
+                                    vehicle:clear_attack_target()
+                                    g_tactical_vid = 0
+                                end
                             end
 
-                        else
-                            local nearest_id, nearest_range = get_nearest_friendly_airliftable_id(vehicle, 750)
-                            if nearest_id > 0 then
-                                if ui:list_item("AIRLIFT NEAREST", true) then
-                                    set_airlift_now(vehicle, nearest_id)
+                            if vehicle_has_cargo(vehicle) then
+                                if ui:list_item(update_get_loc(e_loc.upp_deploy_vehicle), true) then
+                                    set_airdrop_now(vehicle)
                                     g_selection:clear()
                                     g_is_ignore_tap = 1
+                                end
+                                if ui:list_item("CARGO " .. update_get_loc(e_loc.upp_camera), true) then
+                                    local cargo_id = get_vehicle_cargo_id(vehicle)
+                                    g_selection:set_vehicle(cargo_id)
+                                    update_set_screen_vehicle_control_id(cargo_id)
+                                    g_viewing_vehicle_id = cargo_id
+                                    g_screen_index = 1
+                                end
+
+                            else
+                                local nearest_id, nearest_range = get_nearest_friendly_airliftable_id(vehicle, 750)
+                                if nearest_id > 0 then
+                                    if ui:list_item("AIRLIFT NEAREST", true) then
+                                        set_airlift_now(vehicle, nearest_id)
+                                        g_selection:clear()
+                                        g_is_ignore_tap = 1
+                                    end
                                 end
                             end
                         end
@@ -677,11 +681,14 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
 
                 end
 
-                local dock_state = vehicle:get_dock_state()
-                local is_self_destruct = dock_state == e_vehicle_dock_state.undocked or dock_state == e_vehicle_dock_state.dock_queue or dock_state == e_vehicle_dock_state.docking
-                is_self_destruct = is_self_destruct and vehicle:get_team() == screen_vehicle:get_team()
-                if ui:list_item(update_get_loc(e_loc.upp_self_destruct), true, update_get_peer_is_admin(0) and is_self_destruct) then
-                    g_selected_vehicle_ui.confirm_self_destruct = true
+                if not get_vehicle_docked(vehicle) then
+                    local dock_state = vehicle:get_dock_state()
+                    local is_self_destruct = dock_state == e_vehicle_dock_state.undocked or dock_state == e_vehicle_dock_state.dock_queue or dock_state == e_vehicle_dock_state.docking
+                    is_self_destruct = is_self_destruct and vehicle:get_team() == screen_vehicle:get_team()
+                    if ui:list_item(update_get_loc(e_loc.upp_self_destruct), true, update_get_peer_is_admin(0) and is_self_destruct) then
+                        g_selected_vehicle_ui.confirm_self_destruct = true
+                    end
+
                 end
             ui:end_window()
 
@@ -1069,8 +1076,16 @@ function render_selection_waypoint(screen_w, screen_h)
                         selected_vehicle:set_waypoint_altitude(g_selection.waypoint_id, pre_val[pre_act + 1])
                     end
 
+                    if ui:list_item(g_rev_loc_apply_all_waypoints, true) then
+                        -- set the current value for all the waypoints
+                        rev_set_vehicle_waypoint_altitudes(selected_vehicle, waypoint_altitude)
+                        rev_set_notification(string.format("%s %d", update_get_loc(e_loc.upp_altitude), waypoint_altitude))
+                        g_selection:clear()
+                        g_is_ignore_tap = 1
+                    end
+
                     if get_can_autoland(vehicle_definition_index) then
-                        if ui:button("LAND HERE", true) then
+                        if ui:list_item("LAND HERE", true) then
                             local prev_pos = nil
                             if selected_waypoint:get_id() > 1 then
                                 local prev_wpt = selected_vehicle:get_waypoint_by_id(selected_waypoint:get_id() - 1)
@@ -1423,11 +1438,13 @@ function update(screen_w, screen_h, ticks)
         g_last_input_tick = update_get_logic_tick()
     end
 
+    float_btn_update()
+
     if ticks > 4 then
         -- player too far away
         return
     end
-
+    rev_loc_strings()
     if call_func_override("screen_vehicle_control__update", screen_w, screen_h, ticks) then
         return
     end
@@ -3349,6 +3366,7 @@ function _update(screen_w, screen_h, ticks)
             update_ui_pop_offset()
         end
 
+        rev_render_notification(screen_w, screen_h)
 
         local go_code_factor = 0
 
@@ -4151,6 +4169,45 @@ function rev_render_unit_selection(screen_w, screen_h, selection)
     local cx = 8
 
     if #selection > 0 then
+        local set_alt = nil
+        local air_units = {}
+        local set_low_light = false
+
+        for _, vehicle in pairs(selection) do
+            if vehicle and vehicle:get() then
+                local vdef = vehicle:get_definition_index()
+                if get_is_vehicle_air(vdef) then
+                    table.insert(air_units, vehicle)
+                end
+            end
+        end
+
+        -- render the group buttons
+        if float_btn(update_get_loc(e_loc.upp_clear), 12, 32, true) then
+            g_rev_box_selection = {}
+            return
+        end
+
+        if float_btn(update_get_loc(e_loc.low_light), 12, 44, true) then
+            set_low_light = true
+            rev_set_notification(update_get_loc(e_loc.low_light))
+        end
+
+        if #air_units > 0 then
+            if float_btn(g_rev_loc_alt_40, 12, 56, true) then
+                set_alt = 40
+                rev_set_notification(g_rev_loc_alt_40)
+            end
+            if float_btn(g_rev_loc_alt_1700, 12, 68, true) then
+                set_alt = 1700
+                rev_set_notification(g_rev_loc_alt_1700)
+            end
+            if float_btn(g_rev_loc_alt_2000, 12, 80, true) then
+                set_alt = 2000
+                rev_set_notification(g_rev_loc_alt_2000)
+            end
+        end
+
         for _, vehicle in pairs(selection) do
             if vehicle and vehicle:get() then
                 local vdef = vehicle:get_definition_index()
@@ -4163,13 +4220,18 @@ function rev_render_unit_selection(screen_w, screen_h, selection)
                 update_ui_rectangle(cx + 3, cy + 16, bar_w, 1, back_color)
                 update_ui_rectangle(cx + 3, cy + 16, math.floor(dmg * bar_w + 0.5), 1, bar_color)
                 cx = cx + 15
+                if set_low_light then
+                    vehicle:set_is_low_light(true)
+                end
             end
         end
 
-        -- render the group buttons
-        if float_btn(update_get_loc(e_loc.upp_clear), 12, 32, true) then
-            g_rev_box_selection = {}
+        if #air_units > 0 and set_alt ~= nil then
+            for _, vehicle in pairs(air_units) do
+                rev_set_vehicle_waypoint_altitudes(vehicle, set_alt)
+            end
         end
+
     end
 end
 
@@ -4838,10 +4900,15 @@ end
 g_float_btns = {
     mouse_x = 0,
     mouse_y = 0,
-    mouse_over = false,
-    input_pointer_1 = false,
-    btns = {},
+    mouse_over = false, -- true == consume input
+    input_pointer_1 = false, -- true == mouse clicked last frame
+    hover = nil, -- the button the mouse is over
 }
+
+function float_btn_update()
+    g_float_btns.hover = nil
+    g_float_btns.mouse_over = false
+end
 
 function float_btn(text, x, y, enabled)
     local bg_color = color_button_bg_inactive
@@ -4853,7 +4920,11 @@ function float_btn(text, x, y, enabled)
     local gfb = g_float_btns
     if gfb.mouse_x > x and gfb.mouse_x < (x + w) then
         mouse_over = gfb.mouse_y > y and gfb.mouse_y < (y + h)
-        gfb.mouse_over = mouse_over
+
+        if mouse_over then
+            gfb.hover = text
+            gfb.mouse_over = true
+        end
     end
 
     if enabled then
@@ -4862,6 +4933,9 @@ function float_btn(text, x, y, enabled)
             bg_color = color_highlight
             fg_color = color_white
             activated = gfb.input_pointer_1
+            if activated then
+                g_is_ignore_tap = 1
+            end
         end
     end
     update_ui_rectangle(x, y - 1, w, h - 1, bg_color)
@@ -4871,19 +4945,56 @@ function float_btn(text, x, y, enabled)
 end
 
 function float_btn_input_pointer(is_hovered, x, y)
+    -- caller after update
     g_float_btns.mouse_x = x
     g_float_btns.mouse_y = y
     g_float_btns.input_pointer_1 = false
 end
 
 function float_btn_input_event(event, action)
+    -- called after float_btn_input_pointer
+    -- mouse_over is set during update
     if g_float_btns.mouse_over then
         if event == e_input.pointer_1 then
             g_float_btns.input_pointer_1 = action == e_input_action.press
         end
-        g_float_btns.mouse_over = false
-        return true
+        return true -- consumed
     end
-    return false
+    return false -- not consumed
 end
 
+
+g_notify_expire = 0
+g_notify_msg = ""
+
+function rev_set_notification(msg)
+    g_notify_expire = 60 + update_get_logic_tick()
+    g_notify_msg = msg
+end
+
+function rev_render_notification(screen_w, screen_h)
+    local now = update_get_logic_tick()
+    if g_notify_expire > 0 then
+        local remain = g_notify_expire - now
+        if remain > 0 then
+            local remain_factor = math.min(30, remain) / 30
+            local alpha = math.ceil(remain_factor * 255)
+            local c = color8(color_friendly:r(), color_friendly:g(), color_friendly:b(), alpha)
+
+            -- originally the "go code" notification
+            local rect_w = update_ui_get_text_size(g_notify_msg, screen_w, 2) + 8
+            local rect_h = 14
+
+            update_ui_push_offset((screen_w - rect_w) / 2, screen_h - rect_h - 10)
+            update_ui_push_clip(0, 0, rect_w, rect_h)
+            update_ui_rectangle(0, 0, rect_w, rect_h, c)
+            update_ui_text(0, rect_h / 2 - 4, g_notify_msg, rect_w, 1, color_black, 0)
+
+            update_ui_pop_clip()
+            update_ui_pop_offset()
+        else
+            g_notify_expire = 0
+            g_notify_msg = ""
+        end
+    end
+end

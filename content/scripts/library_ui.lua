@@ -4826,3 +4826,26 @@ function rev_rotate_tick_call(interval_sec, funcs)
     local selection = (now // tick_interval) % #funcs
     return funcs[1 + selection]()
 end
+
+
+function rev_loc_strings()
+    if g_rev_loc_waypoints == nil then
+        local st, err = pcall(function()
+            g_rev_loc_waypoints = update_get_loc(e_loc.upp_waypoints)
+            g_rev_loc_apply_all_waypoints = string.upper(string.format("%s (%s %s)",
+                    update_get_loc(e_loc.upp_apply),  -- APPLY
+                    update_get_loc(e_loc.unlocked_blueprints_all), -- all
+                    update_get_loc(e_loc.upp_waypoints) -- WAYPOINTS
+            ))
+            g_rev_loc_alt_40 = string.format("%s   40m", update_get_loc(e_loc.upp_alt))
+            g_rev_loc_alt_1700 = string.format("%s 1700m", update_get_loc(e_loc.upp_alt))
+            g_rev_loc_alt_2000 = string.format("%s 2000m", update_get_loc(e_loc.upp_alt))
+        end)
+        if not st then
+            g_rev_loc_waypoints = "WAYPOINTS"
+            g_rev_loc_set_all_waypoints = "APPLY (ALL WAYPOINTS)"
+            local_print(err)
+        end
+    end
+end
+
