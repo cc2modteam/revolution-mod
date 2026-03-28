@@ -1870,10 +1870,6 @@ function get_vehicle_cargo_id(vehicle)
     return nil
 end
 
-function get_nearest_unit(team, pos, max_range)
-
-end
-
 function get_nearest_friendly_airliftable_id(vehicle, max_range, force)
     if force == nil then
         force = false

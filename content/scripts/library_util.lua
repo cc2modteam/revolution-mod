@@ -1713,7 +1713,9 @@ end
 function _generate_island_names()
     local selected = {}
     if g_island_names == nil then
-        print("# get default island names..")
+        if g_debug_enabled then
+            print("# get default island names..")
+        end
         g_island_names = _get_original_island_names()
         -- perhaps add some extra names here
         table.insert(g_island_names, "CRAGGY")
