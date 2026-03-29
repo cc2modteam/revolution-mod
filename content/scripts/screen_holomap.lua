@@ -825,7 +825,7 @@ function _update(screen_w, screen_h, ticks)
                 local waypoint_color = g_color_waypoint
 
                 if g_highlighted_vehicle_id == vehicle:get_id() and g_highlighted_waypoint_id == 0 then
-                    waypoint_color = color8(255, 255, 255, 255)
+                    waypoint_color = color_white
                 end
 
                 local vehicle_dock_state = vehicle:get_dock_state()
@@ -974,9 +974,9 @@ function _update(screen_w, screen_h, ticks)
                         local is_deploy = waypoint:get_type() == e_waypoint_type.deploy
 
                         if g_highlighted_vehicle_id == vehicle:get_id() and g_highlighted_waypoint_id == 0 then
-                            waypoint_color = color8(255, 255, 255, 255)
+                            waypoint_color = color_white
                         elseif g_highlighted_vehicle_id == vehicle:get_id() and g_highlighted_waypoint_id == waypoint:get_id() then
-                            waypoint_color = color8(255, 255, 255, 255)
+                            waypoint_color = color_white
                         elseif is_deploy then
                             waypoint_color = g_color_airlift_order
                         elseif is_group then

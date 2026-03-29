@@ -1949,7 +1949,7 @@ function _update(screen_w, screen_h, ticks)
 
                                 update_ui_image(screen_pos_x - 8, screen_pos_y - 11, atlas_icons.map_icon_command_center, color, 0)
 
-                                update_ui_rectangle(screen_pos_x - 9, screen_pos_y + 6, 18, 5, color8(0, 0, 0, 255))
+                                update_ui_rectangle(screen_pos_x - 9, screen_pos_y + 6, 18, 5, color_black)
                                 update_ui_rectangle(screen_pos_x - 8, screen_pos_y + 7, 16 * island_capture_progress, 3, team_color)
                             else
                                 local color = iff(g_highlighted.command_center_id == island_id, color_white, island_color)
@@ -2011,7 +2011,7 @@ function _update(screen_w, screen_h, ticks)
 
                                     if j == 0 then
                                         local production_progress = island:get_facility_production_factor_defense()
-                                        update_ui_rectangle(screen_pos_x - 6, screen_pos_y + 5, 11, 3, color8(0, 0, 0, 255))
+                                        update_ui_rectangle(screen_pos_x - 6, screen_pos_y + 5, 11, 3, color_black)
                                         update_ui_rectangle(screen_pos_x - 5, screen_pos_y + 6, math_max(9 * production_progress, 1), 1, color_status_ok)
                                     end
                                 end
@@ -3308,10 +3308,10 @@ function _update(screen_w, screen_h, ticks)
 
         if get_is_map_movement_allowed() then
             if update_get_active_input_type() == e_active_input.gamepad or update_get_is_focus_local() == false then
-                local crosshair_color = color8(255, 255, 255, 255)
+                local crosshair_color = color_white
 
                 if g_highlighted.vehicle_id > 0 or g_highlighted.waypoint_id > 0 then
-                    crosshair_color = color8(0, 0, 0, 255)
+                    crosshair_color = color_black
                 end
 
                 update_ui_rectangle(g_cursor_pos_x, g_cursor_pos_y + 2, 1, 4, crosshair_color)
