@@ -1741,7 +1741,8 @@ function get_team_has_humans(team_id)
     end
     local now = update_get_logic_tick()
     if g_human_team_cache_tick < now then
-        g_human_team_cache_tick = now
+        -- try to check no more often than every 2 sec
+        g_human_team_cache_tick = now + 60
         -- look through multiplier members, if a peer doesnt have the same team ID as us, then that
         -- team is human controlled, else it's AI controlled or nobody has joined it
         local peer_count = update_get_peer_count()

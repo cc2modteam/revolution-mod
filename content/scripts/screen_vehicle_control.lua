@@ -1,5 +1,14 @@
-local math_rand = math.random
 local math_floor = math.floor
+local math_ceil = math.ceil
+local math_max = math.max
+local math_min = math.min
+local math_abs = math.abs
+local math_sin = math.sin
+local math_cos = math.cos
+local math_atan = math.atan
+local math_pi = math.pi
+local string_format = string.format
+local table_insert = table.insert
 
 -- highlighted map item state
 g_highlighted = {
@@ -417,7 +426,7 @@ function ui_render_selection_carrier_vehicle_overview(x, y, w, h, carrier_vehicl
                     local parent_vehicle_index = vehicle:get_attached_parent_id()
 
                     if parent_vehicle_index == 0 then
-                        table.insert(deployed_vehicles, vehicle)
+                        table_insert(deployed_vehicles, vehicle)
                     end
                 end
             end
@@ -452,9 +461,9 @@ function ui_render_selection_carrier_vehicle_overview(x, y, w, h, carrier_vehicl
         local repair_factor = vehicle:get_repair_factor()
         local fuel_factor = vehicle:get_fuel_factor()
         local ammo_factor = vehicle:get_ammo_factor()
-        local repair_bar = math.floor(repair_factor * bar_h)
-        local fuel_bar = math.floor(fuel_factor * bar_h)
-        local ammo_bar = math.floor(ammo_factor * bar_h)
+        local repair_bar = math_floor(repair_factor * bar_h)
+        local fuel_bar = math_floor(fuel_factor * bar_h)
+        local ammo_bar = math_floor(ammo_factor * bar_h)
 
         local bx = cx + 17
         local by = cy + 3
@@ -569,7 +578,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
             local color_mid = color8(255, 255, 0, 255)
             local color_high = color_status_ok
 
-            local title = vehicle_definition_name .. string.format( " ID %.0f", vehicle:get_id() )
+            local title = vehicle_definition_name .. string_format( " ID %.0f", vehicle:get_id() )
             local is_window_active = g_selected_vehicle_ui.confirm_self_destruct == false
 
             ui:begin_window(title, 10, 10, left_w, left_top_h, atlas_icons.column_pending, is_window_active, 2)
@@ -579,8 +588,8 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                     ui:stat(update_get_loc(e_loc.upp_fuel), "---", color_grey_dark)
                     ui:stat(update_get_loc(e_loc.upp_ammo), "---", color_grey_dark)
                 else
-                    ui:stat(update_get_loc(e_loc.upp_fuel), string.format("%.0f%%", fuel_factor * 100), iff(fuel_factor < 0.25, color_low, iff(fuel_factor < 0.5, color_mid, color_high)))
-                    ui:stat(update_get_loc(e_loc.upp_ammo), string.format("%.0f%%", ammo_factor * 100), iff(ammo_factor < 0.25, color_low, iff(ammo_factor < 0.5, color_mid, color_high)))
+                    ui:stat(update_get_loc(e_loc.upp_fuel), string_format("%.0f%%", fuel_factor * 100), iff(fuel_factor < 0.25, color_low, iff(fuel_factor < 0.5, color_mid, color_high)))
+                    ui:stat(update_get_loc(e_loc.upp_ammo), string_format("%.0f%%", ammo_factor * 100), iff(ammo_factor < 0.25, color_low, iff(ammo_factor < 0.5, color_mid, color_high)))
                 end
             ui:end_window()
 
@@ -618,7 +627,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                         local vdef = vehicle:get_definition_index()
                         if ui:list_item("HOLD HERE", true) then
                             vehicle:clear_waypoints()
-                            local alt = math.floor(math.max(0, get_unit_altitude(vehicle) - 10))
+                            local alt = math_floor(math_max(0, get_unit_altitude(vehicle) - 10))
                             add_altitude_waypoint(vehicle, vehicle:get_position_xz(), alt, 3)
                             g_selection:clear()
                             g_is_ignore_tap = 1
@@ -699,7 +708,7 @@ function render_selection_vehicle(screen_w, screen_h, vehicle)
                 local attachment = vehicle:get_attachment(i)
 
                 if attachment:get() and (attachment:get_ammo_capacity() > 0 or attachment:get_fuel_capacity() > 0) then
-                    table.insert(attachments, attachment)
+                    table_insert(attachments, attachment)
                 end
             end
 
@@ -807,9 +816,9 @@ function render_selection_command_center(screen_w, screen_h, selected_island)
             if selected_island:get_turret_spawn_count() > 0 then
                 local region_w, region_h = ui:get_region()
                 local purchase_items = {}
-                table.insert(purchase_items, g_item_data[e_inventory_item.support_turret_gun])
-                table.insert(purchase_items, g_item_data[e_inventory_item.support_turret_ciws])
-                table.insert(purchase_items, g_item_data[e_inventory_item.support_turret_missile])
+                table_insert(purchase_items, g_item_data[e_inventory_item.support_turret_gun])
+                table_insert(purchase_items, g_item_data[e_inventory_item.support_turret_ciws])
+                table_insert(purchase_items, g_item_data[e_inventory_item.support_turret_missile])
 
                 if update_get_active_input_type() == e_active_input.gamepad then
                     if ui:list_item(update_get_loc(e_loc.upp_queue), true) then
@@ -1064,8 +1073,8 @@ function render_selection_waypoint(screen_w, screen_h)
                     local inc_act = ui:button_group({ "-500", "-100", "+100", "+500" }, true)
                     if inc_act >= 0 and inc_act < #inc_val then
                         local new_alt = waypoint_altitude + inc_val[inc_act + 1]
-                        new_alt = math.max(0, new_alt)
-                        new_alt = math.min(2000, new_alt)
+                        new_alt = math_max(0, new_alt)
+                        new_alt = math_min(2000, new_alt)
                         selected_vehicle:set_waypoint_altitude(g_selection.waypoint_id, new_alt)
                     end
 
@@ -1079,7 +1088,7 @@ function render_selection_waypoint(screen_w, screen_h)
                     if ui:list_item(g_rev_loc_apply_all_waypoints, true) then
                         -- set the current value for all the waypoints
                         rev_set_vehicle_waypoint_altitudes(selected_vehicle, waypoint_altitude)
-                        rev_set_notification(string.format("%s %d", update_get_loc(e_loc.upp_altitude), waypoint_altitude))
+                        rev_set_notification(string_format("%s %d", update_get_loc(e_loc.upp_altitude), waypoint_altitude))
                         g_selection:clear()
                         g_is_ignore_tap = 1
                     end
@@ -1209,7 +1218,9 @@ function render_selection_map(screen_w, screen_h)
                     g_trigger_call_timer = true
                     g_command_center_ui.selected_panel = 0
                     g_screen_index = 0
+                    g_is_ignore_tap = 1
                     g_selection:clear()
+                    print("===========")
                     print("timer armed")
                     return
                 end
@@ -1220,7 +1231,9 @@ function render_selection_map(screen_w, screen_h)
                     g_prof_counter = 0
                     g_command_center_ui.selected_panel = 0
                     g_screen_index = 0
+                    g_is_ignore_tap = 1
                     g_selection:clear()
+                    print("===========")
                     print("timer call count profiler armed")
                     debug.sethook(profiler_func, "cr")
                     return
@@ -1640,7 +1653,7 @@ function _update(screen_w, screen_h, ticks)
             end
 
             if update_get_active_input_type() == e_active_input.keyboard and g_is_pointer_pressed then
-                g_drag_distance = g_drag_distance + math.abs(g_pointer_pos_x - g_pointer_pos_x_prev) + math.abs(g_pointer_pos_y - g_pointer_pos_y_prev)
+                g_drag_distance = g_drag_distance + math_abs(g_pointer_pos_x - g_pointer_pos_x_prev) + math_abs(g_pointer_pos_y - g_pointer_pos_y_prev)
             end
 
             if g_is_drag_pan_map then
@@ -1650,7 +1663,7 @@ function _update(screen_w, screen_h, ticks)
                 g_camera_pos_y = g_camera_pos_y - pointer_dy
             end
 
-            g_drag_distance = g_drag_distance + math.abs(g_input_x) + math.abs(g_input_y)
+            g_drag_distance = g_drag_distance + math_abs(g_input_x) + math_abs(g_input_y)
         end
 
         update_set_screen_background_type(g_map_render_mode)
@@ -1703,7 +1716,7 @@ function _update(screen_w, screen_h, ticks)
                             local marker_index, is_valid = island:get_turret_spawn(i)
                             local turret_spawn_xz = island:get_marker_position(marker_index)
                             local screen_pos_x, screen_pos_y = get_screen_from_world(turret_spawn_xz:x(), turret_spawn_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                            local distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
+                            local distance_to_cursor = math_abs(screen_pos_x - g_cursor_pos_x) + math_abs(screen_pos_y - g_cursor_pos_y)
 
                             if distance_to_cursor < highlighted_distance_best and distance_to_cursor < 8 then
                                 g_highlighted:set_island_turret_spawn(island:get_id(), i)
@@ -1725,7 +1738,7 @@ function _update(screen_w, screen_h, ticks)
                             for j = 0, command_center_count - 1 do
                                 local command_center_pos_xz = island:get_command_center_position(j)
                                 local screen_pos_x, screen_pos_y = get_screen_from_world(command_center_pos_xz:x(), command_center_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                local distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
+                                local distance_to_cursor = math_abs(screen_pos_x - g_cursor_pos_x) + math_abs(screen_pos_y - g_cursor_pos_y)
 
                                 if distance_to_cursor < highlighted_distance_best and distance_to_cursor < 10 then
                                     g_highlighted:set_command_center(island:get_id())
@@ -1741,7 +1754,7 @@ function _update(screen_w, screen_h, ticks)
                                     local marker_pos_xz = island:get_marker_position(marker_index)
 
                                     local screen_pos_x, screen_pos_y = get_screen_from_world(marker_pos_xz:x(), marker_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                    local distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
+                                    local distance_to_cursor = math_abs(screen_pos_x - g_cursor_pos_x) + math_abs(screen_pos_y - g_cursor_pos_y)
 
                                     if distance_to_cursor < highlighted_distance_best and distance_to_cursor < 8 then
                                         g_highlighted:set_island_production(island:get_id(), j)
@@ -1797,7 +1810,7 @@ function _update(screen_w, screen_h, ticks)
                         if v_hover and ( visible and revealed ) then
                             local vehicle_pos_xz = vehicle:get_position_xz()
                             local screen_pos_x, screen_pos_y = get_screen_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                            local vehicle_distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
+                            local vehicle_distance_to_cursor = math_abs(screen_pos_x - g_cursor_pos_x) + math_abs(screen_pos_y - g_cursor_pos_y)
 
                             if vehicle_distance_to_cursor < highlighted_distance_best and vehicle_distance_to_cursor < 8 then
                                 g_highlighted:set_vehicle(vehicle:get_id())
@@ -1816,7 +1829,7 @@ function _update(screen_w, screen_h, ticks)
                                     if waypoint_type == e_waypoint_type.move or waypoint_type == e_waypoint_type.deploy then
                                         local waypoint_pos = waypoint:get_position_xz(j)
                                         local waypoint_screen_pos_x, waypoint_screen_pos_y = get_screen_from_world(waypoint_pos:x(), waypoint_pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                                        local waypoint_distance_to_cursor = math.abs(waypoint_screen_pos_x - g_cursor_pos_x) + math.abs(waypoint_screen_pos_y - g_cursor_pos_y)
+                                        local waypoint_distance_to_cursor = math_abs(waypoint_screen_pos_x - g_cursor_pos_x) + math_abs(waypoint_screen_pos_y - g_cursor_pos_y)
 
                                         if waypoint_distance_to_cursor < highlighted_distance_best and waypoint_distance_to_cursor < 8 then
                                             g_highlighted:set_vehicle_waypoint(vehicle:get_id(), waypoint:get_id())
@@ -1832,8 +1845,8 @@ function _update(screen_w, screen_h, ticks)
                 -- check hover virtual group
                 if g_rev_box_start == nil and #g_rev_box_selection > 0 then
                     local sx, sy = get_screen_from_world(g_rev_selection_middle:x(), g_rev_selection_middle:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                    local dx = math.abs(sx - g_cursor_pos_x)
-                    local dy = math.abs(sy - g_cursor_pos_y)
+                    local dx = math_abs(sx - g_cursor_pos_x)
+                    local dy = math_abs(sy - g_cursor_pos_y)
                     if dx < 12 and dy < 12 then
                         g_highlighted:set_selection_point()
                         -- treat as drag waypoint
@@ -1880,8 +1893,8 @@ function _update(screen_w, screen_h, ticks)
                         -- <  66000 full alpha
                         -- > 120000 0 alpha
                         if g_camera_size < 120000 then
-                            local scaled_alpha = math.ceil(255 * (120000 - g_camera_size) / (120000 - 66000))
-                            local island_col = color8(team_color:r(), team_color:g(), team_color:b(), math.min(scaled_alpha, team_color:a()))
+                            local scaled_alpha = math_ceil(255 * (120000 - g_camera_size) / (120000 - 66000))
+                            local island_col = color8(team_color:r(), team_color:g(), team_color:b(), math_min(scaled_alpha, team_color:a()))
                             local island_name_size = update_ui_get_text_size_mini(island_name)
                             update_ui_text_mini(screen_pos_x - island_name_size / 2.1,
                                     screen_pos_y - 15,
@@ -1999,7 +2012,7 @@ function _update(screen_w, screen_h, ticks)
                                     if j == 0 then
                                         local production_progress = island:get_facility_production_factor_defense()
                                         update_ui_rectangle(screen_pos_x - 6, screen_pos_y + 5, 11, 3, color8(0, 0, 0, 255))
-                                        update_ui_rectangle(screen_pos_x - 5, screen_pos_y + 6, math.max(9 * production_progress, 1), 1, color_status_ok)
+                                        update_ui_rectangle(screen_pos_x - 5, screen_pos_y + 6, math_max(9 * production_progress, 1), 1, color_status_ok)
                                     end
                                 end
                             end
@@ -2085,20 +2098,18 @@ function _update(screen_w, screen_h, ticks)
 
         local function render_weapon_radius(world_pos_x, world_pos_y, radius, col)
             local steps = 16
-            local step = math.pi * 2 / steps
+            local step = math_pi * 2 / steps
             local angle_prev = 0
             local screen_pos_x, screen_pos_y = get_screen_from_world(world_pos_x, world_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-
+            local fill_col = color8(col:r(), col:g(), col:b(), math_floor(col:a() / 2 * (math_sin(g_animation_time * 0.15) * 0.5 + 0.5)))
             update_ui_begin_triangles()
-
+            
             for i = 1, steps do
                 local angle = step * i
-                local x0, y0 = get_screen_from_world(world_pos_x + math.cos(angle_prev) * radius, world_pos_y + math.sin(angle_prev) * radius, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
-                local x1, y1 = get_screen_from_world(world_pos_x + math.cos(angle) * radius, world_pos_y + math.sin(angle) * radius, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                local x0, y0 = get_screen_from_world(world_pos_x + math_cos(angle_prev) * radius, world_pos_y + math_sin(angle_prev) * radius, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                local x1, y1 = get_screen_from_world(world_pos_x + math_cos(angle) * radius, world_pos_y + math_sin(angle) * radius, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
                 update_ui_line(x0, y0, x1, y1, col)
-
-                local fill_col = color8(col:r(), col:g(), col:b(), math.floor(col:a() / 2 * (math.sin(g_animation_time * 0.15) * 0.5 + 0.5)))
                 update_ui_add_triangle(vec2(x0, y0), vec2(x1, y1), vec2(screen_pos_x, screen_pos_y), fill_col)
 
                 angle_prev = angle
@@ -2230,7 +2241,7 @@ function _update(screen_w, screen_h, ticks)
                                     local s0x, s0y = get_screen_from_world(position_xz:x(), position_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                                     local s1x, s1y = get_screen_from_world(position_xz:x() + direction_xz:x() * length, position_xz:y() + direction_xz:y() * length, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                                    update_ui_line(s0x, s0y, s1x, s1y, color8(255, 255, 0, math.floor(factor * 255)))
+                                    update_ui_line(s0x, s0y, s1x, s1y, color8(255, 255, 0, math_floor(factor * 255)))
                                 end
                             end
                         end
@@ -2240,7 +2251,7 @@ function _update(screen_w, screen_h, ticks)
         end
 
         -- render bomb blasts to the map
-        local blast_size = math.floor(160/ (g_camera_size / 40))
+        local blast_size = math_floor(160/ (g_camera_size / 40))
         if blast_size > 1 then
             for mid, blast in pairs(g_missile_impacts) do
                 if blast["visible"] then
@@ -2336,7 +2347,7 @@ function _update(screen_w, screen_h, ticks)
                                     is_revealed = false
                                     is_render_vehicle_icon = false
                                     if g_radar_debug then
-                                        local_print(string.format("%d hide visible radar unit", current_tick))
+                                        local_print(string_format("%d hide visible radar unit", current_tick))
                                     end
                                     if g_highlighted.vehicle_id == vehicle:get_id() then
                                         g_highlighted.vehicle_id = 0
@@ -2432,7 +2443,7 @@ function _update(screen_w, screen_h, ticks)
                                 if resupply_vehicle:get() then
                                     local fuel_factor = vehicle:get_fuel_factor()
                                     local ammo_factor = vehicle:get_ammo_factor()
-                                    local is_resupplying = math.floor(fuel_factor * 100 + 0.5) < 100 or math.floor(ammo_factor * 100 + 0.5) < 100
+                                    local is_resupplying = math_floor(fuel_factor * 100 + 0.5) < 100 or math_floor(ammo_factor * 100 + 0.5) < 100
 
                                     render_resupply_link(resupply_vehicle, vehicle, is_resupplying)
                                 end
@@ -2450,7 +2461,7 @@ function _update(screen_w, screen_h, ticks)
                                         local is_logistics_ammo, is_logistics_fuel = get_vehicle_logistics_capabilities(vehicle)
                                         local fuel_factor = resupply_vehicle:get_fuel_factor()
                                         local ammo_factor = resupply_vehicle:get_ammo_factor()
-                                        local is_resupplying = (is_logistics_ammo and math.floor(fuel_factor * 100 + 0.5) < 100) or (is_logistics_fuel and math.floor(ammo_factor * 100 + 0.5) < 100)
+                                        local is_resupplying = (is_logistics_ammo and math_floor(fuel_factor * 100 + 0.5) < 100) or (is_logistics_fuel and math_floor(ammo_factor * 100 + 0.5) < 100)
 
                                         render_resupply_link(vehicle, resupply_vehicle, is_resupplying)
                                     end
@@ -2709,14 +2720,14 @@ function _update(screen_w, screen_h, ticks)
                                     local pix_per_m = screen_w / g_camera_size
                                     local crr_half_len = 100 * pix_per_m
                                     local outline_col = color8(16, 16, 16, 32)
-                                    local crr_ber = (math.atan(vehicle_dir:y(), vehicle_dir:x()) / math.pi * 180) + 90
-                                    local fl = (crr_ber - 20) * (math.pi / 180)
-                                    local fr = (crr_ber + 20) * (math.pi / 180)
+                                    local crr_ber = (math_atan(vehicle_dir:y(), vehicle_dir:x()) / math_pi * 180) + 90
+                                    local fl = (crr_ber - 20) * (math_pi / 180)
+                                    local fr = (crr_ber + 20) * (math_pi / 180)
 
-                                    local fl_x = math.sin(fl) * crr_half_len;
-                                    local fl_y = math.cos(fl) * crr_half_len;
-                                    local fr_x = math.sin(fr) * crr_half_len
-                                    local fr_y = math.cos(fr) * crr_half_len
+                                    local fl_x = math_sin(fl) * crr_half_len;
+                                    local fl_y = math_cos(fl) * crr_half_len;
+                                    local fr_x = math_sin(fr) * crr_half_len
+                                    local fr_y = math_cos(fr) * crr_half_len
 
                                     update_ui_line(
                                             screen_pos_x - fr_x,
@@ -2766,7 +2777,7 @@ function _update(screen_w, screen_h, ticks)
                             local ammo_factor = vehicle:get_ammo_factor()
 
                             if damage_indicator_factor > 0 then
-                                update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_damage_indicator, color8(255, 0, 0, math.floor(255 * damage_indicator_factor)), 0)
+                                update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_damage_indicator, color8(255, 0, 0, math_floor(255 * damage_indicator_factor)), 0)
                             end
 
                             local cy = screen_pos_y + 4
@@ -2794,7 +2805,7 @@ function _update(screen_w, screen_h, ticks)
                                 end
 
                                 update_ui_rectangle(bar_x, bar_y, bar_w, 1, back_color)
-                                update_ui_rectangle(bar_x, bar_y, math.floor(damage_factor * bar_w + 0.5), 1, bar_color)
+                                update_ui_rectangle(bar_x, bar_y, math_floor(damage_factor * bar_w + 0.5), 1, bar_color)
 
                                 cy = cy + 2
                             end
@@ -2926,7 +2937,7 @@ function _update(screen_w, screen_h, ticks)
                                 update_ui_text(
                                         screen_pos_x - icon_offset + 12,
                                         screen_pos_y - icon_offset + 12,
-                                        string.format("ID%d r=%dm p=%1.6f", vehicle:get_id(), math.floor(dist), pwr), 128, 0, color_friendly, 0)
+                                        string_format("ID%d r=%dm p=%1.6f", vehicle:get_id(), math_floor(dist), pwr), 128, 0, color_friendly, 0)
                             end
                         end
                     end
@@ -2946,7 +2957,7 @@ function _update(screen_w, screen_h, ticks)
         end
         if g_radar_debug then
             local_print(
-                    string.format(
+                    string_format(
                             "%d units %d, visible %d, revealed %d, force_revealed %d, displayed_units %d %s",
                             current_tick,
                             unit_count,
@@ -3028,10 +3039,10 @@ function _update(screen_w, screen_h, ticks)
 
                         update_ui_image(screen_pos_x - 3, screen_pos_y - 3, icon_image, color_missile, 0)
 
-                        local missile_distance_to_cursor = math.abs(screen_pos_x - g_cursor_pos_x) + math.abs(screen_pos_y - g_cursor_pos_y)
+                        local missile_distance_to_cursor = math_abs(screen_pos_x - g_cursor_pos_x) + math_abs(screen_pos_y - g_cursor_pos_y)
 
                         if is_own_team and missile_distance_to_cursor < 8 and is_timer_running then
-                            update_ui_text(screen_pos_x - 16, screen_pos_y - 12, tostring(math.floor(missile:get_timer() / 30) + 1), 32, 1, color_missile, 0)
+                            update_ui_text(screen_pos_x - 16, screen_pos_y - 12, tostring(math_floor(missile:get_timer() / 30) + 1), 32, 1, color_missile, 0)
                         end
                     else
                         if g_animation_time % 20 < 10 then
@@ -3101,10 +3112,10 @@ function _update(screen_w, screen_h, ticks)
                             update_ui_image(2, 1, icon, turret_icon_color, 0)
                             update_ui_text(20, 4, text, w, 0, turret_text_color, 0)
                             if not built then
-                                update_ui_text(20, 15, string.format("%d/%d CR", g_highlighted.turret_cost, currency) , w, 0, iff(g_highlighted.turret_cost < currency, color_status_ok, color_status_bad), 0)
+                                update_ui_text(20, 15, string_format("%d/%d CR", g_highlighted.turret_cost, currency) , w, 0, iff(g_highlighted.turret_cost < currency, color_status_ok, color_status_bad), 0)
                             end
                             if building then
-                                update_ui_text(20, 25, string.format("%d", math.floor(marker_progress * 100)) .. "%", w, 0, color_status_ok, 0)
+                                update_ui_text(20, 25, string_format("%d", math_floor(marker_progress * 100)) .. "%", w, 0, color_status_ok, 0)
                             end
                         end
                     end)
@@ -3186,7 +3197,7 @@ function _update(screen_w, screen_h, ticks)
                     local highlighted_waypoint = highlighted_vehicle:get_waypoint_by_id(g_highlighted.waypoint_id)
 
                     if get_is_vehicle_air(vehicle_definition_index) then
-                        local alt_str = string.format( "%.0f ", highlighted_waypoint:get_altitude() ) .. update_get_loc(e_loc.acronym_meters)
+                        local alt_str = string_format( "%.0f ", highlighted_waypoint:get_altitude() ) .. update_get_loc(e_loc.acronym_meters)
                         local alt_width = update_ui_get_text_size(alt_str, 10000, 0) + 4
 
                         render_tooltip(10, 10, screen_w - 20, screen_h - 20, g_pointer_pos_x, g_pointer_pos_y, alt_width, 14, 10, function(w, h)    update_ui_text(2, 2, alt_str, w - 4, 0, color_white, 0) end)
@@ -3205,7 +3216,7 @@ function _update(screen_w, screen_h, ticks)
                         local hitpoints = highlighted_vehicle:get_hitpoints()
                         local hitpoints_total = highlighted_vehicle:get_total_hitpoints()
                         update_ui_text(g_pointer_pos_x, g_pointer_pos_y + 30,
-                                string.format("%d/%d", hitpoints, hitpoints_total), 100, 0, color_highlight, 0)
+                                string_format("%d/%d", hitpoints, hitpoints_total), 100, 0, color_highlight, 0)
                     end
 
                     -- overlay the name if it has one
@@ -3281,7 +3292,7 @@ function _update(screen_w, screen_h, ticks)
 
                 if item ~= nil then
                     local text = iff(g_highlighted.production_index == 0, update_get_loc(e_loc.upp_constructing), update_get_loc(e_loc.upp_pending))
-                    local dot_count = math.floor(g_animation_time / 10) % 4
+                    local dot_count = math_floor(g_animation_time / 10) % 4
                     for i = 1, 3 do text = text .. iff(i <= dot_count, ".", " ") end
 
                     local icon = get_icon_by_turret_type_id(item_type_id)
@@ -3331,20 +3342,20 @@ function _update(screen_w, screen_h, ticks)
             end
 
             if g_map_render_mode == 2 then
-                update_ui_text(1, 1, string.format(update_get_loc(e_loc.upp_wind)..": %.2f", update_get_weather_wind_velocity(sample_x, sample_y)), label_w, 0, color_white, 0)
+                update_ui_text(1, 1, string_format(update_get_loc(e_loc.upp_wind)..": %.2f", update_get_weather_wind_velocity(sample_x, sample_y)), label_w, 0, color_white, 0)
             elseif g_map_render_mode == 3 then
-                update_ui_text(1, 1, string.format(update_get_loc(e_loc.upp_precipitation)..": %.0f%%", update_get_weather_precipitation_factor(sample_x, sample_y) * 100), label_w, 0, color_white, 0)
+                update_ui_text(1, 1, string_format(update_get_loc(e_loc.upp_precipitation)..": %.0f%%", update_get_weather_precipitation_factor(sample_x, sample_y) * 100), label_w, 0, color_white, 0)
 
                 local cx = label_w - 42
                 update_ui_image(cx, 1, atlas_icons.column_power, color_white, 0)
                 cx = cx + 5
-                update_ui_text(cx, 1, string.format(": %.0f%%", update_get_weather_lightning_factor(sample_x, sample_y) * 100), label_w, 0, color_white, 0)
+                update_ui_text(cx, 1, string_format(": %.0f%%", update_get_weather_lightning_factor(sample_x, sample_y) * 100), label_w, 0, color_white, 0)
             elseif g_map_render_mode == 4 then
-                update_ui_text(1, 1, string.format(update_get_loc(e_loc.upp_visibility)..": %.0f%%", update_get_weather_fog_factor(sample_x, sample_y) * 100), label_w, 0, color_white, 0)
+                update_ui_text(1, 1, string_format(update_get_loc(e_loc.upp_visibility)..": %.0f%%", update_get_weather_fog_factor(sample_x, sample_y) * 100), label_w, 0, color_white, 0)
             elseif g_map_render_mode == 5 then
-                update_ui_text(1, 1, string.format(update_get_loc(e_loc.upp_ocean_current)..": %.2f", update_get_ocean_current_velocity(sample_x, sample_y)), label_w, 0, color_white, 0)
+                update_ui_text(1, 1, string_format(update_get_loc(e_loc.upp_ocean_current)..": %.2f", update_get_ocean_current_velocity(sample_x, sample_y)), label_w, 0, color_white, 0)
             elseif g_map_render_mode == 6 then
-                update_ui_text(1, 1, string.format(update_get_loc(e_loc.upp_ocean_depth)..": %.2f", update_get_ocean_depth_factor(sample_x, sample_y)), label_w, 0, color_white, 0)
+                update_ui_text(1, 1, string_format(update_get_loc(e_loc.upp_ocean_depth)..": %.2f", update_get_ocean_depth_factor(sample_x, sample_y)), label_w, 0, color_white, 0)
             end
 
             update_ui_pop_offset()
@@ -3395,7 +3406,7 @@ function _update(screen_w, screen_h, ticks)
             local rect_h = 14
 
             update_ui_push_offset((screen_w - rect_w) / 2, screen_h - rect_h - 10)
-            update_ui_push_clip(0, 0, rect_w, math.ceil(rect_h * go_code_factor))
+            update_ui_push_clip(0, 0, rect_w, math_ceil(rect_h * go_code_factor))
             update_ui_rectangle(0, 0, rect_w, rect_h, color_status_bad)
             update_ui_text(0, rect_h / 2 - 4, go_code_text, rect_w, 1, color_black, 0)
 
@@ -3413,7 +3424,7 @@ function _update(screen_w, screen_h, ticks)
                 g_camera_pos_y = viewing_vehicle:get_position_xz():y()
 
                 local connecting_text = update_get_loc(e_loc.connecting)
-                local dot_count = math.floor(g_animation_time / (30 / 4)) % 4
+                local dot_count = math_floor(g_animation_time / (30 / 4)) % 4
 
                 for i = 1, dot_count, 1 do
                     connecting_text = connecting_text .. "."
@@ -3426,8 +3437,8 @@ function _update(screen_w, screen_h, ticks)
                 local anim = g_animation_time / 30.0
                 local bound_left = cx
                 local bound_right = bound_left + 75
-                local left = bound_left + (bound_right - bound_left) * math.abs(math.sin((anim - math.pi / 2) % (math.pi / 2))) ^ 4
-                local right = left + (bound_right - left) * math.abs(math.sin(anim % (math.pi / 2)))
+                local left = bound_left + (bound_right - bound_left) * math_abs(math_sin((anim - math_pi / 2) % (math_pi / 2))) ^ 4
+                local right = left + (bound_right - left) * math_abs(math_sin(anim % (math_pi / 2)))
 
                 update_ui_rectangle(left, cy + 12, right - left, 1, color_status_ok)
                 update_ui_rectangle(bound_right + bound_left - right, cy - 3, right - left, 1, color_status_ok)
@@ -3532,7 +3543,7 @@ function _update(screen_w, screen_h, ticks)
 
         --
         local first = g_wall_offset
-        header = string.format("%s %d-%d/%d", header, first, first + shown - 1, total)
+        header = string_format("%s %d-%d/%d", header, first, first + shown - 1, total)
         if ui:button(header, true, 0) then
             g_wall_offset = g_wall_offset + shown
             if g_wall_offset > total then
@@ -3589,7 +3600,7 @@ function render_vehicle_info_panel(x, y, vehicle)
     if vehicle_definition_index == e_game_object_type.chassis_carrier then
         display_id = get_ship_name(vehicle)
     else
-        display_id = update_get_loc(e_loc.upp_id) .. string.format( " %.0f", vehicle:get_id() )
+        display_id = update_get_loc(e_loc.upp_id) .. string_format( " %.0f", vehicle:get_id() )
     end
     display_id = type_abrev .. " " .. display_id
     local id_w, id_h = update_ui_get_text_size(display_id, w - 2 - icon_w, 2)
@@ -3616,9 +3627,9 @@ function render_vehicle_info_panel(x, y, vehicle)
     x = x + icon_w
     -- bars
     local bar_h = h - 4
-    local repair_bar = math.floor(bar_h * repair_factor)
-    local fuel_bar = math.floor(bar_h * fuel_factor)
-    local ammo_bar = math.floor(bar_h * ammo_factor)
+    local repair_bar = math_floor(bar_h * repair_factor)
+    local fuel_bar = math_floor(bar_h * fuel_factor)
+    local ammo_bar = math_floor(bar_h * ammo_factor)
     update_ui_rectangle(x + 0, y, 1, bar_h, color8(16, 16, 16, 255))
     update_ui_rectangle(x + 0, y + bar_h - repair_bar, 1, repair_bar, color8(47, 116, 255, 255))
     update_ui_rectangle(x + 2, y, 1, bar_h, color8(16, 16, 16, 255))
@@ -3748,8 +3759,8 @@ function input_zoom_camera(factor, screen_w, screen_h, zoom_x, zoom_y)
             local cursor_prev_x, cursor_prev_y = get_world_from_screen(cursor_x, cursor_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
             g_camera_size = g_camera_size * factor
-            g_camera_size = math.min(g_camera_size, 256 * 1024)
-            g_camera_size = math.max(g_camera_size, 128)
+            g_camera_size = math_min(g_camera_size, 256 * 1024)
+            g_camera_size = math_max(g_camera_size, 128)
 
             local cursor_next_x, cursor_next_y = get_world_from_screen(cursor_x, cursor_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
             local dx = cursor_next_x - cursor_prev_x
@@ -4081,10 +4092,10 @@ function rev_box_select(nw, se)
     local selection = {}
     local our_team = update_get_screen_team_id()
     -- make new corners
-    local west = math.min(nw:x(), se:x())
-    local north = math.min(nw:y(), se:y())
-    local east = math.max(nw:x(), se:x())
-    local south = math.max(nw:y(), se:y())
+    local west = math_min(nw:x(), se:x())
+    local north = math_min(nw:y(), se:y())
+    local east = math_max(nw:x(), se:x())
+    local south = math_max(nw:y(), se:y())
 
     local sum_x = 0
     local sum_y = 0
@@ -4103,7 +4114,7 @@ function rev_box_select(nw, se)
                         if vx < we and vx > ww then
                             local vy = pos:y()
                             if vy < wn and vy > ws then
-                                table.insert(selection, vehicle)
+                                table_insert(selection, vehicle)
                                 sum_x = sum_x + vx
                                 sum_y = sum_y + vy
                             end
@@ -4177,7 +4188,7 @@ function rev_render_unit_selection(screen_w, screen_h, selection)
             if vehicle and vehicle:get() then
                 local vdef = vehicle:get_definition_index()
                 if get_is_vehicle_air(vdef) then
-                    table.insert(air_units, vehicle)
+                    table_insert(air_units, vehicle)
                 end
             end
         end
@@ -4214,11 +4225,11 @@ function rev_render_unit_selection(screen_w, screen_h, selection)
                 local _, v_icon, _, _ = get_chassis_data_by_definition_index(vdef)
                 update_ui_image(cx, cy, v_icon, color_white, 0)
                 local dmg = clamp(vehicle:get_hitpoints() / vehicle:get_total_hitpoints(), 0, 1)
-                local bar_color = iff(dmg <= 0.2, color8(255, 0, 0, 255), color8(0, 255, 0, 255))
+                local bar_color = iff(dmg <= 0.2, color_red, color_green)
                 local back_color = color_black
                 local bar_w = 10
                 update_ui_rectangle(cx + 3, cy + 16, bar_w, 1, back_color)
-                update_ui_rectangle(cx + 3, cy + 16, math.floor(dmg * bar_w + 0.5), 1, bar_color)
+                update_ui_rectangle(cx + 3, cy + 16, math_floor(dmg * bar_w + 0.5), 1, bar_color)
                 cx = cx + 15
                 if set_low_light then
                     vehicle:set_is_low_light(true)
@@ -4238,7 +4249,7 @@ end
 function render_map_scale(screen_w, screen_h)
     if g_is_render_grid and g_rev_box_start == nil then
         local grid_spacing = get_grid_spacing()
-        local text = iff( grid_spacing >= 1000, math.floor(grid_spacing / 1000) .. update_get_loc(e_loc.acronym_kilometers), math.floor(grid_spacing) .. update_get_loc(e_loc.acronym_meters) )
+        local text = iff( grid_spacing >= 1000, math_floor(grid_spacing / 1000) .. update_get_loc(e_loc.acronym_kilometers), math_floor(grid_spacing) .. update_get_loc(e_loc.acronym_meters) )
 
         local sx, _ = get_screen_from_world(0, 0, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
         local ex, _ = get_screen_from_world(grid_spacing, 0, g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
@@ -4280,11 +4291,11 @@ function render_cursor_info(screen_w, screen_h, world_pos_drag_start)
 
     if #g_rev_box_selection == 0 then
         update_ui_text(cx, cy, "X", 100, 0, icon_col, 0)
-        update_ui_text(cx + 15, cy, string.format("%.0f", world_x), 100, 0, text_col, 0)
+        update_ui_text(cx + 15, cy, string_format("%.0f", world_x), 100, 0, text_col, 0)
         cy = cy + 10
 
         update_ui_text(cx, cy, "Y", 100, 0, icon_col, 0)
-        update_ui_text(cx + 15, cy, string.format("%.0f", world_y), 100, 0, text_col, 0)
+        update_ui_text(cx + 15, cy, string_format("%.0f", world_y), 100, 0, text_col, 0)
         cy = cy + 10
     end
 
@@ -4293,20 +4304,20 @@ function render_cursor_info(screen_w, screen_h, world_pos_drag_start)
 
         if dist < 10000 then
             update_ui_image(cx, cy, atlas_icons.column_distance, icon_col, 0)
-            update_ui_text(cx + 15, cy, string.format("%.0f ", dist) .. update_get_loc(e_loc.acronym_meters), 100, 0, text_col, 0)
+            update_ui_text(cx + 15, cy, string_format("%.0f ", dist) .. update_get_loc(e_loc.acronym_meters), 100, 0, text_col, 0)
         else
             update_ui_image(cx, cy, atlas_icons.column_distance, icon_col, 0)
-            update_ui_text(cx + 15, cy, string.format("%.2f ", dist / 1000) .. update_get_loc(e_loc.acronym_kilometers), 100, 0, text_col, 0)
+            update_ui_text(cx + 15, cy, string_format("%.2f ", dist / 1000) .. update_get_loc(e_loc.acronym_kilometers), 100, 0, text_col, 0)
         end
 
         cy = cy + 10
 
-        local bearing = 90 - math.atan(world_y - world_pos_drag_start:y(), world_x - world_pos_drag_start:x()) / math.pi * 180
+        local bearing = 90 - math_atan(world_y - world_pos_drag_start:y(), world_x - world_pos_drag_start:x()) / math_pi * 180
 
         if bearing < 0 then bearing = bearing + 360 end
 
         update_ui_image(cx, cy, atlas_icons.column_angle, icon_col, 0)
-        update_ui_text(cx + 15, cy, string.format("%.0f deg", bearing), 100, 0, text_col, 0)
+        update_ui_text(cx + 15, cy, string_format("%.0f deg", bearing), 100, 0, text_col, 0)
         cy = cy + 10
     end
 end
@@ -4334,9 +4345,9 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
     local repair_factor = vehicle:get_repair_factor()
     local fuel_factor = vehicle:get_fuel_factor()
     local ammo_factor = vehicle:get_ammo_factor()
-    local repair_bar = math.floor(repair_factor * bar_h)
-    local fuel_bar = math.floor(fuel_factor * bar_h)
-    local ammo_bar = math.floor(ammo_factor * bar_h)
+    local repair_bar = math_floor(repair_factor * bar_h)
+    local fuel_bar = math_floor(fuel_factor * bar_h)
+    local ammo_bar = math_floor(ammo_factor * bar_h)
 
     local cx = 2
     local cy = 2
@@ -4363,7 +4374,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
     if vehicle_definition_index == e_game_object_type.chassis_carrier then
         display_id = get_ship_name(vehicle)
     else
-        display_id = update_get_loc(e_loc.upp_id) .. string.format( " %.0f", vehicle:get_id() )
+        display_id = update_get_loc(e_loc.upp_id) .. string_format( " %.0f", vehicle:get_id() )
     end
 
     if vehicle:get_is_observation_type_revealed() then
@@ -4374,7 +4385,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
         update_ui_text(cx, 11, display_id, 124, 0, color_white, 0)
 
         update_ui_text(cx, 1, vehicle_name, 124, 0, color_white, 0)
-        cx = cx + math.max(update_ui_get_text_size(display_id,   10000, 0),
+        cx = cx + math_max(update_ui_get_text_size(display_id,   10000, 0),
                            update_ui_get_text_size(vehicle_name, 10000, 0)) + 2
     else
         update_ui_image(cx, 2, atlas_icons.icon_chassis_16_wheel_small, color_inactive, 0)
@@ -4384,7 +4395,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 
         vehicle_name = "***"
         update_ui_text(cx, 1, vehicle_name, 124, 0, color_inactive, 0)
-        cx = cx + math.max(update_ui_get_text_size(display_id,   10000, 0),
+        cx = cx + math_max(update_ui_get_text_size(display_id,   10000, 0),
                            update_ui_get_text_size(vehicle_name, 10000, 0)) + 2
     end
 
@@ -4409,13 +4420,13 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
                     local attachment = vehicle:get_attachment(i)
 
                     if attachment:get() then
-                        table.insert(attachments, attachment)
+                        table_insert(attachments, attachment)
                     end
                 end
             end
 
             if #attachments > 0 then
-                local attachment_index = (math.floor( g_animation_time / 20 ) % (#attachments)) + 1
+                local attachment_index = (math_floor( g_animation_time / 20 ) % (#attachments)) + 1
                 local icon, icon_16 = get_attachment_icons(attachments[attachment_index]:get_definition_index())
 
                 if icon_16 ~= nil then
@@ -4465,13 +4476,13 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
                     local attachment = vehicle:get_attachment(i)
 
                     if attachment:get() then
-                        table.insert(attachments, attachment)
+                        table_insert(attachments, attachment)
                     end
                 end
             end
 
             if #attachments > 0 then
-                local attachment_index = (math.floor( g_animation_time / 20 ) % (#attachments)) + 1
+                local attachment_index = (math_floor( g_animation_time / 20 ) % (#attachments)) + 1
                 local icon, icon_16 = get_attachment_icons(attachments[attachment_index]:get_definition_index())
 
                 if icon_16 ~= nil then
@@ -4485,7 +4496,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 
     if vehicle:get_is_observation_fully_revealed() == false then
         local data_factor = vehicle:get_observation_factor()
-        update_ui_text(0, 6, string.format("%.0f%%", data_factor * 100), w - 2, 2, color_inactive, 0)
+        update_ui_text(0, 6, string_format("%.0f%%", data_factor * 100), w - 2, 2, color_inactive, 0)
     end
 
     if team == update_get_screen_team_id() then
@@ -4548,7 +4559,7 @@ function render_vehicle_tooltip(w, h, vehicle, peers)
 
     if get_is_vehicle_air(vehicle:get_definition_index()) then
         local alt = get_unit_altitude(vehicle)
-        local fl_str = string.format("F%03d", math.floor(alt / 10))
+        local fl_str = string_format("F%03d", math_floor(alt / 10))
         update_ui_text(cx + 10, cy, fl_str, 32, 0, color_inactive, 0)
     end
 end
@@ -4573,7 +4584,7 @@ function get_is_vehicle_enterable(vehicle)
 end
 
 function render_dashed_line(x0, y0, x1, y1, col)
-    local line_length = math.max(vec2_dist(vec2(x0, y0), vec2(x1, y1)), 1)
+    local line_length = math_max(vec2_dist(vec2(x0, y0), vec2(x1, y1)), 1)
     local normal = vec2((x1 - x0) / line_length, (y1 - y0) / line_length)
     local segment_length = 3
     local segment_spacing = 3
@@ -4581,7 +4592,7 @@ function render_dashed_line(x0, y0, x1, y1, col)
     local offset = (g_animation_time / 2) % step
 
     for cursor = offset, line_length, step do
-        local length = math.min(segment_length, line_length - cursor)
+        local length = math_min(segment_length, line_length - cursor)
 
         update_ui_line(x0 + normal:x() * cursor, y0 + normal:y() * cursor, x0 + normal:x() * (cursor + length), y0 + normal:y() * (cursor + length), col)
     end
@@ -4598,7 +4609,7 @@ function get_vehicle_weapon_range(vehicle)
             local attachment = vehicle:get_attachment(i)
 
             if attachment:get() then
-                weapon_range = math.max(attachment:get_weapon_range(), weapon_range)
+                weapon_range = math_max(attachment:get_weapon_range(), weapon_range)
             end
         end
 
@@ -4977,8 +4988,8 @@ function rev_render_notification(screen_w, screen_h)
     if g_notify_expire > 0 then
         local remain = g_notify_expire - now
         if remain > 0 then
-            local remain_factor = math.min(30, remain) / 30
-            local alpha = math.ceil(remain_factor * 255)
+            local remain_factor = math_min(30, remain) / 30
+            local alpha = math_ceil(remain_factor * 255)
             local c = color8(color_friendly:r(), color_friendly:g(), color_friendly:b(), alpha)
 
             -- originally the "go code" notification

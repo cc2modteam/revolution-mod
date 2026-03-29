@@ -1642,7 +1642,10 @@ function dump_profile_stats()
             print(("%s,%d,%.3f"):format(f,g_prof_calls[f],ctr))
         end
         g_prof_calls = {}
+        g_prof_total = {}
+        g_prof_this = {}
     end
+    g_prof_counter = 0
 end
 
 -- enable the profiler like so..
