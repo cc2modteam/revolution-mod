@@ -23,6 +23,9 @@ color_button_bg = color8(4, 12, 12, 255)
 color_button_bg_inactive = color8(7, 7, 7, 255)
 color_skyblue = color8(64, 72, 120, 128)
 
+color_red = color8(255, 0, 0, 255)
+color_green = color8(0, 255, 0, 255)
+
 -- actually team names really - inb
 vessel_names = {
     "Mu",
