@@ -2983,14 +2983,11 @@ function rev_has_preconfigure_preset(carrier, bay_index, preset)
     if attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
         local presets = g_revolution_loadout_preset[attached_vehicle:get_definition_index()]
         if presets then
-            print(preset, "=", presets[preset])
             if presets[preset] ~= nil then
                 return true
             end
         end
     end
-    print("no " .. preset)
-
     return false
 end
 
