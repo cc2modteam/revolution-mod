@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Revolution 1.6-5" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Dr-RazdalByte + Others" description="
+<data name="Revolution 1.6-6" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Dr-RazdalByte + Others" description="
 
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other features.
 
 v1.6 new features:
 [list]
+[*] Multi-unit select in control screens (hold R and drag a box)
+[*] Turn off lights on selected-groups of units
+[*] Option to set aircraft altitude for all waypoints.
 [*] Excess aircraft payloads shown visually in loadout, Some units have hard max payloads for balance
 [*] 2x water speed as standard for all units, WLR can deploy AA missiles
 [*] Helm and Radar screens are HD, Helm HUD and VLS as standard.
