@@ -1,6 +1,7 @@
 local math_pi = math.pi
 local math_random = math.random
 local math_floor = math.floor
+local math_abs = math.abs
 
 g_is_holomap = false
 g_last_update_interval = 1
@@ -2140,13 +2141,14 @@ function _update_team_holomap_cursor(team_id, x, y)
     x = math_floor(x)
     y = math_floor(y)
 
-    if g_last_hm_cursor_team == team and g_last_hm_cursor_x == x and g_last_hm_cursor_y == y then
+    -- only update if the position has changed by more than 10m
+    if math_abs(x - g_last_hm_cursor_x) < 10 or math_abs(y - g_last_hm_cursor_y) < 10 then
         return
     end
 
     local now = update_get_logic_tick()
     -- we really don't need to update this more than 2-3 times a second
-    if now - g_last_hm_cursor_update < 10 then
+    if now - g_last_hm_cursor_update < 15 then
         return
     end
     g_last_hm_cursor_update = now
@@ -3923,7 +3925,12 @@ function do_screensaver(screen_w, screen_h, screen_enum)
     if string.find(g_screen_name, "holomap") then
         -- dont do this for the huge tacops screen
         return false
+    elseif g_screen_name == "sidebar_1" or g_screen_name == "sidebar_2" then
+        if total_units < 410 then
+            return false
+        end
     end
+
 
     if total_units < 400 and string.find(g_screen_name, "screen_veh_") then
         -- dont sleep the bridge screens
@@ -4088,6 +4095,31 @@ function get_nearest_carrier(vehicle, friendly, current_team)
     return nearest, nearest_dist_sq^0.5
 end
 
+function get_unit_fuel_state(vehicle)
+    if vehicle and vehicle:get() then
+        local v_internal_fuel_size = get_internal_fuel_size(vehicle:get_definition_index())
+        if v_internal_fuel_size > 0 then
+            -- total up extra tanks
+            local attachment_count = vehicle:get_attachment_count()
+            local unit_extra_fuel_tank_capacity = 0
+            for i = 0, attachment_count - 1, 1 do
+                local attachment = vehicle:get_attachment(i)
+                if attachment:get() then
+                    local adef = attachment:get_definition_index()
+                    if adef == e_game_object_type.attachment_fuel_tank_plane then
+                        unit_extra_fuel_tank_capacity = unit_extra_fuel_tank_capacity + attachment:get_fuel_capacity()
+                    end
+                end
+            end
+            local unit_max_fuel = v_internal_fuel_size + unit_extra_fuel_tank_capacity
+            local current_fuel = unit_max_fuel * vehicle:get_fuel_factor()
+            return current_fuel, unit_max_fuel
+        end
+    end
+
+    return 0, 0
+end
+
 function team_eliminated(team_id)
     for _, crr in pairs(get_carriers_table()) do
         if crr and crr:get() then
@@ -4103,30 +4135,6 @@ function fast_sqrt(x)
     return x^0.5
 end
 
--- send data to/from the HUD
-function get_settings_pending_gfx_x()
-    local settings = update_get_game_settings()
-    return settings.gfx_resolution_pending_x
-end
-
-function get_settings_pending_gfx_y()
-    local settings = update_get_game_settings()
-    return settings.gfx_resolution_pending_y
-end
-
-function reset_settings_pending_gfx()
-    local settings = update_get_game_settings()
-    set_settings_pending_gfx(settings.gfx_resolution_x, settings.gfx_resolution_y)
-end
-
-function set_settings_pending_gfx(w, h)
-    local settings = update_get_game_settings()
-    if settings.gfx_resolution_pending_x ~= w then
-        if settings.gfx_resolution_pending_y ~= h then
-            update_ui_event("set_game_setting gfx_resolution", w, h)
-        end
-    end
-end
 
 -- vehicle proxy class to reduce lua<->native calls
 local VProxy = {}

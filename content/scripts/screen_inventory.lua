@@ -3106,27 +3106,13 @@ function tab_fuel_render(screen_w, screen_h, x, y, w, h, is_tab_active, screen_v
         if v_def == e_game_object_type.chassis_sea_barge then
             barge_fuel = barge_fuel + v:get_inventory_count_by_item_index(e_inventory_item.fuel_barrel)
         else
-            local v_internal_fuel_size = get_internal_fuel_size(v_def)
-            if v_internal_fuel_size > 0 then
-                -- total up extra tanks
-                local attachment_count = v:get_attachment_count()
-                local unit_extra_fuel_tank_capacity = 0
-                for i = 0, attachment_count - 1, 1 do
-                    local attachment = v:get_attachment(i)
-                    if attachment:get() and (attachment:get_fuel_capacity() > 0) then
-                        unit_extra_fuel_tank_capacity = unit_extra_fuel_tank_capacity + attachment:get_fuel_capacity()
-                    end
-                end
-                local unit_max_fuel = v_internal_fuel_size + unit_extra_fuel_tank_capacity
-                local unit_current_fuel = unit_max_fuel * v:get_fuel_factor()
-
-                if get_is_vehicle_air(v_def) then
-                    air_fuel = air_fuel + unit_current_fuel
-                    air_fuel_max = air_fuel_max + unit_max_fuel
-                elseif get_is_vehicle_land_vehicle(v_def) then
-                    land_fuel = land_fuel + unit_current_fuel
-                    land_fuel_max = land_fuel_max + unit_max_fuel
-                end
+            local unit_current_fuel, unit_max_fuel = get_unit_fuel_state(v)
+            if get_is_vehicle_air(v_def) then
+                air_fuel = air_fuel + unit_current_fuel
+                air_fuel_max = air_fuel_max + unit_max_fuel
+            elseif get_is_vehicle_land_vehicle(v_def) then
+                land_fuel = land_fuel + unit_current_fuel
+                land_fuel_max = land_fuel_max + unit_max_fuel
             end
         end
     end

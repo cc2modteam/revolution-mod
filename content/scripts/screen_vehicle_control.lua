@@ -1556,7 +1556,163 @@ function get_next_waypoint_xz(vehicle)
     return nil
 end
 
-g_last_waypoint_send = 0
+g_sidebar_last_tick = 0
+g_sidebar_units = {
+
+}
+
+
+function do_sidebar_screen(screen_w, screen_h, ticks)
+    if g_screen_name == "sidebar_1" or g_screen_name == "sidebar_2" or g_screen_name == "screen_veh_captchair" then
+        local now = update_get_logic_tick()
+        local elapsed = now - g_sidebar_last_tick
+        if elapsed > 90 then
+            g_sidebar_last_tick = now
+            local crr = update_get_screen_vehicle()
+            if crr and crr:get() then
+                local units = {}
+                local our_team = update_get_screen_team_id()
+                local crr_pos = crr:get_position_xz()
+                local ticks_per_sec = 30
+                for _, vehicle in pairs(get_vehicles_table()) do
+                    if vehicle and vehicle:get() then
+                        if vehicle:get_team() == our_team then
+                            local vdef = vehicle:get_definition_index()
+                            if get_is_vehicle_air(vdef) then
+                                if not vehicle:get_is_docked() then
+                                    local vid = vehicle:get_id()
+                                    local damage_factor = clamp(vehicle:get_hitpoints() / vehicle:get_total_hitpoints(), 0, 1)
+                                    local prev = g_sidebar_units[vid]
+                                    local vpos = vehicle:get_position_xz()
+                                    local unit = {
+                                        def = vdef,
+                                        fuel_time_left = 0,
+                                        dmg = damage_factor,
+                                        dist = 0,
+                                        tick = now,
+                                        prev_tick = 0,
+                                        pos = {
+                                            x = vpos:x(),
+                                            y = vpos:y(),
+                                        },
+                                        spd = 0.0
+                                    }
+                                    units[vid] = unit
+                                    if g_screen_name ~= "screen_veh_captchair" then
+                                        unit.dist = vec2_dist(crr_pos, vpos) / 1000
+                                        unit.fuel = vehicle:get_fuel_factor()
+                                        -- only compute on sidebars
+                                        if prev ~= nil then
+                                            -- compute speed and fuel burn
+                                            local s = vec2_dist(vec2(prev.pos.x, prev.pos.y), vpos)
+                                            local t_elapsed = now - prev.tick
+                                            local t = t_elapsed / ticks_per_sec
+
+                                            if t > 0 then
+                                                unit.spd = s / t
+                                                -- compute fuel burn
+                                                if t_elapsed > 0 then
+                                                    local used = prev.fuel - unit.fuel
+                                                    local used_rate = used / t
+                                                    local time_remaining = unit.fuel / used_rate
+                                                    unit.fuel_time_left = time_remaining -- sec
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                g_sidebar_units = units
+            end
+        end
+    end
+
+    if g_screen_name == "sidebar_1" or g_screen_name == "sidebar_2" then
+        local skip = 0
+        local max_display = 7
+        if g_screen_name == "sidebar_2" then
+            skip = max_display
+        end
+        local sidebar_left = 12
+        local sidebar_top = 4
+        screen_w = screen_w - sidebar_left - 6
+        screen_h = screen_h - sidebar_top
+        update_ui_push_offset(sidebar_left, sidebar_top)
+        update_ui_push_clip(0, 0, screen_w, screen_h)
+        if skip == 0 then
+            update_ui_rectangle(0, 0, screen_w, 13, color_button_bg)
+            update_ui_text(1, 2, update_get_loc(e_loc.upp_air), screen_w, 0, color_white, 0)
+        end
+        -- for all active friendly aircraft, show distance to this carrier, fuel state and burn rate
+
+        local vx = 2
+        local vy = 14
+        if skip > 0 then
+            vy = 3
+        end
+        local vh = 22
+        local dark_grey = color8(3, 3, 3, 255)
+        local color_low = color_status_bad
+        local color_mid = color8(255, 255, 0, 255)
+        local color_high = color_status_ok
+        local display_count = 0
+        local display_index = 0
+
+        for vid, data in pairs(g_sidebar_units) do
+            if display_index >= skip and display_count < max_display then
+                local name, icon, abbr = get_chassis_data_by_definition_index(data.def)
+                local dmg = data.dmg
+                update_ui_image(vx, vy, icon, color_white, 0)
+                update_ui_text(vx + 18, vy, string.format("%s %d", abbr, vid), screen_w, 0, color_grey_mid, 0)
+                -- distance
+                update_ui_text(vx + 18, vy + 11, string.format("%3.0f km", data.dist), screen_w, 0, color_grey_mid, 0)
+                update_ui_text(vx + 64, vy, string.format("%3.0f m/s", data.spd), screen_w, 0, color_grey_mid, 0)
+                local fuel_time_left = data.fuel_time_left
+                if fuel_time_left > 0 then
+                    local mins = fuel_time_left // 60
+                    if mins > 0 then
+                        local fuel_color = color_grey_mid
+                        if data.fuel < 0.5 then
+                            fuel_color = color_mid
+                        end
+                        if mins < 4 then
+                            fuel_color = color_status_orange
+                        end
+                        update_ui_text(vx + 64, vy + 11, string.format("%2.0f%% %2.0fmins", data.fuel * 100, mins), 120, 0, fuel_color, 0)
+                        local est_range = (fuel_time_left * data.spd) // 1000
+                        if est_range > 1 then
+                            update_ui_text(vx + 130, vy, string.format("%2.0fkm", est_range), 120, 0, fuel_color, 0)
+                        else
+                            update_ui_text(vx + 130, vy, "--", 24, 0, color_grey_mid, 0)
+                        end
+                    end
+                end
+
+                local c = color_high
+                if dmg < 0.2 then
+                    c = color_low
+                elseif dmg < 0.6 then
+                    c = color_mid
+                end
+                update_ui_rectangle(vx, vy + 16, 16, 3, c)
+
+
+                vy = vy + vh
+                update_ui_line(vx, vy - 1, screen_w, vy - 1, dark_grey)
+                display_count = display_count + 1
+            end
+            display_index = display_index + 1
+        end
+
+        update_ui_pop_clip()
+        update_ui_pop_offset()
+        return true
+    end
+    return false
+end
 
 function _update(screen_w, screen_h, ticks)
     g_screen_w = screen_w
@@ -1565,6 +1721,11 @@ function _update(screen_w, screen_h, ticks)
 
     g_is_mouse_mode = g_is_pointer_hovered and update_get_active_input_type() == e_active_input.keyboard
     g_animation_time = g_animation_time + ticks
+
+    if do_sidebar_screen(screen_w, screen_h, ticks) then
+        return
+    end
+
     refresh_modded_radar_cache()
     refresh_fow_islands()
     refresh_missile_data(true)
@@ -3321,7 +3482,7 @@ function _update(screen_w, screen_h, ticks)
             end
 
             -- render captain's holomap cursor
-            if update_get_is_focus_local() then
+            if g_screen_name ~= "screen_veh_captchair" then -- and update_get_is_focus_local() then
                 render_team_holomap_cursor(screen_vehicle:get_team())
             end
 
@@ -4172,6 +4333,13 @@ function input_pointer(is_hovered, x, y)
         g_ui:input_pointer(is_hovered, x, y)
     else
         float_btn_input_pointer(is_hovered, x, y)
+    end
+    if g_screen_name == "screen_veh_captchair" then
+        if update_get_is_focus_local() then
+
+            local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+            update_team_holomap_cursor(update_get_screen_team_id(), world_x, world_y)
+        end
     end
 end
 
