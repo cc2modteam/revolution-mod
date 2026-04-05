@@ -1560,13 +1560,45 @@ g_sidebar_last_tick = 0
 g_sidebar_units = {
 
 }
+g_sidebar_unit_count = 0
+g_sidebar_highlighted_vehicle = -1
 
 
 function do_sidebar_screen(screen_w, screen_h, ticks)
+    local max_display = 7
+
     if g_screen_name == "sidebar_1" or g_screen_name == "sidebar_2" or g_screen_name == "screen_veh_captchair" then
+        local tab_y = 0
+        local sidebar_i = -1
+
+        if g_screen_name == "screen_veh_captchair" then
+            local sidebar1_hover_top = 15
+            local sidebar1_hover_bottom = 104
+            local sidebar2_hover_top = 115
+            local sidebar2_hover_bottom = 193
+            local sidebar1_h = sidebar1_hover_bottom - sidebar1_hover_top
+            local sidebar_rh = sidebar1_h / max_display
+            if g_sidebar_mouse_y > sidebar1_hover_top then
+                if g_sidebar_mouse_y < sidebar1_hover_bottom then
+                    -- over top sidebar
+                    local sidebar_y = g_sidebar_mouse_y - sidebar1_hover_top
+                    sidebar_i = sidebar_y // sidebar_rh
+                    tab_y = sidebar1_hover_top + (sidebar_i * sidebar_rh)
+                end
+            end
+            if g_sidebar_mouse_y > sidebar2_hover_top then
+                if g_sidebar_mouse_y < sidebar2_hover_bottom then
+                    local sidebar_y = g_sidebar_mouse_y - sidebar2_hover_top
+                    sidebar_i = max_display + sidebar_y // sidebar_rh
+                    tab_y = sidebar1_hover_top + 9 + (sidebar_i * sidebar_rh)
+                end
+            end
+        end
+
         local now = update_get_logic_tick()
         local elapsed = now - g_sidebar_last_tick
         if elapsed > 90 then
+            g_sidebar_unit_count = 0
             g_sidebar_last_tick = now
             local crr = update_get_screen_vehicle()
             if crr and crr:get() then
@@ -1580,29 +1612,34 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                             local vdef = vehicle:get_definition_index()
                             if get_is_vehicle_air(vdef) then
                                 if not vehicle:get_is_docked() then
+                                    g_sidebar_unit_count = g_sidebar_unit_count + 1
                                     local vid = vehicle:get_id()
                                     local damage_factor = clamp(vehicle:get_hitpoints() / vehicle:get_total_hitpoints(), 0, 1)
                                     local prev = g_sidebar_units[vid]
                                     local vpos = vehicle:get_position_xz()
                                     local unit = {
+                                        vid = vid,
                                         def = vdef,
                                         fuel_time_left = 0,
                                         dmg = damage_factor,
-                                        dist = 0,
+                                        dist = vec2_dist(crr_pos, vpos) / 1000,
                                         tick = now,
                                         prev_tick = 0,
                                         pos = {
                                             x = vpos:x(),
                                             y = vpos:y(),
                                         },
-                                        spd = 0.0
+                                        spd = 0.0,
+                                        est_range = 0,
                                     }
                                     units[vid] = unit
-                                    if g_screen_name ~= "screen_veh_captchair" then
-                                        unit.dist = vec2_dist(crr_pos, vpos) / 1000
+                                    if true then
                                         unit.fuel = vehicle:get_fuel_factor()
                                         -- only compute on sidebars
                                         if prev ~= nil then
+                                            if prev.est_range > 0 then
+                                                unit.est_range = prev.est_range
+                                            end
                                             -- compute speed and fuel burn
                                             local s = vec2_dist(vec2(prev.pos.x, prev.pos.y), vpos)
                                             local t_elapsed = now - prev.tick
@@ -1616,6 +1653,7 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                                                     local used_rate = used / t
                                                     local time_remaining = unit.fuel / used_rate
                                                     unit.fuel_time_left = time_remaining -- sec
+                                                    unit.est_range = (unit.fuel_time_left * unit.spd) // 1000
                                                 end
                                             end
                                         end
@@ -1628,11 +1666,32 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                 g_sidebar_units = units
             end
         end
+
+        if g_screen_name == "screen_veh_captchair" then
+            g_sidebar_highlighted_vehicle = nil
+            if sidebar_i >= 0 and sidebar_i < g_sidebar_unit_count then
+                -- draw a tab
+                update_ui_rectangle(g_screen_w - 12, tab_y, 12, 15, color_button_bg)
+                -- select the hovered unit and mark it as a highlighted unit
+                local hover_ct = 0
+                local hover_unit = nil
+                for vid, _ in pairs(g_sidebar_units) do
+                    if hover_ct == sidebar_i then
+                        hover_unit = vid
+                        break
+                    end
+                    hover_ct = hover_ct + 1
+                end
+                if hover_unit ~= nil then
+                    g_sidebar_highlighted_vehicle = hover_unit
+                end
+            end
+        end
     end
 
     if g_screen_name == "sidebar_1" or g_screen_name == "sidebar_2" then
         local skip = 0
-        local max_display = 7
+
         if g_screen_name == "sidebar_2" then
             skip = max_display
         end
@@ -1682,7 +1741,7 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                             fuel_color = color_status_orange
                         end
                         update_ui_text(vx + 64, vy + 11, string.format("%2.0f%% %2.0fmins", data.fuel * 100, mins), 120, 0, fuel_color, 0)
-                        local est_range = (fuel_time_left * data.spd) // 1000
+                        local est_range = data.est_range
                         if est_range > 1 then
                             update_ui_text(vx + 130, vy, string.format("%2.0fkm", est_range), 120, 0, fuel_color, 0)
                         else
@@ -1968,14 +2027,43 @@ function _update(screen_w, screen_h, ticks)
                             end
                         end
 
+                        local hover_vid = vehicle:get_id()
                         if v_hover and ( visible and revealed ) then
                             local vehicle_pos_xz = vehicle:get_position_xz()
                             local screen_pos_x, screen_pos_y = get_screen_from_world(vehicle_pos_xz:x(), vehicle_pos_xz:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
                             local vehicle_distance_to_cursor = math_abs(screen_pos_x - g_cursor_pos_x) + math_abs(screen_pos_y - g_cursor_pos_y)
 
                             if vehicle_distance_to_cursor < highlighted_distance_best and vehicle_distance_to_cursor < 8 then
-                                g_highlighted:set_vehicle(vehicle:get_id())
+                                g_highlighted:set_vehicle(hover_vid)
                                 highlighted_distance_best = vehicle_distance_to_cursor
+                            end
+                        end
+
+                        if not g_is_pointer_hovered then
+                            if g_sidebar_highlighted_vehicle == hover_vid then
+                                local hv = update_get_map_vehicle_by_id(hover_vid)
+                                if hv and hv:get() then
+
+                                    g_highlighted:set_vehicle(hover_vid)
+                                    local fly_range = g_sidebar_units[hover_vid].est_range
+                                    if g_sidebar_units[hover_vid].spd > 0 then
+                                        if fly_range then
+                                            local pos = hv:get_position_xz()
+                                            -- draw flight range ring
+                                            local range_col = color8(0x00, 0xff, 0x00, 0x03)
+                                            local sx, sy = get_screen_from_world(pos:x(), pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                            local r, _ = get_screen_from_world(pos:x() + fly_range * 1000, pos:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
+                                            update_ui_circle(sx, sy, math_abs(sx - r), 12, range_col)
+                                        end
+                                    end
+
+                                    if g_is_pointer_pressed then
+                                        local pos = hv:get_position_xz()
+                                        g_camera_pos_x = pos:x()
+                                        g_camera_pos_y = pos:y()
+                                        g_drag:clear()
+                                    end
+                                end
                             end
                         end
 
@@ -2246,7 +2334,6 @@ function _update(screen_w, screen_h, ticks)
                 update_ui_circle(sx, sy, 10, 12, col)
                 col = color8(0xff, 0xff, 0x00, 0x32)
                 update_ui_text(sx + 5, sy + 5, get_marker_name(marker_id), 16, 0, col, 0)
-
             end
         end
 
@@ -4004,7 +4091,9 @@ function input_event(event, action)
                     elseif g_highlighted.selection_point > 0 then
                         g_drag:set_selection_point()
                     elseif event == e_input.pointer_1 and get_is_map_movement_allowed() then
-                        g_is_drag_pan_map = true
+                        if g_is_pointer_hovered then
+                            g_is_drag_pan_map = true
+                        end
                     end
 
                     g_drag_distance = 0
@@ -4319,6 +4408,8 @@ function input_scroll(dy)
     end
 end
 
+g_sidebar_mouse_y = -1
+
 function input_pointer(is_hovered, x, y)
 
     if call_func_override("screen_vehicle_control__input_pointer", is_hovered, x, y) then
@@ -4328,6 +4419,16 @@ function input_pointer(is_hovered, x, y)
 
     g_pointer_pos_x = x
     g_pointer_pos_y = y
+
+    if not is_hovered then
+        if x > g_screen_w then
+            if g_screen_name == "screen_veh_captchair" then
+                -- detect mouse over sidebar aircraft
+                g_sidebar_mouse_y = y
+            end
+        end
+    end
+
 
     if g_selection:is_selection() then
         g_ui:input_pointer(is_hovered, x, y)
