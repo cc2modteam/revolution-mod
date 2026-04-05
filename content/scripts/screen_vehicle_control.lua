@@ -1756,7 +1756,8 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                 elseif dmg < 0.6 then
                     c = color_mid
                 end
-                update_ui_rectangle(vx, vy + 16, 16, 3, c)
+                local health_w = math_floor(16 * data.dmg)
+                update_ui_rectangle(vx, vy + 16, health_w, 3, c)
 
 
                 vy = vy + vh
