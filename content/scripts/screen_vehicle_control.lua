@@ -1620,6 +1620,7 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                                     local unit = {
                                         vid = vid,
                                         def = vdef,
+                                        fuel = vehicle:get_fuel_factor(),
                                         fuel_time_left = 0,
                                         dmg = damage_factor,
                                         dist = vec2_dist(crr_pos, vpos) / 1000,
@@ -1633,28 +1634,26 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                                         est_range = 0,
                                     }
                                     units[vid] = unit
-                                    if true then
-                                        unit.fuel = vehicle:get_fuel_factor()
-                                        -- only compute on sidebars
-                                        if prev ~= nil then
-                                            if prev.est_range > 0 then
-                                                unit.est_range = prev.est_range
-                                            end
-                                            -- compute speed and fuel burn
-                                            local s = vec2_dist(vec2(prev.pos.x, prev.pos.y), vpos)
-                                            local t_elapsed = now - prev.tick
-                                            local t = t_elapsed / ticks_per_sec
 
-                                            if t > 0 then
-                                                unit.spd = s / t
-                                                -- compute fuel burn
-                                                if t_elapsed > 0 then
-                                                    local used = prev.fuel - unit.fuel
-                                                    local used_rate = used / t
-                                                    local time_remaining = unit.fuel / used_rate
-                                                    unit.fuel_time_left = time_remaining -- sec
-                                                    unit.est_range = (unit.fuel_time_left * unit.spd) // 1000
-                                                end
+                                    -- only compute on sidebars
+                                    if prev ~= nil then
+                                        if prev.est_range > 0 then
+                                            unit.est_range = prev.est_range
+                                        end
+                                        -- compute speed and fuel burn
+                                        local s = vec2_dist(vec2(prev.pos.x, prev.pos.y), vpos)
+                                        local t_elapsed = now - prev.tick
+                                        local t = t_elapsed / ticks_per_sec
+
+                                        if t > 0 then
+                                            unit.spd = s / t
+                                            -- compute fuel burn
+                                            if t_elapsed > 0 then
+                                                local used = prev.fuel - unit.fuel
+                                                local used_rate = used / t
+                                                local time_remaining = unit.fuel / used_rate
+                                                unit.fuel_time_left = time_remaining -- sec
+                                                unit.est_range = (unit.fuel_time_left * unit.spd) // 1000
                                             end
                                         end
                                     end

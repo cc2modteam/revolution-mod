@@ -3341,7 +3341,7 @@
 		<screen name="screen_nav_r" display_name_loc="672" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="1" type="3" refresh_interval="2.70000005e+00" help_tag="helm_screen_navigation">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="8.69095445e-01" m12="-4.94644552e-01" m20="0.00000000e+00" m21="4.94644552e-01" m22="8.69095445e-01" tx="-2.68795662e+01" ty="3.00021248e+01" tz="-2.26930714e+01"/>
 		</screen>
-		<screen name="screen_inv_l_large" display_name_loc="666" script_file_name="scripts/screen_inventory.lua" body_index="0" seat_index="5" type="1" refresh_interval="2.00000000e+00" help_tag="inventory_screen_inventory">
+		<screen name="screen_inv_l_large" display_name_loc="666" script_file_name="scripts/screen_inventory.lua" body_index="0" seat_index="5" type="1" refresh_interval="2.09999990e+00" help_tag="inventory_screen_inventory">
 			<transform m00="-2.18556959e-08" m01="3.78551732e-08" m02="9.99999940e-01" m10="7.07106709e-01" m11="7.07106709e-01" m12="-1.13133396e-08" m20="-7.07106769e-01" m21="7.07106829e-01" m22="-4.22219557e-08" tx="-3.20275879e+01" ty="3.02117672e+01" tz="-2.93362389e+01"/>
 		</screen>
 		<screen name="screen_inv_l" display_name_loc="668" script_file_name="scripts/screen_vehicle_loadout.lua" body_index="0" seat_index="5" type="0" refresh_interval="4.00000000e+00" help_tag="veh_load_screen_loadout">
@@ -3350,25 +3350,25 @@
 		<screen name="screen_veh_top_m" display_name_loc="681" script_file_name="scripts/screen_landing.lua" body_index="0" seat_index="2" type="1" refresh_interval="4.00000000e+00" help_tag="veh_con_screen_air_traffic">
 			<transform m00="3.09086161e-08" m01="-3.09086197e-08" m02="-1.00000000e+00" m10="-7.07106709e-01" m11="-7.07106650e-01" m12="0.00000000e+00" m20="-7.07106709e-01" m21="7.07106769e-01" m22="-4.37113883e-08" tx="-2.36389961e+01" ty="3.14163303e+01" tz="-2.79885387e+01"/>
 		</screen>
-		<screen name="screen_nav_top_m" display_name_loc="674" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="1" type="0" refresh_interval="3.00000000e+00" help_tag="helm_screen_compass">
+		<screen name="screen_nav_top_m" display_name_loc="674" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="1" type="0" refresh_interval="4.00000000e+00" help_tag="helm_screen_compass">
 			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-7.07106829e-01" m12="-7.07106709e-01" m20="0.00000000e+00" m21="7.07106709e-01" m22="-7.07106829e-01" tx="-2.77511463e+01" ty="3.13671703e+01" tz="-2.28278427e+01"/>
 		</screen>
-		<screen name="holomap_screen" display_name_loc="517" script_file_name="scripts/screen_holomap.lua" body_index="0" seat_index="4" type="2" refresh_interval="2.00000000e+00" help_tag="holomap_screen_map">
+		<screen name="holomap_screen" display_name_loc="517" script_file_name="scripts/screen_holomap.lua" body_index="0" seat_index="4" type="2" refresh_interval="2.09999990e+00" help_tag="holomap_screen_map">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-2.77694302e+01" ty="2.97049999e+01" tz="-2.68229847e+01"/>
 		</screen>
-		<screen name="screen_nav_top_l" display_name_loc="673" script_file_name="scripts/screen_propulsion.lua" body_index="0" seat_index="1" type="0" refresh_interval="2.02999997e+00" help_tag="helm_screen_propulsion">
+		<screen name="screen_nav_top_l" display_name_loc="673" script_file_name="scripts/screen_propulsion.lua" body_index="0" seat_index="1" type="0" refresh_interval="4.00000000e+00" help_tag="helm_screen_propulsion">
 			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-7.07106829e-01" m12="-7.07106709e-01" m20="0.00000000e+00" m21="7.07106709e-01" m22="-7.07106829e-01" tx="-2.84997025e+01" ty="3.13671703e+01" tz="-2.28292713e+01"/>
 		</screen>
 		<screen name="screen_nav_top_r" display_name_loc="675" script_file_name="scripts/screen_radar.lua" body_index="0" seat_index="1" type="0" refresh_interval="1.20000005e+00" help_tag="helm_screen_depth_radar">
 			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-7.07106829e-01" m12="-7.07106709e-01" m20="0.00000000e+00" m21="7.07106709e-01" m22="-7.07106829e-01" tx="-2.70117874e+01" ty="3.13689156e+01" tz="-2.28308144e+01"/>
 		</screen>
-		<screen name="screen_wep_top_m" display_name_loc="677" script_file_name="scripts/screen_weapons_anti_missile.lua" body_index="0" seat_index="7" type="0" refresh_interval="2.00000000e+00" help_tag="def_wep_screen_ciws_status">
+		<screen name="screen_wep_top_m" display_name_loc="677" script_file_name="scripts/screen_weapons_anti_missile.lua" body_index="0" seat_index="7" type="0" refresh_interval="8.00000000e+00" help_tag="def_wep_screen_ciws_status">
 			<transform m00="7.07106709e-01" m01="0.00000000e+00" m02="-7.07106709e-01" m10="-4.99999940e-01" m11="-7.07106829e-01" m12="-4.99999940e-01" m20="-5.00000000e-01" m21="7.07106709e-01" m22="-5.00000000e-01" tx="-2.52366772e+01" ty="3.13056164e+01" tz="-2.39908905e+01"/>
 		</screen>
-		<screen name="screen_wep_top_l" display_name_loc="676" script_file_name="scripts/screen_weapons_anti_air.lua" body_index="0" seat_index="7" type="0" refresh_interval="2.00000000e+00" help_tag="def_wep_screen_aa_status">
+		<screen name="screen_wep_top_l" display_name_loc="676" script_file_name="scripts/screen_weapons_anti_air.lua" body_index="0" seat_index="7" type="0" refresh_interval="8.00000000e+00" help_tag="def_wep_screen_aa_status">
 			<transform m00="7.07106709e-01" m01="0.00000000e+00" m02="-7.07106709e-01" m10="-4.99999940e-01" m11="-7.07106829e-01" m12="-4.99999940e-01" m20="-5.00000000e-01" m21="7.07106709e-01" m22="-5.00000000e-01" tx="-2.58660507e+01" ty="3.13151131e+01" tz="-2.33809700e+01"/>
 		</screen>
-		<screen name="screen_wep_top_r" display_name_loc="678" script_file_name="scripts/screen_weapons_support.lua" body_index="0" seat_index="7" type="0" refresh_interval="2.00000000e+00" help_tag="sup_wep_screen_support">
+		<screen name="screen_wep_top_r" display_name_loc="678" script_file_name="scripts/screen_weapons_support.lua" body_index="0" seat_index="7" type="0" refresh_interval="8.00000000e+00" help_tag="sup_wep_screen_support">
 			<transform m00="7.07106709e-01" m01="0.00000000e+00" m02="-7.07106709e-01" m10="-4.99999940e-01" m11="-7.07106829e-01" m12="-4.99999940e-01" m20="-5.00000000e-01" m21="7.07106709e-01" m22="-5.00000000e-01" tx="-2.46192589e+01" ty="3.13177414e+01" tz="-2.46293716e+01"/>
 		</screen>
 		<screen name="screen_wep" display_name_loc="679" script_file_name="scripts/screen_vision_radar.lua" body_index="0" seat_index="7" type="3" refresh_interval="1.20000005e+00" help_tag="nav_wep_screen_radar">
@@ -3380,10 +3380,10 @@
 		<screen name="screen_veh_l" display_name_loc="680" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="3" type="3" refresh_interval="1.07000005e+00" help_tag="veh_con_screen_vehicle_control">
 			<transform m00="-3.09086197e-08" m01="-3.09086161e-08" m02="-1.00000000e+00" m10="-4.99999940e-01" m11="8.66025269e-01" m12="-1.13133396e-08" m20="8.66025329e-01" m21="4.99999970e-01" m22="-4.22219593e-08" tx="-2.34883385e+01" ty="2.99605103e+01" tz="-2.70085583e+01"/>
 		</screen>
-		<screen name="screen_veh_top_l" display_name_loc="667" script_file_name="scripts/screen_ship_log.lua" body_index="0" seat_index="3" type="3" refresh_interval="4.00000000e+00" help_tag="ship_log_screen_log">
+		<screen name="screen_veh_top_l" display_name_loc="667" script_file_name="scripts/screen_ship_log.lua" body_index="0" seat_index="3" type="3" refresh_interval="8.00000000e+00" help_tag="ship_log_screen_log">
 			<transform m00="3.09086161e-08" m01="-3.09086197e-08" m02="-1.00000000e+00" m10="-7.07106709e-01" m11="-7.07106650e-01" m12="0.00000000e+00" m20="-7.07106709e-01" m21="7.07106769e-01" m22="-4.37113883e-08" tx="-2.35124187e+01" ty="3.13289280e+01" tz="-2.69034252e+01"/>
 		</screen>
-		<screen name="screen_veh_top_r" display_name_loc="720" script_file_name="scripts/screen_cctv.lua" body_index="0" seat_index="2" type="0" refresh_interval="2.50000000e+00" help_tag="cctv_screen">
+		<screen name="screen_veh_top_r" display_name_loc="720" script_file_name="scripts/screen_cctv.lua" body_index="0" seat_index="2" type="0" refresh_interval="4.00000000e+00" help_tag="cctv_screen">
 			<transform m00="3.09086161e-08" m01="-3.09086197e-08" m02="-1.00000000e+00" m10="-7.07106709e-01" m11="-7.07106650e-01" m12="0.00000000e+00" m20="-7.07106709e-01" m21="7.07106769e-01" m22="-4.37113883e-08" tx="-2.35106392e+01" ty="3.13277817e+01" tz="-2.90520782e+01"/>
 		</screen>
 		<screen name="screen_inv_r" display_name_loc="668" script_file_name="scripts/screen_vehicle_loadout.lua" body_index="0" seat_index="6" type="0" refresh_interval="4.00000000e+00" help_tag="veh_load_screen_loadout">
@@ -3398,19 +3398,19 @@
 		<screen name="screen_veh_ll" display_name_loc="669" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="8" type="3" refresh_interval="1.09000003e+00" help_tag="">
 			<transform m00="7.07106769e-01" m01="0.00000000e+00" m02="7.07106769e-01" m10="3.53756279e-01" m11="8.65859687e-01" m12="-3.53756279e-01" m20="-6.12255275e-01" m21="5.00286937e-01" m22="6.12255275e-01" tx="-3.10656242e+01" ty="2.99733772e+01" tz="-2.45621796e+01"/>
 		</screen>
-		<screen name="screen_com_top" display_name_loc="670" script_file_name="scripts/screen_damage.lua" body_index="0" seat_index="9" type="1" refresh_interval="2.00000000e+00" help_tag="repair_screen_repair">
+		<screen name="screen_com_top" display_name_loc="670" script_file_name="scripts/screen_damage.lua" body_index="0" seat_index="9" type="1" refresh_interval="4.19999981e+00" help_tag="repair_screen_repair">
 			<transform m00="7.07106709e-01" m01="0.00000000e+00" m02="7.07106709e-01" m10="4.99999940e-01" m11="-7.07106829e-01" m12="-4.99999940e-01" m20="5.00000000e-01" m21="7.07106709e-01" m22="-5.00000000e-01" tx="-3.04258060e+01" ty="3.14137402e+01" tz="-2.41866302e+01"/>
 		</screen>
-		<screen name="self_destruct_screen" display_name_loc="1361" script_file_name="scripts/screen_self_destruct.lua" body_index="0" seat_index="4294967295" type="0" refresh_interval="2.00000000e+00" help_tag="self_destruct">
+		<screen name="self_destruct_screen" display_name_loc="1361" script_file_name="scripts/screen_self_destruct.lua" body_index="0" seat_index="4294967295" type="0" refresh_interval="3.00000000e+00" help_tag="self_destruct">
 			<transform m00="-1.00000000e+00" m01="0.00000000e+00" m02="8.74227766e-08" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-8.74227766e-08" m21="0.00000000e+00" m22="-1.00000000e+00" tx="-2.78944836e+01" ty="2.88362427e+01" tz="-2.50638447e+01"/>
 		</screen>
-		<screen name="screen_carrier_camera" display_name_loc="687" script_file_name="scripts/screen_carrier_camera.lua" body_index="0" seat_index="7" type="5" refresh_interval="6.00000000e+00" help_tag="sup_wep_screen_scope">
+		<screen name="screen_carrier_camera" display_name_loc="687" script_file_name="scripts/screen_carrier_camera.lua" body_index="0" seat_index="7" type="5" refresh_interval="1.50000000e+01" help_tag="sup_wep_screen_scope">
 			<transform m00="7.06481099e-01" m01="1.52288377e-03" m02="-7.07730293e-01" m10="-2.79221445e-01" m11="9.19480860e-01" m12="-2.76750028e-01" m20="6.50322914e-01" m21="3.93132061e-01" m22="6.50020957e-01" tx="-2.53968811e+01" ty="2.98722382e+01" tz="-2.43030396e+01"/>
 		</screen>
 		<screen name="screen_inv_top_l" display_name_loc="719" script_file_name="scripts/screen_delivery_log.lua" body_index="0" seat_index="5" type="3" refresh_interval="1.60000000e+01" help_tag="ship_log_screen_delivery">
 			<transform m00="2.98023224e-08" m01="2.98023188e-08" m02="1.00000000e+00" m10="7.07106650e-01" m11="-7.07106888e-01" m12="-1.09084066e-08" m20="7.07106888e-01" m21="7.07106709e-01" m22="-4.51475088e-08" tx="-3.19156075e+01" ty="3.13865261e+01" tz="-2.83531380e+01"/>
 		</screen>
-		<screen name="screen_inv_top_r" display_name_loc="786" script_file_name="scripts/screen_currency.lua" body_index="0" seat_index="5" type="3" refresh_interval="8.00000000e+00" help_tag="ship_log_screen_currency">
+		<screen name="screen_inv_top_r" display_name_loc="786" script_file_name="scripts/screen_currency.lua" body_index="0" seat_index="5" type="3" refresh_interval="1.60000000e+01" help_tag="ship_log_screen_currency">
 			<transform m00="2.98023224e-08" m01="2.98023188e-08" m02="1.00000000e+00" m10="7.07106650e-01" m11="-7.07106888e-01" m12="-1.09084066e-08" m20="7.07106888e-01" m21="7.07106709e-01" m22="-4.51475088e-08" tx="-3.19156075e+01" ty="3.13865261e+01" tz="-2.75836449e+01"/>
 		</screen>
 		<screen name="screen_veh_captchair" display_name_loc="680" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="4" type="3" refresh_interval="1.13000000e+00" help_tag="veh_con_screen_vehicle_control">
