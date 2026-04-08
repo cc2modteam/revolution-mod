@@ -1427,6 +1427,11 @@ function begin()
     local screen_name = begin_get_screen_name()
     g_screen_name = screen_name
     g_is_big_display = screen_name == "holomap_screen2"
+
+    if screen_name == "sidebar_1" or screen_name == "sidebar_2" then
+        -- sidebar is allowed to be slow
+        g_revolution_disable_distant_screen_ticks = 12
+    end
 end
 
 function err_handler(arg)
@@ -1445,6 +1450,7 @@ end
 
 g_revolution_control_units = true
 g_revolution_control_drydock_mode = false
+g_revolution_disable_distant_screen_ticks = 4
 
 function update(screen_w, screen_h, ticks)
     if update_get_is_focus_local() then
@@ -1453,7 +1459,7 @@ function update(screen_w, screen_h, ticks)
 
     float_btn_update()
 
-    if ticks > 4 then
+    if ticks > g_revolution_disable_distant_screen_ticks then
         -- player too far away
         return
     end
