@@ -1571,17 +1571,16 @@ g_sidebar_highlighted_vehicle = -1
 
 
 function do_sidebar_screen(screen_w, screen_h, ticks)
-    local max_display = 7
+    local max_display = 10
 
-    if g_screen_name == "sidebar_1" or g_screen_name == "sidebar_2" or g_screen_name == "screen_veh_captchair" then
+    if g_screen_name == "sidebar_1" or g_screen_name == "screen_veh_captchair" then
         local tab_y = 0
         local sidebar_i = -1
 
         if g_screen_name == "screen_veh_captchair" then
             local sidebar1_hover_top = 15
-            local sidebar1_hover_bottom = 104
-            local sidebar2_hover_top = 115
-            local sidebar2_hover_bottom = 193
+            local sidebar1_hover_bottom = screen_h - 14
+
             local sidebar1_h = sidebar1_hover_bottom - sidebar1_hover_top
             local sidebar_rh = sidebar1_h / max_display
             if g_sidebar_mouse_y > sidebar1_hover_top then
@@ -1590,13 +1589,6 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                     local sidebar_y = g_sidebar_mouse_y - sidebar1_hover_top
                     sidebar_i = sidebar_y // sidebar_rh
                     tab_y = sidebar1_hover_top + (sidebar_i * sidebar_rh)
-                end
-            end
-            if g_sidebar_mouse_y > sidebar2_hover_top then
-                if g_sidebar_mouse_y < sidebar2_hover_bottom then
-                    local sidebar_y = g_sidebar_mouse_y - sidebar2_hover_top
-                    sidebar_i = max_display + sidebar_y // sidebar_rh
-                    tab_y = sidebar1_hover_top + 9 + (sidebar_i * sidebar_rh)
                 end
             end
         end
@@ -1694,29 +1686,20 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
         end
     end
 
-    if g_screen_name == "sidebar_1" or g_screen_name == "sidebar_2" then
-        local skip = 0
-
-        if g_screen_name == "sidebar_2" then
-            skip = max_display
-        end
-        local sidebar_left = 12
+    if g_screen_name == "sidebar_1" then
+        local sidebar_left = 80
         local sidebar_top = 4
         screen_w = screen_w - sidebar_left - 6
         screen_h = screen_h - sidebar_top
         update_ui_push_offset(sidebar_left, sidebar_top)
         update_ui_push_clip(0, 0, screen_w, screen_h)
-        if skip == 0 then
-            update_ui_rectangle(0, 0, screen_w, 13, color_button_bg)
-            update_ui_text(1, 2, update_get_loc(e_loc.upp_air), screen_w, 0, color_white, 0)
-        end
+        update_ui_rectangle(0, 0, screen_w, 13, color_button_bg)
+        update_ui_text(1, 2, update_get_loc(e_loc.upp_air), screen_w, 0, color_white, 0)
+
         -- for all active friendly aircraft, show distance to this carrier, fuel state and burn rate
 
         local vx = 2
         local vy = 14
-        if skip > 0 then
-            vy = 3
-        end
         local vh = 22
         local dark_grey = color8(3, 3, 3, 255)
         local color_low = color_status_bad
@@ -1726,14 +1709,14 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
         local display_index = 0
 
         for vid, data in pairs(g_sidebar_units) do
-            if display_index >= skip and display_count < max_display then
+            if display_count < max_display then
                 local name, icon, abbr = get_chassis_data_by_definition_index(data.def)
                 local dmg = data.dmg
                 update_ui_image(vx, vy, icon, color_white, 0)
-                update_ui_text(vx + 18, vy, string.format("%s %d", abbr, vid), screen_w, 0, color_grey_mid, 0)
+                update_ui_text(vx + 18, vy, string.format("%s%d", abbr, vid), screen_w, 0, color_grey_mid, 0)
                 -- distance
-                update_ui_text(vx + 18, vy + 11, string.format("%3.0f km", data.dist), screen_w, 0, color_grey_mid, 0)
-                update_ui_text(vx + 64, vy, string.format("%3.0f m/s", data.spd), screen_w, 0, color_grey_mid, 0)
+                update_ui_text(vx + 18, vy + 11, string.format("%3.0fkm", data.dist), screen_w, 0, color_grey_mid, 0)
+                update_ui_text(vx + 65, vy, string.format("%3.0fm/s", data.spd), screen_w, 0, color_grey_mid, 0)
                 local fuel_time_left = data.fuel_time_left
                 if fuel_time_left > 0 then
                     local mins = fuel_time_left // 60
@@ -1745,12 +1728,12 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                         if mins < 4 then
                             fuel_color = color_status_orange
                         end
-                        update_ui_text(vx + 64, vy + 11, string.format("%2.0f%% %2.0fmins", data.fuel * 100, mins), 120, 0, fuel_color, 0)
+                        update_ui_text(vx + 55, vy + 11, string.format("%2.0f%% %2.0fmins", data.fuel * 100, mins), 120, 0, fuel_color, 0)
                         local est_range = data.est_range
                         if est_range > 1 then
-                            update_ui_text(vx + 130, vy, string.format("%2.0fkm", est_range), 120, 0, fuel_color, 0)
+                            update_ui_text(vx + 110, vy, string.format("%2.0fkm", est_range), 120, 0, fuel_color, 0)
                         else
-                            update_ui_text(vx + 130, vy, "--", 24, 0, color_grey_mid, 0)
+                            update_ui_text(vx + 110, vy, "--", 24, 0, color_grey_mid, 0)
                         end
                     end
                 end
