@@ -1108,6 +1108,21 @@ function render_selection_waypoint(screen_w, screen_h)
                             g_is_ignore_tap = 1
                         end
                     end
+
+                    if ui:list_item("RACE TRACK HERE", true) then
+                        rev_create_orbit_route(selected_vehicle, selected_waypoint:get_position_xz(selected_waypoint:get_id()), "racetrack", 3500)
+                        rev_set_vehicle_waypoint_altitudes(selected_vehicle, 1200)
+                        g_selection:clear()
+                        g_is_ignore_tap = 1
+                    end
+
+                    if ui:list_item("ORBIT HERE", true) then
+                        rev_create_orbit_route(selected_vehicle, selected_waypoint:get_position_xz(selected_waypoint:get_id()), "orbit", 3500)
+                        rev_set_vehicle_waypoint_altitudes(selected_vehicle, 1200)
+                        g_selection:clear()
+                        g_is_ignore_tap = 1
+                    end
+
                 end
             ui:end_window()
         else

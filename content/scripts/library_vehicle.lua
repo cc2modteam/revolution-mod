@@ -3576,6 +3576,31 @@ function rev_set_vehicle_waypoint_altitudes(vehicle, altitdue)
     end
 end
 
+function rev_create_orbit_route(vehicle, start_pos, kind, radius)
+    local middle = start_pos
+    local ne = vec2(middle:x() + radius, middle:y() - radius)
+    local se = vec2(middle:x() + radius, middle:y() + radius)
+    local nw = vec2(middle:x() - radius, middle:y() - radius)
+    local sw = vec2(middle:x() - radius, middle:y() + radius)
+    vehicle:clear_waypoints()
+    vehicle:clear_attack_target()
+
+    if kind == "racetrack" then
+        local c = vehicle:add_waypoint(middle:x(), middle:y())
+        vehicle:add_waypoint(ne:x(), ne:y())
+        vehicle:add_waypoint(se:x(), se:y())
+        vehicle:add_waypoint(nw:x(), nw:y())
+        local l = vehicle:add_waypoint(sw:x(), sw:y())
+        vehicle:set_waypoint_repeat(l, c)
+    elseif kind == "orbit" then
+        local c = vehicle:add_waypoint(ne:x(), ne:y())
+        vehicle:add_waypoint(se:x(), se:y())
+        vehicle:add_waypoint(sw:x(), sw:y())
+        local l = vehicle:add_waypoint(nw:x(), nw:y())
+        vehicle:set_waypoint_repeat(l, c)
+    end
+end
+
 get_internal_fuel_sizes = {
     [e_game_object_type.chassis_air_wing_light] = 800,
     [e_game_object_type.chassis_air_rotor_light] = 400,
