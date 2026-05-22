@@ -274,6 +274,10 @@ function update_barge_cap(ticks)
 
         g_barge_count = g_barge_count + barge_building
 
+        if g_rev_barge_cap_min then
+            g_barge_max = math.max(g_rev_barge_cap_min, g_barge_max)
+        end
+
     end
 end
 
