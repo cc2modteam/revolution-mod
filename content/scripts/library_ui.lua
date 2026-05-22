@@ -1,5 +1,7 @@
 local math_floor = math.floor
 
+g_revolution_mod_name = "Revolution"
+
 lib_imgui = {
     create_ui = function(self)
         local o = {}

@@ -1213,7 +1213,7 @@ function _update(screen_w, screen_h, ticks)
 
             if get_is_spectator_mode() then
                 update_ui_text_mini(screen_w / 9, screen_h - 23,
-                        "Revolution Spectator Studio TM", 400, 0, color_grey_mid, 0)
+                        g_revolution_mod_name .. " Spectator Studio TM", 400, 0, color_grey_mid, 0)
             else
                 update_ui_text(screen_w / 3, screen_h - 29,
                         string.format("ACC %s",
@@ -2662,7 +2662,7 @@ function render_map_scale(screen_w, screen_h)
     end
 end
 
-g_revolution_welcome = "Carrier Command 2 + Revolution Mod"
+g_revolution_welcome = "Carrier Command 2 + " + g_revolution_mod_name
 
 
 local torpedo_ship_history = {}

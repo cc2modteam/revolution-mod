@@ -1697,7 +1697,7 @@ g_rev_mods = {
 
 }
 
-g_rev_ver_str = string.format("Revolution %s.%s.%s", g_rev_major, g_rev_minor, g_rev_patch)
+g_rev_ver_str = string.format("%s %s.%s.%s", g_revolution_mod_name, g_rev_major, g_rev_minor, g_rev_patch)
 
 function get_island_name(tile)
     return island_name_get(tile:get_id())
