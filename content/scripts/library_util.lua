@@ -4,6 +4,8 @@ local abs = math.abs
 local math_max = math.max
 local math_min = math.min
 
+g_revolution_mod_name = "Evolution"
+
 color_white = color8(255, 255, 255, 255)
 color_black = color8(0, 0, 0, 255)
 color_grey_dark = color8(16, 16, 16, 255)
