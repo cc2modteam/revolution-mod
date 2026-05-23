@@ -167,7 +167,7 @@ function _update(screen_w, screen_h, ticks)
 
         if false then
 
-            ui:header(g_revolution_mod_name .. " Settings")
+            ui:header(get_main_mod_name() .. " Settings")
             if game_seconds < lock_game_settings_after then
                 ui:text(string.format("Lock Settings in %d sec", lock_game_settings_after - game_seconds))
             else

@@ -4,7 +4,11 @@ local abs = math.abs
 local math_max = math.max
 local math_min = math.min
 
-g_revolution_mod_name = "Evolution"
+g_revolution_mod_name = "Revolution"
+
+function get_main_mod_name()
+    return g_revolution_mod_name
+end
 
 color_white = color8(255, 255, 255, 255)
 color_black = color8(0, 0, 0, 255)
@@ -1699,7 +1703,7 @@ g_rev_mods = {
 
 }
 
-g_rev_ver_str = string.format("%s %s.%s.%s", g_revolution_mod_name, g_rev_major, g_rev_minor, g_rev_patch)
+g_rev_ver_str = string.format("%s %s.%s.%s", get_main_mod_name(), g_rev_major, g_rev_minor, g_rev_patch)
 
 function get_island_name(tile)
     return island_name_get(tile:get_id())

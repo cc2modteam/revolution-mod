@@ -1206,14 +1206,14 @@ function _update(screen_w, screen_h, ticks)
                 if self and self:get() then
                     if self:get_attached_parent_id() ~= 0 then
                         update_ui_text(32, 13, get_ship_name(update_get_screen_vehicle()) .. " DOCKED", 480, 0, color_white, 0)
-                        update_ui_text(32, 13 * 2, g_revolution_welcome, 480, 0, color_white, 0)
+                        update_ui_text(32, 13 * 2, g_revolution_welcome .. " " .. get_main_mod_name(), 480, 0, color_white, 0)
                     end
                 end
             end
 
             if get_is_spectator_mode() then
                 update_ui_text_mini(screen_w / 9, screen_h - 23,
-                        g_revolution_mod_name .. " Spectator Studio TM", 400, 0, color_grey_mid, 0)
+                        get_main_mod_name() .. " Spectator Studio TM", 400, 0, color_grey_mid, 0)
             else
                 update_ui_text(screen_w / 3, screen_h - 29,
                         string.format("ACC %s",
@@ -2662,7 +2662,7 @@ function render_map_scale(screen_w, screen_h)
     end
 end
 
-g_revolution_welcome = "Carrier Command 2 + " + g_revolution_mod_name
+g_revolution_welcome = "Carrier Command 2"
 
 
 local torpedo_ship_history = {}

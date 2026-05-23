@@ -2112,14 +2112,14 @@ function custom_extend_man_pages()
 
     table.insert(g_man_pages,
             {
-                title = g_revolution_mod_name,
+                title = get_main_mod_name(),
                 content = {
                     { "h", "Next level PvP and PvE"},
                     g_rev_ver_str .. " " ..
                             "brings you more depth in single-player, PvE and PvP games.",
                     { "s", "Website", "Find out more at https://cc2maps.com"},
                     { "h", update_get_loc(e_loc.upp_credits)},
-                    g_revolution_mod_name .. " would not be what it is today without the work and support of so many others.",
+                    get_main_mod_name() .. " would not be what it is today without the work and support of so many others.",
                     { "b", atlas_icons.help_button_red, "UI Enhancher", "QuantX's original UI mod"},
                     { "b", atlas_icons.help_button_blue, "GRNO", "Grim Reapers Naval Ops"},
                     { "ic16", atlas_icons.map_icon_ship, color_friendly, "Cylindrical Bobcat" },
