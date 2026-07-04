@@ -3453,6 +3453,29 @@ function insert_sea_mule_options(vehicle)
                                 e_game_object_type.attachment_turret_robot_dog_capsule,
                                 e_game_object_type.attachment_camera,
                             },
+                            [3] = {
+                                e_game_object_type.attachment_fuel_tank_plane,
+                                e_game_object_type.attachment_logistics_container_20mm,
+                                e_game_object_type.attachment_logistics_container_30mm,
+                                e_game_object_type.attachment_logistics_container_40mm,
+                                e_game_object_type.attachment_logistics_container_100mm,
+                                e_game_object_type.attachment_logistics_container_120mm,
+                                e_game_object_type.attachment_logistics_container_fuel,
+                                e_game_object_type.attachment_logistics_container_ir_missile,
+                                e_game_object_type.attachment_deployable_droid,
+                            },
+                            [4] = {
+                                e_game_object_type.attachment_fuel_tank_plane,
+                                e_game_object_type.attachment_logistics_container_20mm,
+                                e_game_object_type.attachment_logistics_container_30mm,
+                                e_game_object_type.attachment_logistics_container_40mm,
+                                e_game_object_type.attachment_logistics_container_100mm,
+                                e_game_object_type.attachment_logistics_container_120mm,
+                                e_game_object_type.attachment_logistics_container_fuel,
+                                e_game_object_type.attachment_logistics_container_ir_missile,
+                                e_game_object_type.attachment_deployable_droid,
+                            }
+
                         }
                     }
                     g_revolution_attachment_defaults[e_game_object_type.chassis_land_wheel_mule] = mule

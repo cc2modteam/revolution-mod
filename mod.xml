@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Revolution 1.6-9" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Dr-RazdalByte + Others" description="
+<data name="Revolution 1.6-10" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Dr-RazdalByte + Others" description="
 
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other features.
 
 v1.6 new features:
 [list]
+[*] Revamped Mule, can carry weapons, passengers and extra internal fuel.
 [*] Control screens can create markers and preset patrol paths.
 [*] Captain's extra aircraft display.
 [*] Multi-unit select in control screens (hold R and drag a box)
@@ -16,7 +17,6 @@ v1.6 new features:
 [*] Helm and Radar screens are HD, Helm HUD and VLS as standard.
 [*] QoL changes to the inventory screen map display/tooltips
 [*] Barges and Virus bots now actually have names.
-[*] Removed the EW pod and EWar mechanic
 [/list]
 
 v1.5:
