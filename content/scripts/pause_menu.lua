@@ -3357,6 +3357,7 @@ function get_qrcode(str)
     local x = qrencode()
     local ok, tab = x.qrcode(str)
     g_codes[str] = tab
+    return tab
 end
 
 
