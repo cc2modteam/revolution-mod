@@ -95,50 +95,35 @@
 		<mesh file="meshes/vehicles/vehicle_lods/lifeboat_low.mesh" name="lod 1" lod="1" body="0" is_paint_dirt="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.05700004e+00" tz="-3.21999997e-01"/>
 		</mesh>
+		<mesh file="meshes/vehicles/attachments/ir_detector.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.10299802e+00" ty="8.42265785e-01" tz="1.94887593e-01"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/terminal.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="2.66075039e+00" ty="1.60533458e-01" tz="-4.75739330e-01"/>
+		</mesh>
 	</meshes>
 	<wheels/>
 	<attachments>
 		<attachment name="vehicle_control" type="0">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
-					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
-					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
-					   tx="0" ty="0" tz="0"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
 		</attachment>
 		<attachment name="vehicle_control" type="0">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
-					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
-					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
-					   tx="0" ty="0" tz="0"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
 		</attachment>
 		<attachment name="vehicle_control" type="0">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
-					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
-					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
-					   tx="0" ty="0" tz="0"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
 		</attachment>
 		<attachment name="vehicle_control" type="0">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
-					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
-					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
-					   tx="0" ty="0" tz="0"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
 		</attachment>
 		<attachment name="vehicle_control" type="0">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
-					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
-					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
-					   tx="0" ty="0" tz="0"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
 		</attachment>
 		<attachment name="vehicle_control" type="0">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
-					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
-					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
-					   tx="0" ty="0" tz="0"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
 		</attachment>
 		<attachment name="vehicle_control" type="0">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00"
-					   m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00"
-					   m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00"
-					   tx="0" ty="0" tz="0"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
 		</attachment>
 	</attachments>
 	<force_emitters>
@@ -196,34 +181,38 @@
 		</button_panel>
 	</button_panels>
 	<buttons>
-		<button name="button_deploy" display_name_loc="455" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="4">
+		<button name="button_deploy" display_name_loc="455" button_panel_index="0" button_cover_index="4294967295" type="4" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.00563228e-01" ty="4.41489043e-03" tz="1.17570691e-01"/>
 		</button>
-		<button name="button_start" display_name_loc="445" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="1">
+		<button name="button_start" display_name_loc="445" button_panel_index="0" button_cover_index="4294967295" type="1" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-5.49823344e-01" ty="-1.97436326e-04" tz="1.20004907e-01"/>
 		</button>
-		<button name="button_stop" display_name_loc="446" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="1">
+		<button name="button_stop" display_name_loc="446" button_panel_index="0" button_cover_index="4294967295" type="1" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-3.87801677e-01" ty="-1.50890485e-03" tz="1.20192036e-01"/>
 		</button>
-		<button name="button_lights" display_name_loc="514" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="2">
+		<button name="button_lights" display_name_loc="514" button_panel_index="0" button_cover_index="4294967295" type="2" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000012e+00" m12="-2.18556959e-08" m20="0.00000000e+00" m21="2.18556959e-08" m22="1.00000012e+00" tx="4.04998027e-02" ty="3.82639887e-03" tz="-3.82639887e-03"/>
 		</button>
-		<button name="button_lights_ext" display_name_loc="515" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="2">
+		<button name="button_lights_ext" display_name_loc="515" button_panel_index="0" button_cover_index="4294967295" type="2" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000012e+00" m12="-2.18556959e-08" m20="0.00000000e+00" m21="2.18556959e-08" m22="1.00000012e+00" tx="3.90247405e-02" ty="-3.16411810e-04" tz="-1.39015719e-01"/>
 		</button>
-		<button name="button_reverse" display_name_loc="447" body_index="0" button_panel_index="0" button_cover_index="4294967295" type="2">
+		<button name="button_reverse" display_name_loc="447" button_panel_index="0" button_cover_index="4294967295" type="2" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-2.46613652e-01" ty="4.41489043e-03" tz="1.17570691e-01"/>
 		</button>
 	</buttons>
 	<indicators/>
+	<achievements/>
 	<dials>
-		<dial name="dial_fuel" display_name_loc="396" body_index="0" button_panel_index="0" type="0">
+		<dial name="dial_fuel" display_name_loc="396" button_panel_index="0" type="0">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000012e+00" m12="-2.18556959e-08" m20="0.00000000e+00" m21="2.18556959e-08" m22="1.00000012e+00" tx="-1.71771586e-01" ty="1.17269647e-03" tz="-7.09371492e-02"/>
 		</dial>
 	</dials>
 	<screens>
-		<screen name="screen_map" display_name_loc="516" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="4294967295" controls="Q: Exit" type="3">
+		<screen name="screen_map" display_name_loc="516" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="4294967295" type="3" refresh_interval="1.00000000e+00" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="7.07106769e-01" m12="-7.07106769e-01" m20="0.00000000e+00" m21="7.07106769e-01" m22="7.07106769e-01" tx="3.79076362e-01" ty="1.47981906e+00" tz="1.57684195e+00"/>
+		</screen>
+		<screen name="screen" display_name_loc="0" script_file_name="scripts/pause_menu.lua" body_index="0" seat_index="4294967295" type="0" refresh_interval="2.00000000e+00" help_tag="">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="6.59859061e-01" m12="-7.51389384e-01" m20="0.00000000e+00" m21="7.51389384e-01" m22="6.59859061e-01" tx="2.69700336e+00" ty="1.37340939e+00" tz="-5.57567060e-01"/>
 		</screen>
 	</screens>
 	<doors/>
@@ -236,8 +225,10 @@
 	</foam_emitters>
 	<particle_emitters/>
 	<sensors/>
+	<splash_emitters/>
 	<holomaps/>
 	<damage_zones/>
+	<audio_zones/>
 	<nav_meshes/>
 </data>
 

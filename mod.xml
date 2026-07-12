@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data name="Revolution 1.6-10" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Dr-RazdalByte + Others" description="
+<data name="Revolution 1.6-11" author="Thumblegudget, Bredroll, QuantX, NexusQuille, Dr-RazdalByte + Others" description="
 
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other features.
 
 v1.6 new features:
 [list]
+[*] new 5 minute autosave feature!
 [*] Revamped Mule, can carry weapons, passengers and extra internal fuel.
 [*] Control screens can create markers and preset patrol paths.
 [*] Captain's extra aircraft display.
