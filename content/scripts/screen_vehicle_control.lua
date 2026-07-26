@@ -1498,7 +1498,22 @@ g_revolution_control_units = true
 g_revolution_control_drydock_mode = false
 g_revolution_disable_distant_screen_ticks = 4
 
+g_real_update_get_logic_tick = nil
+g_current_tick_number = 0
+function faster_logic_tick()
+    if g_current_tick_number == 0 then
+        g_current_tick_number = g_real_update_get_logic_tick()
+    end
+    return g_current_tick_number
+end
+
 function update(screen_w, screen_h, ticks)
+    g_current_tick_number = 0
+    if g_real_update_get_logic_tick == nil then
+        g_real_update_get_logic_tick = update_get_logic_tick
+        update_get_logic_tick = faster_logic_tick
+    end
+
     if update_get_is_focus_local() then
         g_last_input_tick = update_get_logic_tick()
     end
