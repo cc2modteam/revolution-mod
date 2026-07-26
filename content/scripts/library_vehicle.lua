@@ -1231,16 +1231,35 @@ function get_nearest_hostile_aew_radar(vid)
     return nil
 end
 
+g_iter_radar_cache = {}
+g_iter_radar_cache_tick = 0
 function iter_radars(func)
     if func == nil then
         return
     end
+    local cache = g_iter_radar_cache
+    local now = update_get_logic_tick()
+    local do_cache = false
+    if now > g_iter_radar_cache_tick then
+        cache = {}
+        do_cache = true
+    end
     for i, item in pairs(g_all_radars) do
         local radar_id = item.id
-        local radar = update_get_map_vehicle_by_id(radar_id)
+        local radar
+        if do_cache then
+            radar = update_get_map_vehicle_by_id(radar_id)
+            cache[radar_id] = VProxy_get(radar)
+        else
+            radar = cache[radar_id]
+        end
         if radar and radar:get() then
             func(radar)
         end
+    end
+    if do_cache then
+        g_iter_radar_cache_tick = now
+        g_iter_radar_cache = cache
     end
 end
 
