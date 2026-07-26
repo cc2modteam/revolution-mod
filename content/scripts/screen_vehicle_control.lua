@@ -3610,6 +3610,11 @@ function _update(screen_w, screen_h, ticks)
 
             render_cursor_info(screen_w, screen_h, drag_start_pos)
             render_map_scale(screen_w, screen_h)
+            -- clock
+
+            update_ui_text(screen_w - 70, screen_h - 40,
+                    format_time(update_get_logic_tick() // 30)
+            , 60, 2, color_grey_dark, 0)
 
             local sample_x, sample_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, 256, 256)
 
