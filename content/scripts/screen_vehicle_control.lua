@@ -1235,13 +1235,13 @@ function render_selection_map(screen_w, screen_h)
             local clicked = false
             local value = get_marker_value(screen_team, mi)
             if is_waypoint_value_enabled(value) then
-                if ui:list_item(string.format("Remove Marker %s", mname), true) then
+                if ui:list_item(string_format("Remove Marker %s", mname), true) then
                     unset_marker_waypoint(screen_team, mi)
                     g_setting_marker_control_screen = nil
                     clicked = true
                 end
             else
-                if ui:list_item(string.format("Set Marker %s", mname), true) then
+                if ui:list_item(string_format("Set Marker %s", mname), true) then
                     g_setting_marker_control_screen = mi
                     clicked = true
                 end
@@ -1774,10 +1774,10 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                 local name, icon, abbr = get_chassis_data_by_definition_index(data.def)
                 local dmg = data.dmg
                 update_ui_image(vx, vy, icon, color_white, 0)
-                update_ui_text(vx + 18, vy, string.format("%s%d", abbr, vid), screen_w, 0, color_grey_mid, 0)
+                update_ui_text(vx + 18, vy, string_format("%s%d", abbr, vid), screen_w, 0, color_grey_mid, 0)
                 -- distance
-                update_ui_text(vx + 18, vy + 11, string.format("%3.0fkm", data.dist), screen_w, 0, color_grey_mid, 0)
-                update_ui_text(vx + 65, vy, string.format("%3.0fm/s", data.spd), screen_w, 0, color_grey_mid, 0)
+                update_ui_text(vx + 18, vy + 11, string_format("%3.0fkm", data.dist), screen_w, 0, color_grey_mid, 0)
+                update_ui_text(vx + 65, vy, string_format("%3.0fm/s", data.spd), screen_w, 0, color_grey_mid, 0)
                 local fuel_time_left = data.fuel_time_left
                 if fuel_time_left > 0 then
                     local mins = fuel_time_left // 60
@@ -1789,10 +1789,10 @@ function do_sidebar_screen(screen_w, screen_h, ticks)
                         if mins < 4 then
                             fuel_color = color_status_orange
                         end
-                        update_ui_text(vx + 55, vy + 11, string.format("%2.0f%% %2.0fmins", data.fuel * 100, mins), 120, 0, fuel_color, 0)
+                        update_ui_text(vx + 55, vy + 11, string_format("%2.0f%% %2.0fmins", data.fuel * 100, mins), 120, 0, fuel_color, 0)
                         local est_range = data.est_range
                         if est_range > 1 then
-                            update_ui_text(vx + 110, vy, string.format("%2.0fkm", est_range), 120, 0, fuel_color, 0)
+                            update_ui_text(vx + 110, vy, string_format("%2.0fkm", est_range), 120, 0, fuel_color, 0)
                         else
                             update_ui_text(vx + 110, vy, "--", 24, 0, color_grey_mid, 0)
                         end
@@ -2179,34 +2179,37 @@ function _update(screen_w, screen_h, ticks)
 
                     local screen_pos_x, screen_pos_y = get_screen_from_world(island_position:x(), island_position:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
-                    local island_capture = island:get_team_capture()
-                    local island_team = island:get_team_control()
-                    local island_capture_progress = island:get_team_capture_progress()
-                    local team_color = get_island_team_color(island_capture)
-                    if not visible then
-                        team_color = g_island_color_unknown
-                    end
+                    if screen_pos_x > -10 and screen_pos_x < screen_w + 10 and screen_pos_y > -10 and screen_pos_y < screen_h + 10 then
 
-                    if update_get_is_focus_local() and rev_show_island_name(island:get_id()) then
-                        local island_name = get_island_name(island)
-                        -- <  66000 full alpha
-                        -- > 120000 0 alpha
-                        if g_camera_size < 120000 then
-                            local scaled_alpha = math_ceil(255 * (120000 - g_camera_size) / (120000 - 66000))
-                            local island_col = color8(team_color:r(), team_color:g(), team_color:b(), math_min(scaled_alpha, team_color:a()))
-                            local island_name_size = update_ui_get_text_size_mini(island_name)
-                            update_ui_text_mini(screen_pos_x - island_name_size / 2.1,
-                                    screen_pos_y - 15,
-                                    island_name, island_name_size, 1, island_col)
+                        local island_capture = island:get_team_capture()
+                        local island_team = island:get_team_control()
+                        local island_capture_progress = island:get_team_capture_progress()
+                        local team_color = get_island_team_color(island_capture)
+                        if not visible then
+                            team_color = g_island_color_unknown
                         end
-                    end
 
-                    if rev_show_island_icon(island:get_id()) then
-                        if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
-                            local color = iff(g_blink_timer > 15, team_color, island_color)
-                            update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, color, 0)
-                        else
-                            update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, island_color, 0)
+                        if update_get_is_focus_local() and rev_show_island_name(island:get_id()) then
+                            local island_name = get_island_name(island)
+                            -- <  66000 full alpha
+                            -- > 120000 0 alpha
+                            if g_camera_size < 120000 then
+                                local scaled_alpha = math_ceil(255 * (120000 - g_camera_size) / (120000 - 66000))
+                                local island_col = color8(team_color:r(), team_color:g(), team_color:b(), math_min(scaled_alpha, team_color:a()))
+                                local island_name_size = update_ui_get_text_size_mini(island_name)
+                                update_ui_text_mini(screen_pos_x - island_name_size / 2.1,
+                                        screen_pos_y - 15,
+                                        island_name, island_name_size, 1, island_col)
+                            end
+                        end
+
+                        if rev_show_island_icon(island:get_id()) then
+                            if visible and island_capture ~= island_team and island_capture ~= -1 and island_capture_progress > 0 then
+                                local color = iff(g_blink_timer > 15, team_color, island_color)
+                                update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, color, 0)
+                            else
+                                update_ui_image(screen_pos_x - 4, screen_pos_y - 4, atlas_icons.map_icon_island, island_color, 0)
+                            end
                         end
                     end
                 end
@@ -2432,10 +2435,9 @@ function _update(screen_w, screen_h, ticks)
 
                     if def == e_game_object_type.chassis_sea_ship_light or def == e_game_object_type.chassis_sea_ship_heavy then
 
-                        for x, vehicle in pairs(get_vehicles_table()) do
-                            if vehicle:get_definition_index() == e_game_object_type.chassis_carrier and vehicle:get_team() == screen_team then
+                        for x, vehicle in pairs(get_carriers_table()) do
+                            if vehicle:get_team() == screen_team then
                                 local vehicle_pos_xz = vehicle:get_position_xz()
-
                                 render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), 500, color8(0, 255, 128, 8))
                             end
                         end
@@ -2483,10 +2485,9 @@ function _update(screen_w, screen_h, ticks)
 
                     if weapon_radius_vehicle:get_team() == screen_team then
                         if def == e_game_object_type.chassis_sea_ship_light or def == e_game_object_type.chassis_sea_ship_heavy then
-                            for x, vehicle in pairs(get_vehicles_table()) do
-                                if vehicle:get_definition_index() == e_game_object_type.chassis_carrier and vehicle:get_team() == screen_team then
+                            for x, vehicle in pairs(get_carriers_table()) do
+                                if vehicle:get_team() == screen_team then
                                     local vehicle_pos_xz = vehicle:get_position_xz()
-
                                     render_weapon_radius(vehicle_pos_xz:x(), vehicle_pos_xz:y(), 500, color8(0, 255, 128, 8))
                                 end
                             end
@@ -2506,8 +2507,8 @@ function _update(screen_w, screen_h, ticks)
 
                 if destroyed_vehicle:get() then
                     local destroyed_vehicle_position = destroyed_vehicle:get_position_xz(i)
-                    local destroyed_vehicle_team_id = destroyed_vehicle:get_team(i)
-                    local destroyed_vehicle_factor = destroyed_vehicle:get_factor(i)
+                    --local destroyed_vehicle_team_id = destroyed_vehicle:get_team(i)
+                    --local destroyed_vehicle_factor = destroyed_vehicle:get_factor(i)
 
                     screen_pos_x, screen_pos_y = get_screen_from_world(destroyed_vehicle_position:x(), destroyed_vehicle_position:y(), g_camera_pos_x, g_camera_pos_y, g_camera_size, screen_w, screen_h)
 
