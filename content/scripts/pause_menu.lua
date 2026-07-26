@@ -267,7 +267,9 @@ function do_autosave()
     update_ui_text(3, 8, "autosave enabled", 128, 0, color_white, 0)
     update_ui_text(3, 25, when, 128, 0, color_white, 0)
     update_ui_text(3, 45, string.format("%d sec ago", elapsed), 128, 0, color_white, 0)
-    print("# autosave completed " .. when)
+    if last_autosave_time == now then
+        print("# autosave completed " .. when)
+    end
 end
 
 function update(screen_w, screen_h, delta_time)
