@@ -268,7 +268,7 @@ function _update(screen_w, screen_h, ticks)
 
         -- mini toolbar
         local attached_vehicle = update_get_map_vehicle_by_id(this_vehicle:get_attached_vehicle_id(g_selected_bay_index))
-        if attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
+        if (update_get_active_input_type() ~= e_active_input.gamepad) and attached_vehicle:get() and attached_vehicle:get_dock_state() == e_vehicle_dock_state.docked then
             local attached_vehicle_def = attached_vehicle:get_definition_index()
             local toolbar_w = 64
             local bs = 8
