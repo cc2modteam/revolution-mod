@@ -869,7 +869,7 @@
 		<vehicle_attachment name="vehicle_attachment lifeboat1" type="2">
 			<transform m00="-3.89309811e-08" m01="-1.98762216e-08" m02="1.00000000e+00" m10="-4.54714924e-01" m11="8.90637040e-01" m12="0.00000000e+00" m20="-8.90637040e-01" m21="-4.54714924e-01" m22="-4.37113883e-08" tx="-2.86176128e+01" ty="2.26638927e+01" tz="-2.82340012e+01"/>
 		</vehicle_attachment>
-		<vehicle_attachment name="barge_slot" type="0">
+		<vehicle_attachment name="barge_slot" type="2">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="-9.17180729e+00" tz="0.00000000e+00"/>
 		</vehicle_attachment>
 	</vehicle_attachments>
