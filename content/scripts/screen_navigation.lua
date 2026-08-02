@@ -844,7 +844,51 @@ function helm_hud_pos_to_screen(hdg, pos, pos_b, frust_len)
     return nil
 end
 
+g_launch_tick = 0
+g_launched = false
+
 function helm_hud_update_prelaunch(vehicle, screen_w, screen_h)
+    local now = update_get_logic_tick()
+    local crrs = get_player_carrier_count()
+    local ready_crrs = get_player_carrier_ready_count()
+    if crrs == ready_crrs then
+        if g_launch_tick == 0 and not g_launched then
+            g_launch_tick = now + 300
+        end
+    else
+        g_launch_tick = 0
+    end
+
+    if g_launch_tick > 0 then
+        local remain_ticks = g_launch_tick - now
+
+        if remain_ticks <= 0 then
+            for _, v in pairs(get_carriers_table()) do
+                if v and v:get() then
+                    update_launch_carrier(v:get_id())
+                end
+            end
+            g_launch_tick = 0
+            g_launched = true
+        end
+
+        if remain_ticks > 0 then
+            local remain_sec = remain_ticks / 30.0
+            local remain = string.format("%02.1f s", remain_sec);
+            update_ui_text_scale(0, screen_h / 3,
+                    remain,
+                    screen_w, 1, color_green, 0, 4)
+            if remain_ticks % 30 > 15 then
+                update_ui_text_scale(0, 2.3 * (screen_h / 4),
+                        "LAUNCHING",
+                        screen_w, 1, color_green, 0, 5)
+            end
+        end
+
+        return
+    end
+
+
     local crr_name = get_ship_name(vehicle)
     update_ui_text_scale(0, screen_h / 6,
             string.format("%s %s", update_get_loc(e_loc.upp_crr), crr_name),
@@ -860,31 +904,31 @@ function helm_hud_update_prelaunch(vehicle, screen_w, screen_h)
 
     -- find all the carriers with human crew and show ready/launch states
 
-    local vehicle_count = update_get_map_vehicle_count()
-    for i = 0, vehicle_count - 1 do
-        local v = update_get_map_vehicle_by_index(i)
+    for _, v in pairs(get_carriers_table()) do
         if v and v:get() then
-            if v:get_definition_index() == e_game_object_type.chassis_carrier then
-                -- is a carrier
-                local v_team = v:get_team()
-                local docked = get_vehicle_docked(v)
-                local vname = get_ship_name(v)
-                update_ui_rectangle(cx -1, cy -1, screen_w - 22, 10, color_button_bg)
-                update_ui_text(cx, cy, string.format("%d %s", v_team, vname), screen_w, 0, update_get_team_color(v_team), 0)
-                if get_team_has_humans(v_team) then
-                    local ready = rev_get_team_ready(v_team)
-                    if ready then
-                        update_ui_text(screen_w // 3, cy, update_get_loc(e_loc.upp_ready), screen_w, 0, color_status_dark_red, 0)
-                    end
+            -- is a carrier
+            local v_team = v:get_team()
+            local docked = get_vehicle_docked(v)
+            local vname = get_ship_name(v)
+            local manned = false
+            update_ui_rectangle(cx -1, cy -1, screen_w - 22, 10, color_button_bg)
+            update_ui_text(cx, cy, string.format("%d %s", v_team, vname), screen_w, 0, update_get_team_color(v_team), 0)
+            if get_team_has_humans(v_team) then
+                manned = true
+                local ready = rev_get_team_ready(v_team)
+                if ready then
+                    update_ui_text(screen_w // 3, cy, update_get_loc(e_loc.upp_ready), screen_w, 0, color_status_dark_red, 0)
                 end
-                if docked then
-                    update_ui_text( 2 * screen_w // 3, cy, update_get_loc(e_loc.upp_docked), screen_w, 0, color_white, 0)
-                end
-                cy = cy + 11
             end
+            if docked then
+                if not manned then
+                    update_ui_text(screen_w // 3, cy, update_get_loc(e_loc.upp_ready), screen_w, 0, color_status_dark_green, 0)
+                end
+                update_ui_text( 2 * screen_w // 3, cy, update_get_loc(e_loc.upp_docked), screen_w, 0, color_white, 0)
+            end
+            cy = cy + 11
         end
     end
-
 end
 
 function helm_hud_update(screen_w, screen_h, ticks)
@@ -1023,5 +1067,32 @@ function helm_hud_update(screen_w, screen_h, ticks)
         end
 
     end
+end
 
+function get_player_carrier_count()
+    local count = 0
+    for _, v in pairs(get_carriers_table()) do
+        if v and v:get() then
+            local v_team = v:get_team()
+            if get_team_has_humans(v_team) then
+                count = count + 1
+            end
+        end
+    end
+    return count
+end
+
+function get_player_carrier_ready_count()
+        local count = 0
+    for _, v in pairs(get_carriers_table()) do
+        if v and v:get() then
+            local v_team = v:get_team()
+            if get_team_has_humans(v_team) then
+                if rev_get_team_ready(v_team) then
+                    count = count + 1
+                end
+            end
+        end
+    end
+    return count
 end
