@@ -1697,7 +1697,7 @@ end
 
 g_rev_major = 1
 g_rev_minor = 6
-g_rev_patch = 17
+g_rev_patch = 18
 
 g_rev_mods = {
 

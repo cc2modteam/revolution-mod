@@ -4469,6 +4469,10 @@ g_sidebar_mouse_y = -1
 
 function input_pointer(is_hovered, x, y)
 
+    if g_viewing_vehicle_id and g_viewing_vehicle_id > 0 then
+        return
+    end
+
     if call_func_override("screen_vehicle_control__input_pointer", is_hovered, x, y) then
         return
     end

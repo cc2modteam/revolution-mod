@@ -2139,20 +2139,22 @@ g_last_hm_cursor_x = 0
 g_last_hm_cursor_y = 0
 
 function _update_team_holomap_cursor(team_id, x, y)
+
+    local now = update_get_logic_tick()
+
+    -- we really don't need to update this more than 1-2 times a second
+    if now - g_last_hm_cursor_update < 35 then
+        return
+    end
+
     x = math_floor(x)
     y = math_floor(y)
 
     -- only update if the position has changed by more than 10m
+    g_last_hm_cursor_update = now
     if math_abs(x - g_last_hm_cursor_x) < 10 or math_abs(y - g_last_hm_cursor_y) < 10 then
         return
     end
-
-    local now = update_get_logic_tick()
-    -- we really don't need to update this more than 2-3 times a second
-    if now - g_last_hm_cursor_update < 15 then
-        return
-    end
-    g_last_hm_cursor_update = now
 
     g_last_hm_cursor_team = team_id
     g_last_hm_cursor_x = x
@@ -3099,6 +3101,8 @@ local st, _v = pcall(function()
                     { i = 3, x = 0, y = 7 },   -- centre
                     { i = 4, x = -18, y = 7 }, -- left inner
                     { i = 5, x = 18, y = 7 },  -- right inner
+                    -- { i = 8, x = -26, y = 9 }, -- left outer
+                    -- { i = 9, x = 26, y = 9 },  -- right outer
                 },
                 {
                     { i = 6, x = -9, y = 24 }, -- left util
@@ -3126,6 +3130,13 @@ local st, _v = pcall(function()
                 -- utils
                 [6] = _std_wing_utils,
                 [7] = _std_wing_utils,
+
+                --[8] = {
+                --    e_game_object_type.attachment_hardpoint_missile_aa,
+                --},
+                --[9] = {
+                --    e_game_object_type.attachment_hardpoint_missile_aa,
+                --},
 
                 -- internal gun
                 [2] = {
