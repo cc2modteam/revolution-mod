@@ -162,6 +162,10 @@ g_screen_h = 128
 g_barge_count = 0
 g_barge_max = 1
 
+local ammo_options_1000_txt = { "X", "-1000", "-100", "+100", "+1000" }
+local ammo_options_1000 = { 100, 1000 }
+local ammo_options_100_txt = { "X", "-100", "-10", "+10", "+100" }
+local ammo_options_100 = { 10, 100 }
 --------------------------------------------------------------------------------
 --
 -- BEGIN
@@ -2451,27 +2455,36 @@ function tab_stock_render(screen_w, screen_h, x, y, w, h, is_tab_active, screen_
             local order_amount = screen_vehicle:get_inventory_order(item_data.index)
 
             local is_active = is_tab_active and g_tab_stock.is_confirm_discard == false
-            local window = ui:begin_window(item_data.name .. "##item", 30, 10, w - 60, h - 28, atlas_icons.column_pending, is_active, 2)
-                imgui_item_description(ui, screen_vehicle, item_data, true, is_active)
-                ui:header(update_get_loc(e_loc.upp_order))
-                
-                local total_modify_amount = g_tab_stock.selected_item_modify_amount + order_amount
-                total_modify_amount = ui:selector(update_get_loc(e_loc.quantity), total_modify_amount, -99999, 99999, 1, "%+d")
-                g_tab_stock.selected_item_modify_amount = total_modify_amount - order_amount
+            ui:begin_window(item_data.name .. "##item", 30, 10, w - 60, h - 28, atlas_icons.column_pending, is_active, 2)
+            imgui_item_description(ui, screen_vehicle, item_data, true, is_active)
+            ui:header(update_get_loc(e_loc.upp_order))
 
-                local button_action = ui:button_group({ "X", "-100", "-10", "+10", "+100" }, true)
+            local total_modify_amount = g_tab_stock.selected_item_modify_amount + order_amount
+            total_modify_amount = ui:selector(update_get_loc(e_loc.quantity), total_modify_amount, -99999, 99999, 1, "%+d")
+            g_tab_stock.selected_item_modify_amount = total_modify_amount - order_amount
+            local is_small_caliber = is_small_caliber(g_tab_stock.selected_item)
+            local ammo_options_txt
+            local ammo_options
+            if is_small_caliber then
+                ammo_options_txt = ammo_options_1000_txt
+                ammo_options = ammo_options_1000
+            else
+                ammo_options_txt = ammo_options_100_txt
+                ammo_options = ammo_options_100
+            end
+            local button_action = ui:button_group(ammo_options_txt, true)
 
-                if button_action == 0 then
-                    g_tab_stock.selected_item_modify_amount = -order_amount
-                elseif button_action == 1 then
-                    g_tab_stock.selected_item_modify_amount = g_tab_stock.selected_item_modify_amount - 100
-                elseif button_action == 2 then
-                    g_tab_stock.selected_item_modify_amount = g_tab_stock.selected_item_modify_amount - 10
-                elseif button_action == 3 then
-                    g_tab_stock.selected_item_modify_amount = g_tab_stock.selected_item_modify_amount + 10
-                elseif button_action == 4 then
-                    g_tab_stock.selected_item_modify_amount = g_tab_stock.selected_item_modify_amount + 100
-                end
+            if button_action == 0 then
+                g_tab_stock.selected_item_modify_amount = -order_amount
+            elseif button_action == 1 then
+                g_tab_stock.selected_item_modify_amount = g_tab_stock.selected_item_modify_amount - ammo_options[2]
+            elseif button_action == 2 then
+                g_tab_stock.selected_item_modify_amount = g_tab_stock.selected_item_modify_amount - ammo_options[1]
+            elseif button_action == 3 then
+                g_tab_stock.selected_item_modify_amount = g_tab_stock.selected_item_modify_amount + ammo_options[1]
+            elseif button_action == 4 then
+                g_tab_stock.selected_item_modify_amount = g_tab_stock.selected_item_modify_amount + ammo_options[2]
+            end
             ui:end_window()
 
             if g_tab_stock.is_confirm_discard then
@@ -2519,6 +2532,10 @@ function tab_stock_render(screen_w, screen_h, x, y, w, h, is_tab_active, screen_
         end
     end
     update_ui_pop_offset()
+end
+
+function is_small_caliber(selected_ammo_id)
+    return selected_ammo_id == 0 or selected_ammo_id == 32 or selected_ammo_id == 48
 end
 
 function get_ordered_weight(vehicle)
