@@ -415,9 +415,6 @@
 		<mesh file="meshes/aircraft_carrier/terminal.mesh" name="hangar terminal" lod="0" body="3" is_paint_dirt="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-2.50000000e+00" ty="-1.50000000e+00" tz="-5.00000000e-01"/>
 		</mesh>
-		<mesh file="meshes/aircraft_carrier/terminal.mesh" name="hangar terminal" lod="0" body="3" is_paint_dirt="false">
-			<transform m00="0.00000000e+00" m01="0.00000000e+00" m02="-1.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="1.00000000e+00" m21="0.00000000e+00" m22="0.00000000e+00" tx="-1.50000000e+00" ty="-1.50000000e+00" tz="-1.25000000e+00"/>
-		</mesh>
 		<mesh file="meshes/aircraft_carrier/bridge_attachments/captains_seat.mesh" name="hangar terminal" lod="0" body="3" is_paint_dirt="false">
 			<transform m00="0.00000000e+00" m01="0.00000000e+00" m02="-1.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="1.00000000e+00" m21="0.00000000e+00" m22="0.00000000e+00" tx="-2.50000000e+00" ty="-1.50000000e+00" tz="-2.00000000e+00"/>
 		</mesh>
@@ -492,12 +489,6 @@
 		</mesh>
 		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="-7.09233701e-01" m01="7.04973400e-01" m02="0.00000000e+00" m10="-7.04973400e-01" m11="-7.09233701e-01" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.54157209e+01" ty="1.40481834e+01" tz="-2.79632263e+01"/>
-		</mesh>
-		<mesh file="meshes/spaceship/spaceship/plane_black.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="9.18757942e-05" m01="9.99991298e-01" m02="-4.17686161e-03" m10="-2.19908580e-02" m11="4.17787209e-03" m12="9.99749482e-01" m20="9.99758184e-01" m21="0.00000000e+00" m22="2.19910499e-02" tx="-1.52023878e+01" ty="1.32391968e+01" tz="-2.59249249e+01"/>
-		</mesh>
-		<mesh file="meshes/spaceship/spaceship/plane_black.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="1.64306533e-04" m01="9.99991298e-01" m02="-4.17463994e-03" m10="-3.93274613e-02" m11="4.17787209e-03" m12="9.99217689e-01" m20="9.99226391e-01" m21="0.00000000e+00" m22="3.93278040e-02" tx="-1.52023878e+01" ty="1.32391968e+01" tz="-2.51566467e+01"/>
 		</mesh>
 		<mesh file="meshes/vehicles/stand/large_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="-7.09233701e-01" m01="7.04973400e-01" m02="0.00000000e+00" m10="-7.04973400e-01" m11="-7.09233701e-01" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.54157209e+01" ty="1.40481834e+01" tz="-2.30525951e+01"/>
@@ -3422,9 +3413,6 @@
 		<screen name="tacops_log" display_name_loc="1120" script_file_name="scripts/screen_ship_log.lua" body_index="0" seat_index="10" type="3" refresh_interval="1.20000000e+01" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="6.42787576e-01" m12="-7.66044378e-01" m20="0.00000000e+00" m21="7.66044378e-01" m22="6.42787576e-01" tx="-1.64799995e+01" ty="1.21899996e+01" tz="-2.25799999e+01"/>
 		</screen>
-		<screen name="tacops_left_loadout" display_name_loc="668" script_file_name="scripts/screen_vehicle_loadout.lua" body_index="0" seat_index="10" type="0" refresh_interval="6.00000000e+00" help_tag="veh_con_screen_vehicle_control">
-			<transform m00="2.05780007e-03" m01="9.58800025e-04" m02="-9.99997377e-01" m10="-7.65636981e-01" m11="6.43272102e-01" m12="-9.58800025e-04" m20="6.43269479e-01" m21="7.65636981e-01" m22="2.05780007e-03" tx="-1.55699997e+01" ty="1.21899996e+01" tz="-2.32800007e+01"/>
-		</screen>
 		<screen name="tacops_left_control" display_name_loc="680" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="10" type="3" refresh_interval="1.00000000e+00" help_tag="veh_con_screen_vehicle_control">
 			<transform m00="2.05780007e-03" m01="9.58800025e-04" m02="-9.99997377e-01" m10="-7.65636981e-01" m11="6.43272102e-01" m12="-9.58800025e-04" m20="6.43269479e-01" m21="7.65636981e-01" m22="2.05780007e-03" tx="-1.55699997e+01" ty="1.21899996e+01" tz="-2.40300007e+01"/>
 		</screen>
@@ -3440,9 +3428,6 @@
 		<screen name="tacops_right_control" display_name_loc="680" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="12" type="3" refresh_interval="1.00000000e+00" help_tag="veh_con_screen_vehicle_control">
 			<transform m00="2.05780007e-03" m01="9.58800025e-04" m02="-9.99997377e-01" m10="-7.65636981e-01" m11="6.43272102e-01" m12="-9.58800025e-04" m20="6.43269479e-01" m21="7.65636981e-01" m22="2.05780007e-03" tx="-1.55699997e+01" ty="1.21899996e+01" tz="-2.70300007e+01"/>
 		</screen>
-		<screen name="holomap_screen2" display_name_loc="74" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="11" type="2" refresh_interval="1.80000000e+01" help_tag="holomap_screen_map">
-			<transform m00="0.00000000e+00" m01="0.00000000e+00" m02="-1.00000000e+00" m10="-1.00000000e+00" m11="0.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="0.00000000e+00" tx="-1.52433634e+01" ty="1.33889494e+01" tz="-2.55275936e+01"/>
-		</screen>
 		<screen name="screen_specops_air" display_name_loc="681" script_file_name="scripts/screen_landing.lua" body_index="0" seat_index="11" type="1" refresh_interval="3.00000000e+01" help_tag="veh_con_screen_air_traffic">
 			<transform m00="3.09086161e-08" m01="-3.09086197e-08" m02="-1.00000000e+00" m10="-7.07106709e-01" m11="-7.07106650e-01" m12="0.00000000e+00" m20="-7.07106709e-01" m21="7.07106769e-01" m22="-4.37113883e-08" tx="-1.55000000e+01" ty="1.40000000e+01" tz="-2.33363113e+01"/>
 		</screen>
@@ -3454,9 +3439,6 @@
 		</screen>
 		<screen name="screen_helm_hud" display_name_loc="791" script_file_name="scripts/screen_navigation.lua" body_index="0" seat_index="4294967295" type="2" refresh_interval="2.00000000e+00" help_tag="">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.30605623e-01" m12="-9.91434395e-01" m20="0.00000000e+00" m21="9.91434395e-01" m22="1.30605623e-01" tx="-2.77235680e+01" ty="3.07140617e+01" tz="-2.19244423e+01"/>
-		</screen>
-		<screen name="screen_advert" display_name_loc="109" script_file_name="scripts/screen_landing.lua" body_index="0" seat_index="14" type="1" refresh_interval="1.00000000e+01" help_tag="">
-			<transform m00="-9.99997675e-01" m01="2.08288548e-03" m02="5.58108266e-04" m10="1.73472348e-18" m11="-2.58819193e-01" m12="9.65925872e-01" m20="2.15636357e-03" m21="9.65923607e-01" m22="2.58818567e-01" tx="-3.00472088e+01" ty="2.81419945e+01" tz="-4.36251259e+01"/>
 		</screen>
 		<screen name="sidebar_1" display_name_loc="138" script_file_name="scripts/screen_vehicle_control.lua" body_index="0" seat_index="4" type="3" refresh_interval="4.00000000e+00" help_tag="">
 			<transform m00="2.33115931e-03" m01="2.06780806e-03" m02="-9.99995172e-01" m10="-6.93653107e-01" m11="7.20309138e-01" m12="-1.27555351e-04" m20="7.20305443e-01" m21="6.93650126e-01" m22="3.11349682e-03" tx="-2.72371082e+01" ty="3.00094872e+01" tz="-2.86382236e+01"/>
@@ -3948,11 +3930,7 @@
 			<position x="8.00000000e+00" y="-9.80041599e+00" z="-4.36671829e+01"/>
 		</foam_emitter>
 	</foam_emitters>
-	<particle_emitters>
-		<particle_emitter name="node" body_index="4294967295" life="300" velocity="1.00000000e+00" magnitude="1.00000000e+00" rise="0.00000000e+00" color="FFFFFFFF">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-2.91998940e+01" ty="4.12621613e+01" tz="-3.94946861e+01"/>
-		</particle_emitter>
-	</particle_emitters>
+	<particle_emitters/>
 	<sensors>
 		<sensor name="depth_warning_sensor" body_index="0" start="0.00000000e+00" length="1.00000000e+03">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="-1.70372696e+01" tz="0.00000000e+00"/>
