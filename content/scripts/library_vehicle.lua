@@ -893,11 +893,9 @@ end
 -- fisheye mod
 g_all_radars = {}
 g_radar_seen_by_ours = {}
-g_radar_seen_by_hostile = {}
 
 g_radar_scanned = true
--- every unit in detection range of a radar (of any team)
-g_seen_by_hostile_radars = {}
+-- every unit in detection range of a radar
 g_seen_by_friendly_radars = {}
 
 -- the id of the nearest enemy unit that can see our aircraft
@@ -1316,7 +1314,7 @@ function update_modded_radar_list(hostile_only)
 
     local screen_team = update_get_screen_team_id()
     local seen_by_friendly_radars = g_seen_by_friendly_radars
-    local seen_by_hostile_radars = g_seen_by_hostile_radars
+
     local all_radars = g_all_radars
 
     for _, vehicle in pairs(get_vehicles_table()) do
@@ -1347,12 +1345,6 @@ function update_modded_radar_list(hostile_only)
         local v = update_get_map_vehicle_by_id(vid)
         if v == nil or not v:get() then
             seen_by_friendly_radars[vid] = nil
-        end
-    end
-    for vid, _ in pairs(seen_by_hostile_radars) do
-        local v = update_get_map_vehicle_by_id(vid)
-        if v == nil or not v:get() then
-            seen_by_hostile_radars[vid] = nil
         end
     end
 end
@@ -1445,10 +1437,8 @@ function do_radar_scan(update_air, update_sea)
     local screen_team = update_get_screen_team_id()
 
     local all_radars = g_all_radars
-    local nearest_friendly_radar = g_nearest_friendly_radar
     local seen_by_friendly_radars = g_seen_by_friendly_radars
     local nearest_hostile_radar = g_nearest_hostile_radar
-    local seen_by_hostile_radars = g_seen_by_hostile_radars
     local fdsq = fast_dist_sq
 
     for _, vehicle in pairs(get_vehicles_table()) do
@@ -1481,7 +1471,6 @@ function do_radar_scan(update_air, update_sea)
             if update_sea and target_is_sea or update_air and target_is_air then
                 seen_by_friendly_radars[vid] = nil
                 nearest_hostile_radar[vid] = nil
-                seen_by_hostile_radars[vid] = nil
 
                 -- do radars
                 local radar_team = nil
@@ -1521,7 +1510,6 @@ function do_radar_scan(update_air, update_sea)
                                             nearest_hostile_radar_dist_sq = target_dist_sq
                                             nearest_hostile_radar[vid] = radar_id
                                         end
-                                        seen_by_hostile_radars[vid] = true
                                     end
                                 end
                             end
@@ -1556,18 +1544,6 @@ end
 
 function get_is_visible_by_modded_radar(vehicle)
     return _get_is_seen_by_friendly_modded_radar(vehicle)
-end
-
-function get_is_visible_by_hostile_modded_radar(vehicle)
-    local seen = false
-    if vehicle and vehicle:get() then
-        if vehicle.extended then
-            return vehicle:get_is_visible_by_hostile_modded_radar()
-        end
-        local vid = vehicle:get_id()
-        seen = g_seen_by_hostile_radars[vid] ~= nil
-    end
-    return seen
 end
 
 function _get_is_seen_by_friendly_modded_radar(vehicle)
@@ -4228,7 +4204,6 @@ function VProxy.new(real)
     self.radar_state = nil
     self.radar_state_known = false
     self.seen_by_friendly_radars = nil
-    self.is_visible_by_hostile_modded_radar = nil
     self.position_xz = nil
     self.position = nil
     self.altitude = nil
@@ -4759,13 +4734,6 @@ function VProxy:get_is_seen_by_friendly_modded_radar()
         self.seen_by_friendly_radars = g_seen_by_friendly_radars[self.id] == true
     end
     return self.seen_by_friendly_radars
-end
-
-function VProxy:get_is_visible_by_hostile_modded_radar()
-    if self.is_visible_by_hostile_modded_radar == nil then
-        self.is_visible_by_hostile_modded_radar = g_seen_by_hostile_radars[self.id] ~= nil
-    end
-    return self.is_visible_by_hostile_modded_radar
 end
 
 function VProxy:set_attached_vehicle_attachment(vehicle_bay, attachment_index, attachment_type)

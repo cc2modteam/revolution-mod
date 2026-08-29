@@ -3097,11 +3097,6 @@ function _update(screen_w, screen_h, ticks)
                                 cx = screen_pos_x - 4
 
                                 local is_visible_by_enemy = vehicle:get_is_visible_by_enemy()
-                                if not is_visible_by_enemy then
-                                    if get_is_vehicle_air(vehicle_definition_index) then
-                                        is_visible_by_enemy = get_is_visible_by_hostile_modded_radar(vehicle)
-                                    end
-                                end
 
                                 if is_visible_by_enemy and g_animation_time % 20 > 10 then
                                     local icon_color =  color_enemy
