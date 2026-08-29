@@ -1349,28 +1349,39 @@ function update_modded_radar_list(hostile_only)
     end
 end
 
+g_next_sea_sweep = 0
+g_next_air_sweep = 0
+
 function update_modded_radar_data()
     -- find all radars
+
     local current_tick = update_get_logic_tick()
+
+    if g_next_sea_sweep > current_tick and g_next_air_sweep > current_tick then
+        if not g_force_radar_scan then
+            return
+        end
+    end
+    local radar_scan_interval_ticks = 180 -- 3 sec
+
     -- jitter the updates so we avoid doing too much at the same time
-    local next_air_scan = g_radar_last_air_scan + math_floor(math_random(30, 95))
-    local next_sea_scan = g_radar_last_sea_scan + math_floor(math_random(40, 120))
+    local next_air_scan = g_radar_last_air_scan + math_floor(math_random(radar_scan_interval_ticks, 2 * radar_scan_interval_ticks))
+    local next_sea_scan = g_radar_last_sea_scan + math_floor(math_random(2 * radar_scan_interval_ticks, 3 * radar_scan_interval_ticks))
+
     local user_connected = true
     local script_id = nil
-    if g_radar_debug then
-        script_id = string.format("%s", _G)
-    end
+
     if not update_get_is_focus_local() then
         local disconnected_delay_base = 250
         if g_is_holomap then
-            disconnected_delay_base = 60
+            disconnected_delay_base = 120
             if g_radar_debug then
                 script_id = script_id .. " holomap"
             end
         end
         -- not connected, reduce the frequency to once every 5-7 seconds
-        next_air_scan = g_radar_last_air_scan + disconnected_delay_base + math_floor(math_random(30, 90))
-        next_sea_scan = g_radar_last_sea_scan + disconnected_delay_base + math_floor(math_random(40, 150))
+        next_air_scan = g_radar_last_air_scan + disconnected_delay_base + math_floor(math_random(radar_scan_interval_ticks, 2 * radar_scan_interval_ticks))
+        next_sea_scan = g_radar_last_sea_scan + disconnected_delay_base + math_floor(math_random(20 + radar_scan_interval_ticks, 2 * radar_scan_interval_ticks))
         user_connected = false
     end
 
@@ -1380,6 +1391,11 @@ function update_modded_radar_data()
             return
         end
     end
+
+    g_next_air_sweep = next_air_scan
+    g_next_sea_sweep = next_sea_scan
+
+
 
     local update_air = current_tick > next_air_scan
     local update_sea = current_tick > next_sea_scan
@@ -1453,7 +1469,7 @@ function do_radar_scan(update_air, update_sea)
             local target_is_sea = false
             if not target_is_air then
                 target_is_sea = get_is_vehicle_sea(vdef)
-                if vdef == e_game_object_type.chassis_land_turret then
+                if g_rev_allow_carrier_land_turrets and vdef == e_game_object_type.chassis_land_turret then
                     -- treat turrets deployed by carriers the same as ships for RADAR
                     local att = vehicle:get_attachment(0)
                     if att then
