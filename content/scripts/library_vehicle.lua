@@ -4276,6 +4276,7 @@ end
 function VProxy:get_waypoint_count()
     if self.get_waypoint_count_ == nil and self.v then
         self.get_waypoint_count_ = self.v:get_waypoint_count()
+--        local_stacktrace_n("gwc", self.id, self.get_waypoint_count_)
     end
     return self.get_waypoint_count_
 end
