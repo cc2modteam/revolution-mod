@@ -1034,6 +1034,17 @@ function local_print(...)
     end
 end
 
+g_local_stacktrace_n_count = 10
+function local_stacktrace_n(...)
+    if update_get_is_focus_local() then
+        if g_local_stacktrace_n_count > 0 then
+            g_local_stacktrace_n_count = g_local_stacktrace_n_count - 1
+            print(...)
+            print(debug.traceback())
+        end
+    end
+end
+
 -- mini font,
 --
 -- a fixed width 4x5 font

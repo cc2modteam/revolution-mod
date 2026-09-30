@@ -1285,6 +1285,8 @@ function render_selection_map(screen_w, screen_h)
                     return
                 end
             end
+            local drydock = find_team_drydock(screen_team)
+            ui:header(string.format("drydock wpts %d", drydock:get_waypoint_count()))
         end
 
         if get_is_spectator_mode_real() then
@@ -2103,9 +2105,8 @@ function _update(screen_w, screen_h, ticks)
                         end
 
                         if vehicle_team == screen_team or get_is_spectator_mode() then
-                            local waypoint_count = vehicle:get_waypoint_count()
-
-                            if g_drag.vehicle_id == 0 or g_drag.vehicle_id == vehicle:get_id() then
+                            if (g_drag.vehicle_id == 0 and vehicle_attached_parent_id == 0) or g_drag.vehicle_id == vehicle:get_id() then
+                                local waypoint_count = vehicle:get_waypoint_count()
                                 for j = 0, waypoint_count - 1, 1 do
                                     local waypoint = vehicle:get_waypoint(j)
                                     local waypoint_type = waypoint:get_type()
@@ -2643,7 +2644,7 @@ function _update(screen_w, screen_h, ticks)
                     if not is_render_vehicle_wpts then
 
                         if vehicle_definition_index ~= e_game_object_type.drydock and vehicle_definition_index ~= e_game_object_type.chassis_carrier then
-                            if vehicle:get_team() == screen_team then
+                            if vehicle:get_team() == screen_team and not is_docked then
                                 is_render_vehicle_wpts = vehicle:get_waypoint_count() > 0
                             end
                         end
@@ -4491,13 +4492,13 @@ function input_pointer(is_hovered, x, y)
     else
         float_btn_input_pointer(is_hovered, x, y)
     end
-    if g_screen_name == "screen_veh_captchair" then
-        if update_get_is_focus_local() then
+--    if g_screen_name == "screen_veh_captchair" then
+--        if update_get_is_focus_local() then
 
-            local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
-            update_team_holomap_cursor(update_get_screen_team_id(), world_x, world_y)
-        end
-    end
+--            local world_x, world_y = get_world_from_screen(g_cursor_pos_x, g_cursor_pos_y, g_camera_pos_x, g_camera_pos_y, g_camera_size, g_screen_w, g_screen_h)
+--            update_team_holomap_cursor(update_get_screen_team_id(), world_x, world_y)
+--        end
+--    end
 end
 
 function rev_render_unit_selection(screen_w, screen_h, selection)
