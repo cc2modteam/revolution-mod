@@ -3175,13 +3175,15 @@ function render_compass(screen_vehicle, pos, col)
             -- indicate nearest island as a grey contact
 
             local nearest_tile = get_nearest_island_tile(v_pos:x(), v_pos:z())
-            local tile_pos = nearest_tile:get_position_xz()
-            local tile_mark = vec3(tile_pos:x(), 0, tile_pos:y())
-            local tile_size = nearest_tile:get_size():x()
-            local tile_dist = vec3_dist(tile_mark, v_pos)
-            if tile_dist > 1000 then
-                local mark_size = round_int(clamp( 6 * tile_size / tile_dist, 6, 48))
-                render_compass_waypoint(pos:x(), pos:y() + 9, width, tile_mark, col, mark_size)
+            if nearest_tile then -- not always non-nil if very far away from an island
+                local tile_pos = nearest_tile:get_position_xz()
+                local tile_mark = vec3(tile_pos:x(), 0, tile_pos:y())
+                local tile_size = nearest_tile:get_size():x()
+                local tile_dist = vec3_dist(tile_mark, v_pos)
+                if tile_dist > 1000 then
+                    local mark_size = round_int(clamp( 6 * tile_size / tile_dist, 6, 48))
+                    render_compass_waypoint(pos:x(), pos:y() + 9, width, tile_mark, col, mark_size)
+                end
             end
         end)
         if not st then
