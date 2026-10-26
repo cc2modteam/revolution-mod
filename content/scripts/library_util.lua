@@ -1762,7 +1762,7 @@ function _generate_island_names()
             while used_name do
                 attempts = attempts + 1
                 local name_idx = 1 + ( prn % #g_island_names)
-                local new_name = g_island_names[name_idx]
+                local new_name = string.upper(g_island_names[name_idx])
                 if used[new_name] == nil then
                     -- use this name
                     local_print("i=", tile_id, "prn=", prn, "new=", name_idx, "old=", g_island_names[tile_id], "new=", g_island_names[name_idx])
@@ -1796,7 +1796,7 @@ function island_name_get(island_id)
     end
 
     if g_island_name_selection[island_id] ~= nil then
-        return string.upper(g_island_name_selection[island_id])
+        return g_island_name_selection[island_id]
     end
     -- should not happen!
     return string.format("Island %d", island_id)
