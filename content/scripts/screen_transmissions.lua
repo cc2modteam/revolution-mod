@@ -118,16 +118,17 @@ g_sent_island_locations = false
 g_seen_turrets = {}
 local telemetry_last = 0
 local telemetry_map_last = 0
+local telemetry_map_pos_last = 0
 
 local telemetry_interval = 90 -- 3 sec
-local telemetry_map_interval = 300 -- 10 sec
+local telemetry_map_interval = 900 -- 30 sec
+local telemetry_map_pos_interval = 1800 -- 60 sec
 
 local math_floor = math.floor
 
-function output_map_locations()
+function output_map_locations(buf)
     -- return all the island locations, types and names and
     -- return allowed turret spawns (the gui will use these as a hint to draw the island wireframe)
-    local ret = ""
     local island_count = update_get_tile_count()
     for i = 0, island_count - 1 do
         local island = update_get_tile_by_index(i)
@@ -136,14 +137,14 @@ function output_map_locations()
             local island_id = island:get_id()
             local island_team = island:get_team_control()
 
-            ret = ret .. string.format("\nAI:%d:t=%d",
+            table.insert(buf, string.format("AI:%d:t=%d",
                     island_id,
-                    island_team)
+                    island_team))
         end
     end
-
-    if not g_sent_island_locations then
-        g_sent_island_locations = true
+    local now = update_get_logic_tick()
+    if now > telemetry_map_pos_last + telemetry_map_pos_interval then
+        telemetry_map_pos_last = now
         for i = 0, island_count - 1 do
             local island = update_get_tile_by_index(i)
             if island:get() then
@@ -151,32 +152,32 @@ function output_map_locations()
                 local island_name = island:get_name()
                 local island_type = island:get_facility_category()
                 local island_position = island:get_position_xz()
-                ret = ret .. string.format("\nAI:%d:p=%d:x=%d:y=%d:n=%s",
+                table.insert(buf, string.format("AI:%d:p=%d:x=%d:y=%d:n=%s",
                         island_id,
                         island_type,
                         math_floor(island_position:x()),
                         math_floor(island_position:y()),
-                        island_name)
+                        island_name))
 
                 if g_seen_turrets[island_id] == nil then
                     local command_center_count = island:get_command_center_count()
                     for j = 0, command_center_count - 1 do
                         local command_center_pos_xz = island:get_command_center_position(j)
-                        ret = ret .. string.format("\nAIC:%d:x=%d:y=%d",
+                        table.insert(buf, string.format("AIC:%d:x=%d:y=%d",
                                 island_id,
                                 math_floor(command_center_pos_xz:x()),
-                                math_floor(command_center_pos_xz:y()))
+                                math_floor(command_center_pos_xz:y())))
                     end
 
                     local turret_spawn_count = island:get_turret_spawn_count()
                     for k = 0, turret_spawn_count - 1, 1 do
                         local marker_index, is_valid = island:get_turret_spawn(k)
                         local turret_spawn_xz = island:get_marker_position(marker_index)
-                        ret = ret .. string.format("\nAIT:%d:x=%d:y=%d",
+                        table.insert(buf, string.format("AIT:%d:x=%d:y=%d",
                                 island_id,
                                 math_floor(turret_spawn_xz:x()),
                                 math_floor(turret_spawn_xz:y())
-                        )
+                        ))
                     end
                     if turret_spawn_count > 0 then
                         g_seen_turrets[island_id] = turret_spawn_count
@@ -185,12 +186,10 @@ function output_map_locations()
             end
         end
     end
-    return ret
 end
 
-function output_visible_units()
+function output_visible_units(buf)
     local screen_team = update_get_screen_team_id()
-    local ret = ""
     for _, vehicle in pairs(get_vehicles_table()) do
         local vehicle_team = vehicle:get_team()
         if vehicle_team == screen_team or vehicle:get_is_visible() then
@@ -199,21 +198,19 @@ function output_visible_units()
                 if get_is_vehicle_air(vdef) or get_is_vehicle_sea(vdef) or vdef == e_game_object_type.chassis_land_turret then
                     -- render all ships, aircraft and turrets
                     local pos = vehicle:get_position_xz()
-                    ret = ret .. string.format("\nAIV:%d:d=%d:x=%d:y=%d:t=%d",
+                    table.insert(buf, string.format("AIV:%d:d=%d:x=%d:y=%d:t=%d",
                             vehicle:get_id(),
                             vdef,
                             math_floor(pos:x()),
                             math_floor(pos:y()),
                             vehicle:get_team()
-                    )
+                    ))
                 end
             end
         end
     end
-    return ret
 end
 
-g_telemetry_buffer = nil
 function update_telemetry()
     if not g_telemetry_enabled then
         return
@@ -222,15 +219,16 @@ function update_telemetry()
     local now = update_get_logic_tick()
     if now - telemetry_last > telemetry_interval then
         telemetry_last = now
-
-        local tx = string.format("AT:%d", now)
+        local buf = {}
+        table.insert(buf, string.format("AT:%d", now))
         if now - telemetry_map_last > telemetry_map_interval then
             telemetry_map_last = now
-            tx = tx .. output_map_locations()
+            output_map_locations(buf)
         end
-        tx = tx .. output_visible_units()
-        g_telemetry_buffer = string.format("%sstart%04x:%s", "txbuffer", #tx, tx)
-        print(now, "---", string.format("%04x", #tx))
+        output_visible_units(buf)
+        for k, v in ipairs(buf) do
+            print(v)
+        end
     end
 end
 
