@@ -2031,6 +2031,7 @@ function _update(screen_w, screen_h, ticks)
                         local vehicle_attached_parent_id = vehicle:get_attached_parent_id()
                         local revealed = vehicle:get_is_observation_revealed()
                         local visible = vehicle:get_is_visible() or get_is_spectator_mode()
+                        local vehicle_docked_state = vehicle:get_dock_state()
                         unit_count = unit_count + 1
 
                         if revealed then
@@ -2105,7 +2106,7 @@ function _update(screen_w, screen_h, ticks)
                         end
 
                         if vehicle_team == screen_team or get_is_spectator_mode() then
-                            if (g_drag.vehicle_id == 0 and vehicle_attached_parent_id == 0) or g_drag.vehicle_id == vehicle:get_id() then
+                            if (g_drag.vehicle_id == 0 and vehicle_docked_state ~= e_vehicle_dock_state.docked ) or g_drag.vehicle_id == vehicle:get_id() then
                                 local waypoint_count = vehicle:get_waypoint_count()
                                 for j = 0, waypoint_count - 1, 1 do
                                     local waypoint = vehicle:get_waypoint(j)
@@ -2644,7 +2645,7 @@ function _update(screen_w, screen_h, ticks)
                     if not is_render_vehicle_wpts then
 
                         if vehicle_definition_index ~= e_game_object_type.drydock and vehicle_definition_index ~= e_game_object_type.chassis_carrier then
-                            if vehicle:get_team() == screen_team and not is_docked then
+                            if vehicle:get_team() == screen_team then
                                 is_render_vehicle_wpts = vehicle:get_waypoint_count() > 0
                             end
                         end
