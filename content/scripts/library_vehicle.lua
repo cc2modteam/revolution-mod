@@ -114,7 +114,7 @@ function get_chassis_data_by_definition_index_orig(index)
     elseif index == e_game_object_type.chassis_sea_ship_heavy then
         return update_get_loc(e_loc.upp_swordfish), atlas_icons.icon_chassis_16_ship_heavy, update_get_loc(e_loc.upp_swd), update_get_loc(e_loc.upp_heavy_patrol_ship)
     elseif index == e_game_object_type.chassis_land_wheel_mule then
-        return update_get_loc(e_loc.upp_mule), atlas_icons.icon_chassis_16_wheel_mule, update_get_loc(e_loc.upp_mul), update_get_loc(e_loc.upp_logistics_support_vehicle)
+        return update_get_loc(e_loc.upp_mule), atlas_icons.icon_chassis_16_ship_light, update_get_loc(e_loc.upp_mul), update_get_loc(e_loc.upp_logistics_support_vehicle)
     elseif index == e_game_object_type.chassis_deployable_droid then
         return update_get_loc(e_loc.upp_droid), atlas_icons.icon_chassis_16_droid, update_get_loc(e_loc.upp_drd), update_get_loc(e_loc.upp_droid)
     end
@@ -406,7 +406,7 @@ function get_chassis_image_by_definition_index(index)
     elseif index == e_game_object_type.chassis_sea_ship_light then
         return atlas_icons.icon_chassis_sea_ship_light
     elseif index == e_game_object_type.chassis_land_wheel_mule then
-        return atlas_icons.icon_chassis_wheel_mule
+        return atlas_icons.icon_chassis_sea_ship_light
     elseif index == e_game_object_type.chassis_deployable_droid then
         return atlas_icons.icon_chassis_deployable_droid
     end
@@ -3454,35 +3454,34 @@ function insert_sea_mule_options(vehicle)
         --if g_revolution_attachment_defaults[e_game_object_type.chassis_land_wheel_mule] == nil then
             if vehicle:get_definition_index() == e_game_object_type.chassis_land_wheel_mule then
                 local ac = vehicle:get_attachment_count()
-                if ac == 8 then
+                if ac == 9 then
                     -- insert
                     local mule = {
                         rows = {
                             {
-                                { i=7, x=0, y=-23 },
-                                { i=1, x=-9, y=-10 },
-                                { i=2, x=9, y=-10},
-                                { i=3, x=-9, y=7 },
-                                { i=4, x=9, y=7},
-                                { i=5, x=-9, y=24 },
-                                { i=6, x=9, y=24},
+
+                                { i=1, x=0, y=-23 },
+                                { i=2, x=0, y=-10},
+                                { i=3, x=-6, y=7 },
+                                { i=4, x=6, y=7},
+                                { i=5, x=-8, y=24 },
+                                { i=6, x=8, y=24},
+                                { i=7, x=21, y=0 },
+                                { i=8, x=-21, y=0 },
                             }
                         },
                         options = {
-                            [7] = {
+                            [1] = {
                                 e_game_object_type.attachment_turret_30mm,
                                 e_game_object_type.attachment_turret_40mm,
                             },
-                            [1] = {
-                                e_game_object_type.attachment_turret_robot_dog_capsule,
-                                e_game_object_type.attachment_smoke_launcher_explosive,
-                            },
                             [2] = {
-                                e_game_object_type.attachment_turret_robot_dog_capsule,
-                                e_game_object_type.attachment_camera,
+                                e_game_object_type.attachment_turret_missile,
+                                e_game_object_type.attachment_camera_observation,
+                                e_game_object_type.attachment_fuel_tank_plane,
                             },
                             [3] = {
-                                e_game_object_type.attachment_fuel_tank_plane,
+                                e_game_object_type.attachment_deployable_droid,
                                 e_game_object_type.attachment_logistics_container_20mm,
                                 e_game_object_type.attachment_logistics_container_30mm,
                                 e_game_object_type.attachment_logistics_container_40mm,
@@ -3490,10 +3489,9 @@ function insert_sea_mule_options(vehicle)
                                 e_game_object_type.attachment_logistics_container_120mm,
                                 e_game_object_type.attachment_logistics_container_fuel,
                                 e_game_object_type.attachment_logistics_container_ir_missile,
-                                e_game_object_type.attachment_deployable_droid,
                             },
                             [4] = {
-                                e_game_object_type.attachment_fuel_tank_plane,
+                                e_game_object_type.attachment_deployable_droid,
                                 e_game_object_type.attachment_logistics_container_20mm,
                                 e_game_object_type.attachment_logistics_container_30mm,
                                 e_game_object_type.attachment_logistics_container_40mm,
@@ -3501,9 +3499,33 @@ function insert_sea_mule_options(vehicle)
                                 e_game_object_type.attachment_logistics_container_120mm,
                                 e_game_object_type.attachment_logistics_container_fuel,
                                 e_game_object_type.attachment_logistics_container_ir_missile,
-                                e_game_object_type.attachment_deployable_droid,
-                            }
-
+                            },
+                            [5] = {
+                                e_game_object_type.attachment_flare_launcher,
+                                e_game_object_type.attachment_logistics_container_20mm,
+                                e_game_object_type.attachment_logistics_container_30mm,
+                                e_game_object_type.attachment_logistics_container_40mm,
+                                e_game_object_type.attachment_logistics_container_100mm,
+                                e_game_object_type.attachment_logistics_container_120mm,
+                                e_game_object_type.attachment_logistics_container_fuel,
+                                e_game_object_type.attachment_logistics_container_ir_missile,
+                            },
+                            [6] = {
+                                e_game_object_type.attachment_flare_launcher,
+                                e_game_object_type.attachment_logistics_container_20mm,
+                                e_game_object_type.attachment_logistics_container_30mm,
+                                e_game_object_type.attachment_logistics_container_40mm,
+                                e_game_object_type.attachment_logistics_container_100mm,
+                                e_game_object_type.attachment_logistics_container_120mm,
+                                e_game_object_type.attachment_logistics_container_fuel,
+                                e_game_object_type.attachment_logistics_container_ir_missile,
+                            },
+                            [7] = {
+                                e_game_object_type.attachment_hardpoint_torpedo
+                            },
+                            [8] = {
+                                e_game_object_type.attachment_hardpoint_torpedo
+                            },
                         }
                     }
                     g_revolution_attachment_defaults[e_game_object_type.chassis_land_wheel_mule] = mule

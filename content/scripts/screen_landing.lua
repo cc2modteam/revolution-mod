@@ -206,7 +206,7 @@ function render_team_units(team_id, y_offset)
     ox = render_unit_active_loss(ox, y_offset, team_id,
             e_game_object_type.chassis_land_wheel_mule,
             0,
-            atlas_icons.icon_chassis_16_wheel_mule
+            atlas_icons.icon_chassis_16_ship_light
     )
     ox = render_unit_active_loss(ox, y_offset, team_id,
             e_game_object_type.chassis_sea_barge,

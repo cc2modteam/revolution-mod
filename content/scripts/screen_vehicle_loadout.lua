@@ -33,7 +33,7 @@ function get_selected_chassis_options(bay_index)
             { region=atlas_icons.icon_chassis_16_wheel_small, type=e_game_object_type.chassis_land_wheel_light },
             { region=atlas_icons.icon_chassis_16_wheel_medium, type=e_game_object_type.chassis_land_wheel_medium },
             { region=atlas_icons.icon_chassis_16_wheel_large, type=e_game_object_type.chassis_land_wheel_heavy },
-            { region=atlas_icons.icon_chassis_16_wheel_mule, type=e_game_object_type.chassis_land_wheel_mule },
+            { region=atlas_icons.icon_chassis_16_ship_light, type=e_game_object_type.chassis_land_wheel_mule },
         }
 
         if g_rev_allow_carrier_land_turrets or get_is_spectator_mode() then
@@ -1078,37 +1078,6 @@ example_g_revolution_crafting_items = {
 			[e_inventory_item.attachment_radar_golfball] = 1,
         }
 	},
-	{
-		name="Hinny",
-		details="Mobile LGM Silo",
-		chassis=e_game_object_type.chassis_land_wheel_mule,
-		min_attachments=7,
-		attachments={
-			[1] = e_game_object_type.attachment_camera_observation
-		},
-		options={
-			[1] = {e_game_object_type.attachment_camera_observation},
-			[2] = {e_game_object_type.attachment_hardpoint_missile_laser},
-			[3] = {e_game_object_type.attachment_hardpoint_missile_laser},
-			[4] = {e_game_object_type.attachment_hardpoint_missile_laser},
-			[5] = {e_game_object_type.attachment_hardpoint_missile_laser},
-			[6] = {e_game_object_type.attachment_hardpoint_missile_laser},
-		},
-		rows={
-			{
-				{ i=1, x=-10, y=-21 },
-				{ i=2, x=10, y=-21 },
-				{ i=3, x=-10, y=-5 },
-				{ i=4, x=10, y=-5 },
-				{ i=5, x=-10, y=11 },
-				{ i=6, x=10, y=11 },
-			}
-		},
-	    cost={
-            [e_inventory_item.fuel_barrel] = 2,
-			[e_inventory_item.attachment_camera_observation] = 1,
-        }
-	}
 }
 
 if g_revolution_crafting_items == nil then
