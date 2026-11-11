@@ -1707,8 +1707,8 @@ function draw_faded_line(x1, y1, x2, y2, color, steps)
 end
 
 g_rev_major = 1
-g_rev_minor = 6
-g_rev_patch = 18
+g_rev_minor = 7
+g_rev_patch = 1
 
 g_rev_mods = {
 
