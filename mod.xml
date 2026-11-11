@@ -4,10 +4,6 @@
 The Revolution mod brings Radar enhancements, a more immersive fog-of-war for island captures and
 other features.
 
-[b]Fixed a bug that would crash the game when trying to dock a ground unit to a full AI/player carrier[/b]
-
-[b]Gamepad now fixed in loadout and control screen![/b]
-
 v1.7 new features!:
 [list]
 [*] Sea Mule - Tactical resupply and recon boat
@@ -17,7 +13,6 @@ v1.6
 [list]
 [*] pvp synchronised auto-launch
 [*] new 5 minute autosave feature!
-[*] Revamped Mule, can carry weapons, passengers and extra internal fuel.
 [*] Control screens can create markers and preset patrol paths.
 [*] Captain's extra aircraft display.
 [*] Multi-unit select in control screens (hold R and drag a box)
