@@ -3479,9 +3479,11 @@ function insert_sea_mule_options(vehicle)
                                 e_game_object_type.attachment_turret_missile,
                                 e_game_object_type.attachment_camera_observation,
                                 e_game_object_type.attachment_fuel_tank_plane,
+                                e_game_object_type.attachment_turret_robot_dog_capsule,
+                                e_game_object_type.attachment_deployable_droid,
+                                e_game_object_type.attachment_radar_golfball,
                             },
                             [3] = {
-                                e_game_object_type.attachment_deployable_droid,
                                 e_game_object_type.attachment_logistics_container_20mm,
                                 e_game_object_type.attachment_logistics_container_30mm,
                                 e_game_object_type.attachment_logistics_container_40mm,
@@ -3491,7 +3493,6 @@ function insert_sea_mule_options(vehicle)
                                 e_game_object_type.attachment_logistics_container_ir_missile,
                             },
                             [4] = {
-                                e_game_object_type.attachment_deployable_droid,
                                 e_game_object_type.attachment_logistics_container_20mm,
                                 e_game_object_type.attachment_logistics_container_30mm,
                                 e_game_object_type.attachment_logistics_container_40mm,
@@ -3502,6 +3503,8 @@ function insert_sea_mule_options(vehicle)
                             },
                             [5] = {
                                 e_game_object_type.attachment_flare_launcher,
+                                e_game_object_type.attachment_smoke_launcher_explosive,
+                                e_game_object_type.attachment_smoke_launcher_stream,
                                 e_game_object_type.attachment_logistics_container_20mm,
                                 e_game_object_type.attachment_logistics_container_30mm,
                                 e_game_object_type.attachment_logistics_container_40mm,
@@ -3512,6 +3515,8 @@ function insert_sea_mule_options(vehicle)
                             },
                             [6] = {
                                 e_game_object_type.attachment_flare_launcher,
+                                e_game_object_type.attachment_smoke_launcher_explosive,
+                                e_game_object_type.attachment_smoke_launcher_stream,
                                 e_game_object_type.attachment_logistics_container_20mm,
                                 e_game_object_type.attachment_logistics_container_30mm,
                                 e_game_object_type.attachment_logistics_container_40mm,
