@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<data display_name_loc="0" bounding_radius="3.00000000e+00" lod_scale="1.00000000e+00" ai_type="1">
+<data display_name_loc="0" bounding_radius="3.00000000e+00" lod_scale="1.00000000e+00" ai_type="4">
 	<bodies>
 		<body mass="2.00000000e+03" name="body" is_static="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="1.00000000e+00" tz="0.00000000e+00"/>
@@ -28,7 +28,7 @@
 	</bodies>
 	<constraints/>
 	<meshes>
-		<mesh file="meshes/vehicles/mule_car/mule.mesh" name="main body" lod="0" body="0" is_paint_dirt="true">
+		<mesh file="meshes/vehicles/largecar/largecar_body.mesh" name="main body" lod="0" body="0" is_paint_dirt="true">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="3.98746729e-01" tz="0.00000000e+00"/>
 		</mesh>
 		<mesh file="meshes/placeholders/dial_needle.mesh" name="front axle" lod="0" body="0" is_paint_dirt="true">
@@ -59,10 +59,10 @@
 			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="9.99999940e-01" tx="1.58831000e+00" ty="-5.09967022e-02" tz="-2.65633726e+00"/>
 		</mesh>
 		<mesh file="meshes/vehicles/mule_car/mule_propeller.mesh" name="prop_left" lod="0" body="0" is_paint_dirt="true">
-			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="-3.79262567e-01" ty="-2.57173255e-02" tz="-3.13329363e+00"/>
+			<transform m00="9.99999940e-01" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-4.37113883e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="-4.37113883e-08" tx="-3.79262567e-01" ty="-4.77100343e-01" tz="-3.13329363e+00"/>
 		</mesh>
 		<mesh file="meshes/vehicles/mule_car/mule_propeller.mesh" name="prop_right" lod="0" body="0" is_paint_dirt="true">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="2.98023224e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="2.98023224e-08" tx="3.60557735e-01" ty="-2.79946774e-02" tz="-3.10211277e+00"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="2.98023224e-08" m12="-1.00000000e+00" m20="0.00000000e+00" m21="1.00000000e+00" m22="2.98023224e-08" tx="3.60557735e-01" ty="-4.76999998e-01" tz="-3.10211277e+00"/>
 		</mesh>
 		<mesh file="meshes/placeholders/dial_needle.mesh" name="suspension_front_left_lower" lod="0" body="0" is_paint_dirt="true">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-9.77807403e-01" ty="-1.70586109e-02" tz="2.63107944e+00"/>
@@ -130,7 +130,7 @@
 		<mesh file="meshes/placeholders/dial_needle.mesh" name="suspension_middle_right_lower" lod="0" body="0" is_paint_dirt="true">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="9.77999985e-01" ty="-1.70000009e-02" tz="6.88160777e-01"/>
 		</mesh>
-		<mesh file="meshes/vehicles/attachments/rocket_pod.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+		<mesh file="meshes/vehicles/attachment_lods/rocket_pod_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.21266985e+00" ty="0.00000000e+00" tz="0.00000000e+00"/>
 		</mesh>
 		<mesh file="meshes/vehicles/attachment_lods/rocket_pod_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
@@ -139,53 +139,17 @@
 		<mesh file="meshes/vehicles/attachment_lods/rocket_pod_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.23276865e+00" ty="0.00000000e+00" tz="-2.18562365e+00"/>
 		</mesh>
-		<mesh file="meshes/vehicles/attachments/rocket_pod.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+		<mesh file="meshes/vehicles/attachment_lods/rocket_pod_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.23276865e+00" ty="0.00000000e+00" tz="-2.51150131e-03"/>
 		</mesh>
-		<mesh file="meshes/vehicles/attachments/air_fuel_tank.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="9.60212231e-01" m01="0.00000000e+00" m02="2.79271394e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-2.79271394e-01" m21="0.00000000e+00" m22="9.60212231e-01" tx="1.12486410e+00" ty="5.48229814e-02" tz="1.98559177e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/attachments/air_fuel_tank.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="9.60212231e-01" m01="0.00000000e+00" m02="2.79271394e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-2.79271394e-01" m21="0.00000000e+00" m22="9.60212231e-01" tx="1.12486410e+00" ty="-9.60878879e-02" tz="1.98559177e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/attachments/air_fuel_tank.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="9.67534304e-01" m01="0.00000000e+00" m02="-2.52739727e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="2.52739727e-01" m21="0.00000000e+00" m22="9.67534304e-01" tx="-1.12660527e+00" ty="-9.60878879e-02" tz="1.98559177e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/attachments/air_fuel_tank.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="9.67534304e-01" m01="0.00000000e+00" m02="-2.52739727e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="2.52739727e-01" m21="0.00000000e+00" m22="9.67534304e-01" tx="-1.12660527e+00" ty="5.74873127e-02" tz="1.98559177e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/boston_dog/boston_dog_capsule_left.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="-7.07106829e-01" m01="0.00000000e+00" m02="-7.07106709e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="7.07106709e-01" m21="0.00000000e+00" m22="-7.07106829e-01" tx="3.40657681e-01" ty="0.00000000e+00" tz="3.54424620e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/boston_dog/boston_dog_capsule_left.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="7.07106769e-01" m01="0.00000000e+00" m02="-7.07106769e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="7.07106769e-01" m21="0.00000000e+00" m22="7.07106769e-01" tx="-3.50355268e-01" ty="0.00000000e+00" tz="3.54394221e+00"/>
-		</mesh>
-		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/air_defence_missile_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-1.00000000e+00" m12="8.74227766e-08" m20="0.00000000e+00" m21="-8.74227766e-08" m22="-1.00000000e+00" tx="0.00000000e+00" ty="-2.95692980e-01" tz="-1.17896819e+00"/>
-		</mesh>
-		<mesh file="meshes/aircraft_carrier/aircraft_carrier_attachments/air_defence_missile_base.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-9.77368534e-01" m12="2.11543769e-01" m20="0.00000000e+00" m21="-2.11543769e-01" m22="-9.77368534e-01" tx="0.00000000e+00" ty="-7.53306374e-02" tz="2.20945692e+00"/>
+		<mesh file="meshes/vehicles/attachment_lods/air_fuel_tank_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="9.69950199e-01" m01="2.19258945e-02" m02="2.42313698e-01" m10="0.00000000e+00" m11="9.95931149e-01" m12="-9.01174024e-02" m20="-2.43303671e-01" m21="8.74093920e-02" m22="9.66003597e-01" tx="1.16409707e+00" ty="-6.50521889e-02" tz="1.79531884e+00"/>
 		</mesh>
 		<mesh file="meshes/vehicles/attachment_lods/air_fuel_tank_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-9.48596060e-01" ty="-4.68726993e-01" tz="6.14754319e-01"/>
-		</mesh>
-		<mesh file="meshes/vehicles/attachment_lods/air_fuel_tank_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="9.95967329e-01" ty="-4.68726993e-01" tz="6.14754319e-01"/>
-		</mesh>
-		<mesh file="meshes/vehicles/vehicle_lods/mule_missile_box_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="-1.00000000e+00" m01="8.74227766e-08" m02="0.00000000e+00" m10="-8.74227766e-08" m11="-1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="4.62096035e-01" ty="5.02933919e-01" tz="8.41440380e-01"/>
-		</mesh>
-		<mesh file="meshes/vehicles/vehicle_lods/mule_missile_box_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="-1.00000000e+00" m01="8.74227766e-08" m02="0.00000000e+00" m10="-8.74227766e-08" m11="-1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-3.04441869e-01" ty="5.02933919e-01" tz="8.41440380e-01"/>
-		</mesh>
-		<mesh file="meshes/vehicles/vehicle_lods/mule_missile_box_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="4.37113883e-08" m01="8.74227766e-08" m02="-1.00000000e+00" m10="3.82137093e-15" m11="-1.00000000e+00" m12="-8.74227766e-08" m20="-1.00000000e+00" m21="0.00000000e+00" m22="-4.37113883e-08" tx="-5.06809950e-02" ty="4.10178751e-01" tz="-3.76814067e-01"/>
+			<transform m00="9.67534304e-01" m01="-3.08931991e-02" m02="-2.50844538e-01" m10="0.00000000e+00" m11="9.92501378e-01" m12="-1.22233257e-01" m20="2.52739727e-01" m21="1.18264869e-01" m22="9.60279167e-01" tx="-1.09762383e+00" ty="-3.99404764e-02" tz="1.92513251e+00"/>
 		</mesh>
 		<mesh file="meshes/vehicles/vehicle_lods/mule_missile_box_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="4.37113883e-08" m01="2.58818835e-01" m02="9.65925872e-01" m10="3.82137093e-15" m11="9.65925872e-01" m12="-2.58818835e-01" m20="-1.00000000e+00" m21="1.13133343e-08" m22="4.22219593e-08" tx="-5.06809950e-02" ty="-2.04023123e-02" tz="-2.43780923e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/attachment_lods/air_based_radar_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.73468006e-01" m12="2.28823200e-01" m20="0.00000000e+00" m21="-2.28823200e-01" m22="9.73468006e-01" tx="1.42378509e-02" ty="-5.09423792e-01" tz="-2.06152725e+00"/>
 		</mesh>
 		<mesh file="meshes/vehicles/attachment_lods/air_fuel_tank_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="1.63503385e+00" ty="4.90576208e-01" tz="-2.06152725e+00"/>
@@ -206,25 +170,34 @@
 			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="-1.60382700e+00" ty="4.90576208e-01" tz="-2.06931162e+00"/>
 		</mesh>
 		<mesh file="meshes/vehicles/attachment_lods/air_based_radar_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="2.73096740e-01" tz="2.70092225e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/mule_attachments/mule_ammo_box.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="-3.15919518e-01" tz="2.49379683e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/boston_dog/boston_dog_capsule_left.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="-8.16139340e-01" m01="0.00000000e+00" m02="-5.77855110e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="5.77855110e-01" m21="0.00000000e+00" m22="-8.16139340e-01" tx="9.10522342e-01" ty="4.58022863e-01" tz="3.17271805e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/boston_dog/boston_dog_capsule_left.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="-5.82266748e-01" m01="0.00000000e+00" m02="-8.12997758e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="8.12997758e-01" m21="0.00000000e+00" m22="-5.82266748e-01" tx="3.78241777e-01" ty="4.58022863e-01" tz="3.76587582e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/boston_dog/boston_dog_capsule_left.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="5.76405644e-01" m01="0.00000000e+00" m02="-8.17163646e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="8.17163646e-01" m21="0.00000000e+00" m22="5.76405644e-01" tx="-3.44411790e-01" ty="4.58022863e-01" tz="3.76587582e+00"/>
-		</mesh>
-		<mesh file="meshes/vehicles/boston_dog/boston_dog_capsule_left.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
-			<transform m00="7.73870468e-01" m01="0.00000000e+00" m02="-6.33343756e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="6.33343756e-01" m21="0.00000000e+00" m22="7.73870468e-01" tx="-8.16528440e-01" ty="4.58022863e-01" tz="3.33240962e+00"/>
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.75134671e-01" m12="-2.21613109e-01" m20="0.00000000e+00" m21="2.21613109e-01" m22="9.75134671e-01" tx="0.00000000e+00" ty="2.60806143e-01" tz="2.92535353e+00"/>
 		</mesh>
 		<mesh file="meshes/vehicles/largehelicopter/largehelicopter_bar.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
 			<transform m00="-4.37113883e-08" m01="-1.00000000e+00" m02="0.00000000e+00" m10="1.00000000e+00" m11="-4.37113883e-08" m12="0.00000000e+00" m20="0.00000000e+00" m21="0.00000000e+00" m22="1.00000000e+00" tx="0.00000000e+00" ty="8.96438658e-01" tz="-2.18415499e+00"/>
+		</mesh>
+		<mesh file="meshes/aircraft_carrier/aircraft_carrier_shell/gantry_crane_plate.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="0.00000000e+00" m02="-1.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="1.00000000e+00" m21="0.00000000e+00" m22="-4.37113883e-08" tx="0.00000000e+00" ty="-2.59783477e-01" tz="-1.02308178e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/attachment_lods/air_fuel_tank_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="8.50354433e-01" m01="0.00000000e+00" m02="5.26210427e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="-5.26210427e-01" m21="0.00000000e+00" m22="8.50354433e-01" tx="7.63419867e-01" ty="4.90576208e-01" tz="3.46890831e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/attachment_lods/air_fuel_tank_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="8.26415420e-01" m01="0.00000000e+00" m02="-5.63060939e-01" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="5.63060939e-01" m21="0.00000000e+00" m22="8.26415420e-01" tx="-6.80936337e-01" ty="4.90576208e-01" tz="3.46890831e+00"/>
+		</mesh>
+		<mesh file="meshes/spaceship/spaceship/plane_black.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="-7.54371434e-02" m12="-9.97150540e-01" m20="0.00000000e+00" m21="9.97150540e-01" m22="-7.54371434e-02" tx="0.00000000e+00" ty="-2.73416936e-01" tz="1.87563753e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/attachment_lods/rocket_pod_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="-4.37113883e-08" m01="0.00000000e+00" m02="-1.00000000e+00" m10="0.00000000e+00" m11="1.00000000e+00" m12="0.00000000e+00" m20="1.00000000e+00" m21="0.00000000e+00" m22="-4.37113883e-08" tx="-9.90020931e-02" ty="3.78680319e-01" tz="2.18445396e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/attachment_lods/air_fuel_tank_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="1.00000000e+00" m01="0.00000000e+00" m02="0.00000000e+00" m10="0.00000000e+00" m11="9.89701450e-01" m12="-1.43146858e-01" m20="0.00000000e+00" m21="1.43146858e-01" m22="9.89701450e-01" tx="0.00000000e+00" ty="1.02694675e-01" tz="3.03633022e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/attachment_lods/air_fuel_tank_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="8.67807865e-01" m01="7.11296648e-02" m02="4.91782576e-01" m10="0.00000000e+00" m11="9.89701450e-01" m12="-1.43146858e-01" m20="-4.96899933e-01" m21="1.24223970e-01" m22="8.58870685e-01" tx="6.45587921e-01" ty="1.18625127e-01" tz="3.14647150e+00"/>
+		</mesh>
+		<mesh file="meshes/vehicles/attachment_lods/air_fuel_tank_low.mesh" name="mesh" lod="0" body="0" is_paint_dirt="false">
+			<transform m00="8.87944043e-01" m01="-5.62213808e-02" m02="-4.56502616e-01" m10="0.00000000e+00" m11="9.92501378e-01" m12="-1.22233257e-01" m20="4.59951580e-01" m21="1.08536288e-01" m22="8.81285667e-01" tx="-5.45277655e-01" ty="1.39831975e-01" tz="3.12339377e+00"/>
 		</mesh>
 	</meshes>
 	<wheels>
@@ -352,8 +325,8 @@
 	<graph_nodes/>
 	<graph_links/>
 	<foam_emitters>
-		<foam_emitter body_index="0" radius="1.00000000e+00" foam_scale="2.00000000e+00">
-			<position x="0.00000000e+00" y="0.00000000e+00" z="0.00000000e+00"/>
+		<foam_emitter body_index="0" radius="1.39999998e+00" foam_scale="3.00000000e+00">
+			<position x="0.00000000e+00" y="0.00000000e+00" z="-1.44689786e+00"/>
 		</foam_emitter>
 	</foam_emitters>
 	<particle_emitters/>
